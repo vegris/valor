@@ -1,0 +1,11 @@
+[package]
+name = "homm_resources"
+version = "0.1.0"
+authors = ["v.grigoryev <v.grigoryev@fun-box.ru>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flate2 = "1.0.14"
+sdl2 = "0.33"
