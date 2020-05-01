@@ -13,7 +13,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::surface::Surface;
 use sdl2::pixels::{PixelFormatEnum, Color, Palette};
 
-const LOD_ARCHIVE: &'static str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data/H3bitmap.lod";
+const LOD_ARCHIVE: &'static str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data/H3sprite.lod";
 
 #[derive(Debug)]
 struct FileInfo {
@@ -75,6 +75,55 @@ impl LodIndex {
     }
 }
 
+#[derive(Debug)]
+struct DefIndex {
+    type_: u32,
+    palette: Vec<Color>,
+    registry: HashMap<u32, HashMap<String, u32>>
+}
+
+impl DefIndex {
+    fn open(lod_index: &mut LodIndex, filename: &String) -> Self {
+        let file_contents = lod_index.read_file(filename);
+        let (header, payload) = &file_contents.split_at(16);
+
+        let type_ = u32::from_le_bytes(header[0..4].try_into().unwrap());
+        let n_blocks = u32::from_le_bytes(header[12..16].try_into().unwrap());
+
+        let (palette_data, data) = payload.split_at(256*3);
+
+        let palette = palette_data.chunks(3)
+                             .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
+                             .collect::<Vec<Color>>();
+
+        let mut registry: HashMap<u32, HashMap<String, u32>> = HashMap::with_capacity(n_blocks as usize);
+        let mut cur_data = data; // Wow thats ugly! Should probably use some folds instead
+        for _ in 0..n_blocks {
+            let (block_header, data) = cur_data.split_at(16);
+            let block_id = u32::from_le_bytes(block_header[..4].try_into().unwrap());
+            let n_entries = u32::from_le_bytes(block_header[4..8].try_into().unwrap()) as usize;
+
+            let (block_data, data) = data.split_at((13 + 4) * n_entries);
+            let (names_buf, offsets_buf) = block_data.split_at(13 * n_entries);
+            let names = names_buf
+                        .chunks(13)
+                        .map(|bytes| bytes.split(|chr| *chr == 0).next().unwrap())
+                        .map(|cut_bytes| String::from_utf8(cut_bytes.to_vec()).unwrap());
+            
+            let offsets = offsets_buf
+                          .chunks(4)
+                          .map(|bytes| u32::from_le_bytes(bytes.try_into().unwrap()));
+            
+            let block_registry = Iterator::zip(names, offsets).collect::<HashMap<String, u32>>();
+            registry.insert(block_id, block_registry);
+            cur_data = data;
+        }
+        dbg!(&type_);
+        dbg!(&registry);
+        DefIndex {type_, palette, registry}
+    }
+}
+
 fn surface_from_data(data: &mut Vec<u8>) -> Surface{
     // ЭТО РАЗМЕР КАРТИНКИ, А НЕ БУФЕРА data
     let size = u32::from_le_bytes(data[..4].try_into().unwrap());
@@ -103,39 +152,40 @@ fn surface_from_data(data: &mut Vec<u8>) -> Surface{
 fn main() {
     let mut manager = LodIndex::open(LOD_ARCHIVE);
 
-    let mut contents = manager.read_file(&String::from("CBONE2A2.PCX"));
+    DefIndex::open(&mut manager, &String::from("CMAGOG.def"));
 
+    // let mut contents = manager.read_file(&String::from("CBONE2A2.PCX"));
 
-    let sdl_context = sdl2::init().unwrap(); 
-    let video_subsystem = sdl_context.video().unwrap();
+    // let sdl_context = sdl2::init().unwrap(); 
+    // let video_subsystem = sdl_context.video().unwrap();
 
-    let window = video_subsystem.window("Rust", 800, 600)
-        .position_centered()
-        .build()
-        .unwrap();
+    // let window = video_subsystem.window("Rust", 800, 600)
+    //     .position_centered()
+    //     .build()
+    //     .unwrap();
     
-    let mut canvas = window.into_canvas()
-        .present_vsync()
-        .build()
-        .unwrap();
+    // let mut canvas = window.into_canvas()
+    //     .present_vsync()
+    //     .build()
+    //     .unwrap();
 
-    let surface = surface_from_data(&mut contents);
-    let texture_creator = canvas.texture_creator();
-    let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+    // let surface = surface_from_data(&mut contents);
+    // let texture_creator = canvas.texture_creator();
+    // let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
 
-    let mut event_pump = sdl_context.event_pump().unwrap();
-    'running: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
-                    break 'running 
-                },
-                _ => {}
-            }
-        }
-        canvas.clear();
-        canvas.copy(&texture, None, surface.rect()).unwrap();
-        canvas.present();
-    }
+    // let mut event_pump = sdl_context.event_pump().unwrap();
+    // 'running: loop {
+    //     for event in event_pump.poll_iter() {
+    //         match event {
+    //             Event::Quit {..} |
+    //             Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
+    //                 break 'running 
+    //             },
+    //             _ => {}
+    //         }
+    //     }
+    //     canvas.clear();
+    //     canvas.copy(&texture, None, surface.rect()).unwrap();
+    //     canvas.present();
+    // }
 }
