@@ -95,7 +95,7 @@ impl DefIndex {
 
         let (palette_slice, mut cur_data) = payload.split_at(256*3);
 
-        let palette = palette_slice.chunks(3)
+        let palette = palette_slice.chunks_exact(3)
                              .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
                              .collect::<Vec<Color>>();
 
@@ -110,12 +110,12 @@ impl DefIndex {
             let (block_data, other) = other.split_at((13 + 4) * n_entries);
             let (names_buf, offsets_buf) = block_data.split_at(13 * n_entries);
             let names = names_buf
-                        .chunks(13)
+                        .chunks_exact(13)
                         .map(|bytes| bytes.split(|chr| *chr == 0).next().unwrap())
                         .map(|cut_bytes| String::from_utf8(cut_bytes.to_vec()).unwrap());
             
             let offsets = offsets_buf
-                          .chunks(4)
+                          .chunks_exact(4)
                           .map(|bytes| u32::from_le_bytes(bytes.try_into().unwrap()));
 
             let mut block: Vec<String> = Vec::with_capacity(n_entries as usize);
@@ -137,7 +137,7 @@ impl DefIndex {
         let data = &self.data.as_slice()[offset as usize..];
         let (header, image_data) = data.split_at(32);
         let [_size, format, fw, fh, w, h, lm, tm]: [u32; 8] = header
-            .chunks(4)
+            .chunks_exact(4)
             .map(TryInto::try_into)
             .map(Result::unwrap)
             .map(u32::from_le_bytes)
@@ -151,7 +151,7 @@ impl DefIndex {
             0 => pixel_data.extend_from_slice(&image_data[..(w * h) as usize]),
             1 => {
                 let line_offsets = image_data[..(4 * h) as usize]
-                                    .chunks(4)
+                                    .chunks_exact(4)
                                     .map(|chunk| chunk.try_into().unwrap())
                                     .map(u32::from_le_bytes);
                 for line_offset in line_offsets {
@@ -175,7 +175,7 @@ impl DefIndex {
             },
             2 => {
                 let line_offsets = image_data[..(2 * h) as usize]
-                                    .chunks(2)
+                                    .chunks_exact(2)
                                     .map(|chunk| chunk.try_into().unwrap())
                                     .map(u16::from_le_bytes);
                 for line_offset in line_offsets {
@@ -198,6 +198,36 @@ impl DefIndex {
                        total_row_length += length as u32;
                     }
                 }
+            },
+            3 => {
+                // each row is split into 32 byte long blocks which are individually encoded
+                // two bytes store the offset for each block per line
+                let line_offsets = image_data
+                    .chunks_exact(2)
+                    .take((h * w / 32) as usize)
+                    .map(|chunk| chunk.try_into().unwrap())
+                    .map(u16::from_le_bytes);
+                
+                for offset in line_offsets {
+                    let mut row = &image_data[offset as usize..];
+                    let mut total_block_length = 0;
+                    while total_block_length < 32 {
+                       let segment = u8::from_le(row[0]);
+                       let code = segment >> 5;
+                       let length = (segment & 0x1f) + 1;
+                       match code {
+                           7 => {
+                               pixel_data.extend_from_slice(&row[1..length as usize + 1]);
+                               row = &row[length as usize + 1..];
+                           },
+                           _ => {
+                               for _ in 0..length { pixel_data.push(code) };
+                               row = &row[1..];
+                           }
+                       }
+                       total_block_length += length as u32;
+                    }
+                }
             }
             _ => panic!("Unknown format!")
         }
@@ -218,9 +248,9 @@ fn surface_from_data(data: &mut Vec<u8>) -> Surface {
     else {
         println!("With palette!");
         let colors = data[12 + size as usize .. 12 + size as usize + 256 * 3]
-                        .chunks(3)
+                        .chunks_exact(3)
                         .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
-                        .collect::<Vec<Color>>();
+                        .collect::<Box<[Color]>>();
         
         let palette = Palette::with_colors(&colors).unwrap();
 
@@ -233,8 +263,8 @@ fn surface_from_data(data: &mut Vec<u8>) -> Surface {
 fn main() {
     let mut manager = LodIndex::open(LOD_ARCHIVE);
 
-    let def_index = DefIndex::open(&mut manager, &String::from("adag.def"));
-    let (width, height, mut pixel_data) = def_index.load_image_data(&String::from("ADAG29.pcx"));
+    let def_index = DefIndex::open(&mut manager, &String::from("AB01_.def"));
+    let (width, height, mut pixel_data) = def_index.load_image_data(&String::from("ab01_09.pcx"));
 
     // let mut contents = manager.read_file(&String::from("CBONE2A2.PCX"));
 
