@@ -173,6 +173,32 @@ impl DefIndex {
                     }
                 }
             },
+            2 => {
+                let line_offsets = image_data[..(2 * h) as usize]
+                                    .chunks(2)
+                                    .map(|chunk| chunk.try_into().unwrap())
+                                    .map(u16::from_le_bytes);
+                for line_offset in line_offsets {
+                    let mut row = &image_data[line_offset as usize..];
+                    let mut total_row_length = 0;
+                    while total_row_length < w {
+                       let segment = u8::from_le(row[0]);
+                       let code = segment >> 5;
+                       let length = (segment & 0x1f) + 1;
+                       match code {
+                           7 => {
+                               pixel_data.extend_from_slice(&row[1..length as usize + 1]);
+                               row = &row[length as usize + 1..];
+                           },
+                           _ => {
+                               for _ in 0..length { pixel_data.push(code) };
+                               row = &row[1..];
+                           }
+                       }
+                       total_row_length += length as u32;
+                    }
+                }
+            }
             _ => panic!("Unknown format!")
         }
         (w, h, pixel_data)
@@ -207,8 +233,8 @@ fn surface_from_data(data: &mut Vec<u8>) -> Surface {
 fn main() {
     let mut manager = LodIndex::open(LOD_ARCHIVE);
 
-    let def_index = DefIndex::open(&mut manager, &String::from("TBDnHal4.def"));
-    let (width, height, mut pixel_data) = def_index.load_image_data(&String::from("TBDHall4.pcx"));
+    let def_index = DefIndex::open(&mut manager, &String::from("adag.def"));
+    let (width, height, mut pixel_data) = def_index.load_image_data(&String::from("ADAG29.pcx"));
 
     // let mut contents = manager.read_file(&String::from("CBONE2A2.PCX"));
 
