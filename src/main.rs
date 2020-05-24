@@ -4,10 +4,11 @@ use sdl2::keyboard::Keycode;
 
 mod resources;
 use resources::ResourceRegistry;
+use resources::catalog::battlefields::{Battlefields, BATTLEFIELDS_GRAPHICS};
 
+const LOD_ARCHIVE: &'static str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data/H3bitmap.lod";
 
 fn main() {
-
     let sdl_context = sdl2::init().unwrap(); 
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -21,10 +22,8 @@ fn main() {
         .build()
         .unwrap();
 
-    let LOD_ARCHIVE = String::from("/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data/H3bitmap.lod");
-
     let mut resource_registry = ResourceRegistry::new(&canvas, &[&LOD_ARCHIVE]);
-    let texture = resource_registry.get_texture(&LOD_ARCHIVE, &"CmBkBoat.pcx".to_string());
+    let texture = resource_registry.get_texture(LOD_ARCHIVE, BATTLEFIELDS_GRAPHICS[Battlefields::MAG as usize]);
     let texture_query = texture.query();
     let texture_rect = sdl2::rect::Rect::new(0, 0, texture_query.width, texture_query.height);
 
