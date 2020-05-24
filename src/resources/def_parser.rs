@@ -7,9 +7,8 @@ use sdl2::pixels::Color;
 
 use super::lod_index::LodIndex;
 
-#[derive(Debug)]
 struct DefIndex {
-    data: Vec<u8>,
+    data: Box<[u8]>,
     type_: u32,
     palette: Vec<Color>,
     registry: HashMap<String, u32>,
@@ -57,15 +56,12 @@ impl DefIndex {
             blocks.insert(block_id, block);
             cur_data = other;
         }
-        dbg!(&type_);
-        dbg!(&registry);
-        dbg!(&blocks);
         DefIndex {data, type_, palette, registry, blocks}
     }
 
     fn load_image_data(&self, name: &String) -> (u32, u32, Vec<u8>) {
         let offset = *self.registry.get(name).unwrap();
-        let data = &self.data.as_slice()[offset as usize..];
+        let data = &self.data[offset as usize..];
         let (header, image_data) = data.split_at(32);
         let [_size, format, fw, fh, w, h, lm, tm]: [u32; 8] = header
             .chunks_exact(4)

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek, SeekFrom, Result as IOResult};
 use std::convert::TryInto;
 
 extern crate flate2;
@@ -50,18 +50,17 @@ impl LodIndex {
         LodIndex {handle: f, registry: file_registry}
     }
 
-    pub fn read_file(&mut self, filename: &String) -> Vec<u8> {
+    pub fn read_file(&mut self, filename: &str) -> Box<[u8]> {
         let FileInfo { offset, size, compressed } = *self.registry.get(filename).unwrap();
         self.handle.seek(SeekFrom::Start(offset as u64)).unwrap();
 
-        let mut buffer: Vec<u8> = Vec::with_capacity(size as usize);
-        buffer.resize(size as usize, 0);
-        if compressed {
-            ZlibDecoder::new(&mut self.handle).read_exact(buffer.as_mut_slice()).unwrap();
-        }
-        else {
-            self.handle.read_exact(buffer.as_mut_slice()).unwrap();
-        }
-        buffer
+        let reader: Box<dyn Read> = 
+            if compressed {
+                Box::new(ZlibDecoder::new(&mut self.handle))
+            }
+            else {
+                Box::new(&self.handle)
+            };
+        reader.bytes().take(size as usize).collect::<IOResult<Box<[u8]>>>().unwrap()
     }
 }
