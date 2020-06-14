@@ -2,14 +2,13 @@ use std::collections::HashMap;
 use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use std::cell::UnsafeCell;
 use std::convert::TryInto;
 use std::ops::Deref;
 
 extern crate sdl2;
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
-use sdl2::render::{Texture, TextureCreator};
-use sdl2::video::WindowContext;
 
 extern crate flate2;
 use flate2::read::ZlibDecoder;
@@ -59,7 +58,7 @@ struct RawDefSprite {
 pub struct RawDef {
     type_: u32,
     palette: Palette,
-    names2sprites: HashMap<String, RawDefSprite>,
+    names2sprites: UnsafeCell<HashMap<String, RawDefSprite>>,
     blocks2names: HashMap<u32, Box<[String]>>
 }
 
@@ -190,7 +189,7 @@ impl ResourceRegistry {
             rest_data
             });
 
-        RawDef {type_, palette, names2sprites, blocks2names}
+        RawDef {type_, palette, names2sprites: UnsafeCell::new(names2sprites), blocks2names}
     }
 }
 
@@ -321,5 +320,24 @@ impl RawDefSprite {
             top_margin: tm,
             pixel_data: pixel_data.into_boxed_slice()
         }
+    }
+
+    fn construct_surface(&mut self) -> Surface {
+        let Self { width, height, ref mut pixel_data, .. } = self;
+        Surface::from_data(pixel_data, *width, *height, 1 * *width, PixelFormatEnum::Index8).unwrap()
+    }
+}
+
+impl RawDef {
+    pub fn construct_surfaces_for_block(&self, block_id: u32) -> Box<[Surface]> {
+        self.blocks2names.get(&block_id).unwrap()
+            .iter()
+            .map(|name| {
+                let sprite = unsafe { (*self.names2sprites.get()).get_mut(name).unwrap() };
+                let mut surface = sprite.construct_surface();
+                surface.set_palette(&self.palette).unwrap();
+                surface
+            })
+            .collect()
     }
 }

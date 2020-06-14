@@ -24,7 +24,11 @@ impl BattleState {
         let surface = self.battlefield_graphics.construct_surface();
         let texture_creator = canvas.texture_creator();
         let texture = texture_creator.create_texture_from_surface(surface).unwrap();
-        canvas.copy(&texture, None, None);
+        canvas.copy(&texture, None, None).unwrap();
+
+        let surfaces = self.unit_spritesheet.construct_surfaces_for_block(2);
+        let texture = texture_creator.create_texture_from_surface(&surfaces[3]).unwrap();
+        canvas.copy(&texture, None, None).unwrap();
     }
 }
 
