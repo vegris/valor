@@ -1,6 +1,4 @@
-mod resource_registry;
-pub use resource_registry::ResourceRegistry;
+mod loader;
+pub use loader::{ResourceRegistry, RawPcx, RawDef};
 
-mod lod_index;
-mod def_parser;
-pub mod catalog;
+pub mod battlefields;
