@@ -1,5 +1,6 @@
 // Придумать человеские имена
-pub enum Battlefields {
+#[derive(Clone, Copy)]
+pub enum Battlefield {
 	BCH,
 	DES,
 	DRTR,
@@ -27,7 +28,13 @@ pub enum Battlefields {
 	DECK
 }
 
-pub const BATTLEFIELDS_GRAPHICS: [&str; 25] = [
+impl Battlefield {
+	pub fn filename(self) -> &'static str {
+		FILENAMES[self as usize]
+	}
+}
+
+const FILENAMES: [&str; 25] = [
 	"CmBkBch.pcx",
 	"CmBkDes.pcx",
 	"CmBkDrTr.pcx",

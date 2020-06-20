@@ -1,4 +1,5 @@
 mod loader;
-pub use loader::{ResourceRegistry, RawPcx, RawDef};
+pub use loader::{ResourceRegistry, Animation};
 
 pub mod battlefields;
+pub mod creatures;

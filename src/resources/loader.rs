@@ -2,13 +2,14 @@ use std::collections::HashMap;
 use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use std::cell::UnsafeCell;
 use std::convert::TryInto;
 use std::ops::Deref;
 
 extern crate sdl2;
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
+use sdl2::render::{TextureCreator, Texture};
+use sdl2::video::WindowContext;
 
 extern crate flate2;
 use flate2::read::ZlibDecoder;
@@ -25,7 +26,7 @@ struct LodFileInfo {
     compressed: bool
 }
 
-pub struct LodIndex {
+struct LodIndex {
     handle: File,
     registry: HashMap<String, LodFileInfo>
 }
@@ -57,11 +58,15 @@ struct RawDefSprite {
 
 pub struct RawDef {
     type_: u32,
-    palette: Palette,
-    names2sprites: UnsafeCell<HashMap<String, RawDefSprite>>,
+    colors: Box<[Color]>,
+    names2sprites: HashMap<String, RawDefSprite>,
     blocks2names: HashMap<u32, Box<[String]>>
 }
 
+pub struct Animation<'a> {
+    pub textures: Box<[Texture<'a>]>,
+    pub blocks2indexes: HashMap<u32, Box<[usize]>>
+}
 
 impl LodIndex {
     pub fn open(path: &Path) -> Self {
@@ -160,7 +165,6 @@ impl ResourceRegistry {
             .chunks_exact(3)
             .map(|chunk| Color::RGB(chunk[0], chunk[1], chunk[2]))
             .collect::<Box<[Color]>>();
-        let palette = Palette::with_colors(&colors).unwrap();
         
         let mut names2sprites: HashMap<String, RawDefSprite> = HashMap::new();
         let mut blocks2names: HashMap<u32, Box<[String]>> = HashMap::with_capacity(n_blocks as usize);
@@ -189,12 +193,12 @@ impl ResourceRegistry {
             rest_data
             });
 
-        RawDef {type_, palette, names2sprites: UnsafeCell::new(names2sprites), blocks2names}
+        RawDef {type_, colors, names2sprites, blocks2names}
     }
 }
 
 impl RawPcx {
-    pub fn construct_surface(&mut self) -> Surface {
+    fn construct_surface(&mut self) -> Surface {
         if self.size == self.width * self.height * 3 {
                 Surface::from_data(&mut self.pixel_data, self.width, self.height, 3 * self.width, PixelFormatEnum::BGR24).unwrap()
         } 
@@ -210,6 +214,10 @@ impl RawPcx {
             surface.set_palette(&palette).unwrap();
             surface
         }
+    }
+    pub fn to_texture<'a>(mut self, tc: &'a TextureCreator<WindowContext>) -> Texture<'a> {
+        let surface = self.construct_surface();
+        tc.create_texture_from_surface(surface).unwrap()
     }
 }
 
@@ -321,23 +329,46 @@ impl RawDefSprite {
             pixel_data: pixel_data.into_boxed_slice()
         }
     }
-
-    fn construct_surface(&mut self) -> Surface {
-        let Self { width, height, ref mut pixel_data, .. } = self;
-        Surface::from_data(pixel_data, *width, *height, 1 * *width, PixelFormatEnum::Index8).unwrap()
-    }
 }
 
 impl RawDef {
-    pub fn construct_surfaces_for_block(&self, block_id: u32) -> Box<[Surface]> {
-        self.blocks2names.get(&block_id).unwrap()
-            .iter()
-            .map(|name| {
-                let sprite = unsafe { (*self.names2sprites.get()).get_mut(name).unwrap() };
-                let mut surface = sprite.construct_surface();
-                surface.set_palette(&self.palette).unwrap();
-                surface
+    pub fn to_animation<'a>(self, tc: &'a TextureCreator<WindowContext>) -> Animation<'a> {
+        let mut adjusted_colors = self.colors;
+        adjusted_colors[0] = Color::RGBA(0, 0, 0, 0);
+        adjusted_colors[1] = Color::RGBA(0, 0, 0, 32);
+        adjusted_colors[4] = Color::RGBA(0, 0, 0, 128);
+        adjusted_colors[5] = Color::RGBA(0, 255, 255, 255);
+        adjusted_colors[6] = Color::RGBA(0, 0, 0, 128);
+        adjusted_colors[7] = Color::RGBA(0, 0, 0, 64);
+
+        let palette = Palette::with_colors(&adjusted_colors).unwrap();
+
+        let (names2indexes, textures): (HashMap<String, usize>, Vec<Texture>) = self.names2sprites
+            .into_iter()
+            .enumerate()
+            .map(|(index, (name, sprite))| {
+                // Конвертируем байты в текстуру
+                let RawDefSprite { width, height, mut pixel_data, .. } = sprite;
+                let mut surface = Surface::from_data(&mut pixel_data, width, height, 1 * width, PixelFormatEnum::Index8).unwrap();
+                surface.set_palette(&palette).unwrap();
+                surface.set_color_key(true, adjusted_colors[0]).unwrap();
+                let texture = tc.create_texture_from_surface(surface).unwrap();
+                // Готовимся отказаться от строков индексов в пользу usize
+                ((name, index), texture)
             })
-            .collect()
+            .unzip();
+        
+        let blocks2indexes: HashMap<u32, Box<[usize]>> = self.blocks2names
+            .into_iter()
+            .map(|(block_id, names)| {
+                let indexes = names
+                    .iter()
+                    .map(|name| *names2indexes.get(name).unwrap())
+                    .collect();
+                (block_id, indexes)
+            })
+            .collect();
+        
+        Animation { textures: textures.into_boxed_slice(), blocks2indexes }
     }
 }

@@ -1,34 +1,62 @@
 use std::time::{Duration, Instant};
 
 extern crate sdl2;
-use sdl2::render::WindowCanvas;
+use sdl2::rect::Rect;
+use sdl2::render::{WindowCanvas, Texture, TextureCreator};
+use sdl2::video::WindowContext;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
 mod resources;
-use resources::{ResourceRegistry, RawPcx, RawDef};
-use resources::battlefields::{Battlefields, BATTLEFIELDS_GRAPHICS};
+use resources::{ResourceRegistry, Animation};
+use resources::battlefields::Battlefield;
+use resources::creatures::Creature;
 
-struct BattleState {
-    battlefield: Battlefields,
-    battlefield_graphics: RawPcx,
-    unit_spritesheet: RawDef
+struct BattleStateGraphics<'a> {
+    battlefield: Texture<'a>,
+    creature: Animation<'a>
+}
+struct BattleState<'a> {
+    battlefield: Battlefield,
+    creature_stance: (Duration, usize),
+    graphics: BattleStateGraphics<'a>
 }
 
-impl BattleState {
-    fn update(&mut self, dt: Duration) {
+impl<'a> BattleState<'a> {
+    fn new<'b>(battlefield: Battlefield, creature: Creature, tc: &'a TextureCreator<WindowContext>, rr: &'b mut ResourceRegistry) -> BattleState<'a> {
+        let battlefield_graphics = rr.read_pcx_data(battlefield.filename()).to_texture(tc);
 
+        let creature_graphics = rr.read_def_data(creature.filename()).to_animation(tc);
+
+        BattleState {
+            battlefield,
+            creature_stance: (Duration::new(0, 0), 0),
+            graphics: BattleStateGraphics {
+                battlefield: battlefield_graphics,
+                creature: creature_graphics
+            }
+        }
     }
 
-    fn render(&mut self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry) {
-        let surface = self.battlefield_graphics.construct_surface();
-        let texture_creator = canvas.texture_creator();
-        let texture = texture_creator.create_texture_from_surface(surface).unwrap();
-        canvas.copy(&texture, None, None).unwrap();
+    fn update(&mut self, dt: Duration) {
+        let update_speed = Duration::from_millis(256);
+        let (mut duration, mut index) = self.creature_stance;
+        duration = duration + dt;
+        if duration >= update_speed {
+            index = (index + 1) % self.graphics.creature.blocks2indexes.get(&1).unwrap().len();
+            dbg!(index);
+            duration = duration - update_speed
+        }
+        self.creature_stance = (duration, index)
+    }
 
-        let surfaces = self.unit_spritesheet.construct_surfaces_for_block(2);
-        let texture = texture_creator.create_texture_from_surface(&surfaces[3]).unwrap();
-        canvas.copy(&texture, None, None).unwrap();
+    fn render(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry) -> Result<(), String> {
+        canvas.copy(&self.graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
+        let (_, index) = self.creature_stance;
+        let texture_index = self.graphics.creature.blocks2indexes.get(&1).unwrap()[index];
+        let creature_texture = &self.graphics.creature.textures[texture_index];
+        canvas.copy(&creature_texture, None, Rect::new(0, 0, 256, 256))?;
+        Ok(())
     }
 }
 
@@ -43,6 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut canvas = window.into_canvas()
         .present_vsync()
         .build()?;
+    let texture_creator = canvas.texture_creator();
 
     // Открытие файлов с ресурсами
     let mut resource_registry = ResourceRegistry::init();
@@ -51,11 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut event_pump = sdl_context.event_pump()?;
 
     // Создание начального игрового состояния
-    let mut current_state = BattleState {
-        battlefield: Battlefields::BOAT,
-        battlefield_graphics: resource_registry.read_pcx_data(BATTLEFIELDS_GRAPHICS[Battlefields::BOAT as usize]),
-        unit_spritesheet: resource_registry.read_def_data("CCHAMP.def")
-    };
+    let mut current_state = BattleState::new(Battlefield::CUR, Creature::Peasant, &texture_creator, &mut resource_registry);
 
     let mut frame_start_time = Instant::now();
     'gameloop: loop {
@@ -76,7 +101,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Отображение игрового состояния
         canvas.clear();
-        current_state.render(&mut canvas, &mut resource_registry);
+        current_state.render(&mut canvas, &mut resource_registry)?;
         canvas.present();
     }
     Ok(())
