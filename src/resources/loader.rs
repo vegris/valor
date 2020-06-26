@@ -37,14 +37,6 @@ pub struct ResourceRegistry {
     def_archive: LodIndex
 }
 
-
-pub struct RawPcx {
-    size: u32,
-    width: u32,
-    height: u32,
-    pixel_data: Box<[u8]>
-}
-
 struct RawDefSprite {
     size: u32,
     full_width: u32,
@@ -120,6 +112,15 @@ impl LodIndex {
     }
 }
 
+fn copy_pixels_to_surface(pixels: &[u8], surface: &mut Surface) {
+    let bytes_per_row = surface.pixel_format_enum().byte_size_of_pixels(surface.width() as usize);
+    // Pitch это по сути тот же bytes_per_row, но с выравниванием ряда (в 4 байта, но это implementation detail SDL)
+    let pitch = surface.pitch();
+    let mut surface_pixels = surface.without_lock_mut().unwrap();
+
+    Iterator::zip(surface_pixels.chunks_exact_mut(pitch as usize), pixels.chunks_exact(bytes_per_row))
+    .for_each(|(dst, src)| dst[..bytes_per_row].copy_from_slice(src));
+}
 
 impl ResourceRegistry {
     pub fn init() -> Self {
@@ -132,7 +133,7 @@ impl ResourceRegistry {
         }
     }
 
-    pub fn read_pcx_data(&mut self, filename: &str) -> RawPcx {
+    pub fn load_pcx(&mut self, filename: &str) -> Surface<'static> {
         let bytes = self.pcx_archive.read_file(filename);
 
         let (header, data) =  bytes.split_at(12); 
@@ -144,12 +145,24 @@ impl ResourceRegistry {
             .deref()
             .try_into()
             .unwrap();
-        
-        RawPcx {
-            size,
-            width,
-            height,
-            pixel_data: data.to_owned().into_boxed_slice()
+
+        if size == width * height * 3 {
+            let mut surface = Surface::new(width, height, PixelFormatEnum::BGR24).unwrap();
+            copy_pixels_to_surface(data, &mut surface);
+            surface
+        } 
+        else {
+            let (pixel_data, palette_data) = data.split_at(size as usize);
+            let colors = palette_data
+                .chunks_exact(3)
+                .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
+                .collect::<Box<[Color]>>();
+            let palette = Palette::with_colors(&colors).unwrap();
+
+            let mut surface = Surface::new(width, height, PixelFormatEnum::Index8).unwrap();
+            copy_pixels_to_surface(pixel_data, &mut surface);
+            surface.set_palette(&palette).unwrap();
+            surface
         }
     }
 
@@ -194,30 +207,6 @@ impl ResourceRegistry {
             });
 
         RawDef {type_, colors, names2sprites, blocks2names}
-    }
-}
-
-impl RawPcx {
-    fn construct_surface(&mut self) -> Surface {
-        if self.size == self.width * self.height * 3 {
-                Surface::from_data(&mut self.pixel_data, self.width, self.height, 3 * self.width, PixelFormatEnum::BGR24).unwrap()
-        } 
-        else {
-            let (pixel_data, palette_data) = self.pixel_data.split_at_mut(self.size as usize);
-            let colors = palette_data
-                .chunks_exact(3)
-                .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
-                .collect::<Box<[Color]>>();
-            let palette = Palette::with_colors(&colors).unwrap();
-
-            let mut surface = Surface::from_data(pixel_data, self.width, self.height, 1 * self.width, PixelFormatEnum::Index8).unwrap();
-            surface.set_palette(&palette).unwrap();
-            surface
-        }
-    }
-    pub fn to_texture<'a>(mut self, tc: &'a TextureCreator<WindowContext>) -> Texture<'a> {
-        let surface = self.construct_surface();
-        tc.create_texture_from_surface(surface).unwrap()
     }
 }
 

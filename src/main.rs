@@ -25,7 +25,7 @@ struct BattleState<'a> {
 
 impl<'a> BattleState<'a> {
     fn new<'b>(battlefield: Battlefield, creature: Creature, tc: &'a TextureCreator<WindowContext>, rr: &'b mut ResourceRegistry) -> BattleState<'a> {
-        let battlefield_graphics = rr.read_pcx_data(battlefield.filename()).to_texture(tc);
+        let battlefield_graphics = rr.load_pcx(battlefield.filename()).as_texture(tc).unwrap();
 
         let creature_graphics = rr.read_def_data(creature.filename()).to_animation(tc);
 
