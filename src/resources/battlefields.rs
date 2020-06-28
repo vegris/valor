@@ -1,5 +1,6 @@
 // Придумать человеские имена
 #[derive(Clone, Copy)]
+#[allow(unused)]
 pub enum Battlefield {
 	BCH,
 	DES,

@@ -1,4 +1,3 @@
-#![allow(warnings)]
 use std::time::{Duration, Instant};
 
 extern crate sdl2;
@@ -9,17 +8,17 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
 mod resources;
-use resources::{ResourceRegistry, Animation};
+use resources::{ResourceRegistry, DefContainer};
 use resources::battlefields::Battlefield;
-use resources::creatures::Creature;
+use resources::creatures::{Creature, AnimationGroup};
 
 struct BattleStateGraphics<'a> {
     battlefield: Texture<'a>,
-    creature: Animation<'a>
+    creature: DefContainer
 }
 struct BattleState<'a> {
     battlefield: Battlefield,
-    creature_stance: (Duration, usize),
+    creature_stance: (Duration, Texture<'a>),
     graphics: BattleStateGraphics<'a>
 }
 
@@ -27,11 +26,13 @@ impl<'a> BattleState<'a> {
     fn new<'b>(battlefield: Battlefield, creature: Creature, tc: &'a TextureCreator<WindowContext>, rr: &'b mut ResourceRegistry) -> BattleState<'a> {
         let battlefield_graphics = rr.load_pcx(battlefield.filename()).as_texture(tc).unwrap();
 
-        let creature_graphics = rr.read_def_data(creature.filename()).to_animation(tc);
+        let mut creature_graphics = rr.load_def(creature.filename());
+        let initial_creature_sprite = creature_graphics.get_sprite_for_animation(AnimationGroup::Moving, 0.0);
+        let initial_creature_texture = initial_creature_sprite.surface.as_texture(tc).unwrap();
 
         BattleState {
             battlefield,
-            creature_stance: (Duration::new(0, 0), 0),
+            creature_stance: (Duration::new(0, 0), initial_creature_texture),
             graphics: BattleStateGraphics {
                 battlefield: battlefield_graphics,
                 creature: creature_graphics
@@ -39,24 +40,25 @@ impl<'a> BattleState<'a> {
         }
     }
 
-    fn update(&mut self, dt: Duration) {
-        let update_speed = Duration::from_millis(256);
-        let (mut duration, mut index) = self.creature_stance;
+    fn update(&mut self, dt: Duration, tc: &'a TextureCreator<WindowContext>) {
+        const update_speed: Duration = Duration::from_secs(1);
+        let (mut duration, texture) = &self.creature_stance;
         duration = duration + dt;
         if duration >= update_speed {
-            index = (index + 1) % self.graphics.creature.blocks2indexes.get(&1).unwrap().len();
-            dbg!(index);
-            duration = duration - update_speed
+            duration = duration - update_speed;
         }
-        self.creature_stance = (duration, index)
+
+        let percent = duration.as_millis() as f32 / update_speed.as_millis() as f32;
+        let sprite = self.graphics.creature.get_sprite_for_animation(AnimationGroup::Death, percent);
+        let texture = sprite.surface.as_texture(tc).unwrap();
+
+        self.creature_stance = (duration, texture)
     }
 
-    fn render(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry) -> Result<(), String> {
+    fn render(&self, canvas: &mut WindowCanvas, _rr: &mut ResourceRegistry) -> Result<(), String> {
         canvas.copy(&self.graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
-        let (_, index) = self.creature_stance;
-        let texture_index = self.graphics.creature.blocks2indexes.get(&1).unwrap()[index];
-        let creature_texture = &self.graphics.creature.textures[texture_index];
-        canvas.copy(&creature_texture, None, Rect::new(0, 0, 256, 256))?;
+        let (_, creature_texture) = &self.creature_stance;
+        canvas.copy(&creature_texture, None, Rect::new(256, 256, 80, 80))?;
         Ok(())
     }
 }
@@ -98,7 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Обновление игрового состояния
         let dt = frame_start_time.elapsed();
         frame_start_time = Instant::now();
-        current_state.update(dt);
+        current_state.update(dt, &texture_creator);
 
         // Отображение игрового состояния
         canvas.clear();

@@ -8,12 +8,11 @@ use std::ops::Deref;
 extern crate sdl2;
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
-use sdl2::render::{TextureCreator, Texture};
-use sdl2::video::WindowContext;
 
 extern crate flate2;
 use flate2::read::ZlibDecoder;
 
+use super::creatures::AnimationGroup;
 
 const RESOURCES_ROOT: &str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data";
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
@@ -37,27 +36,22 @@ pub struct ResourceRegistry {
     def_archive: LodIndex
 }
 
-struct RawDefSprite {
-    size: u32,
-    full_width: u32,
-    full_height: u32,
-    width: u32,
-    height: u32,
-    left_margin: u32,
-    top_margin: u32,
-    pixel_data: Box<[u8]>
+pub struct DefSprite {
+    pub size: u32,
+    pub full_width: u32,
+    pub full_height: u32,
+    pub width: u32,
+    pub height: u32,
+    pub left_margin: u32,
+    pub top_margin: u32,
+    pub surface: Surface<'static>
 }
 
-pub struct RawDef {
+pub struct DefContainer {
     type_: u32,
     colors: Box<[Color]>,
-    names2sprites: HashMap<String, RawDefSprite>,
+    names2sprites: HashMap<String, DefSprite>,
     blocks2names: HashMap<u32, Box<[String]>>
-}
-
-pub struct Animation<'a> {
-    pub textures: Box<[Texture<'a>]>,
-    pub blocks2indexes: HashMap<u32, Box<[usize]>>
 }
 
 impl LodIndex {
@@ -114,9 +108,9 @@ impl LodIndex {
 
 fn copy_pixels_to_surface(pixels: &[u8], surface: &mut Surface) {
     let bytes_per_row = surface.pixel_format_enum().byte_size_of_pixels(surface.width() as usize);
-    // Pitch это по сути тот же bytes_per_row, но с выравниванием ряда (в 4 байта, но это implementation detail SDL)
+    // Pitch это по сути тот же bytes_per_row, но с выравниванием ряда (SDL implementation detail: в 4 байта)
     let pitch = surface.pitch();
-    let mut surface_pixels = surface.without_lock_mut().unwrap();
+    let surface_pixels = surface.without_lock_mut().unwrap();
 
     Iterator::zip(surface_pixels.chunks_exact_mut(pitch as usize), pixels.chunks_exact(bytes_per_row))
     .for_each(|(dst, src)| dst[..bytes_per_row].copy_from_slice(src));
@@ -166,7 +160,7 @@ impl ResourceRegistry {
         }
     }
 
-    pub fn read_def_data(&mut self, filename: &str) -> RawDef {
+    pub fn load_def(&mut self, filename: &str) -> DefContainer {
         let bytes = self.def_archive.read_file(filename);
         let (header, payload) = bytes.split_at(16);
 
@@ -179,7 +173,7 @@ impl ResourceRegistry {
             .map(|chunk| Color::RGB(chunk[0], chunk[1], chunk[2]))
             .collect::<Box<[Color]>>();
         
-        let mut names2sprites: HashMap<String, RawDefSprite> = HashMap::new();
+        let mut names2sprites: HashMap<String, DefSprite> = HashMap::new();
         let mut blocks2names: HashMap<u32, Box<[String]>> = HashMap::with_capacity(n_blocks as usize);
         (0..n_blocks).fold(pixel_data, |cur_data, _| {
             let (block_header, rest_data) = cur_data.split_at(16);
@@ -196,7 +190,7 @@ impl ResourceRegistry {
             let sprites = offsets_buf
                         .chunks_exact(4)
                         .map(|chunk| u32::from_ne_bytes(chunk.try_into().unwrap()))
-                        .map(|offset| RawDefSprite::from_bytes(bytes.deref(), offset));
+                        .map(|offset| DefSprite::from_bytes(bytes.deref(), offset));
 
             let block = names.clone().collect::<Box<[String]>>();
             blocks2names.insert(block_id, block);
@@ -206,11 +200,11 @@ impl ResourceRegistry {
             rest_data
             });
 
-        RawDef {type_, colors, names2sprites, blocks2names}
+        DefContainer {type_, colors, names2sprites, blocks2names}
     }
 }
 
-impl RawDefSprite {
+impl DefSprite {
     fn from_bytes(def_data: &[u8], offset: u32) -> Self {
         let data = &def_data[offset as usize..];
         let (header, image_data) = data.split_at(32);
@@ -307,7 +301,9 @@ impl RawDefSprite {
             }
             _ => panic!("Unknown format!")
         }
-        RawDefSprite {
+        let mut surface = Surface::new(w, h, PixelFormatEnum::Index8).unwrap();
+        copy_pixels_to_surface(&pixel_data, &mut surface);
+        DefSprite {
             size,
             full_width: fw,
             full_height: fh,
@@ -315,49 +311,29 @@ impl RawDefSprite {
             height: h,
             left_margin: lm,
             top_margin: tm,
-            pixel_data: pixel_data.into_boxed_slice()
+            surface
         }
     }
 }
 
-impl RawDef {
-    pub fn to_animation<'a>(self, tc: &'a TextureCreator<WindowContext>) -> Animation<'a> {
-        let mut adjusted_colors = self.colors;
-        adjusted_colors[0] = Color::RGBA(0, 0, 0, 0);
-        adjusted_colors[1] = Color::RGBA(0, 0, 0, 32);
-        adjusted_colors[4] = Color::RGBA(0, 0, 0, 128);
-        adjusted_colors[5] = Color::RGBA(0, 255, 255, 255);
-        adjusted_colors[6] = Color::RGBA(0, 0, 0, 128);
-        adjusted_colors[7] = Color::RGBA(0, 0, 0, 64);
+impl DefContainer {
+    pub fn get_sprite_for_animation(&mut self, anim_group: AnimationGroup, anim_progress_pcnt: f32) -> &DefSprite {
+        let block = self.blocks2names.get(&(anim_group as u32)).unwrap();
+        let index = ((block.len() - 1) as f32 * anim_progress_pcnt).floor() as usize;
+        let sprite_name = &block[index];
+        let sprite = self.names2sprites.get_mut(sprite_name).unwrap();
 
-        let palette = Palette::with_colors(&adjusted_colors).unwrap();
+        self.colors[0] = Color::RGBA(0, 0, 0, 0);
+        self.colors[1] = Color::RGBA(0, 0, 0, 32);
+        self.colors[4] = Color::RGBA(0, 0, 0, 128);
+        self.colors[5] = Color::RGBA(0, 0, 0, 0);
+        self.colors[6] = Color::RGBA(0, 0, 0, 128);
+        self.colors[7] = Color::RGBA(0, 0, 0, 64);
+        
+        let palette = Palette::with_colors(&self.colors).unwrap();
+        sprite.surface.set_palette(&palette).unwrap();
+        sprite.surface.set_color_key(true, self.colors[0]).unwrap();
 
-        let (names2indexes, textures): (HashMap<String, usize>, Vec<Texture>) = self.names2sprites
-            .into_iter()
-            .enumerate()
-            .map(|(index, (name, sprite))| {
-                // Конвертируем байты в текстуру
-                let RawDefSprite { width, height, mut pixel_data, .. } = sprite;
-                let mut surface = Surface::from_data(&mut pixel_data, width, height, 1 * width, PixelFormatEnum::Index8).unwrap();
-                surface.set_palette(&palette).unwrap();
-                surface.set_color_key(true, adjusted_colors[0]).unwrap();
-                let texture = tc.create_texture_from_surface(surface).unwrap();
-                // Готовимся отказаться от строков индексов в пользу usize
-                ((name, index), texture)
-            })
-            .unzip();
-        
-        let blocks2indexes: HashMap<u32, Box<[usize]>> = self.blocks2names
-            .into_iter()
-            .map(|(block_id, names)| {
-                let indexes = names
-                    .iter()
-                    .map(|name| *names2indexes.get(name).unwrap())
-                    .collect();
-                (block_id, indexes)
-            })
-            .collect();
-        
-        Animation { textures: textures.into_boxed_slice(), blocks2indexes }
+        sprite
     }
 }

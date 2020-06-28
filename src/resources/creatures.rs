@@ -15,7 +15,9 @@ const FILENAMES: [&str; 2] = [
     "Cpeas.def"
 ];
 
-enum AnimationGroup {
+#[derive(Clone, Copy)]
+#[allow(unused)]
+pub enum AnimationGroup {
     Moving = 0,
     MouseOver = 1,
     Standing = 2,
