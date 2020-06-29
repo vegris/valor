@@ -12,7 +12,10 @@ use sdl2::surface::Surface;
 extern crate flate2;
 use flate2::read::ZlibDecoder;
 
-use super::creatures::AnimationGroup;
+use crate::enumerations::Battlefield;
+
+use super::caches::BattlefieldsCache;
+
 
 const RESOURCES_ROOT: &str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data";
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
@@ -31,9 +34,14 @@ struct LodIndex {
 }
 
 
+struct Caches {
+    battlefields: BattlefieldsCache
+}
+
 pub struct ResourceRegistry {
     pcx_archive: LodIndex,
-    def_archive: LodIndex
+    def_archive: LodIndex,
+    caches: Caches
 }
 
 pub struct DefSprite {
@@ -120,14 +128,16 @@ impl ResourceRegistry {
     pub fn init() -> Self {
         let pcx_archive = LodIndex::open(&[RESOURCES_ROOT, PCX_ARCHIVE].iter().collect::<PathBuf>());
         let def_archive = LodIndex::open(&[RESOURCES_ROOT, DEF_ARCHIVE].iter().collect::<PathBuf>());
+        let caches = Caches { battlefields: BattlefieldsCache::new() };
         
         ResourceRegistry {
             pcx_archive,
-            def_archive
+            def_archive,
+            caches
         }
     }
 
-    pub fn load_pcx(&mut self, filename: &str) -> Surface<'static> {
+    fn load_pcx(&mut self, filename: &str) -> Surface<'static> {
         let bytes = self.pcx_archive.read_file(filename);
 
         let (header, data) =  bytes.split_at(12); 
@@ -160,7 +170,7 @@ impl ResourceRegistry {
         }
     }
 
-    pub fn load_def(&mut self, filename: &str) -> DefContainer {
+    fn load_def(&mut self, filename: &str) -> DefContainer {
         let bytes = self.def_archive.read_file(filename);
         let (header, payload) = bytes.split_at(16);
 
@@ -201,6 +211,14 @@ impl ResourceRegistry {
             });
 
         DefContainer {type_, colors, names2sprites, blocks2names}
+    }
+
+    pub fn get_battlefield_surface(&mut self, battlefield: Battlefield) -> &Surface<'static> {
+        if self.caches.battlefields.get(battlefield).is_none() {
+            let surface = self.load_pcx(battlefield.filename());
+            self.caches.battlefields.put(battlefield, surface);
+        }
+        self.caches.battlefields.get(battlefield).unwrap()
     }
 }
 
@@ -313,27 +331,5 @@ impl DefSprite {
             top_margin: tm,
             surface
         }
-    }
-}
-
-impl DefContainer {
-    pub fn get_sprite_for_animation(&mut self, anim_group: AnimationGroup, anim_progress_pcnt: f32) -> &DefSprite {
-        let block = self.blocks2names.get(&(anim_group as u32)).unwrap();
-        let index = ((block.len() - 1) as f32 * anim_progress_pcnt).floor() as usize;
-        let sprite_name = &block[index];
-        let sprite = self.names2sprites.get_mut(sprite_name).unwrap();
-
-        self.colors[0] = Color::RGBA(0, 0, 0, 0);
-        self.colors[1] = Color::RGBA(0, 0, 0, 32);
-        self.colors[4] = Color::RGBA(0, 0, 0, 128);
-        self.colors[5] = Color::RGBA(0, 0, 0, 0);
-        self.colors[6] = Color::RGBA(0, 0, 0, 128);
-        self.colors[7] = Color::RGBA(0, 0, 0, 64);
-        
-        let palette = Palette::with_colors(&self.colors).unwrap();
-        sprite.surface.set_palette(&palette).unwrap();
-        sprite.surface.set_color_key(true, self.colors[0]).unwrap();
-
-        sprite
     }
 }

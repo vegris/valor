@@ -8,9 +8,12 @@ impl Creature {
     pub fn filename(self) -> &'static str {
         FILENAMES[self as usize]
     }
+    pub const fn count() -> usize {
+        2
+    }
 }
 
-const FILENAMES: [&str; 2] = [
+const FILENAMES: [&str; Creature::count()] = [
     "CCHAMP.def",
     "Cpeas.def"
 ];

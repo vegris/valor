@@ -33,9 +33,12 @@ impl Battlefield {
 	pub fn filename(self) -> &'static str {
 		FILENAMES[self as usize]
 	}
+	pub const fn count() -> usize {
+		25
+	}
 }
 
-const FILENAMES: [&str; 25] = [
+const FILENAMES: [&str; Battlefield::count()] = [
 	"CmBkBch.pcx",
 	"CmBkDes.pcx",
 	"CmBkDrTr.pcx",
