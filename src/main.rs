@@ -1,41 +1,21 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 extern crate sdl2;
-use sdl2::rect::Rect;
-use sdl2::render::{WindowCanvas, TextureCreator};
-use sdl2::video::WindowContext;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
 mod resources;
-use resources::{ResourceRegistry, DefContainer};
+use resources::ResourceRegistry;
 
 mod enumerations;
-use enumerations::{Battlefield, Creature};
+use enumerations::Battlefield;
 
-type AnyError = Box<dyn std::error::Error>;
+mod gamestates;
+use gamestates::BattleState;
 
-struct BattleState {
-    battlefield: Battlefield,
-}
+mod util;
+use util::AnyError;
 
-impl BattleState {
-    fn new<'b>(battlefield: Battlefield) -> BattleState {
-        BattleState { battlefield }
-    }
-
-    fn update(&mut self, _dt: Duration) {
-    }
-
-    fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
-        // Рисуем поле боя
-        let surface = rr.get_battlefield_surface(self.battlefield);
-        let texture = surface.as_texture(&tc)?;
-        canvas.copy(&texture, None, Rect::new(0, 0, 800, 556))?;
-        // Рисуем сетку
-        Ok(())
-    }
-}
 
 fn main() -> Result<(), AnyError> {
     let sdl_context = sdl2::init()?; 
@@ -81,5 +61,6 @@ fn main() -> Result<(), AnyError> {
         current_state.draw(&mut canvas, &mut resource_registry, &texture_creator)?;
         canvas.present();
     }
+
     Ok(())
 }
