@@ -12,9 +12,9 @@ use sdl2::surface::Surface;
 extern crate flate2;
 use flate2::read::ZlibDecoder;
 
-use crate::enumerations::Battlefield;
+use crate::enumerations::Creature;
 
-use super::caches::BattlefieldsCache;
+use super::caches::CreaturesCache;
 
 
 const RESOURCES_ROOT: &str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data";
@@ -35,7 +35,7 @@ struct LodIndex {
 
 
 struct Caches {
-    battlefields: BattlefieldsCache
+    creatures: CreaturesCache
 }
 
 pub struct ResourceRegistry {
@@ -56,10 +56,10 @@ pub struct DefSprite {
 }
 
 pub struct DefContainer {
-    type_: u32,
-    colors: Box<[Color]>,
-    names2sprites: HashMap<String, DefSprite>,
-    blocks2names: HashMap<u32, Box<[String]>>
+    pub type_: u32,
+    pub colors: Box<[Color]>,
+    pub names2sprites: HashMap<String, DefSprite>,
+    pub blocks2names: HashMap<u32, Box<[String]>>
 }
 
 impl LodIndex {
@@ -128,7 +128,9 @@ impl ResourceRegistry {
     pub fn init() -> Self {
         let pcx_archive = LodIndex::open(&[RESOURCES_ROOT, PCX_ARCHIVE].iter().collect::<PathBuf>());
         let def_archive = LodIndex::open(&[RESOURCES_ROOT, DEF_ARCHIVE].iter().collect::<PathBuf>());
-        let caches = Caches { battlefields: BattlefieldsCache::new() };
+        let caches = Caches {
+            creatures: CreaturesCache::new()
+        }; 
         
         ResourceRegistry {
             pcx_archive,
@@ -213,12 +215,12 @@ impl ResourceRegistry {
         DefContainer {type_, colors, names2sprites, blocks2names}
     }
 
-    pub fn get_battlefield_surface(&mut self, battlefield: Battlefield) -> &Surface<'static> {
-        if self.caches.battlefields.get(battlefield).is_none() {
-            let surface = self.load_pcx(battlefield.filename());
-            self.caches.battlefields.put(battlefield, surface);
+    pub fn get_creature_container(&mut self, creature: Creature) -> &mut DefContainer {
+        if self.caches.creatures.get(creature).is_none() {
+            let surface = self.load_def(creature.filename());
+            self.caches.creatures.put(creature, surface);
         }
-        self.caches.battlefields.get(battlefield).unwrap()
+        self.caches.creatures.get(creature).unwrap()
     }
 }
 

@@ -1,31 +1,31 @@
 use std::mem::MaybeUninit;
 
 extern crate sdl2;
-use sdl2::surface::Surface;
 
-use crate::enumerations::Battlefield;
+use crate::enumerations::Creature;
+use crate::resources::loader::DefContainer;
 
-pub struct BattlefieldsCache {
-    cache: [Option<Surface<'static>>; Battlefield::count()]
+pub struct CreaturesCache {
+    cache: [Option<DefContainer>; Creature::count()]
 }
 
-impl BattlefieldsCache {
+impl CreaturesCache {
     pub fn new() -> Self {
-        let mut cache: [MaybeUninit<Option<Surface<'static>>>; Battlefield::count()] = unsafe {
+        let mut cache: [MaybeUninit<Option<DefContainer>>; Creature::count()] = unsafe {
             MaybeUninit::uninit().assume_init()
         };
         for elem in &mut cache[..] {
             *elem = MaybeUninit::new(None);
         }
-        let cache = unsafe { std::mem::transmute::<_, [Option<Surface<'static>>; Battlefield::count()]>(cache) };
+        let cache = unsafe { std::mem::transmute::<_, [Option<DefContainer>; Creature::count()]>(cache) };
         Self { cache }
     }
     
-    pub fn get(&self, battlefield: Battlefield) -> Option<&Surface<'static>> {
-        self.cache[battlefield as usize].as_ref()
+    pub fn get(&mut self, creature: Creature) -> Option<&mut DefContainer> {
+        self.cache[creature as usize].as_mut()
     }
 
-    pub fn put(&mut self, battlefield: Battlefield, surface: Surface<'static>) {
-        self.cache[battlefield as usize] = Some(surface);
+    pub fn put(&mut self, creature: Creature, def: DefContainer) {
+        self.cache[creature as usize] = Some(def);
     }
 }

@@ -4,8 +4,9 @@ extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
+use sdl2::pixels::Palette;
 
-use crate::enumerations::{Battlefield, Misc};
+use crate::enumerations::{Battlefield, Creature, Misc};
 use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
 
@@ -53,6 +54,14 @@ impl<'a> BattleState<'a> {
         canvas.copy(&graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
         // Рисуем сетку
         canvas.copy(&graphics.grid_cell_shadowed, None, Rect::new(200, 200, 50, 50))?;
+
+        // Рисуем существо
+        let creature_def = rr.get_creature_container(Creature::Champion);
+        let def_sprite = creature_def.names2sprites.values_mut().next().unwrap();
+        let palette = Palette::with_colors(&creature_def.colors)?;
+        def_sprite.surface.set_palette(&palette)?;
+        let texture = def_sprite.surface.as_texture(tc)?;
+        canvas.copy(&texture, None, Rect::new(400, 400, def_sprite.width, def_sprite.height))?;
 
         Ok(())
     }
