@@ -137,7 +137,7 @@ impl ResourceRegistry {
         }
     }
 
-    fn load_pcx(&mut self, filename: &str) -> Surface<'static> {
+    pub fn load_pcx(&mut self, filename: &str) -> Surface<'static> {
         let bytes = self.pcx_archive.read_file(filename);
 
         let (header, data) =  bytes.split_at(12); 

@@ -37,7 +37,7 @@ fn main() -> Result<(), AnyError> {
     let mut event_pump = sdl_context.event_pump()?;
 
     // Создание начального игрового состояния
-    let mut current_state = BattleState::new(Battlefield::CUR);
+    let mut current_state = BattleState::new(&mut resource_registry, &texture_creator, Battlefield::CUR)?;
 
     let mut frame_start_time = Instant::now();
     'gameloop: loop {
