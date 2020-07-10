@@ -12,6 +12,7 @@ use sdl2::surface::Surface;
 extern crate flate2;
 use flate2::read::ZlibDecoder;
 
+use crate::util::AnyError;
 use crate::enumerations::Creature;
 
 use super::caches::CreaturesCache;
@@ -138,38 +139,63 @@ impl ResourceRegistry {
             caches
         }
     }
+    
+    pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, AnyError> {
+        self.do_load_pcx(filename, false)
+    }
+    pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, AnyError> {
+        self.do_load_pcx(filename, true)
+    }
 
-    pub fn load_pcx(&mut self, filename: &str) -> Surface<'static> {
-        let bytes = self.pcx_archive.read_file(filename);
+    fn do_load_pcx(&mut self, filename: &str, apply_transparency: bool) -> Result<Surface<'static>, AnyError> {
+        let mut bytes = self.pcx_archive.read_file(filename);
 
-        let (header, data) =  bytes.split_at(12); 
+        let (header, data) = bytes.split_at_mut(12); 
         let [size, width, height]: [u32; 3] = header
             .chunks_exact(4)
             .map(|chunk| chunk.try_into().unwrap())
             .map(u32::from_ne_bytes)
             .collect::<Box<[u32]>>()
             .deref()
-            .try_into()
-            .unwrap();
-
-        if size == width * height * 3 {
-            let mut surface = Surface::new(width, height, PixelFormatEnum::BGR24).unwrap();
-            copy_pixels_to_surface(data, &mut surface);
-            surface
-        } 
-        else {
-            let (pixel_data, palette_data) = data.split_at(size as usize);
-            let colors = palette_data
-                .chunks_exact(3)
-                .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
-                .collect::<Box<[Color]>>();
-            let palette = Palette::with_colors(&colors).unwrap();
-
-            let mut surface = Surface::new(width, height, PixelFormatEnum::Index8).unwrap();
-            copy_pixels_to_surface(pixel_data, &mut surface);
-            surface.set_palette(&palette).unwrap();
-            surface
+            .try_into()?;
+        
+        if apply_transparency {
+            // Чтобы применить прозрачность, текстура должна быть с палитрой
+            assert!(size == width * height);
         }
+
+        let surface = 
+            if size == width * height * 3 {
+                Surface::from_data(data, width, height, width * 3, PixelFormatEnum::BGR24)?
+            } 
+            else { // size == width * height
+                let (pixel_data, palette_data) = data.split_at_mut(size as usize);
+
+                let mut colors = palette_data
+                    .chunks_exact(3)
+                    .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
+                    .collect::<Box<[Color]>>();
+                
+                let mut surface = Surface::from_data(pixel_data, width, height, width * 1, PixelFormatEnum::Index8)?;
+
+                if apply_transparency {
+                    colors[0] = Color::RGBA(0, 0, 0, 0);
+                    colors[1] = Color::RGBA(0, 0, 0, 32);
+                    colors[2] = Color::RGBA(0, 0, 0, 64);
+                    colors[3] = Color::RGBA(0, 0, 0, 128);
+                    colors[4] = Color::RGBA(0, 0, 0, 128);
+                    surface.set_color_key(true, Color::RGB(0, 0, 0))?;
+                }
+                let palette = Palette::with_colors(&colors)?;
+                surface.set_palette(&palette)?;
+
+                surface
+            };
+        
+        // Самый простой способ что я нашел 
+        // чтобы заставить surface владеть своим буфером
+        let static_surface = surface.convert(&surface.pixel_format())?;
+        Ok(static_surface)
     }
 
     fn load_def(&mut self, filename: &str) -> DefContainer {

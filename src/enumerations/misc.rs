@@ -1,6 +1,6 @@
 pub enum Misc {
     CellGrid,
-    CellGridShadowed
+    CellGridShadow
 }
 
 impl Misc {

@@ -24,15 +24,15 @@ struct Logic {
 struct Graphics<'a> {
     battlefield: Texture<'a>,
     grid_cell: Texture<'a>,
-    grid_cell_shadowed: Texture<'a>
+    grid_cell_shadow: Texture<'a>
 }
 
 impl<'a> BattleState<'a> {
     pub fn new(rr: &mut ResourceRegistry, tc: &'a TextureCreator<WindowContext>, battlefield: Battlefield) -> Result<Self, AnyError> {
         let graphics = Graphics {
-            battlefield: rr.load_pcx(battlefield.filename()).as_texture(&tc)?,
-            grid_cell: rr.load_pcx(Misc::CellGrid.filename()).as_texture(&tc)?,
-            grid_cell_shadowed: rr.load_pcx(Misc::CellGridShadowed.filename()).as_texture(&tc)?
+            battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
+            grid_cell: rr.load_pcx_with_transparency(Misc::CellGrid.filename())?.as_texture(&tc)?,
+            grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?
         };
         let logic = Logic {
             battlefield
@@ -53,7 +53,7 @@ impl<'a> BattleState<'a> {
         // Рисуем поле боя
         canvas.copy(&graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
         // Рисуем сетку
-        canvas.copy(&graphics.grid_cell_shadowed, None, Rect::new(200, 200, 50, 50))?;
+        self.draw_grid(canvas)?;
 
         // Рисуем существо
         let creature_def = rr.get_creature_container(Creature::Champion);
@@ -63,6 +63,34 @@ impl<'a> BattleState<'a> {
         let texture = def_sprite.surface.as_texture(tc)?;
         canvas.copy(&texture, None, Rect::new(400, 400, def_sprite.width, def_sprite.height))?;
 
+        Ok(())
+    }
+
+    fn draw_grid(&self, canvas: &mut WindowCanvas) -> Result<(), AnyError> {
+        let grid_texture = &self.graphics.grid_cell;
+        let (grid_width, grid_height) = (45, 52);
+        let grid_vertical_side = 32;
+
+        // Рисует нечётные ряды
+        let (odd_start_x, odd_start_y) = (81, 86);
+        for x in 0..15 {
+            for y in 0..6 {
+                let x_pos = odd_start_x + x * grid_width;
+                let y_pos = odd_start_y + y * (grid_height + grid_vertical_side);
+                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, grid_width, grid_height);
+                canvas.copy(&grid_texture, None, draw_rect)?
+            }
+        }
+        // Рисуем нечётные ряды
+        let (even_start_x, even_start_y) = (59, 129);
+        for x in 0..15 {
+            for y in 0..5 {
+                let x_pos = even_start_x + x * grid_width;
+                let y_pos = even_start_y + y * (grid_height + grid_vertical_side);
+                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, grid_width, grid_height);
+                canvas.copy(&grid_texture, None, draw_rect)?;
+            }
+        }
         Ok(())
     }
 }
