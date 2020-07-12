@@ -1,4 +1,5 @@
 mod loader;
-pub use loader::{ResourceRegistry, DefContainer, DefSprite};
+pub use loader::ResourceRegistry;
 
+mod formats;
 mod caches;

@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 flate2 = "1.0.14"
 sdl2 = "0.34.1"
+either = "1.5.3"

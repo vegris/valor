@@ -3,7 +3,7 @@ use std::mem::MaybeUninit;
 extern crate sdl2;
 
 use crate::enumerations::Creature;
-use crate::resources::loader::DefContainer;
+use super::formats::DefContainer;
 
 pub struct CreaturesCache {
     cache: [Option<DefContainer>; Creature::count()]
