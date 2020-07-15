@@ -67,28 +67,26 @@ impl<'a> BattleState<'a> {
     }
 
     fn draw_grid(&self, canvas: &mut WindowCanvas) -> Result<(), AnyError> {
-        let grid_texture = &self.graphics.grid_cell;
-        let (grid_width, grid_height) = (45, 52);
-        let grid_vertical_side = 32;
+        let cell_texture = &self.graphics.grid_cell;
+        let (cell_width, cell_height) = (45, 52);
+        let cell_vertical_side_height = 32;
 
-        // Рисует нечётные ряды
         let (odd_start_x, odd_start_y) = (81, 86);
+        let (even_start_x, even_start_y) = (59, 128);
         for x in 0..15 {
+            // Рисует нечётные ряды
             for y in 0..6 {
-                let x_pos = odd_start_x + x * grid_width;
-                let y_pos = odd_start_y + y * (grid_height + grid_vertical_side);
-                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, grid_width, grid_height);
-                canvas.copy(&grid_texture, None, draw_rect)?
+                let x_pos = odd_start_x + x * (cell_width - 1);
+                let y_pos = odd_start_y + y * (cell_height + cell_vertical_side_height);
+                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, cell_width, cell_height);
+                canvas.copy(&cell_texture, None, draw_rect)?
             }
-        }
-        // Рисуем нечётные ряды
-        let (even_start_x, even_start_y) = (59, 129);
-        for x in 0..15 {
+            // Рисуем чётные ряды
             for y in 0..5 {
-                let x_pos = even_start_x + x * grid_width;
-                let y_pos = even_start_y + y * (grid_height + grid_vertical_side);
-                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, grid_width, grid_height);
-                canvas.copy(&grid_texture, None, draw_rect)?;
+                let x_pos = even_start_x + x * (cell_width - 1);
+                let y_pos = even_start_y + y * (cell_height + cell_vertical_side_height);
+                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, cell_width, cell_height);
+                canvas.copy(&cell_texture, None, draw_rect)?;
             }
         }
         Ok(())
