@@ -20,7 +20,7 @@ const FILENAMES: [&str; Creature::count()] = [
 
 #[derive(Clone, Copy)]
 #[allow(unused)]
-pub enum AnimationGroup {
+pub enum AnimationType {
     Moving = 0,
     MouseOver = 1,
     Standing = 2,

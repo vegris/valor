@@ -180,4 +180,9 @@ impl DefContainer {
 
         Self {type_, colors, names2sprites, blocks2names}
     }
+
+    pub fn get_sprite(&self, block_id: u32, sprite_index: usize) -> &DefSprite {
+        let sprite_name = &self.blocks2names[&block_id][sprite_index];
+        &self.names2sprites[sprite_name]
+    }
 }
