@@ -2,4 +2,8 @@ mod loader;
 pub use loader::ResourceRegistry;
 
 mod formats;
+
 mod caches;
+
+mod creature_spritesheet;
+pub use creature_spritesheet::Animation;

@@ -1,13 +1,13 @@
 use std::time::{Instant, Duration};
 
 extern crate sdl2;
-use sdl2::render::{WindowCanvas, TextureCreator, Texture, TextureValueError};
+use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
 use sdl2::pixels::{Color, Palette};
 
-use crate::enumerations::{Battlefield, Creature, AnimationType, Misc};
-use crate::resources::ResourceRegistry;
+use crate::enumerations::{Battlefield, Creature, Misc};
+use crate::resources::{ResourceRegistry, Animation};
 use crate::util::AnyError;
 
 use super::GridPos;
@@ -33,7 +33,7 @@ struct Graphics<'a> {
 
 struct CreatureAnimation {
     creature: Creature,
-    type_: AnimationType,
+    type_: Animation,
     current_sprite_index: usize,
     change_at: Instant
 }
@@ -41,7 +41,7 @@ struct CreatureAnimation {
 const ANIMATION_PERIOD: Duration = Duration::from_millis(100);
 
 impl CreatureAnimation {
-    pub fn new(creature: Creature, type_: AnimationType) -> Self {
+    pub fn new(creature: Creature, type_: Animation) -> Self {
         CreatureAnimation{
             creature,
             type_,
@@ -63,33 +63,16 @@ impl CreatureAnimation {
     }
 
     pub fn get_texture<'a>(&self, rr: &mut ResourceRegistry, tc: &'a TextureCreator<WindowContext>) -> Result<Texture<'a>, AnyError> {
-        let creature_def = rr.get_creature_container(self.creature);
-        let block = creature_def.blocks2names.get_mut(&(self.type_ as u32)).unwrap();
-        let sprite_name = &block[self.current_sprite_index];
-        let sprite = creature_def.names2sprites.get_mut(sprite_name).unwrap();
-
-        // Применяем прозрачность
-        creature_def.colors[0] = Color::RGBA(0, 0, 0, 0);
-        creature_def.colors[1] = Color::RGBA(0, 0, 0, 32);
-        creature_def.colors[2] = Color::RGBA(0, 0, 0, 64);
-        creature_def.colors[3] = Color::RGBA(0, 0, 0, 128);
-        creature_def.colors[4] = Color::RGBA(0, 0, 0, 128);
-        creature_def.colors[5] = Color::RGBA(0, 0, 0, 0);
-        creature_def.colors[6] = Color::RGBA(0, 0, 0, 128);
-        creature_def.colors[7] = Color::RGBA(0, 0, 0, 64);
-
-        let palette = Palette::with_colors(&creature_def.colors)?;
-        sprite.surface.set_palette(&palette)?;
-        sprite.surface.set_color_key(true, Color::BLACK)?;
-        let texture = sprite.surface.as_texture(tc)?;
+        let creature_spritesheet = rr.get_creature_container(self.creature);
+        let sprite = creature_spritesheet.get_sprite(self.type_, self.current_sprite_index).unwrap();
+        let texture = sprite.surface().as_texture(tc)?;
         Ok(texture)
     }
 
     pub fn get_draw_rect(&self, rr: &mut ResourceRegistry) -> Rect {
-        let creature_def = rr.get_creature_container(self.creature);
-        let sprite = creature_def.get_sprite(self.type_ as u32, self.current_sprite_index);
-        // dbg!((sprite.left_margin, sprite.top_margin, sprite.width, sprite.height, sprite.full_width, sprite.full_height));
-        Rect::new(sprite.left_margin as i32, sprite.top_margin as i32, sprite.width, sprite.height)
+        let creature_spritesheet = rr.get_creature_container(self.creature);
+        let sprite = creature_spritesheet.get_sprite(self.type_, self.current_sprite_index).unwrap();
+        sprite.get_draw_rect_for_grid(GridPos::new(1, 1))
     }
 }
 
@@ -100,7 +83,7 @@ impl<'a> BattleState<'a> {
             grid_cell: rr.load_pcx_with_transparency(Misc::CellGrid.filename())?.as_texture(&tc)?,
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
-            creature_animation: CreatureAnimation::new(Creature::Champion, AnimationType::Standing)
+            creature_animation: CreatureAnimation::new(Creature::Champion, Animation::Standing)
         };
         let logic = Logic {
             battlefield,
@@ -126,9 +109,7 @@ impl<'a> BattleState<'a> {
 
         // Рисуем существо
         let creature_texture = self.graphics.creature_animation.get_texture(rr, tc)?;
-        let mut creature_draw_rect = self.graphics.creature_animation.get_draw_rect(rr);
-        creature_draw_rect.set_x(creature_draw_rect.x() - 90);
-        creature_draw_rect.set_y(creature_draw_rect.y() - 140);
+        let creature_draw_rect = self.graphics.creature_animation.get_draw_rect(rr);
         canvas.copy(&creature_texture, None, creature_draw_rect)?;
 
         Ok(())

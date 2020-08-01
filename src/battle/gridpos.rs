@@ -39,6 +39,9 @@ impl GridPos {
     pub fn y(&self) -> u8 {
         self.y
     }
+    pub fn pos(&self) -> (u8, u8) {
+        (self.x, self.y)
+    }
 
     pub fn set_x(&mut self, x: u8) {
         assert!(Self::is_x_valid(x));
@@ -53,7 +56,7 @@ impl GridPos {
         self.y % 2 == 0
     }
 
-    pub fn get_draw_rect(&self) -> Rect {
+    pub fn get_draw_pos(&self) -> (i32, i32) {
         // Клетки нумеруются с первой, а алгоритм работает с нумерацией с нуля
         let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
 
@@ -70,6 +73,11 @@ impl GridPos {
                     Self::ODD_START_Y + (y / 2) * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH)
                 )
             };
-        Rect::new(x_pos as i32, y_pos as i32, Self::CELL_WIDTH, Self::CELL_HEIGHT)
+        (x_pos as i32, y_pos as i32)
+    }
+
+    pub fn get_draw_rect(&self) -> Rect {
+        let (x_pos, y_pos) = self.get_draw_pos();
+        Rect::new(x_pos, y_pos, Self::CELL_WIDTH, Self::CELL_HEIGHT)
     }
 }

@@ -8,6 +8,7 @@ use crate::enumerations::Creature;
 
 use super::formats::{LodIndex, PcxImage, DefContainer};
 use super::caches::CreaturesCache;
+use super::creature_spritesheet::CreatureSpritesheet;
 
 
 const RESOURCES_ROOT: &str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data";
@@ -57,10 +58,11 @@ impl ResourceRegistry {
         DefContainer::from_bytes(bytes)
     }
 
-    pub fn get_creature_container(&mut self, creature: Creature) -> &mut DefContainer {
+    pub fn get_creature_container(&mut self, creature: Creature) -> &mut CreatureSpritesheet {
         if self.caches.creatures.get(creature).is_none() {
-            let surface = self.load_def(creature.filename());
-            self.caches.creatures.put(creature, surface);
+            let def = self.load_def(creature.filename());
+            let spritesheet = CreatureSpritesheet::from_def_container(def);
+            self.caches.creatures.put(creature, spritesheet);
         }
         self.caches.creatures.get(creature).unwrap()
     }
