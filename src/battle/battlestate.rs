@@ -10,6 +10,8 @@ use crate::enumerations::{Battlefield, Creature, AnimationType, Misc};
 use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
 
+use super::GridPos;
+
 pub struct BattleState<'a> {
     logic: Logic,
     graphics: Graphics<'a>
@@ -134,24 +136,9 @@ impl<'a> BattleState<'a> {
 
     fn draw_grid(&self, canvas: &mut WindowCanvas) -> Result<(), AnyError> {
         let cell_texture = &self.graphics.grid_cell;
-        let (cell_width, cell_height) = (45, 52);
-        let cell_vertical_side_height = 32;
-
-        let (odd_start_x, odd_start_y) = (81, 86);
-        let (even_start_x, even_start_y) = (59, 128);
-        for x in 0..15 {
-            // Рисует нечётные ряды
-            for y in 0..6 {
-                let x_pos = odd_start_x + x * (cell_width - 1);
-                let y_pos = odd_start_y + y * (cell_height + cell_vertical_side_height);
-                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, cell_width, cell_height);
-                canvas.copy(&cell_texture, None, draw_rect)?
-            }
-            // Рисуем чётные ряды
-            for y in 0..5 {
-                let x_pos = even_start_x + x * (cell_width - 1);
-                let y_pos = even_start_y + y * (cell_height + cell_vertical_side_height);
-                let draw_rect = Rect::new(x_pos as i32, y_pos as i32, cell_width, cell_height);
+        for x in GridPos::X_MIN ..= GridPos::X_MAX {
+            for y in GridPos::Y_MIN ..= GridPos::Y_MAX {
+                let draw_rect = GridPos::new(x, y).get_draw_rect();
                 canvas.copy(&cell_texture, None, draw_rect)?;
             }
         }

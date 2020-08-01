@@ -10,8 +10,8 @@ use resources::ResourceRegistry;
 mod enumerations;
 use enumerations::Battlefield;
 
-mod gamestates;
-use gamestates::BattleState;
+mod battle;
+use battle::BattleState;
 
 mod util;
 use util::AnyError;
