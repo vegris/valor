@@ -1,5 +1,5 @@
-mod loader;
-pub use loader::ResourceRegistry;
+mod registry;
+pub use registry::ResourceRegistry;
 
 mod formats;
 
