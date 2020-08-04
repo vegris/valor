@@ -12,10 +12,17 @@ use super::GridPos;
 
 const ADVANCE_PERIODITY: Duration = Duration::from_millis(128);
 
+#[derive(Clone, Copy)]
+pub enum FacingDirection {
+    Left,
+    Right
+}
+
 pub struct CreatureStack {
     creature: Creature,
     animation: Animation,
     grid_pos: GridPos,
+    facing_direction: FacingDirection,
 
     cur_sprite_index: usize,
     sprites_total: usize,
@@ -23,7 +30,7 @@ pub struct CreatureStack {
 }
 
 impl CreatureStack {
-    pub fn new(creature: Creature, animation: Animation, grid_pos: GridPos, rr: &mut ResourceRegistry) -> Self {
+    pub fn new(creature: Creature, animation: Animation, grid_pos: GridPos, facing_direction: FacingDirection, rr: &mut ResourceRegistry) -> Self {
         let creature_spritesheet = rr.get_creature_container(creature);
         let anim_block = creature_spritesheet.get_animation_block(animation).unwrap();
         let sprites_total = anim_block.len();
@@ -32,6 +39,7 @@ impl CreatureStack {
             creature,
             animation,
             grid_pos,
+            facing_direction,
             cur_sprite_index: 0,
             sprites_total,
             advance_at: Instant::now()
@@ -56,7 +64,10 @@ impl CreatureStack {
         let draw_rect = sprite.get_draw_rect_for_grid(&self.grid_pos);
         let texture = sprite.surface().as_texture(tc)?;
 
-        canvas.copy(&texture, None, draw_rect)?;
+        match self.facing_direction {
+            FacingDirection::Left => canvas.copy(&texture, None, draw_rect)?,
+            FacingDirection::Right => canvas.copy_ex(&texture, None, draw_rect, 0., None, true, false)?
+        };
 
         Ok(())
     }

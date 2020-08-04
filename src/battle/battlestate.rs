@@ -10,7 +10,7 @@ use crate::resources::{ResourceRegistry, Animation};
 use crate::util::AnyError;
 
 use super::GridPos;
-use super::creature::CreatureStack;
+use super::creature::{FacingDirection, CreatureStack};
 
 pub struct BattleState<'a> {
     // Постоянно используемые текстуры,
@@ -31,9 +31,9 @@ impl<'a> BattleState<'a> {
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
             creatures: vec![
-                CreatureStack::new(Creature::Peasant, Animation::Standing, GridPos::new(1, 1), rr),
-                CreatureStack::new(Creature::Champion, Animation::Moving, GridPos::new(5, 9), rr),
-                CreatureStack::new(Creature::Beholder, Animation::Standing, GridPos::new(10, 2), rr)
+                CreatureStack::new(Creature::Peasant, Animation::Standing, GridPos::new(1, 1), FacingDirection::Left, rr),
+                CreatureStack::new(Creature::Champion, Animation::Moving, GridPos::new(5, 9), FacingDirection::Right, rr),
+                CreatureStack::new(Creature::Beholder, Animation::Standing, GridPos::new(10, 2), FacingDirection::Left, rr)
             ]
 
         };

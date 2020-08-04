@@ -67,7 +67,7 @@ impl CreatureSprite {
     pub fn get_draw_rect_for_grid(&self, gridpos: &GridPos) -> Rect {
         let Self { left_margin, top_margin, width, height, .. } = *self;
         let (x_pos, y_pos) = gridpos.get_draw_pos();
-        Rect::new(left_margin as i32 + x_pos - 170, top_margin as i32 + y_pos - 225, width, height)
+        Rect::new(left_margin as i32 + x_pos - 173, top_margin as i32 + y_pos - 225, width, height)
     }
 
     pub fn surface(&self) -> &Surface<'static> {
