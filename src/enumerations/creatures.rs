@@ -1,4 +1,5 @@
 #[derive(Clone, Copy)]
+#[allow(unused)]
 pub enum Creature {
     Champion,
     Peasant

@@ -12,6 +12,7 @@ use crate::battle::GridPos;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Clone, Copy)]
+#[allow(unused, non_camel_case_types)]
 pub enum Animation {
     Moving = 0,
     MouseOver = 1,
@@ -137,5 +138,4 @@ impl CreatureSpritesheet {
             &self.sprites[sprite_index] 
         })
     }
-    // pub fn get_sprite_with_highlight(&mut self, animation: Animation, sprite_num: usize, color: Color, intensity: f32) -> Option<CreatureSprite>;
 }

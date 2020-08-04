@@ -60,19 +60,16 @@ impl GridPos {
         // Клетки нумеруются с первой, а алгоритм работает с нумерацией с нуля
         let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
 
-        // TODO: Упростить цифродроч
+        let base_x = x * (Self::CELL_WIDTH - 1); // Вычитаем единицу чтобы рисовать клетки "внахлёст"
+        let base_y = y / 2 * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH);
+
         let (x_pos, y_pos) = 
             if self.is_even_row() {
-                (
-                    Self::EVEN_START_X + x * (Self::CELL_WIDTH - 1),
-                    Self::EVEN_START_Y + ((y - 1) / 2) * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH)
-                )
+                (base_x + Self::EVEN_START_X, base_y + Self::EVEN_START_Y)
             } else {
-                (
-                    Self::ODD_START_X + x * (Self::CELL_WIDTH - 1),
-                    Self::ODD_START_Y + (y / 2) * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH)
-                )
+                (base_x + Self::ODD_START_X, base_y + Self::ODD_START_Y)
             };
+
         (x_pos as i32, y_pos as i32)
     }
 

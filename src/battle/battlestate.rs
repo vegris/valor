@@ -4,7 +4,6 @@ extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
-use sdl2::pixels::{Color, Palette};
 
 use crate::enumerations::{Battlefield, Creature, Misc};
 use crate::resources::{ResourceRegistry, Animation};
@@ -13,17 +12,8 @@ use crate::util::AnyError;
 use super::GridPos;
 
 pub struct BattleState<'a> {
-    logic: Logic,
-    graphics: Graphics<'a>
-}
-
-struct Logic {
-    battlefield: Battlefield
-}
-
-// Постоянно используемые текстуры,
-// которые нет смысла прокачивать сквозь кэш
-struct Graphics<'a> {
+    // Постоянно используемые текстуры,
+    // которые нет смысла прокачивать сквозь кэш
     battlefield: Texture<'a>,
     grid_cell: Texture<'a>,
     grid_cell_shadow: Texture<'a>,
@@ -78,49 +68,41 @@ impl CreatureAnimation {
 
 impl<'a> BattleState<'a> {
     pub fn new(rr: &mut ResourceRegistry, tc: &'a TextureCreator<WindowContext>, battlefield: Battlefield) -> Result<Self, AnyError> {
-        let graphics = Graphics {
+        let battlestate = Self {
             battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
             grid_cell: rr.load_pcx_with_transparency(Misc::CellGrid.filename())?.as_texture(&tc)?,
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
             creature_animation: CreatureAnimation::new(Creature::Champion, Animation::Standing)
         };
-        let logic = Logic {
-            battlefield,
-        };
-        let battlestate = BattleState { 
-            logic,
-            graphics
-        };
 
         Ok(battlestate)
     }
 
     pub fn update(&mut self, now: Instant) {
-        self.graphics.creature_animation.update(now);
+        self.creature_animation.update(now);
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
-        let Self { logic, graphics } = self;
         // Рисуем поле боя
-        canvas.copy(&graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
+        canvas.copy(&self.battlefield, None, Rect::new(0, 0, 800, 556))?;
         // Рисуем сетку
         self.draw_grid(canvas)?;
 
         // Рисуем существо
-        let creature_texture = self.graphics.creature_animation.get_texture(rr, tc)?;
-        let creature_draw_rect = self.graphics.creature_animation.get_draw_rect(rr);
+        let creature_texture = self.creature_animation.get_texture(rr, tc)?;
+        let creature_draw_rect = self.creature_animation.get_draw_rect(rr);
         canvas.copy(&creature_texture, None, creature_draw_rect)?;
 
         Ok(())
     }
 
     fn draw_grid(&self, canvas: &mut WindowCanvas) -> Result<(), AnyError> {
-        let cell_texture = &self.graphics.grid_cell;
         for x in GridPos::X_MIN ..= GridPos::X_MAX {
             for y in GridPos::Y_MIN ..= GridPos::Y_MAX {
                 let draw_rect = GridPos::new(x, y).get_draw_rect();
-                canvas.copy(&cell_texture, None, draw_rect)?;
+                canvas.copy(&self.grid_cell_shadow, None, draw_rect)?;
+                canvas.copy(&self.grid_cell, None, draw_rect)?;
             }
         }
         Ok(())

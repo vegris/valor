@@ -50,7 +50,7 @@ impl PcxImage {
         Ok(Self(image))
     }
 
-    pub fn apply_transparency(&mut self) -> Result<(), AnyError> {
+    pub fn apply_transparency(&mut self) -> Result<(), String> {
         self.0
             .as_mut()
             .right()
@@ -63,7 +63,6 @@ impl PcxImage {
                 colors[4] = Color::RGBA(0, 0, 0, 128);
                 surface.set_color_key(true, Color::RGB(0, 0, 0))
             })
-            .map_err(|string| string.into())
     }
 
     pub fn to_surface(self) -> Result<Surface<'static>, AnyError> {
