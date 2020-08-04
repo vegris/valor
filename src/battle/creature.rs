@@ -27,7 +27,6 @@ impl CreatureStack {
         let creature_spritesheet = rr.get_creature_container(creature);
         let anim_block = creature_spritesheet.get_animation_block(animation).unwrap();
         let sprites_total = anim_block.len();
-        dbg!(sprites_total);
 
         Self {
             creature,

@@ -19,7 +19,7 @@ pub struct BattleState<'a> {
     grid_cell: Texture<'a>,
     grid_cell_shadow: Texture<'a>,
 
-    creature: CreatureStack
+    creatures: Vec<CreatureStack>
 }
 
 
@@ -30,14 +30,21 @@ impl<'a> BattleState<'a> {
             grid_cell: rr.load_pcx_with_transparency(Misc::CellGrid.filename())?.as_texture(&tc)?,
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
-            creature: CreatureStack::new(Creature::Peasant, Animation::Standing, GridPos::new(1, 1), rr)
+            creatures: vec![
+                CreatureStack::new(Creature::Peasant, Animation::Standing, GridPos::new(1, 1), rr),
+                CreatureStack::new(Creature::Champion, Animation::Moving, GridPos::new(5, 9), rr),
+                CreatureStack::new(Creature::Beholder, Animation::Standing, GridPos::new(10, 2), rr)
+            ]
+
         };
 
         Ok(battlestate)
     }
 
     pub fn update(&mut self, now: Instant) {
-        self.creature.update(now);
+        for creature in &mut self.creatures {
+            creature.update(now);
+        }
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
@@ -46,8 +53,10 @@ impl<'a> BattleState<'a> {
         // Рисуем сетку
         self.draw_grid(canvas)?;
 
-        // Рисуем существо
-        self.creature.draw(canvas, rr, tc)?;
+        // Рисуем существ
+        for creature in &self.creatures {
+            creature.draw(canvas, rr, tc)?;
+        }
 
         Ok(())
     }

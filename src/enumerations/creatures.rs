@@ -2,7 +2,8 @@
 #[allow(unused)]
 pub enum Creature {
     Champion,
-    Peasant
+    Peasant,
+    Beholder
 }
 
 impl Creature {
@@ -10,11 +11,12 @@ impl Creature {
         FILENAMES[self as usize]
     }
     pub const fn count() -> usize {
-        2
+        3
     }
 }
 
 const FILENAMES: [&str; Creature::count()] = [
     "CCHAMP.def",
-    "Cpeas.def"
+    "Cpeas.def",
+    "cbehol.def"
 ];
