@@ -64,7 +64,7 @@ impl CreatureSprite {
     }
 
     // pub fn get_draw_rect(&self) -> Rect;
-    pub fn get_draw_rect_for_grid(&self, gridpos: GridPos) -> Rect {
+    pub fn get_draw_rect_for_grid(&self, gridpos: &GridPos) -> Rect {
         let Self { left_margin, top_margin, width, height, .. } = *self;
         let (x_pos, y_pos) = gridpos.get_draw_pos();
         Rect::new(left_margin as i32 + x_pos - 170, top_margin as i32 + y_pos - 225, width, height)
@@ -128,7 +128,7 @@ impl CreatureSpritesheet {
         Self { colors, sprites, blocks}
     }
 
-    fn get_animation_block(&self, animation: Animation) -> Option<&AnimationBlock> {
+    pub fn get_animation_block(&self, animation: Animation) -> Option<&AnimationBlock> {
         (&self.blocks[animation as usize]).as_ref()
     }
     pub fn get_sprite(&self, animation: Animation, sprite_num: usize) -> Option<&CreatureSprite> {
