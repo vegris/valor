@@ -3,17 +3,15 @@ use std::collections::HashMap;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
-use sdl2::rect::Rect;
 use sdl2::pixels::{Color, Palette};
+use sdl2::rect::{Point, Rect};
 
 use super::formats::{DefSprite, DefContainer};
-
-use crate::battle::GridPos;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Clone, Copy)]
 #[allow(unused, non_camel_case_types)]
-pub enum Animation {
+pub enum AnimationType {
     Moving = 0,
     MouseOver = 1,
     Standing = 2,
@@ -63,10 +61,9 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
-    // pub fn get_draw_rect(&self) -> Rect;
-    pub fn get_draw_rect_for_grid(&self, gridpos: &GridPos) -> Rect {
+    pub fn draw_rect(&self, draw_point: Point) -> Rect {
         let Self { left_margin, top_margin, width, height, .. } = *self;
-        let (x_pos, y_pos) = gridpos.get_draw_pos();
+        let (x_pos, y_pos) = (draw_point.x(), draw_point.y());
         Rect::new(left_margin as i32 + x_pos - 173, top_margin as i32 + y_pos - 225, width, height)
     }
 
@@ -128,10 +125,10 @@ impl CreatureSpritesheet {
         Self { colors, sprites, blocks}
     }
 
-    pub fn get_animation_block(&self, animation: Animation) -> Option<&AnimationBlock> {
+    pub fn get_animation_block(&self, animation: AnimationType) -> Option<&AnimationBlock> {
         (&self.blocks[animation as usize]).as_ref()
     }
-    pub fn get_sprite(&self, animation: Animation, sprite_num: usize) -> Option<&CreatureSprite> {
+    pub fn get_sprite(&self, animation: AnimationType, sprite_num: usize) -> Option<&CreatureSprite> {
         self.get_animation_block(animation).map(|block| { 
             // Индекс спрайта в общем массиве спрайтов
             let sprite_index = block[sprite_num];

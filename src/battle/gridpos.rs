@@ -1,5 +1,5 @@
 extern crate sdl2;
-use sdl2::rect::Rect;
+use sdl2::rect::{Point, Rect};
 
 pub struct GridPos {
     x: u8,
@@ -56,7 +56,7 @@ impl GridPos {
         self.y % 2 == 0
     }
 
-    pub fn get_draw_pos(&self) -> (i32, i32) {
+    pub fn draw_point(&self) -> Point {
         // Клетки нумеруются с первой, а алгоритм работает с нумерацией с нуля
         let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
 
@@ -70,11 +70,12 @@ impl GridPos {
                 (base_x + Self::ODD_START_X, base_y + Self::ODD_START_Y)
             };
 
-        (x_pos as i32, y_pos as i32)
+        Point::new(x_pos as i32, y_pos as i32)
     }
 
-    pub fn get_draw_rect(&self) -> Rect {
-        let (x_pos, y_pos) = self.get_draw_pos();
-        Rect::new(x_pos, y_pos, Self::CELL_WIDTH, Self::CELL_HEIGHT)
+    pub fn draw_rect(&self) -> Rect {
+        let draw_point = self.draw_point();
+        let (x, y) = (draw_point.x(), draw_point.y());
+        Rect::new(x, y, Self::CELL_WIDTH, Self::CELL_HEIGHT)
     }
 }

@@ -16,6 +16,9 @@ use battle::BattleState;
 mod util;
 use util::AnyError;
 
+mod tweening;
+mod animation;
+
 
 fn main() -> Result<(), AnyError> {
     let sdl_context = sdl2::init()?; 

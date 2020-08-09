@@ -1,4 +1,4 @@
-use std::time::{Instant, Duration};
+use std::time::Instant;
 
 extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
@@ -6,7 +6,7 @@ use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
 
 use crate::enumerations::{Battlefield, Creature, Misc};
-use crate::resources::{ResourceRegistry, Animation};
+use crate::resources::{ResourceRegistry, AnimationType};
 use crate::util::AnyError;
 
 use super::GridPos;
@@ -31,9 +31,9 @@ impl<'a> BattleState<'a> {
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
             creatures: vec![
-                CreatureStack::new(Creature::Peasant, Animation::Standing, GridPos::new(1, 1), FacingDirection::Left, rr),
-                CreatureStack::new(Creature::Champion, Animation::Moving, GridPos::new(5, 9), FacingDirection::Right, rr),
-                CreatureStack::new(Creature::Beholder, Animation::Standing, GridPos::new(10, 2), FacingDirection::Left, rr)
+                CreatureStack::new(Creature::Peasant, GridPos::new(1, 1), FacingDirection::Left, rr),
+                CreatureStack::new(Creature::Champion, GridPos::new(5, 9), FacingDirection::Left, rr),
+                CreatureStack::new(Creature::Beholder, GridPos::new(10, 2), FacingDirection::Left, rr)
             ]
 
         };
@@ -64,7 +64,7 @@ impl<'a> BattleState<'a> {
     fn draw_grid(&self, canvas: &mut WindowCanvas) -> Result<(), AnyError> {
         for x in GridPos::X_MIN ..= GridPos::X_MAX {
             for y in GridPos::Y_MIN ..= GridPos::Y_MAX {
-                let draw_rect = GridPos::new(x, y).get_draw_rect();
+                let draw_rect = GridPos::new(x, y).draw_rect();
                 canvas.copy(&self.grid_cell_shadow, None, draw_rect)?;
                 canvas.copy(&self.grid_cell, None, draw_rect)?;
             }
