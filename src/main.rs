@@ -16,8 +16,8 @@ use battle::BattleState;
 mod util;
 use util::AnyError;
 
-mod tweening;
-mod animation;
+mod choreographer;
+mod time_progress;
 
 
 fn main() -> Result<(), AnyError> {

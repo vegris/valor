@@ -1,3 +1,5 @@
+use std::ops::RangeInclusive;
+
 extern crate sdl2;
 use sdl2::rect::{Point, Rect};
 
@@ -7,10 +9,8 @@ pub struct GridPos {
 }
 
 impl GridPos {
-    pub const X_MIN: u8 = 1;
-    pub const X_MAX: u8 = 15;
-    pub const Y_MIN: u8 = 1;
-    pub const Y_MAX: u8 = 11;
+    pub const X_RANGE: RangeInclusive<u8> = 1..=15;
+    pub const Y_RANGE: RangeInclusive<u8> = 1..=11;
 
     const CELL_WIDTH: u32 = 45;
     const CELL_HEIGHT: u32 = 52;
@@ -22,10 +22,10 @@ impl GridPos {
     const EVEN_START_Y: u32 = 128;
 
     fn is_x_valid(x: u8) -> bool {
-        x >= Self::X_MIN && x <= Self::X_MAX
+        Self::X_RANGE.contains(&x)
     }
     fn is_y_valid(y: u8) -> bool {
-        y >= Self::Y_MIN && y <= Self::Y_MAX
+        Self::Y_RANGE.contains(&y)
     }
 
     pub fn new(x: u8, y: u8) -> Self {
@@ -33,30 +33,11 @@ impl GridPos {
         Self {x, y}
     }
 
-    pub fn x(&self) -> u8 {
-        self.x
-    }
-    pub fn y(&self) -> u8 {
-        self.y
-    }
-    pub fn pos(&self) -> (u8, u8) {
-        (self.x, self.y)
-    }
-
-    pub fn set_x(&mut self, x: u8) {
-        assert!(Self::is_x_valid(x));
-        self.x = x;
-    }
-    pub fn set_y(&mut self, y: u8) {
-        assert!(Self::is_y_valid(y));
-        self.y = y;
-    }
-
     fn is_even_row(&self) -> bool {
         self.y % 2 == 0
     }
 
-    pub fn draw_point(&self) -> Point {
+    pub fn draw_pos(&self) -> Point {
         // Клетки нумеруются с первой, а алгоритм работает с нумерацией с нуля
         let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
 
@@ -74,7 +55,7 @@ impl GridPos {
     }
 
     pub fn draw_rect(&self) -> Rect {
-        let draw_point = self.draw_point();
+        let draw_point = self.draw_pos();
         let (x, y) = (draw_point.x(), draw_point.y());
         Rect::new(x, y, Self::CELL_WIDTH, Self::CELL_HEIGHT)
     }

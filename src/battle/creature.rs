@@ -1,75 +1,94 @@
+use std::collections::VecDeque;
 use std::time::Instant;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
 use sdl2::render::{WindowCanvas, TextureCreator};
+use sdl2::rect::Point;
 
 use crate::util::AnyError;
 use crate::enumerations::Creature;
-use crate::resources::ResourceRegistry;
-use crate::tweening::Tweening;
-use crate::animation::Animation;
+use crate::resources::{ResourceRegistry, AnimationType};
+use crate::time_progress::{Tweening, Animation};
 
 use super::GridPos;
 
-#[derive(Clone, Copy)]
-pub enum FacingDirection {
-    Left,
-    Right
-}
 
 pub struct CreatureStack {
     creature: Creature,
-    grid_pos: GridPos,
+    current_pos: Point,
 
-    animation: Animation,
-    tweening: Option<Tweening>,
+    current_tweening: Option<Tweening>,
+    tweening_queue: VecDeque<Tweening>,
 
-    facing_direction: FacingDirection,
+    animation_type: AnimationType,
+    animation_progress: f32,
+
+    current_animation: Option<Animation>,
+    animation_queue: VecDeque<Animation>
 }
 
 impl CreatureStack {
-    pub fn new(creature: Creature, grid_pos: GridPos, facing_direction: FacingDirection, rr: &mut ResourceRegistry) -> Self {
-        let tweening = Tweening::new(grid_pos.draw_point(), GridPos::new(8, 8).draw_point());
+    pub fn new(creature: Creature, grid_pos: GridPos) -> Self {
         Self {
             creature,
-            grid_pos,
-            animation: Animation::default(creature, rr),
-            tweening: Some(tweening),
-            facing_direction
+            current_pos: grid_pos.draw_pos(),
+
+            current_tweening: None,
+            tweening_queue: VecDeque::new(),
+
+            animation_type: AnimationType::Standing,
+            animation_progress: 0.,
+
+            current_animation: None,
+            animation_queue: VecDeque::new()
         }
     }
 
     pub fn update(&mut self, now: Instant) {
-        self.animation.update(now);
-
-        if let Some(tweening) = &mut self.tweening {
-            if tweening.is_finished() {
-                self.tweening = None
-            } else {
-                tweening.update(now);
+        if let Some(tweening) = &self.current_tweening {
+            tweening.update(now, &mut self.current_pos);
+            if tweening.is_finished(now) {
+                self.current_tweening = None;
             }
+        }
+        if self.current_tweening.is_none() {
+            self.current_tweening = self.tweening_queue.pop_front();
+        }
+
+        if let Some(animation) = &mut self.current_animation {
+            animation.update(now, &mut self.animation_type, &mut self.animation_progress);
+            if animation.is_finished(now) {
+                self.current_animation = None;
+            }
+        }
+
+        if self.current_animation.is_none() {
+            self.current_animation = self.animation_queue.pop_front();
         }
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
-        let sprite = self.animation.get_sprite(rr);
+        let spritesheet = rr.get_creature_container(self.creature);
+        let sprite = spritesheet.get_sprite(self.animation_type, self.animation_progress).unwrap();
         
-        let draw_point =
-            if let Some(tweening) = &self.tweening {
-                tweening.draw_point() 
-            } else {
-                self.grid_pos.draw_point()
-            };
-        
-        let draw_rect = sprite.draw_rect(draw_point);
+        let draw_rect = sprite.draw_rect(self.current_pos);
         let texture = sprite.surface().as_texture(tc)?;
 
-        match self.facing_direction {
-            FacingDirection::Left => canvas.copy(&texture, None, draw_rect)?,
-            FacingDirection::Right => canvas.copy_ex(&texture, None, draw_rect, 0., None, true, false)?
-        };
+        canvas.copy(&texture, None, draw_rect)?;
 
         Ok(())
+    }
+
+    pub fn current_pos(&self) -> Point {
+        self.current_pos
+    }
+
+    pub fn push_tweening(&mut self, tweening: Tweening) {
+        self.tweening_queue.push_back(tweening);
+    }
+
+    pub fn push_animation(&mut self, animation: Animation) {
+        self.animation_queue.push_back(animation);
     }
 }

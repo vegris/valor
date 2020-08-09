@@ -9,7 +9,7 @@ use sdl2::rect::{Point, Rect};
 use super::formats::{DefSprite, DefContainer};
 
 // Номера повторяют номера в реальном Def файле
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 #[allow(unused, non_camel_case_types)]
 pub enum AnimationType {
     Moving = 0,
@@ -128,9 +128,9 @@ impl CreatureSpritesheet {
     pub fn get_animation_block(&self, animation: AnimationType) -> Option<&AnimationBlock> {
         (&self.blocks[animation as usize]).as_ref()
     }
-    pub fn get_sprite(&self, animation: AnimationType, sprite_num: usize) -> Option<&CreatureSprite> {
+    pub fn get_sprite(&self, animation: AnimationType, progress: f32) -> Option<&CreatureSprite> {
         self.get_animation_block(animation).map(|block| { 
-            // Индекс спрайта в общем массиве спрайтов
+            let sprite_num = ((block.len() - 1) as f32 * progress).ceil() as usize;
             let sprite_index = block[sprite_num];
             &self.sprites[sprite_index] 
         })
