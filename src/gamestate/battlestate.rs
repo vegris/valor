@@ -11,7 +11,7 @@ use crate::util::AnyError;
 
 use super::GridPos;
 use super::creature::CreatureStack;
-use crate::choreographer::animate_move_unit;
+use crate::graphics::choreographer::animate_move_unit;
 
 pub struct BattleState<'a> {
     // Постоянно используемые текстуры,

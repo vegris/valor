@@ -6,7 +6,7 @@ use sdl2::surface::Surface;
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 
-use super::formats::{DefSprite, DefContainer};
+use crate::resources::formats::{DefSprite, DefContainer};
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy)]

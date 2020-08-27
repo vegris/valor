@@ -3,7 +3,7 @@ use std::mem::MaybeUninit;
 extern crate sdl2;
 
 use crate::enumerations::Creature;
-use super::creature_spritesheet::CreatureSpritesheet;
+use crate::graphics::creature::CreatureSpritesheet;
 
 type CachedValue = CreatureSpritesheet;
 

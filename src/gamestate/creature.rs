@@ -8,8 +8,9 @@ use sdl2::rect::Point;
 
 use crate::util::AnyError;
 use crate::enumerations::Creature;
-use crate::resources::{ResourceRegistry, AnimationType};
-use crate::time_progress::{Tweening, Animation};
+use crate::resources::ResourceRegistry;
+use crate::graphics::creature::AnimationType;
+use crate::graphics::animations::{Tweening, Animation};
 
 use super::GridPos;
 

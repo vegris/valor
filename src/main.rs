@@ -10,14 +10,13 @@ use resources::ResourceRegistry;
 mod enumerations;
 use enumerations::Battlefield;
 
-mod battle;
-use battle::BattleState;
+mod gamestate;
+use gamestate::BattleState;
 
 mod util;
 use util::AnyError;
 
-mod choreographer;
-mod time_progress;
+mod graphics;
 
 
 fn main() -> Result<(), AnyError> {

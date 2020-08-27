@@ -5,10 +5,10 @@ use sdl2::surface::Surface;
 
 use crate::util::AnyError;
 use crate::enumerations::Creature;
+use crate::graphics::creature::CreatureSpritesheet;
 
 use super::formats::{LodIndex, PcxImage, DefContainer};
 use super::caches::CreaturesCache;
-use super::creature_spritesheet::CreatureSpritesheet;
 
 
 const RESOURCES_ROOT: &str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data";

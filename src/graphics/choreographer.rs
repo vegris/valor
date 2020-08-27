@@ -1,8 +1,10 @@
 use std::time::Instant;
 
-use crate::time_progress::{Tweening, Animation};
-use crate::battle::{BattleState, GridPos};
-use crate::resources::{ResourceRegistry, AnimationType};
+use super::creature::AnimationType;
+use super::animations::{Tweening, Animation};
+use crate::gamestate::{BattleState, GridPos};
+use crate::resources::ResourceRegistry;
+
 
 pub fn animate_move_unit(state: &mut BattleState, rr: &mut ResourceRegistry, unit_index: usize, path: Vec<GridPos>, start_from: Instant) {
     let unit = state.get_unit_mut(unit_index);
