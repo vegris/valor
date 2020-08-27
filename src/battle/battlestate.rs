@@ -32,28 +32,22 @@ impl<'a> BattleState<'a> {
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
             creatures: vec![
-                CreatureStack::new(Creature::Peasant, GridPos::new(1, 1)),
-                CreatureStack::new(Creature::Champion, GridPos::new(5, 9)),
-                CreatureStack::new(Creature::Beholder, GridPos::new(10, 2))
+                CreatureStack::new(Creature::Champion, GridPos::new(5, 9))
             ]
 
         };
-
-        let peasant_path = vec![
-            GridPos::new(1, 2),
-            GridPos::new(1, 3),
-            GridPos::new(2, 3),
-            GridPos::new(2, 4)
-        ];
-        animate_move_unit(&mut battlestate, 0, peasant_path, Instant::now());
 
         let champion_path = vec![
             GridPos::new(6, 9),
             GridPos::new(7, 9),
             GridPos::new(8, 9),
-            GridPos::new(9, 10),
+            GridPos::new(9, 9),
+            GridPos::new(10, 9),
+            GridPos::new(11, 9),
+            GridPos::new(12, 9),
+            GridPos::new(13, 9),
         ];
-        animate_move_unit(&mut battlestate, 1, champion_path, Instant::now());
+        animate_move_unit(&mut battlestate, rr, 0, champion_path, Instant::now());
 
         Ok(battlestate)
     }

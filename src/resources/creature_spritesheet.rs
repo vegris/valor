@@ -130,7 +130,7 @@ impl CreatureSpritesheet {
     }
     pub fn get_sprite(&self, animation: AnimationType, progress: f32) -> Option<&CreatureSprite> {
         self.get_animation_block(animation).map(|block| { 
-            let sprite_num = ((block.len() - 1) as f32 * progress).ceil() as usize;
+            let sprite_num = (block.len() as f32 * progress).floor() as usize;
             let sprite_index = block[sprite_num];
             &self.sprites[sprite_index] 
         })

@@ -28,7 +28,7 @@ impl TimeProgress{
     pub fn state(&self, now: Instant) -> TimeProgressState {
         if now < self.start {
             TimeProgressState::Ready
-        } else if now > self.end {
+        } else if now >= self.end {
             TimeProgressState::Finished
         } else {
             let progress = (now - self.start).as_secs_f32() / (self.end - self.start).as_secs_f32();
@@ -36,6 +36,8 @@ impl TimeProgress{
         }
     }
 }
+
+const BASE_DURATION: Duration = Duration::from_millis(435);
 
 
 pub struct Tweening {
@@ -45,10 +47,8 @@ pub struct Tweening {
 }
 
 impl Tweening {
-    const TWEEN_DURATION: Duration = Duration::from_secs(1);
-
     pub fn new(current_pos: Point, next_pos: Point, start_from: Instant) -> Self {
-        let time_progress = TimeProgress::new(start_from, Self::TWEEN_DURATION);
+        let time_progress = TimeProgress::new(start_from, BASE_DURATION * 2);
         Self {
             current_pos,
             next_pos,
@@ -61,8 +61,8 @@ impl Tweening {
             let diff = self.next_pos - self.current_pos;
             let (diff_x, diff_y) = (diff.x() as f32, diff.y() as f32);
 
-            let offset_x = (diff_x * progress_percent).floor() as i32;
-            let offset_y = (diff_y * progress_percent).floor() as i32;
+            let offset_x = (diff_x * progress_percent).round() as i32;
+            let offset_y = (diff_y * progress_percent).round() as i32;
 
             *pos = self.current_pos.offset(offset_x, offset_y);
         }
@@ -86,10 +86,27 @@ pub struct Animation {
 }
 
 impl Animation {
-    const LOOP_DURATION: Duration = Duration::from_millis(700);
 
+    fn get_duration(type_: AnimationType) -> Duration {
+        match type_ {
+            AnimationType::StartMoving | AnimationType::StopMoving => BASE_DURATION / 3,
+            AnimationType::Moving => BASE_DURATION * 2,
+            AnimationType::Standing => BASE_DURATION * 2,
+            _ => BASE_DURATION
+        }
+    }
+
+    pub fn new(type_: AnimationType, start_from: Instant) -> Self {
+        let time_progress = TimeProgress::new(start_from, Self::get_duration(type_));
+        Self {
+            type_,
+            time_progress,
+            is_looping: false,
+            loop_until: None
+        }
+    }
     pub fn new_looping(type_: AnimationType, start_from: Instant, loop_until: Option<Instant>) -> Self {
-        let time_progress = TimeProgress::new(start_from, Self::LOOP_DURATION);
+        let time_progress = TimeProgress::new(start_from, Self::get_duration(type_));
         Self {
             type_,
             time_progress,
@@ -108,7 +125,7 @@ impl Animation {
                 if self.is_looping {
                     let new_loop_required = self.loop_until.map_or(true, |instant| instant > now);
                     if new_loop_required {
-                        self.time_progress = TimeProgress::new(now, Self::LOOP_DURATION);
+                        self.time_progress = TimeProgress::new(now, Self::get_duration(self.type_));
                     }
                 }
             },

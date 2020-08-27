@@ -80,6 +80,10 @@ impl CreatureStack {
         Ok(())
     }
 
+    pub fn creature(&self) -> Creature {
+        self.creature
+    }
+
     pub fn current_pos(&self) -> Point {
         self.current_pos
     }
