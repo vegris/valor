@@ -22,7 +22,6 @@ pub struct CreatureStack {
     current_tweening: Option<Tweening>,
     tweening_queue: VecDeque<Tweening>,
 
-    animation_type: AnimationType,
     animation_progress: f32,
 
     current_animation: Option<Animation>,
@@ -38,7 +37,6 @@ impl CreatureStack {
             current_tweening: None,
             tweening_queue: VecDeque::new(),
 
-            animation_type: AnimationType::Standing,
             animation_progress: 0.,
 
             current_animation: None,
@@ -58,7 +56,7 @@ impl CreatureStack {
         }
 
         if let Some(animation) = &mut self.current_animation {
-            animation.update(now, &mut self.animation_type, &mut self.animation_progress);
+            animation.update(now, &mut self.animation_progress);
             if animation.is_finished(now) {
                 self.current_animation = None;
             }
@@ -71,7 +69,8 @@ impl CreatureStack {
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
         let spritesheet = rr.get_creature_container(self.creature);
-        let sprite = spritesheet.get_sprite(self.animation_type, self.animation_progress).unwrap();
+        let animation_type = self.current_animation.as_ref().unwrap().type_();
+        let sprite = spritesheet.get_sprite(animation_type, self.animation_progress).unwrap();
         
         let draw_rect = sprite.draw_rect(self.current_pos);
         let texture = sprite.surface().as_texture(tc)?;

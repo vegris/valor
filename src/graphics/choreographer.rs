@@ -31,6 +31,6 @@ pub fn animate_move_unit(state: &mut BattleState, rr: &mut ResourceRegistry, uni
         animation_end = animation.end();
         unit.push_animation(animation);
     }
-    let animation = Animation::new_looping(AnimationType::Standing, animation_end, None);
+    let animation = Animation::new_looping(AnimationType::Standing, animation_end);
     unit.push_animation(animation);
 }

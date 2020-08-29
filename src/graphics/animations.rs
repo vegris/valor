@@ -81,8 +81,7 @@ impl Tweening {
 pub struct Animation {
     type_: AnimationType,
     time_progress: TimeProgress,
-    is_looping: bool,
-    loop_until: Option<Instant>
+    is_looping: bool
 }
 
 impl Animation {
@@ -97,36 +96,30 @@ impl Animation {
     }
 
     pub fn new(type_: AnimationType, start_from: Instant) -> Self {
-        let time_progress = TimeProgress::new(start_from, Self::get_duration(type_));
-        Self {
-            type_,
-            time_progress,
-            is_looping: false,
-            loop_until: None
-        }
+        Self::do_new(type_, start_from, false)
     }
-    pub fn new_looping(type_: AnimationType, start_from: Instant, loop_until: Option<Instant>) -> Self {
+
+    pub fn new_looping(type_: AnimationType, start_from: Instant) -> Self {
+        Self::do_new(type_, start_from, true)
+    }
+
+    fn do_new(type_: AnimationType, start_from: Instant, is_looping: bool) -> Self {
         let time_progress = TimeProgress::new(start_from, Self::get_duration(type_));
         Self {
             type_,
             time_progress,
-            is_looping: true,
-            loop_until
+            is_looping
         }
     }
 
-    pub fn update(&mut self, now: Instant, type_: &mut AnimationType, progress: &mut f32) {
+    pub fn update(&mut self, now: Instant, progress: &mut f32) {
         match self.time_progress.state(now) {
             TimeProgressState::Going(progress_percent) => {
-                *type_ = self.type_;
                 *progress = progress_percent;
             },
             TimeProgressState::Finished => {
                 if self.is_looping {
-                    let new_loop_required = self.loop_until.map_or(true, |instant| instant > now);
-                    if new_loop_required {
-                        self.time_progress = TimeProgress::new(now, Self::get_duration(self.type_));
-                    }
+                    self.time_progress = TimeProgress::new(now, Self::get_duration(self.type_));
                 }
             },
             TimeProgressState::Ready => {}
@@ -135,6 +128,10 @@ impl Animation {
 
     pub fn end(&self) -> Instant {
         self.time_progress.end
+    }
+
+    pub fn type_(&self) -> AnimationType {
+        self.type_
     }
 
     pub fn is_finished(&self, now: Instant) -> bool {
