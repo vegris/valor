@@ -11,7 +11,7 @@ use crate::util::AnyError;
 
 use super::GridPos;
 use super::creature::CreatureStack;
-use crate::graphics::choreographer::animate_move_unit;
+use crate::graphics::choreographer;
 
 pub struct BattleState<'a> {
     // Постоянно используемые текстуры,
@@ -32,7 +32,7 @@ impl<'a> BattleState<'a> {
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
             creatures: vec![
-                CreatureStack::new(Creature::Champion, GridPos::new(5, 9))
+                CreatureStack::new(Creature::Champion, GridPos::new(5, 9), true)
             ]
 
         };
@@ -47,7 +47,8 @@ impl<'a> BattleState<'a> {
             GridPos::new(12, 9),
             GridPos::new(13, 9),
         ];
-        animate_move_unit(&mut battlestate, rr, 0, champion_path, Instant::now());
+        choreographer::animate_unit_move(&mut battlestate, rr, 0, champion_path, Instant::now());
+        // choreographer::animate_unit_standing(&mut battlestate, rr, 0, Instant::now());
 
         Ok(battlestate)
     }

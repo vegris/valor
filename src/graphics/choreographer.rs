@@ -6,7 +6,7 @@ use crate::gamestate::{BattleState, GridPos};
 use crate::resources::ResourceRegistry;
 
 
-pub fn animate_move_unit(state: &mut BattleState, rr: &mut ResourceRegistry, unit_index: usize, path: Vec<GridPos>, start_from: Instant) {
+pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, unit_index: usize, path: Vec<GridPos>, start_from: Instant) {
     let unit = state.get_unit_mut(unit_index);
 
     let animation = Animation::new(AnimationType::StartMoving, start_from);
@@ -31,6 +31,11 @@ pub fn animate_move_unit(state: &mut BattleState, rr: &mut ResourceRegistry, uni
         animation_end = animation.end();
         unit.push_animation(animation);
     }
-    let animation = Animation::new_looping(AnimationType::Standing, animation_end);
+    animate_unit_standing(state, rr, unit_index, animation_end);
+}
+
+pub fn animate_unit_standing(state: &mut BattleState, rr: &mut ResourceRegistry, unit_index: usize, start_from: Instant) {
+    let unit = state.get_unit_mut(unit_index);
+    let animation = Animation::new_looping(AnimationType::Standing, start_from);
     unit.push_animation(animation);
 }

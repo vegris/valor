@@ -4,12 +4,12 @@ use std::time::Instant;
 extern crate sdl2;
 use sdl2::video::WindowContext;
 use sdl2::render::{WindowCanvas, TextureCreator};
-use sdl2::rect::Point;
+use sdl2::rect::{Rect, Point};
+use sdl2::pixels::Color;
 
 use crate::util::AnyError;
 use crate::enumerations::Creature;
 use crate::resources::ResourceRegistry;
-use crate::graphics::creature::AnimationType;
 use crate::graphics::animations::{Tweening, Animation};
 
 use super::GridPos;
@@ -25,11 +25,13 @@ pub struct CreatureStack {
     animation_progress: f32,
 
     current_animation: Option<Animation>,
-    animation_queue: VecDeque<Animation>
+    animation_queue: VecDeque<Animation>,
+
+    face_left: bool
 }
 
 impl CreatureStack {
-    pub fn new(creature: Creature, grid_pos: GridPos) -> Self {
+    pub fn new(creature: Creature, grid_pos: GridPos, face_left: bool) -> Self {
         Self {
             creature,
             current_pos: grid_pos.draw_pos(),
@@ -40,7 +42,9 @@ impl CreatureStack {
             animation_progress: 0.,
 
             current_animation: None,
-            animation_queue: VecDeque::new()
+            animation_queue: VecDeque::new(),
+
+            face_left
         }
     }
 
@@ -72,10 +76,21 @@ impl CreatureStack {
         let animation_type = self.current_animation.as_ref().unwrap().type_();
         let sprite = spritesheet.get_sprite(animation_type, self.animation_progress).unwrap();
         
-        let draw_rect = sprite.draw_rect(self.current_pos);
+        canvas.set_draw_color(Color::BLUE);
+        canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
+
+        let draw_rect = sprite.draw_rect(self.current_pos, self.face_left);
         let texture = sprite.surface().as_texture(tc)?;
 
-        canvas.copy(&texture, None, draw_rect)?;
+        if self.face_left {
+            canvas.copy(&texture, None, draw_rect)?;
+        } else {
+            canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?;
+
+        }
+        canvas.set_draw_color(Color::RED);
+        canvas.draw_rect(draw_rect)?;
+        canvas.set_draw_color(Color::BLACK);
 
         Ok(())
     }

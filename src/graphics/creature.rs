@@ -7,6 +7,7 @@ use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 
 use crate::resources::formats::{DefSprite, DefContainer};
+use crate::gamestate::GridPos;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy)]
@@ -61,10 +62,15 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
-    pub fn draw_rect(&self, draw_point: Point) -> Rect {
+    pub fn draw_rect(&self, draw_point: Point, face_left: bool) -> Rect {
         let Self { left_margin, top_margin, width, height, .. } = *self;
         let (x_pos, y_pos) = (draw_point.x(), draw_point.y());
-        Rect::new(left_margin as i32 + x_pos - 173, top_margin as i32 + y_pos - 225, width, height)
+        if face_left {
+            Rect::new(x_pos + left_margin as i32 - 175, top_margin as i32 + y_pos - 225, width, height)
+        } else {
+            let x_pos = x_pos + 450 - left_margin as i32 - width as i32 - 230;
+            Rect::new(x_pos, top_margin as i32 + y_pos - 225, width, height)
+        }
     }
 
     pub fn surface(&self) -> &Surface<'static> {
