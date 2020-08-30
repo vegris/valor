@@ -10,7 +10,8 @@ use sdl2::pixels::Color;
 use crate::util::AnyError;
 use crate::enumerations::Creature;
 use crate::resources::ResourceRegistry;
-use crate::graphics::animations::{Tweening, Animation};
+use crate::graphics::creature::AnimationType;
+use crate::graphics::animations::CreatureAnimation;
 
 use super::GridPos;
 
@@ -19,15 +20,13 @@ pub struct CreatureStack {
     creature: Creature,
     current_pos: Point,
 
-    current_tweening: Option<Tweening>,
-    tweening_queue: VecDeque<Tweening>,
-
+    animation_type: AnimationType,
     animation_progress: f32,
 
-    current_animation: Option<Animation>,
-    animation_queue: VecDeque<Animation>,
+    current_animation: Option<CreatureAnimation>,
+    animation_queue: VecDeque<CreatureAnimation>,
 
-    face_left: bool
+    pub face_left: bool
 }
 
 impl CreatureStack {
@@ -36,10 +35,8 @@ impl CreatureStack {
             creature,
             current_pos: grid_pos.draw_pos(),
 
-            current_tweening: None,
-            tweening_queue: VecDeque::new(),
-
-            animation_progress: 0.,
+            animation_type: AnimationType::Standing,
+            animation_progress: 0.0,
 
             current_animation: None,
             animation_queue: VecDeque::new(),
@@ -49,32 +46,27 @@ impl CreatureStack {
     }
 
     pub fn update(&mut self, now: Instant) {
-        if let Some(tweening) = &self.current_tweening {
-            tweening.update(now, &mut self.current_pos);
-            if tweening.is_finished(now) {
-                self.current_tweening = None;
-            }
-        }
-        if self.current_tweening.is_none() {
-            self.current_tweening = self.tweening_queue.pop_front();
-        }
-
-        if let Some(animation) = &mut self.current_animation {
-            animation.update(now, &mut self.animation_progress);
+        let maybe_animation = self.current_animation.take();
+        if let Some(animation) = maybe_animation {
+            animation.update(self, now);
             if animation.is_finished(now) {
-                self.current_animation = None;
+                animation.at_end(self);
+            } else {
+                self.current_animation = Some(animation);
             }
         }
 
         if self.current_animation.is_none() {
-            self.current_animation = self.animation_queue.pop_front();
+            if let Some(animation) = self.animation_queue.pop_front() {
+                animation.at_start(self);
+                self.current_animation = Some(animation);
+            }
         }
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
         let spritesheet = rr.get_creature_container(self.creature);
-        let animation_type = self.current_animation.as_ref().unwrap().type_();
-        let sprite = spritesheet.get_sprite(animation_type, self.animation_progress).unwrap();
+        let sprite = spritesheet.get_sprite(self.animation_type, self.animation_progress).unwrap();
         
         canvas.set_draw_color(Color::BLUE);
         canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
@@ -103,11 +95,19 @@ impl CreatureStack {
         self.current_pos
     }
 
-    pub fn push_tweening(&mut self, tweening: Tweening) {
-        self.tweening_queue.push_back(tweening);
+    pub fn set_current_pos(&mut self, pos: Point) {
+        self.current_pos = pos
+    }
+    
+    pub fn set_animation_type(&mut self, animation_type: AnimationType) {
+        self.animation_type = animation_type;
     }
 
-    pub fn push_animation(&mut self, animation: Animation) {
+    pub fn set_animation_progress(&mut self, progress: f32) {
+        self.animation_progress = progress;
+    }
+
+    pub fn push_animation(&mut self, animation: CreatureAnimation) {
         self.animation_queue.push_back(animation);
     }
 }

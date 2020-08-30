@@ -4,4 +4,4 @@ pub use battlestate::BattleState;
 mod gridpos;
 pub use gridpos::GridPos;
 
-mod creature;
+pub mod creature;

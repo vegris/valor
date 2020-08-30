@@ -3,6 +3,7 @@ use std::time::{Instant, Duration};
 extern crate sdl2;
 use sdl2::rect::Point;
 
+use crate::gamestate::creature::CreatureStack;
 use crate::graphics::creature::AnimationType;
 
 
@@ -39,102 +40,82 @@ impl TimeProgress{
 
 const BASE_DURATION: Duration = Duration::from_millis(435);
 
+struct TweenData {
+    start_pos: Point,
+    end_pos: Point
+}
 
-pub struct Tweening {
-    current_pos: Point,
-    next_pos: Point,
+type MutateCreatureStackFunc = fn(&mut CreatureStack);
+
+pub struct CreatureAnimation {
+    at_start: Option<MutateCreatureStackFunc>,
+    at_end: Option<MutateCreatureStackFunc>,
+    tween_data: Option<TweenData>,
+    animation_type: AnimationType,
     time_progress: TimeProgress
 }
 
-impl Tweening {
-    pub fn new(current_pos: Point, next_pos: Point, start_from: Instant) -> Self {
-        let time_progress = TimeProgress::new(start_from, BASE_DURATION * 2);
+impl CreatureAnimation {
+    pub fn new_ordinary(animation_type: AnimationType, start_from: Instant) -> Self {
+        let time_progress = TimeProgress::new(start_from, BASE_DURATION);
         Self {
-            current_pos,
-            next_pos,
+            at_start: None,
+            at_end: None,
+            tween_data: None,
+            animation_type,
             time_progress
         }
     }
 
-    pub fn update(&self, now: Instant, pos: &mut Point)  {
-        if let TimeProgressState::Going(progress_percent) = self.time_progress.state(now) {
-            let diff = self.next_pos - self.current_pos;
-            let (diff_x, diff_y) = (diff.x() as f32, diff.y() as f32);
+    pub fn new_tweening(start_from: Instant, start_pos: Point, end_pos: Point) -> Self {
+        let time_progress = TimeProgress::new(start_from, BASE_DURATION);
+        let tween_data = TweenData {
+            start_pos,
+            end_pos
+        };
 
-            let offset_x = (diff_x * progress_percent).round() as i32;
-            let offset_y = (diff_y * progress_percent).round() as i32;
-
-            *pos = self.current_pos.offset(offset_x, offset_y);
-        }
-    }
-
-    pub fn is_finished(&self, now: Instant) -> bool {
-        matches!(self.time_progress.state(now), TimeProgressState::Finished)
-    }
-
-    pub fn end(&self) -> Instant {
-        self.time_progress.end
-    }
-}
-
-
-pub struct Animation {
-    type_: AnimationType,
-    time_progress: TimeProgress,
-    is_looping: bool
-}
-
-impl Animation {
-
-    fn get_duration(type_: AnimationType) -> Duration {
-        match type_ {
-            AnimationType::StartMoving | AnimationType::StopMoving => BASE_DURATION / 3,
-            AnimationType::Moving => BASE_DURATION * 2,
-            AnimationType::Standing => BASE_DURATION * 2,
-            _ => BASE_DURATION
-        }
-    }
-
-    pub fn new(type_: AnimationType, start_from: Instant) -> Self {
-        Self::do_new(type_, start_from, false)
-    }
-
-    pub fn new_looping(type_: AnimationType, start_from: Instant) -> Self {
-        Self::do_new(type_, start_from, true)
-    }
-
-    fn do_new(type_: AnimationType, start_from: Instant, is_looping: bool) -> Self {
-        let time_progress = TimeProgress::new(start_from, Self::get_duration(type_));
         Self {
-            type_,
-            time_progress,
-            is_looping
+            at_start: None,
+            at_end: None,
+            tween_data: Some(tween_data),
+            animation_type: AnimationType::Moving,
+            time_progress
         }
     }
 
-    pub fn update(&mut self, now: Instant, progress: &mut f32) {
-        match self.time_progress.state(now) {
-            TimeProgressState::Going(progress_percent) => {
-                *progress = progress_percent;
-            },
-            TimeProgressState::Finished => {
-                if self.is_looping {
-                    self.time_progress = TimeProgress::new(now, Self::get_duration(self.type_));
-                }
-            },
-            TimeProgressState::Ready => {}
+    pub fn at_start(&self, creature: &mut CreatureStack) {
+        creature.set_animation_type(self.animation_type);
+        if let Some(at_start) = self.at_start {
+           at_start(creature);
         }
     }
-
-    pub fn end(&self) -> Instant {
-        self.time_progress.end
+    pub fn at_end(&self, creature: &mut CreatureStack) {
+        if let Some(at_end) = self.at_end {
+           at_end(creature);
+        }
     }
+    pub fn update(&self, creature: &mut CreatureStack, now: Instant) {
+        if let TimeProgressState::Going(progress_percent) = self.time_progress.state(now) {
+            // animation
+            creature.set_animation_progress(progress_percent);
 
-    pub fn type_(&self) -> AnimationType {
-        self.type_
+            // tweening
+            if let Some(TweenData{ start_pos, end_pos }) = self.tween_data {
+                let diff = end_pos - start_pos;
+                let (diff_x, diff_y) = (diff.x() as f32, diff.y() as f32);
+
+                let offset_x = (diff_x * progress_percent).round() as i32;
+                let offset_y = (diff_y * progress_percent).round() as i32;
+
+                let new_pos = start_pos.offset(offset_x, offset_y);
+                creature.set_current_pos(new_pos);
+            }
+        }
     }
-
     pub fn is_finished(&self, now: Instant) -> bool {
         matches!(self.time_progress.state(now), TimeProgressState::Finished)
+    }
+    pub fn end(&self) -> Instant {
+        self.time_progress.end
     }
 }

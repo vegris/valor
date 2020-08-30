@@ -7,7 +7,6 @@ use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 
 use crate::resources::formats::{DefSprite, DefContainer};
-use crate::gamestate::GridPos;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy)]
