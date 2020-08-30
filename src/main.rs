@@ -41,6 +41,7 @@ fn main() -> Result<(), AnyError> {
     // Создание начального игрового состояния
     let mut current_state = BattleState::new(&mut resource_registry, &texture_creator, Battlefield::GRMT)?;
 
+    let mut frame_start_time = Instant::now();
     'gameloop: loop {
         // Обработка ввода
         for event in event_pump.poll_iter() {
@@ -53,7 +54,10 @@ fn main() -> Result<(), AnyError> {
             }
         }
         // Обновление игрового состояния
-        current_state.update(Instant::now());
+
+        let new_frame_time = Instant::now();
+        current_state.update(new_frame_time - frame_start_time);
+        frame_start_time = new_frame_time;
 
         // Отображение игрового состояния
         canvas.clear();

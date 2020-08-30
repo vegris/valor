@@ -1,5 +1,5 @@
 use std::collections::VecDeque;
-use std::time::Instant;
+use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
@@ -45,11 +45,11 @@ impl CreatureStack {
         }
     }
 
-    pub fn update(&mut self, now: Instant) {
+    pub fn update(&mut self, dt: Duration) {
         let maybe_animation = self.current_animation.take();
-        if let Some(animation) = maybe_animation {
-            animation.update(self, now);
-            if animation.is_finished(now) {
+        if let Some(mut animation) = maybe_animation {
+            animation.update(self, dt);
+            if animation.is_finished() {
                 animation.at_end(self);
             } else {
                 self.current_animation = Some(animation);

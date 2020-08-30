@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
@@ -47,15 +47,15 @@ impl<'a> BattleState<'a> {
             GridPos::new(12, 9),
             GridPos::new(13, 9),
         ];
-        choreographer::animate_unit_move(&mut battlestate, rr, 0, champion_path, Instant::now());
+        choreographer::animate_unit_move(&mut battlestate, rr, 0, champion_path);
         // choreographer::animate_unit_standing(&mut battlestate, rr, 0, Instant::now());
 
         Ok(battlestate)
     }
 
-    pub fn update(&mut self, now: Instant) {
+    pub fn update(&mut self, dt: Duration) {
         for creature in &mut self.creatures {
-            creature.update(now);
+            creature.update(dt);
         }
     }
 

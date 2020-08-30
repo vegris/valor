@@ -1,4 +1,4 @@
-use std::time::{Instant, Duration};
+use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::rect::Point;
@@ -8,8 +8,9 @@ use crate::graphics::creature::AnimationType;
 
 
 struct TimeProgress {
-    start: Instant,
-    end: Instant
+    delay: Option<Duration>,
+    total_duration: Duration,
+    time_passed: Duration
 }
 
 enum TimeProgressState {
@@ -19,22 +20,43 @@ enum TimeProgressState {
 }
 
 impl TimeProgress{
-    pub fn new(start: Instant, duration: Duration) -> Self {
+    pub fn new(duration: Duration) -> Self {
         Self {
-            start,
-            end: start + duration
+            delay: None,
+            total_duration: duration,
+            time_passed: Duration::from_secs(0)
         }
     }
 
-    pub fn state(&self, now: Instant) -> TimeProgressState {
-        if now < self.start {
-            TimeProgressState::Ready
-        } else if now >= self.end {
-            TimeProgressState::Finished
-        } else {
-            let progress = (now - self.start).as_secs_f32() / (self.end - self.start).as_secs_f32();
-            TimeProgressState::Going(progress)
+    pub fn new_delayed(duration: Duration, delay: Duration) -> Self {
+        Self {
+            delay: Some(delay),
+            total_duration: duration,
+            time_passed: Duration::from_secs(0)
         }
+    }
+
+    pub fn update(&mut self, dt: Duration) {
+        if let Some(delay) = self.delay {
+            self.delay = delay.checked_sub(dt);
+        } else {
+            self.time_passed += dt;
+        }
+    }
+
+    pub fn progress(&self) -> TimeProgressState {
+        if self.delay.is_some() {
+            TimeProgressState::Ready
+        } else if self.time_passed < self.total_duration {
+            let progress = self.time_passed.as_secs_f32() / self.total_duration.as_secs_f32();
+            TimeProgressState::Going(progress)
+        } else {
+            TimeProgressState::Finished
+        }
+    }
+
+    pub fn is_finished(&self) -> bool {
+        matches!(self.progress(), TimeProgressState::Finished)
     }
 }
 
@@ -56,8 +78,8 @@ pub struct CreatureAnimation {
 }
 
 impl CreatureAnimation {
-    pub fn new_ordinary(animation_type: AnimationType, start_from: Instant) -> Self {
-        let time_progress = TimeProgress::new(start_from, BASE_DURATION);
+    pub fn new_ordinary(animation_type: AnimationType) -> Self {
+        let time_progress = TimeProgress::new(BASE_DURATION);
         Self {
             at_start: None,
             at_end: None,
@@ -67,8 +89,19 @@ impl CreatureAnimation {
         }
     }
 
-    pub fn new_tweening(start_from: Instant, start_pos: Point, end_pos: Point) -> Self {
-        let time_progress = TimeProgress::new(start_from, BASE_DURATION);
+    pub fn new_delayed(animation_type: AnimationType, delay: Duration) -> Self {
+        let time_progress = TimeProgress::new_delayed(BASE_DURATION, delay);
+        Self {
+            at_start: None,
+            at_end: None,
+            tween_data: None,
+            animation_type,
+            time_progress
+        }
+    }
+
+    pub fn new_tweening(start_pos: Point, end_pos: Point) -> Self {
+        let time_progress = TimeProgress::new(BASE_DURATION);
         let tween_data = TweenData {
             start_pos,
             end_pos
@@ -94,28 +127,26 @@ impl CreatureAnimation {
            at_end(creature);
         }
     }
-    pub fn update(&self, creature: &mut CreatureStack, now: Instant) {
-        if let TimeProgressState::Going(progress_percent) = self.time_progress.state(now) {
+    pub fn update(&mut self, creature: &mut CreatureStack, dt: Duration) {
+        self.time_progress.update(dt);
+        if let TimeProgressState::Going(progress) = self.time_progress.progress() {
             // animation
-            creature.set_animation_progress(progress_percent);
+            creature.set_animation_progress(progress);
 
             // tweening
             if let Some(TweenData{ start_pos, end_pos }) = self.tween_data {
                 let diff = end_pos - start_pos;
                 let (diff_x, diff_y) = (diff.x() as f32, diff.y() as f32);
 
-                let offset_x = (diff_x * progress_percent).round() as i32;
-                let offset_y = (diff_y * progress_percent).round() as i32;
+                let offset_x = (diff_x * progress).round() as i32;
+                let offset_y = (diff_y * progress).round() as i32;
 
                 let new_pos = start_pos.offset(offset_x, offset_y);
                 creature.set_current_pos(new_pos);
             }
         }
     }
-    pub fn is_finished(&self, now: Instant) -> bool {
-        matches!(self.time_progress.state(now), TimeProgressState::Finished)
-    }
-    pub fn end(&self) -> Instant {
-        self.time_progress.end
+    pub fn is_finished(&self) -> bool {
+        self.time_progress.is_finished()
     }
 }
