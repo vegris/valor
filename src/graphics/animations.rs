@@ -77,8 +77,15 @@ pub struct CreatureAnimation {
     time_progress: TimeProgress
 }
 
+fn repeat_animation(creature: &mut CreatureStack) {
+    creature.push_animation(CreatureAnimation::new_looping());
+}
+fn turn_creature(creature: &mut CreatureStack) {
+    creature.face_left = !creature.face_left;
+}
+
 impl CreatureAnimation {
-    pub fn new_ordinary(animation_type: AnimationType) -> Self {
+    pub fn new(animation_type: AnimationType) -> Self {
         let time_progress = TimeProgress::new(BASE_DURATION);
         Self {
             at_start: None,
@@ -101,19 +108,25 @@ impl CreatureAnimation {
     }
 
     pub fn new_tweening(start_pos: Point, end_pos: Point) -> Self {
-        let time_progress = TimeProgress::new(BASE_DURATION);
+        let mut animation = Self::new(AnimationType::Moving);
         let tween_data = TweenData {
             start_pos,
             end_pos
         };
+        animation.tween_data = Some(tween_data);
+        animation
+    }
 
-        Self {
-            at_start: None,
-            at_end: None,
-            tween_data: Some(tween_data),
-            animation_type: AnimationType::Moving,
-            time_progress
-        }
+    pub fn new_looping() -> Self {
+        let mut animation = Self::new(AnimationType::Standing);
+        animation.at_end = Some(repeat_animation);
+        animation
+    }
+
+    pub fn new_turning() -> Self {
+        let mut animation = Self::new(AnimationType::TurnRight);
+        animation.at_start = Some(turn_creature);
+        animation
     }
 
     pub fn at_start(&self, creature: &mut CreatureStack) {

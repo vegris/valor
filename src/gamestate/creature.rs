@@ -46,30 +46,31 @@ impl CreatureStack {
     }
 
     pub fn update(&mut self, dt: Duration) {
-        let maybe_animation = self.current_animation.take();
-        if let Some(mut animation) = maybe_animation {
-            animation.update(self, dt);
-            if animation.is_finished() {
-                animation.at_end(self);
-            } else {
-                self.current_animation = Some(animation);
+        let mut current_animation = self.current_animation.take();
+        if current_animation.is_none() {
+            if let Some(animation) = self.animation_queue.pop_front() {
+               animation.at_start(self); 
+               current_animation = Some(animation);
             }
         }
 
-        if self.current_animation.is_none() {
-            if let Some(animation) = self.animation_queue.pop_front() {
-                animation.at_start(self);
-                self.current_animation = Some(animation);
+        if let Some(ref mut animation) = current_animation {
+            animation.update(self, dt);
+            if animation.is_finished() {
+                animation.at_end(self);
+                current_animation = None;
             }
         }
+
+        self.current_animation = current_animation;
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
         let spritesheet = rr.get_creature_container(self.creature);
         let sprite = spritesheet.get_sprite(self.animation_type, self.animation_progress).unwrap();
-        
-        canvas.set_draw_color(Color::BLUE);
-        canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
+
+        // canvas.set_draw_color(Color::BLUE);
+        // canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
 
         let draw_rect = sprite.draw_rect(self.current_pos, self.face_left);
         let texture = sprite.surface().as_texture(tc)?;
@@ -80,9 +81,9 @@ impl CreatureStack {
             canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?;
 
         }
-        canvas.set_draw_color(Color::RED);
-        canvas.draw_rect(draw_rect)?;
-        canvas.set_draw_color(Color::BLACK);
+        // canvas.set_draw_color(Color::RED);
+        // canvas.draw_rect(draw_rect)?;
+        // canvas.set_draw_color(Color::BLACK);
 
         Ok(())
     }
