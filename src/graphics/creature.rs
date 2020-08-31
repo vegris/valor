@@ -127,17 +127,18 @@ impl CreatureSpritesheet {
             }
         }
 
-        Self { colors, sprites, blocks}
+        Self { colors, sprites, blocks }
     }
 
-    pub fn get_animation_block(&self, animation: AnimationType) -> Option<&AnimationBlock> {
-        (&self.blocks[animation as usize]).as_ref()
+    pub fn has_animation_block(&self, animation: AnimationType) -> bool {
+        self.blocks.get(animation as usize).is_some()
     }
-    pub fn get_sprite(&self, animation: AnimationType, progress: f32) -> Option<&CreatureSprite> {
-        self.get_animation_block(animation).map(|block| { 
-            let sprite_num = (block.len() as f32 * progress).floor() as usize;
-            let sprite_index = block[sprite_num];
-            &self.sprites[sprite_index] 
-        })
+
+    pub fn get_animation_block(&self, animation: AnimationType) -> &AnimationBlock {
+        self.blocks[animation as usize].as_ref().unwrap()
+    }
+
+    pub fn get_sprite(&self, index: usize) -> &CreatureSprite {
+        &self.sprites[index]
     }
 }

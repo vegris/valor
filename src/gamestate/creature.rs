@@ -4,13 +4,12 @@ use std::time::Duration;
 extern crate sdl2;
 use sdl2::video::WindowContext;
 use sdl2::render::{WindowCanvas, TextureCreator};
-use sdl2::rect::{Rect, Point};
-use sdl2::pixels::Color;
+use sdl2::rect::Point;
 
 use crate::util::AnyError;
 use crate::enumerations::Creature;
 use crate::resources::ResourceRegistry;
-use crate::graphics::creature::AnimationType;
+use crate::graphics::creature::{AnimationType, CreatureSprite};
 use crate::graphics::animations::CreatureAnimation;
 
 use super::GridPos;
@@ -65,9 +64,18 @@ impl CreatureStack {
         self.current_animation = current_animation;
     }
 
-    pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
+    fn get_sprite<'a>(&self, rr: &'a mut ResourceRegistry) -> &'a CreatureSprite {
         let spritesheet = rr.get_creature_container(self.creature);
-        let sprite = spritesheet.get_sprite(self.animation_type, self.animation_progress).unwrap();
+        let animation_block = spritesheet.get_animation_block(self.animation_type);
+        // Номер спрайта в анимации
+        let sprite_num = (animation_block.len() as f32 * self.animation_progress).floor() as usize;
+        // Индекс спрайта в массиве всех спрайтов
+        let sprite_index = animation_block[sprite_num];
+        spritesheet.get_sprite(sprite_index)
+    }
+
+    pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
+        let sprite = self.get_sprite(rr);
 
         // canvas.set_draw_color(Color::BLUE);
         // canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;

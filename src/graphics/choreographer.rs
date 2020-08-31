@@ -11,7 +11,7 @@ pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, uni
 
     unit.push_animation(CreatureAnimation::new_delayed(AnimationType::Standing, Duration::from_secs(1)));
 
-    if rr.get_creature_container(unit.creature()).get_animation_block(AnimationType::StartMoving).is_some() {
+    if rr.get_creature_container(unit.creature()).has_animation_block(AnimationType::StartMoving) {
         unit.push_animation(CreatureAnimation::new(AnimationType::StartMoving));
     }
 
@@ -25,7 +25,7 @@ pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, uni
         current_pos = next_pos;
     }
 
-    if rr.get_creature_container(unit.creature()).get_animation_block(AnimationType::StopMoving).is_some() {
+    if rr.get_creature_container(unit.creature()).has_animation_block(AnimationType::StopMoving) {
         unit.push_animation(CreatureAnimation::new(AnimationType::StopMoving));
     }
 
