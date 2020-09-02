@@ -4,15 +4,10 @@ pub enum Misc {
 }
 
 impl Misc {
-    pub fn filename(self) -> &'static str {
-        FILENAMES[self as usize]
-    }
-    pub const fn count() -> usize {
-        2
+    pub const fn filename(self) -> &'static str {
+        match self {
+            Misc::CellGrid => "CCellGrd.pcx",
+            Misc::CellGridShadow => "CCellShd.pcx"
+        }
     }
 }
-
-const FILENAMES: [&str; Misc::count()] = [
-    "CCellGrd.pcx",
-    "CCellShd.pcx"
-];

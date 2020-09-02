@@ -30,38 +30,33 @@ pub enum Battlefield {
 }
 
 impl Battlefield {
-	pub fn filename(self) -> &'static str {
-		FILENAMES[self as usize]
-	}
-	pub const fn count() -> usize {
-		25
+	pub const fn filename(self) -> &'static str {
+		match self {
+			Battlefield::BCH => "CmBkBch.pcx",
+			Battlefield::DES => "CmBkDes.pcx",
+			Battlefield::DRTR => "CmBkDrTr.pcx",
+			Battlefield::DRMT => "CmBkDrMt.pcx",
+			Battlefield::DRDD => "CmBkDrDd.pcx",
+			Battlefield::GRMT => "CmBkGrMt.pcx",
+			Battlefield::GRTR => "CmBkGrTr.pcx",
+			Battlefield::LAVA => "CmBkLava.pcx",
+			Battlefield::MAG => "CmBkMag.pcx",
+			Battlefield::SNMT => "CmBkSnMt.pcx",
+			Battlefield::SNTR => "CmBkSntr.pcx",
+			Battlefield::SUB => "CmBkSub.pcx",
+			Battlefield::SWMP => "CmBkSwmp.pcx",
+			Battlefield::FF => "CmBkFF.pcx",
+			Battlefield::RK => "CmBkRK.pcx",
+			Battlefield::MC => "CmBkMC.pcx",
+			Battlefield::LP => "CmBkLP.pcx",
+			Battlefield::HG => "CmBkHG.pcx",
+			Battlefield::CF => "CmBkCF.pcx",
+			Battlefield::EF => "CmBkEF.pcx",
+			Battlefield::FW => "CmBkFW.pcx",
+			Battlefield::CUR => "CmBkCur.pcx",
+			Battlefield::RGH => "CmBkRgh.pcx",
+			Battlefield::BOAT => "CmBkBoat.pcx",
+			Battlefield::DECK => "CmBkDeck.pcx"
+		}
 	}
 }
-
-const FILENAMES: [&str; Battlefield::count()] = [
-	"CmBkBch.pcx",
-	"CmBkDes.pcx",
-	"CmBkDrTr.pcx",
-	"CmBkDrMt.pcx",
-	"CmBkDrDd.pcx",
-	"CmBkGrMt.pcx",
-	"CmBkGrTr.pcx",
-	"CmBkLava.pcx",
-	"CmBkMag.pcx",
-	"CmBkSnMt.pcx",
-	"CmBkSntr.pcx",
-	"CmBkSub.pcx",
-	"CmBkSwmp.pcx",
-	"CmBkFF.pcx",
-	"CmBkRK.pcx",
-	"CmBkMC.pcx",
-	"CmBkLP.pcx",
-	"CmBkHG.pcx",
-	"CmBkCF.pcx",
-	"CmBkEF.pcx",
-	"CmBkFW.pcx",
-	"CmBkCur.pcx",
-	"CmBkRgh.pcx",
-	"CmBkBoat.pcx",
-	"CmBkDeck.pcx"
-];

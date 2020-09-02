@@ -5,24 +5,21 @@ pub enum Creature {
     Peasant,
     Beholder,
     Enchanter,
-    DeathKnight,
+    BlackKnight,
     Ent
 }
 
 impl Creature {
-    pub fn filename(self) -> &'static str {
-        FILENAMES[self as usize]
-    }
-    pub const fn count() -> usize {
-        6
+    pub const COUNT: usize = 6;
+
+    pub const fn filename(self) -> &'static str {
+        match self {
+            Creature::Champion => "CCHAMP.def",
+            Creature::Peasant => "Cpeas.def",
+            Creature::Beholder => "cbehol.def",
+            Creature::Enchanter => "Cench.def",
+            Creature::BlackKnight => "CBKNIG.def",
+            Creature::Ent => "CBTREE.def"
+        }
     }
 }
-
-const FILENAMES: [&str; Creature::count()] = [
-    "CCHAMP.def",
-    "Cpeas.def",
-    "cbehol.def",
-    "Cench.def",
-    "CBKNIG.def",
-    "CBTREE.def"
-];

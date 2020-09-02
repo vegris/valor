@@ -8,18 +8,18 @@ use crate::graphics::creature::CreatureSpritesheet;
 type CachedValue = CreatureSpritesheet;
 
 pub struct CreaturesCache {
-    cache: [Option<CachedValue>; Creature::count()]
+    cache: [Option<CachedValue>; Creature::COUNT]
 }
 
 impl CreaturesCache {
     pub fn new() -> Self {
-        let mut cache: [MaybeUninit<Option<CachedValue>>; Creature::count()] = unsafe {
+        let mut cache: [MaybeUninit<Option<CachedValue>>; Creature::COUNT] = unsafe {
             MaybeUninit::uninit().assume_init()
         };
         for elem in &mut cache[..] {
             *elem = MaybeUninit::new(None);
         }
-        let cache = unsafe { std::mem::transmute::<_, [Option<CachedValue>; Creature::count()]>(cache) };
+        let cache = unsafe { std::mem::transmute::<_, [Option<CachedValue>; Creature::COUNT]>(cache) };
         Self { cache }
     }
     
