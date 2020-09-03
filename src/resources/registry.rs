@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
@@ -11,7 +11,6 @@ use super::formats::{LodIndex, PcxImage, DefContainer};
 use super::caches::CreaturesCache;
 
 
-const RESOURCES_ROOT: &str = "/home/vsevolod/Wine/HoMM3/drive_c/HoMM3/Data";
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
 
@@ -28,8 +27,8 @@ pub struct ResourceRegistry {
 
 impl ResourceRegistry {
     pub fn init() -> Self {
-        let pcx_archive = LodIndex::open(&[RESOURCES_ROOT, PCX_ARCHIVE].iter().collect::<PathBuf>());
-        let def_archive = LodIndex::open(&[RESOURCES_ROOT, DEF_ARCHIVE].iter().collect::<PathBuf>());
+        let pcx_archive = LodIndex::open(Path::new(PCX_ARCHIVE));
+        let def_archive = LodIndex::open(Path::new(DEF_ARCHIVE));
         let caches = Caches {
             creatures: CreaturesCache::new()
         }; 
