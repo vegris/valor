@@ -52,7 +52,7 @@ impl ResourceRegistry {
         pcx.to_surface()
     }
 
-    fn load_def(&mut self, filename: &str) -> DefContainer {
+    pub fn load_def(&mut self, filename: &str) -> DefContainer {
         let bytes = self.def_archive.read_file(filename);
         DefContainer::from_bytes(bytes)
     }

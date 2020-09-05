@@ -1,8 +1,8 @@
 use std::time::Instant;
 
 extern crate sdl2;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
+use sdl2::rect::Rect;
+use sdl2::pixels::Color;
 
 mod resources;
 use resources::ResourceRegistry;
@@ -17,6 +17,7 @@ mod util;
 use util::AnyError;
 
 mod graphics;
+use graphics::cursors::{Cursor, Cursors};
 
 
 fn main() -> Result<(), AnyError> {
@@ -41,29 +42,32 @@ fn main() -> Result<(), AnyError> {
     // Создание начального игрового состояния
     let mut current_state = BattleState::new(&mut resource_registry, &texture_creator, Battlefield::GRMT)?;
 
-    let mut frame_start_time = Instant::now();
-    'gameloop: loop {
-        // Обработка ввода
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
-                    break 'gameloop 
-                },
-                _ => {}
-            }
-        }
-        // Обновление игрового состояния
+    // Загрузка и установка курсоров
+    let cursors = Cursors::load(&mut resource_registry);
+    cursors.set(Cursor::AttackLeft);
 
-        let new_frame_time = Instant::now();
-        current_state.update(new_frame_time - frame_start_time);
-        frame_start_time = new_frame_time;
+    let mut last_time = Instant::now();
+    loop {
+        let current_time = Instant::now();
+        // Обработка ввода
+        current_state.process_input(&mut event_pump);
+
+        // Обновление игрового состояния
+        current_state.update(current_time - last_time);
+        
+        let mouse_state = event_pump.mouse_state();
+        let cursor_rect = Rect::from_center((mouse_state.x(), mouse_state.y()), 10, 10);
 
         // Отображение игрового состояния
         canvas.clear();
         current_state.draw(&mut canvas, &mut resource_registry, &texture_creator)?;
-        canvas.present();
-    }
 
-    Ok(())
+        canvas.set_draw_color(Color::RED);
+        canvas.draw_rect(cursor_rect)?;
+        canvas.set_draw_color(Color::BLACK);
+
+        canvas.present();
+
+        last_time = current_time;
+    }
 }

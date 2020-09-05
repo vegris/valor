@@ -1,9 +1,13 @@
 use std::time::Duration;
 
 extern crate sdl2;
+use sdl2::EventPump;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
+use sdl2::pixels::Color;
 
 use crate::enumerations::{Battlefield, Creature, Misc};
 use crate::resources::ResourceRegistry;
@@ -51,6 +55,19 @@ impl<'a> BattleState<'a> {
         // choreographer::animate_unit_standing(&mut battlestate, rr, 0, Instant::now());
 
         Ok(battlestate)
+    }
+
+    pub fn process_input(&mut self, event_pump: &mut EventPump) {
+        // Обязательный поллинг событий
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
+                    std::process::exit(0)
+                },
+                _ => {}
+            }
+        }
     }
 
     pub fn update(&mut self, dt: Duration) {
