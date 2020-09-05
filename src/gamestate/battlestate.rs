@@ -7,7 +7,8 @@ use sdl2::keyboard::Keycode;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
-use sdl2::pixels::Color;
+
+use itertools::iproduct;
 
 use crate::enumerations::{Battlefield, Creature, Misc};
 use crate::resources::ResourceRegistry;
@@ -24,6 +25,8 @@ pub struct BattleState<'a> {
     grid_cell: Texture<'a>,
     grid_cell_shadow: Texture<'a>,
 
+    current_hover: Option<GridPos>,
+
     creatures: Vec<CreatureStack>
 }
 
@@ -34,6 +37,8 @@ impl<'a> BattleState<'a> {
             battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
             grid_cell: rr.load_pcx_with_transparency(Misc::CellGrid.filename())?.as_texture(&tc)?,
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
+
+            current_hover: None,
 
             creatures: vec![
                 CreatureStack::new(Creature::Champion, GridPos::new(5, 9), true)
@@ -68,6 +73,14 @@ impl<'a> BattleState<'a> {
                 _ => {}
             }
         }
+
+        let mouse_state = event_pump.mouse_state();
+        let point = (mouse_state.x(), mouse_state.y());
+
+        self.current_hover = 
+            iproduct!(GridPos::X_RANGE, GridPos::Y_RANGE)
+                .map(|(x, y)| GridPos::new(x, y))
+                .find(|pos| pos.contains_point(point));
     }
 
     pub fn update(&mut self, dt: Duration) {
@@ -98,9 +111,11 @@ impl<'a> BattleState<'a> {
         for x in GridPos::X_RANGE {
             for y in GridPos::Y_RANGE {
                 let draw_rect = GridPos::new(x, y).draw_rect();
-                canvas.copy(&self.grid_cell_shadow, None, draw_rect)?;
                 canvas.copy(&self.grid_cell, None, draw_rect)?;
             }
+        }
+        if let Some(pos) = &self.current_hover {
+            canvas.copy(&self.grid_cell_shadow, None, pos.draw_rect())?;
         }
         Ok(())
     }

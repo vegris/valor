@@ -59,4 +59,8 @@ impl GridPos {
         let (x, y) = (draw_point.x(), draw_point.y());
         Rect::new(x, y, Self::CELL_WIDTH, Self::CELL_HEIGHT)
     }
+
+    pub fn contains_point(&self, point: (i32, i32)) -> bool {
+        self.draw_rect().contains_point(point)
+    }
 }

@@ -44,7 +44,7 @@ fn main() -> Result<(), AnyError> {
 
     // Загрузка и установка курсоров
     let cursors = Cursors::load(&mut resource_registry);
-    cursors.set(Cursor::AttackLeft);
+    cursors.set(Cursor::Pointer);
 
     let mut last_time = Instant::now();
     loop {
