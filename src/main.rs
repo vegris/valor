@@ -55,17 +55,9 @@ fn main() -> Result<(), AnyError> {
         // Обновление игрового состояния
         current_state.update(current_time - last_time);
         
-        let mouse_state = event_pump.mouse_state();
-        let cursor_rect = Rect::from_center((mouse_state.x(), mouse_state.y()), 10, 10);
-
         // Отображение игрового состояния
         canvas.clear();
         current_state.draw(&mut canvas, &mut resource_registry, &texture_creator)?;
-
-        canvas.set_draw_color(Color::RED);
-        canvas.draw_rect(cursor_rect)?;
-        canvas.set_draw_color(Color::BLACK);
-
         canvas.present();
 
         last_time = current_time;

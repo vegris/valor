@@ -3,6 +3,7 @@ use std::ops::RangeInclusive;
 extern crate sdl2;
 use sdl2::rect::{Point, Rect};
 
+#[derive(Clone, Copy)]
 pub struct GridPos {
     x: u8,
     y: u8

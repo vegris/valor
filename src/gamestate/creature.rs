@@ -17,8 +17,9 @@ use super::GridPos;
 
 pub struct CreatureStack {
     creature: Creature,
-    current_pos: Point,
+    grid_pos: GridPos,
 
+    draw_pos: Point,
     animation_type: AnimationType,
     animation_progress: f32,
 
@@ -32,8 +33,9 @@ impl CreatureStack {
     pub fn new(creature: Creature, grid_pos: GridPos, face_left: bool) -> Self {
         Self {
             creature,
-            current_pos: grid_pos.draw_pos(),
+            grid_pos,
 
+            draw_pos: grid_pos.draw_pos(),
             animation_type: AnimationType::Standing,
             animation_progress: 0.0,
 
@@ -80,7 +82,7 @@ impl CreatureStack {
         // canvas.set_draw_color(Color::BLUE);
         // canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
 
-        let draw_rect = sprite.draw_rect(self.current_pos, self.face_left);
+        let draw_rect = sprite.draw_rect(self.draw_pos, self.face_left);
         let texture = sprite.surface().as_texture(tc)?;
 
         if self.face_left {
@@ -100,12 +102,20 @@ impl CreatureStack {
         self.creature
     }
 
-    pub fn current_pos(&self) -> Point {
-        self.current_pos
+    pub fn grid_pos(&self) -> GridPos {
+        self.grid_pos
     }
 
-    pub fn set_current_pos(&mut self, pos: Point) {
-        self.current_pos = pos
+    pub fn set_grid_pos(&mut self, pos: GridPos) {
+        self.grid_pos = pos;
+    }
+
+    pub fn draw_pos(&self) -> Point {
+        self.draw_pos
+    }
+
+    pub fn set_draw_pos(&mut self, pos: Point) {
+        self.draw_pos = pos
     }
     
     pub fn set_animation_type(&mut self, animation_type: AnimationType) {

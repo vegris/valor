@@ -155,7 +155,7 @@ impl CreatureAnimation {
                 let offset_y = (diff_y * progress).round() as i32;
 
                 let new_pos = start_pos.offset(offset_x, offset_y);
-                creature.set_current_pos(new_pos);
+                creature.set_draw_pos(new_pos);
             }
         }
     }

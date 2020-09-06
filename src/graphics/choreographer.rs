@@ -15,7 +15,7 @@ pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, uni
         unit.push_animation(CreatureAnimation::new(AnimationType::StartMoving));
     }
 
-    let mut current_pos = unit.current_pos();
+    let mut current_pos = unit.draw_pos();
     for next_grid in path {
         let next_pos = next_grid.draw_pos();
 
