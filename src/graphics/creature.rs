@@ -1,5 +1,6 @@
 use std::mem::MaybeUninit;
 use std::collections::HashMap;
+use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
@@ -37,8 +38,21 @@ pub enum AnimationType {
     StopMoving = 21
 }
 
+impl AnimationType {
+    const BLOCKS_NUM: usize = 22;
 
-const BLOCKS_NUM: usize = 22;
+    const BASE_DURATION: Duration = Duration::from_millis(435);
+
+    pub fn duration(self) -> Duration {
+        match self {
+            Self::Moving => Self::BASE_DURATION,
+            Self::Standing => Self::BASE_DURATION * 2,
+            Self::AttackStraight => Self::BASE_DURATION * 2,
+            _ => Self::BASE_DURATION
+        }
+    }
+}
+
 
 pub struct CreatureSprite {
     width: u32,
@@ -83,7 +97,7 @@ type AnimationBlock = Box<[usize]>;
 pub struct CreatureSpritesheet {
     colors: Box<[Color]>,
     sprites: Box<[CreatureSprite]>,
-    blocks: [Option<AnimationBlock>; BLOCKS_NUM]
+    blocks: [Option<AnimationBlock>; AnimationType::BLOCKS_NUM]
 }
 
 impl CreatureSpritesheet {
@@ -112,15 +126,15 @@ impl CreatureSpritesheet {
         sprites.iter_mut().for_each(|sprite| sprite.apply_palette(&palette));
         
         // Блоки анимаций - последовательности индексов спрайтов 
-        let mut blocks: [MaybeUninit<Option<AnimationBlock>>; BLOCKS_NUM] = unsafe {
+        let mut blocks: [MaybeUninit<Option<AnimationBlock>>; AnimationType::BLOCKS_NUM] = unsafe {
             MaybeUninit::uninit().assume_init()
         };
         for elem in &mut blocks[..] {
             *elem = MaybeUninit::new(None);
         }
-        let mut blocks = unsafe { std::mem::transmute::<_, [Option<AnimationBlock>; BLOCKS_NUM]>(blocks) };
+        let mut blocks = unsafe { std::mem::transmute::<_, [Option<AnimationBlock>; AnimationType::BLOCKS_NUM]>(blocks) };
 
-        for animation_block_index in 0..BLOCKS_NUM {
+        for animation_block_index in 0..AnimationType::BLOCKS_NUM {
             if let Some(block) = blocks2names.get(&(animation_block_index as u32)) {
                 let block = block.iter().map(|sprite_name| names2indexes[sprite_name]).collect::<AnimationBlock>();        
                 blocks[animation_block_index] = Some(block);

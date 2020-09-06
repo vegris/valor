@@ -16,7 +16,9 @@ use crate::util::AnyError;
 
 use super::GridPos;
 use super::creature::CreatureStack;
+use crate::graphics::animations::CreatureAnimation;
 use crate::graphics::choreographer;
+use crate::graphics::creature::AnimationType;
 
 pub struct BattleState<'a> {
     // Постоянно используемые текстуры,
@@ -41,22 +43,31 @@ impl<'a> BattleState<'a> {
             current_hover: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::Champion, GridPos::new(5, 9), true)
+                CreatureStack::new(Creature::Champion, GridPos::new(5, 9), true),
+                CreatureStack::new(Creature::Peasant, GridPos::new(7, 9), false)
             ]
 
         };
 
-        let champion_path = vec![
-            GridPos::new(6, 9),
-            GridPos::new(7, 9),
-            GridPos::new(8, 9),
-            GridPos::new(9, 9),
-            GridPos::new(10, 9),
-            GridPos::new(11, 9),
-            GridPos::new(12, 9),
-            GridPos::new(13, 9),
-        ];
-        choreographer::animate_unit_move(&mut battlestate, rr, 0, champion_path);
+        battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+        battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::AttackStraight));
+        battlestate.creatures[1].push_animation(CreatureAnimation::new_delayed(AnimationType::GettingHit, Duration::from_millis(512)));
+
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Standing));
+        battlestate.creatures[1].push_animation(CreatureAnimation::new(AnimationType::Standing));
+        // let champion_path = vec![
+        //     GridPos::new(6, 9),
+        //     GridPos::new(7, 9),
+        //     GridPos::new(8, 9),
+        //     GridPos::new(9, 9),
+        //     GridPos::new(10, 9),
+        //     GridPos::new(11, 9),
+        //     GridPos::new(12, 9),
+        //     GridPos::new(13, 9),
+        // ];
+        // choreographer::animate_unit_move(&mut battlestate, rr, 0, champion_path);
         // choreographer::animate_unit_standing(&mut battlestate, rr, 0, Instant::now());
 
         Ok(battlestate)

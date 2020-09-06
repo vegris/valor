@@ -47,23 +47,41 @@ impl CreatureStack {
     }
 
     pub fn update(&mut self, dt: Duration) {
-        let mut current_animation = self.current_animation.take();
-        if current_animation.is_none() {
-            if let Some(animation) = self.animation_queue.pop_front() {
-               animation.at_start(self); 
-               current_animation = Some(animation);
+        if let Some(animation) = &mut self.current_animation {
+            if let Some(next_animation) = self.animation_queue.front_mut() {
+                // Специальный случай для looping анимаций
+                // Если есть чем заменить - меняем
+                // Если следующая в очереди анимация ещё на delay,
+                // то обновляем delay
+                if animation.is_looping() {
+                    if next_animation.is_delayed() {
+                        next_animation.update(dt);
+                    } else {
+                        self.take_new_animation();
+                    }
+                }
             }
         }
 
-        if let Some(ref mut animation) = current_animation {
-            animation.update(self, dt);
+        if let Some(animation) = &mut self.current_animation {
+            animation.update(dt);
+            if let Some(progress) = animation.progress() {
+                self.animation_progress = progress;
+            }
             if animation.is_finished() {
-                animation.at_end(self);
-                current_animation = None;
+                self.current_animation = None;
             }
+        } else {
+            self.take_new_animation();
         }
+    }
 
-        self.current_animation = current_animation;
+    fn take_new_animation(&mut self) {
+        self.current_animation = self.animation_queue.pop_front();
+        if let Some(animation) = &self.current_animation {
+           self.animation_type = animation.animation_type();
+           self.animation_progress = 0.0;
+        }
     }
 
     fn get_sprite<'a>(&self, rr: &'a mut ResourceRegistry) -> &'a CreatureSprite {

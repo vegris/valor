@@ -1,8 +1,6 @@
 use std::time::Instant;
 
 extern crate sdl2;
-use sdl2::rect::Rect;
-use sdl2::pixels::Color;
 
 mod resources;
 use resources::ResourceRegistry;
