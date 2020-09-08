@@ -69,6 +69,7 @@ impl CreatureStack {
                 self.animation_progress = progress;
             }
             if animation.is_finished() {
+                animation.at_end().map(|function| function(self));
                 self.current_animation = None;
             }
         } else {

@@ -41,13 +41,14 @@ pub enum AnimationType {
 impl AnimationType {
     const BLOCKS_NUM: usize = 22;
 
-    const BASE_DURATION: Duration = Duration::from_millis(435);
+    const BASE_DURATION: Duration = Duration::from_millis(400);
 
     pub fn duration(self) -> Duration {
         match self {
-            Self::Moving => Self::BASE_DURATION,
+            Self::Moving => Self::BASE_DURATION * 2,
             Self::Standing => Self::BASE_DURATION * 2,
             Self::AttackStraight => Self::BASE_DURATION * 2,
+            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
             _ => Self::BASE_DURATION
         }
     }

@@ -49,14 +49,24 @@ impl<'a> BattleState<'a> {
 
         };
 
-        battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-        battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::AttackStraight));
-        battlestate.creatures[1].push_animation(CreatureAnimation::new_delayed(AnimationType::GettingHit, Duration::from_millis(512)));
-
         battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Standing));
-        battlestate.creatures[1].push_animation(CreatureAnimation::new(AnimationType::Standing));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new_turning(AnimationType::TurnLeft));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::TurnRight));
+        battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+
+        // battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+        // battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+
+        // battlestate.creatures[0].push_animation(CreatureAnimation::new_turning(AnimationType::AttackStraight));
+        // battlestate.creatures[1].push_animation(CreatureAnimation::new_delayed(AnimationType::GettingHit, Duration::from_millis(512)));
+
+        // battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+        // battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+
         // let champion_path = vec![
         //     GridPos::new(6, 9),
         //     GridPos::new(7, 9),

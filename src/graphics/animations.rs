@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use crate::graphics::creature::AnimationType;
+use crate::gamestate::creature::CreatureStack;
 
 
 struct TimeProgress {
@@ -59,24 +60,33 @@ impl TimeProgress{
 pub struct CreatureAnimation {
     animation_type: AnimationType,
     time_progress: TimeProgress,
-    looping: bool
+    looping: bool,
+    at_end: Option<fn(&mut CreatureStack)>
+}
+
+fn turn_creature(creature: &mut CreatureStack) {
+    creature.face_left = !creature.face_left
 }
 
 impl CreatureAnimation {
     pub fn new(animation_type: AnimationType) -> Self {
-        Self::_new(animation_type, false, None)
+        Self::_new(animation_type, false, None, None)
     }
     pub fn new_looping(animation_type: AnimationType) -> Self {
-        Self::_new(animation_type, true, None)
+        Self::_new(animation_type, true, None, None)
     }
     pub fn new_delayed(animation_type: AnimationType, delay: Duration) -> Self {
-        Self::_new(animation_type, false, Some(delay))
+        Self::_new(animation_type, false, Some(delay), None)
     }
-    fn _new(animation_type: AnimationType, looping: bool, delay: Option<Duration>) -> Self {
+    pub fn new_turning(animation_type: AnimationType) -> Self {
+        Self::_new(animation_type, false, None, Some(turn_creature))
+    }
+    fn _new(animation_type: AnimationType, looping: bool, delay: Option<Duration>, at_end: Option<fn(&mut CreatureStack)>) -> Self {
         Self {
             animation_type,
             time_progress: TimeProgress::new(animation_type.duration(), delay),
-            looping
+            looping,
+            at_end
         }
     }
 
@@ -109,5 +119,9 @@ impl CreatureAnimation {
 
     pub fn is_looping(&self) -> bool {
         self.looping
+    }
+
+    pub fn at_end(&self) -> Option<fn(&mut CreatureStack)> {
+        self.at_end
     }
 }
