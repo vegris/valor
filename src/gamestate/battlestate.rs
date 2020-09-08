@@ -3,6 +3,7 @@ use std::time::Duration;
 extern crate sdl2;
 use sdl2::EventPump;
 use sdl2::event::Event;
+use sdl2::mouse::MouseButton;
 use sdl2::keyboard::Keycode;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
@@ -17,8 +18,17 @@ use crate::util::AnyError;
 use super::GridPos;
 use super::creature::CreatureStack;
 use crate::graphics::animations::CreatureAnimation;
-use crate::graphics::choreographer;
 use crate::graphics::creature::AnimationType;
+
+struct Command {
+    destination: GridPos
+}
+
+impl Command {
+    fn new(destination: GridPos) -> Self {
+        Self { destination }
+    }
+}
 
 pub struct BattleState<'a> {
     // Постоянно используемые текстуры,
@@ -28,6 +38,7 @@ pub struct BattleState<'a> {
     grid_cell_shadow: Texture<'a>,
 
     current_hover: Option<GridPos>,
+    pending_command: Option<Command>,
 
     creatures: Vec<CreatureStack>
 }
@@ -41,9 +52,10 @@ impl<'a> BattleState<'a> {
             grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
 
             current_hover: None,
+            pending_command: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::Champion, GridPos::new(5, 9), true),
+                CreatureStack::new(Creature::Ent, GridPos::new(5, 9), true),
                 CreatureStack::new(Creature::Peasant, GridPos::new(7, 9), false)
             ]
 
@@ -58,43 +70,14 @@ impl<'a> BattleState<'a> {
         battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::TurnRight));
         battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
 
-        // battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-        // battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-
-        // battlestate.creatures[0].push_animation(CreatureAnimation::new_turning(AnimationType::AttackStraight));
-        // battlestate.creatures[1].push_animation(CreatureAnimation::new_delayed(AnimationType::GettingHit, Duration::from_millis(512)));
-
-        // battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-        // battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-
-        // let champion_path = vec![
-        //     GridPos::new(6, 9),
-        //     GridPos::new(7, 9),
-        //     GridPos::new(8, 9),
-        //     GridPos::new(9, 9),
-        //     GridPos::new(10, 9),
-        //     GridPos::new(11, 9),
-        //     GridPos::new(12, 9),
-        //     GridPos::new(13, 9),
-        // ];
-        // choreographer::animate_unit_move(&mut battlestate, rr, 0, champion_path);
-        // choreographer::animate_unit_standing(&mut battlestate, rr, 0, Instant::now());
-
         Ok(battlestate)
     }
 
     pub fn process_input(&mut self, event_pump: &mut EventPump) {
-        // Обязательный поллинг событий
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
-                    std::process::exit(0)
-                },
-                _ => {}
-            }
-        }
+        // Опрашиваем устройства
+        event_pump.pump_events();
 
+        // Получаем позицию мыши
         let mouse_state = event_pump.mouse_state();
         let point = (mouse_state.x(), mouse_state.y());
 
@@ -102,9 +85,33 @@ impl<'a> BattleState<'a> {
             iproduct!(GridPos::X_RANGE, GridPos::Y_RANGE)
                 .map(|(x, y)| GridPos::new(x, y))
                 .find(|pos| pos.contains_point(point));
+
+        // Ловим конкретные события
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
+                    std::process::exit(0)
+                },
+                Event::MouseButtonDown { mouse_btn: MouseButton::Left, ..} => {
+                    // По клику мыши создать команду существу двигаться в указанную клетку
+                    if let Some(pos) = self.current_hover {
+                        self.pending_command = Some(Command::new(pos));
+                    }
+                },
+                _ => {}
+            }
+        }
     }
 
     pub fn update(&mut self, dt: Duration) {
+        if let Some(command) = self.pending_command.take() {
+            dbg!(command.destination);
+            let start_pos = self.creatures[0].grid_pos();
+            let path = start_pos.get_shortest_path_to(command.destination);
+            dbg!(path);
+        }
+
         for creature in &mut self.creatures {
             creature.update(dt);
         }
