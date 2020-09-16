@@ -51,7 +51,7 @@ fn main() -> Result<(), AnyError> {
         current_state.process_input(&mut event_pump);
 
         // Обновление игрового состояния
-        current_state.update(current_time - last_time);
+        current_state.update(current_time - last_time, &mut resource_registry);
         
         // Отображение игрового состояния
         canvas.clear();

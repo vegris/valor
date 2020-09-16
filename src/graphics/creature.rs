@@ -8,6 +8,7 @@ use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 
 use crate::resources::formats::{DefSprite, DefContainer};
+use crate::gamestate::creature::Direction;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy)]
@@ -41,14 +42,15 @@ pub enum AnimationType {
 impl AnimationType {
     const BLOCKS_NUM: usize = 22;
 
-    const BASE_DURATION: Duration = Duration::from_millis(400);
+    const BASE_DURATION: Duration = Duration::from_millis(200);
 
     pub fn duration(self) -> Duration {
         match self {
-            Self::Moving => Self::BASE_DURATION * 2,
-            Self::Standing => Self::BASE_DURATION * 2,
-            Self::AttackStraight => Self::BASE_DURATION * 2,
-            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
+            Self::Moving => Self::BASE_DURATION * 4,
+            Self::Standing => Self::BASE_DURATION * 4,
+            Self::AttackStraight => Self::BASE_DURATION * 4,
+            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 4,
+            Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 4,
             _ => Self::BASE_DURATION
         }
     }
@@ -76,14 +78,17 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
-    pub fn draw_rect(&self, draw_point: Point, face_left: bool) -> Rect {
+    pub fn draw_rect(&self, draw_point: Point, direction: Direction) -> Rect {
         let Self { left_margin, top_margin, width, height, .. } = *self;
         let (x_pos, y_pos) = (draw_point.x(), draw_point.y());
-        if face_left {
-            Rect::new(x_pos + left_margin as i32 - 175, top_margin as i32 + y_pos - 225, width, height)
-        } else {
-            let x_pos = x_pos + 450 - left_margin as i32 - width as i32 - 230;
-            Rect::new(x_pos, top_margin as i32 + y_pos - 225, width, height)
+        match direction {
+            Direction::Left => {
+                Rect::new(x_pos + left_margin as i32 - 175, top_margin as i32 + y_pos - 225, width, height)
+            },
+            Direction::Right => {
+                let x_pos = x_pos + 450 - left_margin as i32 - width as i32 - 230;
+                Rect::new(x_pos, top_margin as i32 + y_pos - 225, width, height)
+            }
         }
     }
 
@@ -146,7 +151,7 @@ impl CreatureSpritesheet {
     }
 
     pub fn has_animation_block(&self, animation: AnimationType) -> bool {
-        self.blocks.get(animation as usize).is_some()
+        self.blocks[animation as usize].is_some()
     }
 
     pub fn get_animation_block(&self, animation: AnimationType) -> &AnimationBlock {

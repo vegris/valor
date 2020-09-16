@@ -65,7 +65,7 @@ pub struct CreatureAnimation {
 }
 
 fn turn_creature(creature: &mut CreatureStack) {
-    creature.face_left = !creature.face_left
+    creature.direction = creature.direction.inversion();
 }
 
 impl CreatureAnimation {

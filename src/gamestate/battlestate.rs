@@ -16,9 +16,10 @@ use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
 
 use super::GridPos;
-use super::creature::CreatureStack;
+use super::creature::{CreatureStack, Direction};
 use crate::graphics::animations::CreatureAnimation;
 use crate::graphics::creature::AnimationType;
+use crate::graphics::choreographer;
 
 struct Command {
     destination: GridPos
@@ -55,19 +56,11 @@ impl<'a> BattleState<'a> {
             pending_command: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::Ent, GridPos::new(5, 9), true),
-                CreatureStack::new(Creature::Peasant, GridPos::new(7, 9), false)
+                CreatureStack::new(Creature::BlackKnight, GridPos::new(5, 9), Direction::Left)
             ]
 
         };
 
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Standing));
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::Moving));
-        battlestate.creatures[0].push_animation(CreatureAnimation::new_turning(AnimationType::TurnLeft));
-        battlestate.creatures[0].push_animation(CreatureAnimation::new(AnimationType::TurnRight));
         battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
 
         Ok(battlestate)
@@ -104,12 +97,13 @@ impl<'a> BattleState<'a> {
         }
     }
 
-    pub fn update(&mut self, dt: Duration) {
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         if let Some(command) = self.pending_command.take() {
             dbg!(command.destination);
             let start_pos = self.creatures[0].grid_pos();
-            let path = start_pos.get_shortest_path_to(command.destination);
-            dbg!(path);
+            if let Some(path) = start_pos.get_shortest_path_to(command.destination) {
+                choreographer::animate_unit_move(self, rr, 0, path);
+            }
         }
 
         for creature in &mut self.creatures {

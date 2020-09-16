@@ -14,6 +14,20 @@ use crate::graphics::animations::CreatureAnimation;
 
 use super::GridPos;
 
+#[derive(Clone, Copy)]
+pub enum Direction {
+    Left,
+    Right
+}
+
+impl Direction {
+    pub fn inversion(&self) -> Self {
+        match self {
+            Self::Left => Self::Right,
+            Self::Right => Self::Left
+        }
+    }
+}
 
 pub struct CreatureStack {
     creature: Creature,
@@ -26,11 +40,11 @@ pub struct CreatureStack {
     current_animation: Option<CreatureAnimation>,
     animation_queue: VecDeque<CreatureAnimation>,
 
-    pub face_left: bool
+    pub direction: Direction
 }
 
 impl CreatureStack {
-    pub fn new(creature: Creature, grid_pos: GridPos, face_left: bool) -> Self {
+    pub fn new(creature: Creature, grid_pos: GridPos, direction: Direction) -> Self {
         Self {
             creature,
             grid_pos,
@@ -42,7 +56,7 @@ impl CreatureStack {
             current_animation: None,
             animation_queue: VecDeque::new(),
 
-            face_left
+            direction
         }
     }
 
@@ -101,15 +115,16 @@ impl CreatureStack {
         // canvas.set_draw_color(Color::BLUE);
         // canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
 
-        let draw_rect = sprite.draw_rect(self.draw_pos, self.face_left);
+        let draw_rect = sprite.draw_rect(self.draw_pos, self.direction);
         let texture = sprite.surface().as_texture(tc)?;
 
-        if self.face_left {
-            canvas.copy(&texture, None, draw_rect)?;
-        } else {
-            canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?;
+        match self.direction {
+            Direction::Left =>
+                canvas.copy(&texture, None, draw_rect)?,
+            Direction::Right =>
+            canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?
+        };
 
-        }
         // canvas.set_draw_color(Color::RED);
         // canvas.draw_rect(draw_rect)?;
         // canvas.set_draw_color(Color::BLACK);
