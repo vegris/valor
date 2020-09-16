@@ -56,7 +56,7 @@ impl<'a> BattleState<'a> {
             pending_command: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::BlackKnight, GridPos::new(5, 9), Direction::Left)
+                CreatureStack::new(Creature::Enchanter, GridPos::new(5, 9), Direction::Left)
             ]
 
         };
@@ -102,7 +102,9 @@ impl<'a> BattleState<'a> {
             dbg!(command.destination);
             let start_pos = self.creatures[0].grid_pos();
             if let Some(path) = start_pos.get_shortest_path_to(command.destination) {
-                choreographer::animate_unit_move(self, rr, 0, path);
+                choreographer::animate_unit_move(self, rr, 0, &path);
+                let last_grid = path.last().unwrap();
+                self.creatures[0].set_grid_pos(*last_grid);
             }
         }
 

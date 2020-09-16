@@ -81,6 +81,13 @@ impl CreatureStack {
             animation.update(dt);
             if let Some(progress) = animation.progress() {
                 self.animation_progress = progress;
+                if let Some((start_pos, end_pos)) = animation.tween_data() {
+                    let diff = end_pos - start_pos;
+                    let (diff_x, diff_y) = (diff.x(), diff.y());
+                    let offset_x = (diff_x as f32 * progress) as i32;
+                    let offset_y = (diff_y as f32 * progress) as i32;
+                    self.draw_pos = start_pos.offset(offset_x, offset_y);
+                }
             }
             if animation.is_finished() {
                 animation.at_end().map(|function| function(self));
@@ -122,7 +129,7 @@ impl CreatureStack {
             Direction::Left =>
                 canvas.copy(&texture, None, draw_rect)?,
             Direction::Right =>
-            canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?
+                canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?
         };
 
         // canvas.set_draw_color(Color::RED);

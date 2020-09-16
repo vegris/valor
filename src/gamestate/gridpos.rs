@@ -4,8 +4,7 @@ extern crate sdl2;
 use sdl2::rect::{Point, Rect};
 
 extern crate pathfinding;
-use pathfinding::directed::astar::astar;
-use pathfinding::utils::absdiff;
+use pathfinding::directed::bfs::bfs;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct GridPos {
@@ -75,18 +74,11 @@ impl GridPos {
     }
 
     pub fn get_shortest_path_to(&self, destination: GridPos) -> Option<Vec<GridPos>> {
-        astar(
+        bfs(
             self,
-            |p| p.get_successors().into_iter().map(|pos| (pos, 1)),
-            |p| self.distance_to(*p), 
+            |p| p.get_successors(),
             |p| *p == destination
-        ).map(|(vec, _cost)| vec)
-    }
-
-    fn distance_to(&self, p: Self) -> u16 {
-        let (x, y) = (absdiff(self.x, p.x), absdiff(self.y, p.y));
-        let sum_of_squares = x.pow(2) + y.pow(2);
-        (sum_of_squares as f32).sqrt().ceil() as u16
+        )
     }
 
     fn get_successors(&self) -> Vec<Self> {
@@ -97,9 +89,9 @@ impl GridPos {
             vec![
                 (x - 1, y), // начинаем слева и по часовой стрелке
                 (x - 1, y - 1),
-                (x + 1, y - 1),
+                (x, y - 1),
                 (x + 1, y),
-                (x + 1, y + 1),
+                (x, y + 1),
                 (x - 1, y + 1)
             ]
         } else {

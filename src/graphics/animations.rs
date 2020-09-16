@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use sdl2::rect::Point;
+
 use crate::graphics::creature::AnimationType;
 use crate::gamestate::creature::CreatureStack;
 
@@ -57,10 +59,16 @@ impl TimeProgress{
     }
 }
 
+struct TweenData {
+    start_pos: Point,
+    end_pos: Point
+}
+
 pub struct CreatureAnimation {
     animation_type: AnimationType,
     time_progress: TimeProgress,
     looping: bool,
+    tween_data: Option<TweenData>,
     at_end: Option<fn(&mut CreatureStack)>
 }
 
@@ -70,22 +78,33 @@ fn turn_creature(creature: &mut CreatureStack) {
 
 impl CreatureAnimation {
     pub fn new(animation_type: AnimationType) -> Self {
-        Self::_new(animation_type, false, None, None)
+        Self::_new(animation_type, false, None, None, None)
     }
     pub fn new_looping(animation_type: AnimationType) -> Self {
-        Self::_new(animation_type, true, None, None)
+        Self::_new(animation_type, true, None, None, None)
     }
     pub fn new_delayed(animation_type: AnimationType, delay: Duration) -> Self {
-        Self::_new(animation_type, false, Some(delay), None)
+        Self::_new(animation_type, false, Some(delay), None, None)
     }
     pub fn new_turning(animation_type: AnimationType) -> Self {
-        Self::_new(animation_type, false, None, Some(turn_creature))
+        Self::_new(animation_type, false, None, None, Some(turn_creature))
     }
-    fn _new(animation_type: AnimationType, looping: bool, delay: Option<Duration>, at_end: Option<fn(&mut CreatureStack)>) -> Self {
+    pub fn new_tweening(start_pos: Point, end_pos: Point) -> Self {
+        let tween_data = TweenData { start_pos, end_pos };
+        Self::_new(AnimationType::Moving, false, None, Some(tween_data), None)
+    }
+    fn _new(
+        animation_type: AnimationType,
+        looping: bool,
+        delay: Option<Duration>,
+        tween_data: Option<TweenData>,
+        at_end: Option<fn(&mut CreatureStack)>
+    ) -> Self {
         Self {
             animation_type,
             time_progress: TimeProgress::new(animation_type.duration(), delay),
             looping,
+            tween_data,
             at_end
         }
     }
@@ -104,6 +123,15 @@ impl CreatureAnimation {
     pub fn progress(&self) -> Option<f32> {
         if let TimeProgressState::Going(progress) = self.time_progress.progress() {
             Some(progress)
+        } else {
+            None
+        }
+    }
+
+    pub fn tween_data(&self) -> Option<(Point, Point)> {
+        if let Some(tween_data) = &self.tween_data {
+            let TweenData { start_pos, end_pos } = tween_data;
+            Some((*start_pos, *end_pos))
         } else {
             None
         }
