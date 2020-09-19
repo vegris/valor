@@ -51,6 +51,7 @@ impl AnimationType {
             Self::AttackStraight => Self::BASE_DURATION * 4,
             Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
             Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 2,
+            Self::GettingHit => Self::BASE_DURATION * 2,
             _ => Self::BASE_DURATION
         }
     }

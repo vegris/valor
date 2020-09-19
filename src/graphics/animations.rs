@@ -57,6 +57,11 @@ impl TimeProgress{
     fn is_finished(&self) -> bool {
         matches!(self.progress(), TimeProgressState::Finished)
     }
+
+    fn total_duration(&self) -> Duration {
+        let duration_left = self.total_duration - self.time_passed;
+        self.delay.map_or(duration_left, |delay| delay + duration_left)
+    }
 }
 
 struct TweenData {
@@ -151,5 +156,13 @@ impl CreatureAnimation {
 
     pub fn at_end(&self) -> Option<fn(&mut CreatureStack)> {
         self.at_end
+    }
+
+    pub fn total_duration(&self) -> Duration {
+        if self.looping {
+            Duration::from_secs(0)
+        } else {
+            self.time_progress.total_duration()
+        }
     }
 }

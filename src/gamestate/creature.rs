@@ -170,4 +170,18 @@ impl CreatureStack {
     pub fn push_animation(&mut self, animation: CreatureAnimation) {
         self.animation_queue.push_back(animation);
     }
+
+    pub fn get_animations_duration(&self) -> Duration {
+        let queue_duration =
+            self.animation_queue
+                .iter()
+                .map(|animation| animation.total_duration())
+                .sum();
+       
+        self.current_animation
+            .as_ref()
+            .map_or(queue_duration, |animation| {
+                queue_duration + animation.total_duration()
+            })
+    }
 }

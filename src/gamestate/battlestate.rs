@@ -56,7 +56,8 @@ impl<'a> BattleState<'a> {
             pending_command: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::Enchanter, GridPos::new(5, 9), Direction::Right)
+                CreatureStack::new(Creature::Enchanter, GridPos::new(5, 9), Direction::Right),
+                CreatureStack::new(Creature::Peasant, GridPos::new(6, 9), Direction::Right)
             ]
 
         };
@@ -99,13 +100,17 @@ impl<'a> BattleState<'a> {
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         if let Some(command) = self.pending_command.take() {
-            dbg!(command.destination);
-            let start_pos = self.creatures[0].grid_pos();
-            if let Some(path) = start_pos.get_shortest_path_to(command.destination) {
-                choreographer::animate_unit_move(self, rr, 0, &path);
-                let last_grid = path.last().unwrap();
-                self.creatures[0].set_grid_pos(*last_grid);
-            }
+            // Команда "Двигаться"
+            // dbg!(command.destination);
+            // let start_pos = self.creatures[0].grid_pos();
+            // if let Some(path) = start_pos.get_shortest_path_to(command.destination) {
+            //     choreographer::animate_unit_move(self, rr, 0, &path);
+            //     let last_grid = path.last().unwrap();
+            //     self.creatures[0].set_grid_pos(*last_grid);
+            // }
+
+            // Команда "Атаковать"
+            choreographer::animate_melee_attack(self, rr, 0, 1);
         }
 
         for creature in &mut self.creatures {
