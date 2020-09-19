@@ -56,7 +56,7 @@ impl<'a> BattleState<'a> {
             pending_command: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::Enchanter, GridPos::new(5, 9), Direction::Left)
+                CreatureStack::new(Creature::Enchanter, GridPos::new(5, 9), Direction::Right)
             ]
 
         };

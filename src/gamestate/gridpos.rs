@@ -42,7 +42,7 @@ impl GridPos {
         }
     }
 
-    fn is_even_row(&self) -> bool {
+    pub fn is_even_row(&self) -> bool {
         self.y % 2 == 0
     }
 
@@ -106,5 +106,9 @@ impl GridPos {
         }.into_iter()
          .filter_map(|(x, y)| Self::try_new(x, y))
          .collect()
+    }
+
+    pub fn x(&self) -> u16 {
+        self.x
     }
 }

@@ -14,7 +14,7 @@ use crate::graphics::animations::CreatureAnimation;
 
 use super::GridPos;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Direction {
     Left,
     Right
@@ -127,9 +127,9 @@ impl CreatureStack {
 
         match self.direction {
             Direction::Left =>
-                canvas.copy(&texture, None, draw_rect)?,
+                canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?,
             Direction::Right =>
-                canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?
+                canvas.copy(&texture, None, draw_rect)?
         };
 
         // canvas.set_draw_color(Color::RED);

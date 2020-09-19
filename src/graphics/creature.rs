@@ -49,8 +49,8 @@ impl AnimationType {
             Self::Moving => Self::BASE_DURATION * 4,
             Self::Standing => Self::BASE_DURATION * 4,
             Self::AttackStraight => Self::BASE_DURATION * 4,
-            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 4,
-            Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 4,
+            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
+            Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 2,
             _ => Self::BASE_DURATION
         }
     }
@@ -83,11 +83,11 @@ impl CreatureSprite {
         let (x_pos, y_pos) = (draw_point.x(), draw_point.y());
         match direction {
             Direction::Left => {
-                Rect::new(x_pos + left_margin as i32 - 175, top_margin as i32 + y_pos - 225, width, height)
-            },
-            Direction::Right => {
                 let x_pos = x_pos + 450 - left_margin as i32 - width as i32 - 230;
                 Rect::new(x_pos, top_margin as i32 + y_pos - 225, width, height)
+            },
+            Direction::Right => {
+                Rect::new(x_pos + left_margin as i32 - 175, top_margin as i32 + y_pos - 225, width, height)
             }
         }
     }
