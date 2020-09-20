@@ -40,10 +40,6 @@ fn main() -> Result<(), AnyError> {
     // Создание начального игрового состояния
     let mut current_state = BattleState::new(&mut resource_registry, &texture_creator, Battlefield::GRMT)?;
 
-    // Загрузка и установка курсоров
-    let cursors = Cursors::load(&mut resource_registry);
-    cursors.set(Cursor::Pointer);
-
     let mut last_time = Instant::now();
     loop {
         let current_time = Instant::now();
