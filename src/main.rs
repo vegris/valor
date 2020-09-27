@@ -15,7 +15,6 @@ mod util;
 use util::AnyError;
 
 mod graphics;
-use graphics::cursors::{Cursor, Cursors};
 
 
 fn main() -> Result<(), AnyError> {

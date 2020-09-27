@@ -74,11 +74,7 @@ impl GridPos {
     }
 
     pub fn get_shortest_path_to(&self, destination: GridPos) -> Option<Vec<GridPos>> {
-        bfs(
-            self,
-            |p| p.get_successors(),
-            |p| *p == destination
-        )
+        bfs(self, |p| p.get_successors(), |p| *p == destination)
     }
 
     fn get_successors(&self) -> Vec<Self> {

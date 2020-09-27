@@ -160,7 +160,7 @@ pub enum Creature {
 }
 
 impl Creature {
-    pub const COUNT: usize = 137;
+    pub const COUNT: usize = 145;
 
     pub const fn filename(self) -> &'static str {
         match self {

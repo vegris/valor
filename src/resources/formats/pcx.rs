@@ -35,7 +35,7 @@ impl PcxImage {
                 let static_surface = surface.convert_format(surface.pixel_format_enum())?;
                 Left(RGB24PCX(static_surface))
             } 
-            else { // size == width * height
+            else if size == width * height { 
                 let (pixel_data, palette_data) = data.split_at_mut(size as usize);
 
                 let colors = palette_data
@@ -46,6 +46,9 @@ impl PcxImage {
                 let surface = Surface::from_data(pixel_data, width, height, width * 1, PixelFormatEnum::Index8)?;
                 let static_surface = surface.convert_format(surface.pixel_format_enum())?;
                 Right(Index8PCX {surface: static_surface, colors})
+            }
+            else {
+                panic!("Unknown pcx format!")
             };
         Ok(Self(image))
     }
