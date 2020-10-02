@@ -49,7 +49,7 @@ impl AnimationType {
             Self::Moving => Self::BASE_DURATION * 4,
             Self::Standing => Self::BASE_DURATION * 4,
             Self::AttackStraight => Self::BASE_DURATION * 4,
-            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
+            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION * 4,
             Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 2,
             Self::GettingHit => Self::BASE_DURATION * 2,
             _ => Self::BASE_DURATION
@@ -79,18 +79,28 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
-    pub fn draw_rect(&self, draw_point: Point, direction: Direction) -> Rect {
-        let Self { left_margin, top_margin, width, height, .. } = *self;
-        let (x_pos, y_pos) = (draw_point.x(), draw_point.y());
-        match direction {
-            Direction::Left => {
-                let x_pos = x_pos + 450 - left_margin as i32 - width as i32 - 230;
-                Rect::new(x_pos, top_margin as i32 + y_pos - 225, width, height)
-            },
-            Direction::Right => {
-                Rect::new(x_pos + left_margin as i32 - 175, top_margin as i32 + y_pos - 225, width, height)
-            }
-        }
+    pub fn draw_rect(&self, center: Point, direction: Direction) -> Rect {
+        const FULL_WIDTH: u32 = 450;
+        const FULL_HEIGHT: u32 = 400;
+
+        const X_CORRECTION: i32 = 30;
+        const Y_CORRECTION: i32 = -50;
+
+        let Self { left_margin, top_margin, width, height, ..} = *self;
+
+        let full_rect = Rect::from_center(center, FULL_WIDTH, FULL_HEIGHT);
+        let (reference_point, x_offset) =
+            match direction {
+                Direction::Left => {
+                    (full_rect.top_right(), -((left_margin + width) as i32 + X_CORRECTION))
+                },
+                Direction::Right => {
+                    (full_rect.top_left(), left_margin as i32 + X_CORRECTION)
+                }
+            };
+        
+        let top_left = reference_point.offset(x_offset, top_margin as i32 + Y_CORRECTION);
+        Rect::new(top_left.x(), top_left.y(), width, height)
     }
 
     pub fn surface(&self) -> &Surface<'static> {

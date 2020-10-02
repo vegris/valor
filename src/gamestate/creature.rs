@@ -49,7 +49,7 @@ impl CreatureStack {
             creature,
             grid_pos,
 
-            draw_pos: grid_pos.draw_pos(),
+            draw_pos: grid_pos.draw_center(),
             animation_type: AnimationType::Standing,
             animation_progress: 0.0,
 

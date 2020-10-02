@@ -20,7 +20,7 @@ pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, uni
             animate_turning(unit);
             cur_direction = cur_direction.inversion();
         }
-        unit.push_animation(CreatureAnimation::new_tweening(cur_grid_pos.draw_pos(), grid_pos.draw_pos()));
+        unit.push_animation(CreatureAnimation::new_tweening(cur_grid_pos.draw_center(), grid_pos.draw_center()));
         cur_grid_pos = *grid_pos;
     }
 

@@ -20,10 +20,8 @@ impl GridPos {
     const CELL_HEIGHT: u32 = 52;
     const CELL_VERTICAL_SIDE_LENGTH: u32 = 32;
 
-    const ODD_START_X: u32 = 81;
-    const ODD_START_Y: u32 = 86;
-    const EVEN_START_X: u32 = 59;
-    const EVEN_START_Y: u32 = 128;
+    const ODD_START_POINT: (i32, i32) = (105, 117);
+    const EVEN_START_POINT: (i32, i32) = (83, 159);
 
     fn is_point_valid(x: u16, y: u16) -> bool {
         Self::X_RANGE.contains(&x) && Self::Y_RANGE.contains(&y)
@@ -46,27 +44,25 @@ impl GridPos {
         self.y % 2 == 0
     }
 
-    pub fn draw_pos(&self) -> Point {
-        // Клетки нумеруются с первой, а алгоритм работает с нумерацией с нуля
+    pub fn draw_center(&self) -> Point {
         let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
 
-        let base_x = x * (Self::CELL_WIDTH - 1); // Вычитаем единицу чтобы рисовать клетки "внахлёст"
-        let base_y = y / 2 * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH);
+        // Вычитаем единицу чтобы рисовать клетки "внахлёст"
+        let x_offset = x * (Self::CELL_WIDTH - 1);
+        let y_offset = y / 2 * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH);
 
-        let (x_pos, y_pos) = 
+        let start_point = 
             if self.is_even_row() {
-                (base_x + Self::EVEN_START_X, base_y + Self::EVEN_START_Y)
+                Self::EVEN_START_POINT
             } else {
-                (base_x + Self::ODD_START_X, base_y + Self::ODD_START_Y)
+                Self::ODD_START_POINT
             };
-
-        Point::new(x_pos as i32, y_pos as i32)
+        
+        Point::from(start_point).offset(x_offset as i32, y_offset as i32)
     }
 
     pub fn draw_rect(&self) -> Rect {
-        let draw_point = self.draw_pos();
-        let (x, y) = (draw_point.x(), draw_point.y());
-        Rect::new(x, y, Self::CELL_WIDTH, Self::CELL_HEIGHT)
+        Rect::from_center(self.draw_center(), Self::CELL_WIDTH, Self::CELL_HEIGHT)
     }
 
     pub fn contains_point(&self, point: (i32, i32)) -> bool {

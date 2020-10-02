@@ -133,7 +133,6 @@ impl<'a> BattleState<'a> {
     }
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-
         if let Some(Command { type_, destination }) = self.pending_command.take() {
             match type_ {
                 CommandType::Move => {
