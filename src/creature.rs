@@ -1,13 +1,29 @@
-struct CreatureStats {
+pub struct CreatureStats {
     attack: u8,
     defence: u8,
     damage: (u8, u8),
     health: u16,
-    speed: u8
+    speed: u8,
+    ammo_capacity: u8
 }
 
-#[derive(Clone, Copy)]
-#[allow(unused)]
+#[derive(PartialEq)]
+pub enum Town {
+    Castle,
+    Rampart,
+    Tower,
+    Inferno,
+    Necropolis,
+    Dungeon,
+    Stronghold,
+    Fortress,
+    Conflux,
+    // Не города, но пускай тоже будут
+    Neutral,
+    WarMachines
+}
+
+#[derive(PartialEq, PartialOrd)]
 pub enum Creature {
     // Castle
     Pikeman,
@@ -167,1035 +183,1292 @@ pub enum Creature {
     AmmoCart
 }
 
+// Поменьше текста
+type C  = Creature;
+type CS = CreatureStats;
+
 impl Creature {
-    const fn base_stats(self) -> CreatureStats {
+    const fn base_stats(&self) -> CreatureStats {
         match self {
             // Castle
-            Self::Pikeman => CreatureStats {
+            Self::Pikeman => CS {
                 attack: 4,
                 defence: 5,
                 damage: (1, 3),
                 health: 10,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::Halberdier => CreatureStats {
+            Self::Halberdier => CS {
                 attack: 6,
                 defence: 5,
                 damage: (2, 3),
                 health: 10,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Archer => CreatureStats {
+            Self::Archer => CS {
                 attack: 6,
                 defence: 3,
                 damage: (2, 3),
                 health: 10,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 12
             },
-            Self::Marksman => CreatureStats {
+            Self::Marksman => CS {
                 attack: 6,
                 defence: 3,
                 damage: (2, 3),
                 health: 10,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 24
             },
-            Self::Griffin => CreatureStats {
+            Self::Griffin => CS {
                 attack: 8,
                 defence: 8,
                 damage: (3, 6),
                 health: 25,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::RoyalGriffin => CreatureStats {
+            Self::RoyalGriffin => CS {
                 attack: 9,
                 defence: 9,
                 damage: (3, 6),
                 health: 25,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::Swordsman => CreatureStats {
+            Self::Swordsman => CS {
                 attack: 10,
                 defence: 12,
                 damage: (6, 9),
                 health: 35,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Crusader => CreatureStats {
+            Self::Crusader => CS {
                 attack: 12,
                 defence: 12,
                 damage: (7, 10),
                 health: 35,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::Monk => CreatureStats {
+            Self::Monk => CS {
                 attack: 12,
                 defence: 7,
                 damage: (10, 12),
                 health: 30,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 12
             },
-            Self::Zealot => CreatureStats {
+            Self::Zealot => CS {
                 attack: 12,
                 defence: 10,
                 damage: (10, 12),
                 health: 30,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 24
             },
-            Self::Cavalier => CreatureStats {
+            Self::Cavalier => CS {
                 attack: 15,
                 defence: 15,
                 damage: (15, 25),
                 health: 100,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Champion => CreatureStats {
+            Self::Champion => CS {
                 attack: 16,
                 defence: 16,
                 damage: (20, 25),
                 health: 100,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::Angel => CreatureStats {
+            Self::Angel => CS {
                 attack: 20,
                 defence: 20,
                 damage: (50, 50),
                 health: 200,
-                speed: 12
+                speed: 12,
+                ammo_capacity: 0
             },
-            Self::Archangel => CreatureStats {
+            Self::Archangel => CS {
                 attack: 30,
                 defence: 30,
                 damage: (50, 50),
                 health: 250,
-                speed: 18
+                speed: 18,
+                ammo_capacity: 0
             },
             // Rampart
-            Self::Centaur => CreatureStats {
+            Self::Centaur => CS {
                 attack: 5,
                 defence: 3,
                 damage: (2, 3),
                 health: 8,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::CentaurCaptain => CreatureStats {
+            Self::CentaurCaptain => CS {
                 attack: 6,
                 defence: 3,
                 damage: (2, 3),
                 health: 10,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 0
             },
-            Self::Dwarf => CreatureStats {
+            Self::Dwarf => CS {
                 attack: 6,
                 defence: 7,
                 damage: (2, 4),
                 health: 20,
-                speed: 3
+                speed: 3,
+                ammo_capacity: 0
             },
-            Self::BattleDwarf => CreatureStats {
+            Self::BattleDwarf => CS {
                 attack: 7,
                 defence: 7,
                 damage: (2, 4),
                 health: 20,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::WoodElf => CreatureStats {
+            Self::WoodElf => CS {
                 attack: 9,
                 defence: 5,
                 damage: (3, 5),
                 health: 15,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 24
             },
-            Self::GrandElf => CreatureStats {
+            Self::GrandElf => CS {
                 attack: 9,
                 defence: 5,
                 damage: (3, 5),
                 health: 15,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 24
             },
-            Self::Pegasus => CreatureStats {
+            Self::Pegasus => CS {
                 attack: 9,
                 defence: 8,
                 damage: (5, 9),
                 health: 30,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 0
             },
-            Self::SilverPegasus => CreatureStats {
+            Self::SilverPegasus => CS {
                 attack: 9,
                 defence: 10,
                 damage: (5, 9),
                 health: 30,
-                speed: 12
+                speed: 12,
+                ammo_capacity: 0
             },
-            Self::DendroidGuard => CreatureStats {
+            Self::DendroidGuard => CS {
                 attack: 9,
                 defence: 12,
                 damage: (10, 14),
                 health: 55,
-                speed: 3
+                speed: 3,
+                ammo_capacity: 0
             },
-            Self::DendroidSoldier => CreatureStats {
+            Self::DendroidSoldier => CS {
                 attack: 9,
                 defence: 12,
                 damage: (10, 14),
                 health: 65,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::Unicorn => CreatureStats {
+            Self::Unicorn => CS {
                 attack: 15,
                 defence: 14,
                 damage: (18, 22),
                 health: 90,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::WarUnicorn => CreatureStats {
+            Self::WarUnicorn => CS {
                 attack: 15,
                 defence: 14,
                 damage: (18, 22),
                 health: 110,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::GreenDragon => CreatureStats {
+            Self::GreenDragon => CS {
                 attack: 18,
                 defence: 18,
                 damage: (40, 50),
                 health: 180,
-                speed: 10
+                speed: 10,
+                ammo_capacity: 0
             },
-            Self::GoldDragon => CreatureStats {
+            Self::GoldDragon => CS {
                 attack: 27,
                 defence: 27,
                 damage: (40, 50),
                 health: 250,
-                speed: 16
+                speed: 16,
+                ammo_capacity: 0
             },
             // Tower
-            Self::Gremlin => CreatureStats {
+            Self::Gremlin => CS {
                 attack: 3,
                 defence: 3,
                 damage: (1, 2),
                 health: 4,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::MasterGremlin => CreatureStats {
+            Self::MasterGremlin => CS {
                 attack: 4,
                 defence: 4,
                 damage: (1, 2),
                 health: 4,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 8
             },
-            Self::StoneGargoyle => CreatureStats {
+            Self::StoneGargoyle => CS {
                 attack: 6,
                 defence: 6,
                 damage: (2, 3),
                 health: 16,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::ObsidianGargoyle => CreatureStats {
+            Self::ObsidianGargoyle => CS {
                 attack: 7,
                 defence: 7,
                 damage: (2, 3),
                 health: 16,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::StoneGolem => CreatureStats {
+            Self::StoneGolem => CS {
                 attack: 7,
                 defence: 10,
                 damage: (4, 5),
                 health: 30,
-                speed: 3
+                speed: 3,
+                ammo_capacity: 0
             },
-            Self::IronGolem => CreatureStats {
+            Self::IronGolem => CS {
                 attack: 9,
                 defence: 10,
                 damage: (4, 5),
                 health: 35,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Mage => CreatureStats {
+            Self::Mage => CS {
                 attack: 11,
                 defence: 8,
                 damage: (7, 9),
                 health: 25,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 24
             },
-            Self::ArchMage => CreatureStats {
+            Self::ArchMage => CS {
                 attack: 12,
                 defence: 9,
                 damage: (7, 9),
                 health: 30,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 24
             },
-            Self::Genie => CreatureStats {
+            Self::Genie => CS {
                 attack: 12,
                 defence: 12,
                 damage: (13, 16),
                 health: 40,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::MasterGenie => CreatureStats {
+            Self::MasterGenie => CS {
                 attack: 12,
                 defence: 12,
                 damage: (13, 16),
                 health: 40,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 0
             },
-            Self::Naga => CreatureStats {
+            Self::Naga => CS {
                 attack: 16,
                 defence: 13,
                 damage: (20, 20),
                 health: 110,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::NagaQueen => CreatureStats {
+            Self::NagaQueen => CS {
                 attack: 16,
                 defence: 13,
                 damage: (30, 30),
                 health: 110,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Giant => CreatureStats {
+            Self::Giant => CS {
                 attack: 19,
                 defence: 16,
                 damage: (40, 60),
                 health: 150,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Titan => CreatureStats {
+            Self::Titan => CS {
                 attack: 24,
                 defence: 24,
                 damage: (40, 60),
                 health: 300,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 24
             },
             // Inferno
-            Self::Imp => CreatureStats {
+            Self::Imp => CS {
                 attack: 2,
                 defence: 3,
                 damage: (1, 2),
                 health: 4,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Familiar => CreatureStats {
+            Self::Familiar => CS {
                 attack: 4,
                 defence: 4,
                 damage: (1, 2),
                 health: 4,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Gog => CreatureStats {
+            Self::Gog => CS {
                 attack: 6,
                 defence: 4,
                 damage: (2, 4),
                 health: 13,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 12
             },
-            Self::Magog => CreatureStats {
+            Self::Magog => CS {
                 attack: 7,
                 defence: 4,
                 damage: (2, 4),
                 health: 13,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 24
             },
-            Self::HellHound => CreatureStats {
+            Self::HellHound => CS {
                 attack: 10,
                 defence: 6,
                 damage: (2, 7),
                 health: 25,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Cerberus => CreatureStats {
+            Self::Cerberus => CS {
                 attack: 10,
                 defence: 8,
                 damage: (2, 7),
                 health: 25,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 0
             },
-            Self::Demon => CreatureStats {
+            Self::Demon => CS {
                 attack: 10,
                 defence: 10,
                 damage: (7, 9),
                 health: 35,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::HornedDemon => CreatureStats {
+            Self::HornedDemon => CS {
                 attack: 10,
                 defence: 10,
                 damage: (7, 9),
                 health: 40,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::PitFiend => CreatureStats {
+            Self::PitFiend => CS {
                 attack: 13,
                 defence: 13,
                 damage: (13, 17),
                 health: 45,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::PitLord => CreatureStats {
+            Self::PitLord => CS {
                 attack: 13,
                 defence: 13,
                 damage: (13, 17),
                 health: 45,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Efreeti => CreatureStats {
+            Self::Efreeti => CS {
                 attack: 16,
                 defence: 12,
                 damage: (16, 24),
                 health: 90,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::EfreetSultan => CreatureStats {
+            Self::EfreetSultan => CS {
                 attack: 16,
                 defence: 14,
                 damage: (16, 24),
                 health: 90,
-                speed: 13
+                speed: 13,
+                ammo_capacity: 0
             },
-            Self::Devil => CreatureStats {
+            Self::Devil => CS {
                 attack: 19,
                 defence: 21,
                 damage: (30, 40),
                 health: 160,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 0
             },
-            Self::ArchDevil => CreatureStats {
+            Self::ArchDevil => CS {
                 attack: 26,
                 defence: 28,
                 damage: (30, 40),
                 health: 200,
-                speed: 17
+                speed: 17,
+                ammo_capacity: 0
             },
             // Necropolis
-            Self::Skeleton => CreatureStats {
+            Self::Skeleton => CS {
                 attack: 5,
                 defence: 4,
                 damage: (1, 3),
                 health: 6,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::SkeletonWarrior => CreatureStats {
+            Self::SkeletonWarrior => CS {
                 attack: 6,
                 defence: 6,
                 damage: (1, 3),
                 health: 6,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::WalkingDead => CreatureStats {
+            Self::WalkingDead => CS {
                 attack: 5,
                 defence: 5,
                 damage: (2, 3),
                 health: 15,
-                speed: 3
+                speed: 3,
+                ammo_capacity: 0
             },
-            Self::Zombie => CreatureStats {
+            Self::Zombie => CS {
                 attack: 5,
                 defence: 5,
                 damage: (2, 3),
                 health: 20,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::Wight => CreatureStats {
+            Self::Wight => CS {
                 attack: 7,
                 defence: 7,
                 damage: (3, 5),
                 health: 18,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Wraith => CreatureStats {
+            Self::Wraith => CS {
                 attack: 7,
                 defence: 7,
                 damage: (3, 5),
                 health: 18,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Vampire => CreatureStats {
+            Self::Vampire => CS {
                 attack: 10,
                 defence: 9,
                 damage: (5, 8),
                 health: 30,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::VampireLord => CreatureStats {
+            Self::VampireLord => CS {
                 attack: 10,
                 defence: 10,
                 damage: (5, 8),
                 health: 40,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::Lich => CreatureStats {
+            Self::Lich => CS {
                 attack: 13,
                 defence: 10,
                 damage: (11, 13),
                 health: 30,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 12
             },
-            Self::PowerLich => CreatureStats {
+            Self::PowerLich => CS {
                 attack: 13,
                 defence: 10,
                 damage: (11, 15),
                 health: 40,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 24
             },
-            Self::BlackKnight => CreatureStats {
+            Self::BlackKnight => CS {
                 attack: 16,
                 defence: 16,
                 damage: (15, 30),
                 health: 120,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::DreadKnight => CreatureStats {
+            Self::DreadKnight => CS {
                 attack: 18,
                 defence: 18,
                 damage: (15, 30),
                 health: 120,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::BoneDragon => CreatureStats {
+            Self::BoneDragon => CS {
                 attack: 17,
                 defence: 15,
                 damage: (25, 50),
                 health: 150,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::GhostDragon => CreatureStats {
+            Self::GhostDragon => CS {
                 attack: 19,
                 defence: 17,
                 damage: (25, 50),
                 health: 200,
-                speed: 14
+                speed: 14,
+                ammo_capacity: 0
             },
             // Dungeon
-            Self::Troglodyte => CreatureStats {
+            Self::Troglodyte => CS {
                 attack: 4,
                 defence: 3,
                 damage: (1, 3),
                 health: 5,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::InfernalTroglodyte => CreatureStats {
+            Self::InfernalTroglodyte => CS {
                 attack: 5,
                 defence: 4,
                 damage: (1, 3),
                 health: 6,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Harpy => CreatureStats {
+            Self::Harpy => CS {
                 attack: 6,
                 defence: 5,
                 damage: (1, 4),
                 health: 14,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::HarpyHag => CreatureStats {
+            Self::HarpyHag => CS {
                 attack: 6,
                 defence: 6,
                 damage: (1, 4),
                 health: 14,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::Beholder => CreatureStats {
+            Self::Beholder => CS {
                 attack: 9,
                 defence: 7,
                 damage: (3, 5),
                 health: 22,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 12
             },
-            Self::EvilEye => CreatureStats {
+            Self::EvilEye => CS {
                 attack: 10,
                 defence: 8,
                 damage: (3, 5),
                 health: 22,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 24
             },
-            Self::Medusa => CreatureStats {
+            Self::Medusa => CS {
                 attack: 9,
                 defence: 9,
                 damage: (6, 8),
                 health: 25,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 4
             },
-            Self::MedusaQueen => CreatureStats {
+            Self::MedusaQueen => CS {
                 attack: 10,
                 defence: 10,
                 damage: (6, 8),
                 health: 30,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 8
             },
-            Self::Minotaur => CreatureStats {
+            Self::Minotaur => CS {
                 attack: 14,
                 defence: 12,
                 damage: (12, 20),
                 health: 50,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::MinotaurKing => CreatureStats {
+            Self::MinotaurKing => CS {
                 attack: 15,
                 defence: 15,
                 damage: (12, 20),
                 health: 50,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 0
             },
-            Self::Manticore => CreatureStats {
+            Self::Manticore => CS {
                 attack: 15,
                 defence: 13,
                 damage: (14, 20),
                 health: 80,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Scorpicore => CreatureStats {
+            Self::Scorpicore => CS {
                 attack: 16,
                 defence: 14,
                 damage: (14, 20),
                 health: 80,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 0
             },
-            Self::RedDragon => CreatureStats {
+            Self::RedDragon => CS {
                 attack: 19,
                 defence: 19,
                 damage: (40, 50),
                 health: 180,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 0
             },
-            Self::BlackDragon => CreatureStats {
+            Self::BlackDragon => CS {
                 attack: 25,
                 defence: 25,
                 damage: (40, 50),
                 health: 300,
-                speed: 15
+                speed: 15,
+                ammo_capacity: 0
             },
             // Stronghold
-            Self::Goblin => CreatureStats {
+            Self::Goblin => CS {
                 attack: 4,
                 defence: 2,
                 damage: (1, 2),
                 health: 5,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Hobgoblin => CreatureStats {
+            Self::Hobgoblin => CS {
                 attack: 5,
                 defence: 3,
                 damage: (1, 2),
                 health: 5,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::WolfRider => CreatureStats {
+            Self::WolfRider => CS {
                 attack: 7,
                 defence: 5,
                 damage: (2, 4),
                 health: 10,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::WolfRaider => CreatureStats {
+            Self::WolfRaider => CS {
                 attack: 8,
                 defence: 5,
                 damage: (3, 4),
                 health: 10,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 0
             },
-            Self::Orc => CreatureStats {
+            Self::Orc => CS {
                 attack: 8,
                 defence: 4,
                 damage: (2, 5),
                 health: 15,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 12
             },
-            Self::OrcChieftain => CreatureStats {
+            Self::OrcChieftain => CS {
                 attack: 8,
                 defence: 4,
                 damage: (2, 5),
                 health: 20,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 24
             },
-            Self::Ogre => CreatureStats {
+            Self::Ogre => CS {
                 attack: 13,
                 defence: 7,
                 damage: (6, 12),
                 health: 40,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::OgreMagi => CreatureStats {
+            Self::OgreMagi => CS {
                 attack: 13,
                 defence: 7,
                 damage: (6, 12),
                 health: 60,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Roc => CreatureStats {
+            Self::Roc => CS {
                 attack: 13,
                 defence: 11,
                 damage: (11, 15),
                 health: 60,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Thunderbird => CreatureStats {
+            Self::Thunderbird => CS {
                 attack: 13,
                 defence: 11,
                 damage: (11, 15),
                 health: 60,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 0
             },
-            Self::Cyclops => CreatureStats {
+            Self::Cyclops => CS {
                 attack: 15,
                 defence: 12,
                 damage: (16, 20),
                 health: 70,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 16
             },
-            Self::CyclopsKing => CreatureStats {
+            Self::CyclopsKing => CS {
                 attack: 17,
                 defence: 13,
                 damage: (16, 20),
                 health: 70,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 24
             },
-            Self::Behemoth => CreatureStats {
+            Self::Behemoth => CS {
                 attack: 17,
                 defence: 17,
                 damage: (30, 50),
                 health: 160,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::AncientBehemoth => CreatureStats {
+            Self::AncientBehemoth => CS {
                 attack: 19,
                 defence: 19,
                 damage: (30, 50),
                 health: 300,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
             // Fortress
-            Self::Gnoll => CreatureStats {
+            Self::Gnoll => CS {
                 attack: 3,
                 defence: 5,
                 damage: (2, 3),
                 health: 6,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::GnollMarauder => CreatureStats {
+            Self::GnollMarauder => CS {
                 attack: 4,
                 defence: 6,
                 damage: (2, 3),
                 health: 6,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Lizardman => CreatureStats {
+            Self::Lizardman => CS {
                 attack: 5,
                 defence: 6,
                 damage: (2, 3),
                 health: 14,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 12
             },
-            Self::LizardWarrior => CreatureStats {
+            Self::LizardWarrior => CS {
                 attack: 6,
                 defence: 8,
                 damage: (2, 5),
                 health: 15,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 24
             },
-            Self::SerpentFly => CreatureStats {
+            Self::SerpentFly => CS {
                 attack: 7,
                 defence: 9,
                 damage: (2, 5),
                 health: 20,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::DragonFly => CreatureStats {
+            Self::DragonFly => CS {
                 attack: 8,
                 defence: 10,
                 damage: (2, 5),
                 health: 20,
-                speed: 13
+                speed: 13,
+                ammo_capacity: 0
             },
-            Self::Basilisk => CreatureStats {
+            Self::Basilisk => CS {
                 attack: 11,
                 defence: 11,
                 damage: (6, 10),
                 health: 35,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::GreaterBasilisk => CreatureStats {
+            Self::GreaterBasilisk => CS {
                 attack: 12,
                 defence: 12,
                 damage: (6, 10),
                 health: 40,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Gorgon => CreatureStats {
+            Self::Gorgon => CS {
                 attack: 10,
                 defence: 14,
                 damage: (12, 16),
                 health: 70,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::MightyGorgon => CreatureStats {
+            Self::MightyGorgon => CS {
                 attack: 11,
                 defence: 16,
                 damage: (12, 16),
                 health: 70,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::Wyvern => CreatureStats {
+            Self::Wyvern => CS {
                 attack: 14,
                 defence: 14,
                 damage: (14, 18),
                 health: 70,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::WyvernMonarch => CreatureStats {
+            Self::WyvernMonarch => CS {
                 attack: 14,
                 defence: 14,
                 damage: (18, 22),
                 health: 70,
-                speed: 11
+                speed: 11,
+                ammo_capacity: 0
             },
-            Self::Hydra => CreatureStats {
+            Self::Hydra => CS {
                 attack: 16,
                 defence: 18,
                 damage: (25, 45),
                 health: 175,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::ChaosHydra => CreatureStats {
+            Self::ChaosHydra => CS {
                 attack: 18,
                 defence: 20,
                 damage: (25, 45),
                 health: 250,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
             // Conflux
-            Self::Pixie => CreatureStats {
+            Self::Pixie => CS {
                 attack: 2,
                 defence: 2,
                 damage: (1, 2),
                 health: 3,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Sprite => CreatureStats {
+            Self::Sprite => CS {
                 attack: 2,
                 defence: 2,
                 damage: (1, 3),
                 health: 3,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::AirElemental => CreatureStats {
+            Self::AirElemental => CS {
                 attack: 9,
                 defence: 9,
                 damage: (2, 8),
                 health: 25,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::StormElemental => CreatureStats {
+            Self::StormElemental => CS {
                 attack: 9,
                 defence: 9,
                 damage: (2, 8),
                 health: 25,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 24
             },
-            Self::WaterElemental => CreatureStats {
+            Self::WaterElemental => CS {
                 attack: 8,
                 defence: 10,
                 damage: (3, 7),
                 health: 30,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::IceElemental => CreatureStats {
+            Self::IceElemental => CS {
                 attack: 8,
                 defence: 10,
                 damage: (3, 7),
                 health: 30,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 24
             },
-            Self::FireElemental => CreatureStats {
+            Self::FireElemental => CS {
                 attack: 10,
                 defence: 8,
                 damage: (4, 6),
                 health: 35,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::EnergyElemental => CreatureStats {
+            Self::EnergyElemental => CS {
                 attack: 12,
                 defence: 8,
                 damage: (4, 6),
                 health: 35,
-                speed: 8
+                speed: 8,
+                ammo_capacity: 0
             },
-            Self::EarthElemental => CreatureStats {
+            Self::EarthElemental => CS {
                 attack: 10,
                 defence: 10,
                 damage: (4, 8),
                 health: 40,
-                speed: 4
+                speed: 4,
+                ammo_capacity: 0
             },
-            Self::MagmaElemental => CreatureStats {
+            Self::MagmaElemental => CS {
                 attack: 11,
                 defence: 11,
                 damage: (6, 10),
                 health: 40,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::PsychicElemental => CreatureStats {
+            Self::PsychicElemental => CS {
                 attack: 15,
                 defence: 13,
                 damage: (10, 20),
                 health: 75,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::MagicElemental => CreatureStats {
+            Self::MagicElemental => CS {
                 attack: 15,
                 defence: 13,
                 damage: (15, 25),
                 health: 80,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 0
             },
-            Self::Firebird => CreatureStats {
+            Self::Firebird => CS {
                 attack: 18,
                 defence: 18,
                 damage: (30, 40),
                 health: 150,
-                speed: 15
+                speed: 15,
+                ammo_capacity: 0
             },
-            Self::Phoenix => CreatureStats {
+            Self::Phoenix => CS {
                 attack: 21,
                 defence: 18,
                 damage: (30, 40),
                 health: 200,
-                speed: 21
+                speed: 21,
+                ammo_capacity: 0
             },
             // Neutral
-            Self::Peasant => CreatureStats {
+            Self::Peasant => CS {
                 attack: 1,
                 defence: 1,
                 damage: (1, 1),
                 health: 1,
-                speed: 3
+                speed: 3,
+                ammo_capacity: 0
             },
-            Self::Halfling => CreatureStats {
+            Self::Halfling => CS {
                 attack: 4,
                 defence: 2,
                 damage: (1, 3),
                 health: 4,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 24
             },
-            Self::Boar => CreatureStats {
+            Self::Boar => CS {
                 attack: 6,
                 defence: 5,
                 damage: (2, 3),
                 health: 15,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::Rogue => CreatureStats {
+            Self::Rogue => CS {
                 attack: 8,
                 defence: 3,
                 damage: (2, 4),
                 health: 10,
-                speed: 6
+                speed: 6,
+                ammo_capacity: 0
             },
-            Self::Mummy => CreatureStats {
+            Self::Mummy => CS {
                 attack: 7,
                 defence: 7,
                 damage: (3, 5),
                 health: 30,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Nomad => CreatureStats {
+            Self::Nomad => CS {
                 attack: 9,
                 defence: 8,
                 damage: (2, 6),
                 health: 30,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::Sharpshooter => CreatureStats {
+            Self::Sharpshooter => CS {
                 attack: 12,
                 defence: 10,
                 damage: (8, 10),
                 health: 15,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 32
             },
-            Self::Troll => CreatureStats {
+            Self::Troll => CS {
                 attack: 14,
                 defence: 7,
                 damage: (10, 15),
                 health: 40,
-                speed: 7
+                speed: 7,
+                ammo_capacity: 0
             },
-            Self::GoldGolem => CreatureStats {
+            Self::GoldGolem => CS {
                 attack: 11,
                 defence: 12,
                 damage: (8, 10),
                 health: 50,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::DiamondGolem => CreatureStats {
+            Self::DiamondGolem => CS {
                 attack: 13,
                 defence: 12,
                 damage: (10, 14),
                 health: 60,
-                speed: 5
+                speed: 5,
+                ammo_capacity: 0
             },
-            Self::Enchanter => CreatureStats {
+            Self::Enchanter => CS {
                 attack: 17,
                 defence: 12,
                 damage: (14, 14),
                 health: 30,
-                speed: 9
+                speed: 9,
+                ammo_capacity: 32
             },
-            Self::FaerieDragon => CreatureStats {
+            Self::FaerieDragon => CS {
                 attack: 20,
                 defence: 20,
                 damage: (20, 30),
                 health: 500,
-                speed: 15
+                speed: 15,
+                ammo_capacity: 0
             },
-            Self::RustDragon => CreatureStats {
+            Self::RustDragon => CS {
                 attack: 30,
                 defence: 30,
                 damage: (50, 50),
                 health: 750,
-                speed: 17
+                speed: 17,
+                ammo_capacity: 0
             },
-            Self::CrystalDragon => CreatureStats {
+            Self::CrystalDragon => CS {
                 attack: 40,
                 defence: 40,
                 damage: (60, 75),
                 health: 800,
-                speed: 16
+                speed: 16,
+                ammo_capacity: 0
             },
-            Self::AzureDragon => CreatureStats {
+            Self::AzureDragon => CS {
                 attack: 50,
                 defence: 50,
                 damage: (70, 80),
                 health: 1000,
-                speed: 19
+                speed: 19,
+                ammo_capacity: 0
             },
             // War Machines
-            Self::Ballista => CreatureStats {
+            Self::Ballista => CS {
                 attack: 10,
                 defence: 10,
                 damage: (2, 3),
                 health: 250,
-                speed: 0
+                speed: 0,
+                ammo_capacity: 0
             },
-            Self::FirstAidTent => CreatureStats {
+            Self::FirstAidTent => CS {
                 attack: 0,
                 defence: 0,
                 damage: (0, 0),
                 health: 75,
-                speed: 0
+                speed: 0,
+                ammo_capacity: 0
             },
-            Self::Catapult => CreatureStats {
+            Self::Catapult => CS {
                 attack: 10,
                 defence: 10,
                 damage: (0, 0),
                 health: 1000,
-                speed: 0
+                speed: 0,
+                ammo_capacity: 0
             },
-            Self::AmmoCart => CreatureStats {
+            Self::AmmoCart => CS {
                 attack: 0,
                 defence: 5,
                 damage: (0, 0),
                 health: 100,
-                speed: 0
+                speed: 0,
+                ammo_capacity: 0
             }
         }
+    }
+
+    fn town(&self) -> Town {
+        match self {
+            x if (Self::Pikeman..=Self::Archangel).contains(x) => Town::Castle,
+            x if (Self::Centaur..=Self::GoldDragon).contains(x) => Town::Rampart,
+            x if (Self::Gremlin..=Self::Titan).contains(x) => Town::Tower,
+            x if (Self::Imp..=Self::ArchDevil).contains(x) => Town::Inferno,
+            x if (Self::Skeleton..=Self::GhostDragon).contains(x) => Town::Necropolis,
+            x if (Self::Troglodyte..=Self::BlackDragon).contains(x) => Town::Dungeon,
+            x if (Self::Goblin..=Self::AncientBehemoth).contains(x) => Town::Stronghold,
+            x if (Self::Gnoll..=Self::ChaosHydra).contains(x) => Town::Fortress,
+            x if (Self::Pixie..=Self::Phoenix).contains(x) => Town::Conflux,
+            x if (Self::Peasant..=Self::AzureDragon).contains(x) => Town::Neutral,
+            x if (Self::Ballista..=Self::AmmoCart).contains(x) => Town::WarMachines,
+            _ => panic!("Creature without town!")
+        }
+    }
+
+    fn is_wide(&self) -> bool {
+        const WIDE_CREATURES: [Creature; 53] = [
+            // Castle
+            C::Griffin, C::RoyalGriffin,
+            C::Cavalier, C::Champion,
+            C::Archangel,
+            // Rampart
+            C::Centaur, C::CentaurCaptain,
+            C::Pegasus, C::SilverPegasus,
+            C::Unicorn, C::WarUnicorn,
+            C::GreenDragon, C::GoldDragon,
+            // Tower
+            C::Naga, C::NagaQueen,
+            // Inferno
+            C::HellHound, C::Cerberus,
+            // Necropolis
+            C::BlackKnight, C::DreadKnight,
+            C::BoneDragon, C::GhostDragon,
+            // Dungeon
+            C::Medusa, C::MedusaQueen,
+            C::Manticore, C::Scorpicore,
+            C::RedDragon, C::BlackDragon,
+            // Stronghold
+            C::WolfRider, C::WolfRaider,
+            C::Roc, C::Thunderbird,
+            C::Behemoth, C::AncientBehemoth,
+            // Fortress
+            C::Basilisk, C::GreaterBasilisk,
+            C::Gorgon, C::MightyGorgon,
+            C::Wyvern, C::WyvernMonarch,
+            C::Hydra, C::ChaosHydra,
+            // Conflux
+            C::WaterElemental, C::IceElemental,
+            C::Firebird, C::Phoenix,
+            // Neutral
+            C::Boar, C::Nomad,
+            C::FaerieDragon, C::RustDragon, C::CrystalDragon, C::AzureDragon,
+            // War Machines
+            C::Ballista, C::Catapult
+        ];
+        WIDE_CREATURES.contains(self)
+    }
+
+    fn is_flying(&self) -> bool {
+        const FLYING_CREATURES: [Creature; 42] = [
+            // Castle
+            C::Griffin, C::RoyalGriffin,
+            C::Angel, C::Archangel,
+            // Rampart
+            C::Pegasus, C::SilverPegasus,
+            C::GreenDragon, C::GoldDragon,
+            // Tower
+            C::StoneGargoyle, C::ObsidianGargoyle,
+            C::Genie, C::MasterGenie,
+            // Inferno
+            C::Efreeti, C::EfreetSultan,
+            C::Devil, C::ArchDevil,
+            // Necropolis
+            C::Wight, C::Wraith,
+            C::Vampire, C::VampireLord,
+            C::BoneDragon, C::GhostDragon,
+            // Dungeon
+            C::Harpy, C::HarpyHag,
+            C::Manticore, C::Scorpicore,
+            C::RedDragon, C::BlackDragon,
+            // Stronghold
+            C::Roc, C::Thunderbird,
+            // Fortress
+            C::SerpentFly, C::DragonFly,
+            C::Wyvern, C::WyvernMonarch,
+            // Conflux
+            C::Pixie, C::Sprite,
+            C::EnergyElemental,
+            C::Firebird, C::Phoenix,
+            // Neutral
+            C::FaerieDragon, C::RustDragon, C::AzureDragon
+        ];
+        FLYING_CREATURES.contains(self)
+    }
+
+    fn is_ranged(&self) -> bool {
+        self.base_stats().ammo_capacity != 0
+    }
+
+    fn is_undead(&self) -> bool {
+        const NON_NECROPOLIS_UNDEAD: [Creature; 1] = [
+            C::Mummy
+        ];
+        self.town() == Town::Necropolis || NON_NECROPOLIS_UNDEAD.contains(self)
     }
 }
