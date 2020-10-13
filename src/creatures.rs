@@ -1,10 +1,10 @@
 pub struct CreatureStats {
-    attack: u8,
-    defence: u8,
-    damage: (u8, u8),
-    health: u16,
-    speed: u8,
-    ammo_capacity: u8
+    pub attack: u8,
+    pub defence: u8,
+    pub damage: (u8, u8),
+    pub health: u16,
+    pub speed: u8,
+    pub ammo_capacity: u8,
 }
 
 #[derive(PartialEq)]
@@ -20,10 +20,10 @@ pub enum Town {
     Conflux,
     // Не города, но пускай тоже будут
     Neutral,
-    WarMachines
+    WarMachines,
 }
 
-#[derive(PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub enum Creature {
     // Castle
     Pikeman,
@@ -180,15 +180,27 @@ pub enum Creature {
     Ballista,
     FirstAidTent,
     Catapult,
-    AmmoCart
+    AmmoCart,
+}
+
+#[derive(Clone, Copy)]
+pub enum CreatureAbility {
+    IgnoreDefence { percent: u8 }
+}
+
+impl PartialEq for CreatureAbility {
+    fn eq(&self, other: &Self) -> bool {
+        std::mem::discriminant(self) == std::mem::discriminant(other)
+    }
 }
 
 // Поменьше текста
 type C  = Creature;
 type CS = CreatureStats;
+type CA = CreatureAbility;
 
 impl Creature {
-    const fn base_stats(&self) -> CreatureStats {
+    pub const fn base_stats(&self) -> CreatureStats {
         match self {
             // Castle
             Self::Pikeman => CS {
@@ -197,7 +209,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 10,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Halberdier => CS {
                 attack: 6,
@@ -205,7 +217,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 10,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Archer => CS {
                 attack: 6,
@@ -213,7 +225,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 10,
                 speed: 4,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::Marksman => CS {
                 attack: 6,
@@ -221,7 +233,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 10,
                 speed: 6,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Griffin => CS {
                 attack: 8,
@@ -229,7 +241,7 @@ impl Creature {
                 damage: (3, 6),
                 health: 25,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::RoyalGriffin => CS {
                 attack: 9,
@@ -237,7 +249,7 @@ impl Creature {
                 damage: (3, 6),
                 health: 25,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Swordsman => CS {
                 attack: 10,
@@ -245,7 +257,7 @@ impl Creature {
                 damage: (6, 9),
                 health: 35,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Crusader => CS {
                 attack: 12,
@@ -253,7 +265,7 @@ impl Creature {
                 damage: (7, 10),
                 health: 35,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Monk => CS {
                 attack: 12,
@@ -261,7 +273,7 @@ impl Creature {
                 damage: (10, 12),
                 health: 30,
                 speed: 5,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::Zealot => CS {
                 attack: 12,
@@ -269,7 +281,7 @@ impl Creature {
                 damage: (10, 12),
                 health: 30,
                 speed: 7,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Cavalier => CS {
                 attack: 15,
@@ -277,7 +289,7 @@ impl Creature {
                 damage: (15, 25),
                 health: 100,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Champion => CS {
                 attack: 16,
@@ -285,7 +297,7 @@ impl Creature {
                 damage: (20, 25),
                 health: 100,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Angel => CS {
                 attack: 20,
@@ -293,7 +305,7 @@ impl Creature {
                 damage: (50, 50),
                 health: 200,
                 speed: 12,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Archangel => CS {
                 attack: 30,
@@ -301,7 +313,7 @@ impl Creature {
                 damage: (50, 50),
                 health: 250,
                 speed: 18,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Rampart
             Self::Centaur => CS {
@@ -310,7 +322,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 8,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::CentaurCaptain => CS {
                 attack: 6,
@@ -318,7 +330,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 10,
                 speed: 8,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Dwarf => CS {
                 attack: 6,
@@ -326,7 +338,7 @@ impl Creature {
                 damage: (2, 4),
                 health: 20,
                 speed: 3,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::BattleDwarf => CS {
                 attack: 7,
@@ -334,7 +346,7 @@ impl Creature {
                 damage: (2, 4),
                 health: 20,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::WoodElf => CS {
                 attack: 9,
@@ -342,7 +354,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 15,
                 speed: 6,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::GrandElf => CS {
                 attack: 9,
@@ -350,7 +362,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 15,
                 speed: 7,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Pegasus => CS {
                 attack: 9,
@@ -358,7 +370,7 @@ impl Creature {
                 damage: (5, 9),
                 health: 30,
                 speed: 8,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::SilverPegasus => CS {
                 attack: 9,
@@ -366,7 +378,7 @@ impl Creature {
                 damage: (5, 9),
                 health: 30,
                 speed: 12,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::DendroidGuard => CS {
                 attack: 9,
@@ -374,7 +386,7 @@ impl Creature {
                 damage: (10, 14),
                 health: 55,
                 speed: 3,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::DendroidSoldier => CS {
                 attack: 9,
@@ -382,7 +394,7 @@ impl Creature {
                 damage: (10, 14),
                 health: 65,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Unicorn => CS {
                 attack: 15,
@@ -390,7 +402,7 @@ impl Creature {
                 damage: (18, 22),
                 health: 90,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::WarUnicorn => CS {
                 attack: 15,
@@ -398,7 +410,7 @@ impl Creature {
                 damage: (18, 22),
                 health: 110,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::GreenDragon => CS {
                 attack: 18,
@@ -406,7 +418,7 @@ impl Creature {
                 damage: (40, 50),
                 health: 180,
                 speed: 10,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::GoldDragon => CS {
                 attack: 27,
@@ -414,7 +426,7 @@ impl Creature {
                 damage: (40, 50),
                 health: 250,
                 speed: 16,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Tower
             Self::Gremlin => CS {
@@ -423,7 +435,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 4,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::MasterGremlin => CS {
                 attack: 4,
@@ -431,7 +443,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 4,
                 speed: 5,
-                ammo_capacity: 8
+                ammo_capacity: 8,
             },
             Self::StoneGargoyle => CS {
                 attack: 6,
@@ -439,7 +451,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 16,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::ObsidianGargoyle => CS {
                 attack: 7,
@@ -447,7 +459,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 16,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::StoneGolem => CS {
                 attack: 7,
@@ -455,7 +467,7 @@ impl Creature {
                 damage: (4, 5),
                 health: 30,
                 speed: 3,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::IronGolem => CS {
                 attack: 9,
@@ -463,7 +475,7 @@ impl Creature {
                 damage: (4, 5),
                 health: 35,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Mage => CS {
                 attack: 11,
@@ -471,7 +483,7 @@ impl Creature {
                 damage: (7, 9),
                 health: 25,
                 speed: 5,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::ArchMage => CS {
                 attack: 12,
@@ -479,7 +491,7 @@ impl Creature {
                 damage: (7, 9),
                 health: 30,
                 speed: 7,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Genie => CS {
                 attack: 12,
@@ -487,7 +499,7 @@ impl Creature {
                 damage: (13, 16),
                 health: 40,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::MasterGenie => CS {
                 attack: 12,
@@ -495,7 +507,7 @@ impl Creature {
                 damage: (13, 16),
                 health: 40,
                 speed: 11,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Naga => CS {
                 attack: 16,
@@ -503,7 +515,7 @@ impl Creature {
                 damage: (20, 20),
                 health: 110,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::NagaQueen => CS {
                 attack: 16,
@@ -511,7 +523,7 @@ impl Creature {
                 damage: (30, 30),
                 health: 110,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Giant => CS {
                 attack: 19,
@@ -519,7 +531,7 @@ impl Creature {
                 damage: (40, 60),
                 health: 150,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Titan => CS {
                 attack: 24,
@@ -527,7 +539,7 @@ impl Creature {
                 damage: (40, 60),
                 health: 300,
                 speed: 11,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             // Inferno
             Self::Imp => CS {
@@ -536,7 +548,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 4,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Familiar => CS {
                 attack: 4,
@@ -544,7 +556,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 4,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Gog => CS {
                 attack: 6,
@@ -552,7 +564,7 @@ impl Creature {
                 damage: (2, 4),
                 health: 13,
                 speed: 4,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::Magog => CS {
                 attack: 7,
@@ -560,7 +572,7 @@ impl Creature {
                 damage: (2, 4),
                 health: 13,
                 speed: 6,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::HellHound => CS {
                 attack: 10,
@@ -568,7 +580,7 @@ impl Creature {
                 damage: (2, 7),
                 health: 25,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Cerberus => CS {
                 attack: 10,
@@ -576,7 +588,7 @@ impl Creature {
                 damage: (2, 7),
                 health: 25,
                 speed: 8,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Demon => CS {
                 attack: 10,
@@ -584,7 +596,7 @@ impl Creature {
                 damage: (7, 9),
                 health: 35,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::HornedDemon => CS {
                 attack: 10,
@@ -592,7 +604,7 @@ impl Creature {
                 damage: (7, 9),
                 health: 40,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::PitFiend => CS {
                 attack: 13,
@@ -600,7 +612,7 @@ impl Creature {
                 damage: (13, 17),
                 health: 45,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::PitLord => CS {
                 attack: 13,
@@ -608,7 +620,7 @@ impl Creature {
                 damage: (13, 17),
                 health: 45,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Efreeti => CS {
                 attack: 16,
@@ -616,7 +628,7 @@ impl Creature {
                 damage: (16, 24),
                 health: 90,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::EfreetSultan => CS {
                 attack: 16,
@@ -624,7 +636,7 @@ impl Creature {
                 damage: (16, 24),
                 health: 90,
                 speed: 13,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Devil => CS {
                 attack: 19,
@@ -632,7 +644,7 @@ impl Creature {
                 damage: (30, 40),
                 health: 160,
                 speed: 11,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::ArchDevil => CS {
                 attack: 26,
@@ -640,7 +652,7 @@ impl Creature {
                 damage: (30, 40),
                 health: 200,
                 speed: 17,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Necropolis
             Self::Skeleton => CS {
@@ -649,7 +661,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 6,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::SkeletonWarrior => CS {
                 attack: 6,
@@ -657,7 +669,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 6,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::WalkingDead => CS {
                 attack: 5,
@@ -665,7 +677,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 15,
                 speed: 3,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Zombie => CS {
                 attack: 5,
@@ -673,7 +685,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 20,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Wight => CS {
                 attack: 7,
@@ -681,7 +693,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 18,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Wraith => CS {
                 attack: 7,
@@ -689,7 +701,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 18,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Vampire => CS {
                 attack: 10,
@@ -697,7 +709,7 @@ impl Creature {
                 damage: (5, 8),
                 health: 30,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::VampireLord => CS {
                 attack: 10,
@@ -705,7 +717,7 @@ impl Creature {
                 damage: (5, 8),
                 health: 40,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Lich => CS {
                 attack: 13,
@@ -713,7 +725,7 @@ impl Creature {
                 damage: (11, 13),
                 health: 30,
                 speed: 6,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::PowerLich => CS {
                 attack: 13,
@@ -721,7 +733,7 @@ impl Creature {
                 damage: (11, 15),
                 health: 40,
                 speed: 7,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::BlackKnight => CS {
                 attack: 16,
@@ -729,7 +741,7 @@ impl Creature {
                 damage: (15, 30),
                 health: 120,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::DreadKnight => CS {
                 attack: 18,
@@ -737,7 +749,7 @@ impl Creature {
                 damage: (15, 30),
                 health: 120,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::BoneDragon => CS {
                 attack: 17,
@@ -745,7 +757,7 @@ impl Creature {
                 damage: (25, 50),
                 health: 150,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::GhostDragon => CS {
                 attack: 19,
@@ -753,7 +765,7 @@ impl Creature {
                 damage: (25, 50),
                 health: 200,
                 speed: 14,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Dungeon
             Self::Troglodyte => CS {
@@ -762,7 +774,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 5,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::InfernalTroglodyte => CS {
                 attack: 5,
@@ -770,7 +782,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 6,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Harpy => CS {
                 attack: 6,
@@ -778,7 +790,7 @@ impl Creature {
                 damage: (1, 4),
                 health: 14,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::HarpyHag => CS {
                 attack: 6,
@@ -786,7 +798,7 @@ impl Creature {
                 damage: (1, 4),
                 health: 14,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Beholder => CS {
                 attack: 9,
@@ -794,7 +806,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 22,
                 speed: 5,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::EvilEye => CS {
                 attack: 10,
@@ -802,7 +814,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 22,
                 speed: 7,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Medusa => CS {
                 attack: 9,
@@ -810,7 +822,7 @@ impl Creature {
                 damage: (6, 8),
                 health: 25,
                 speed: 5,
-                ammo_capacity: 4
+                ammo_capacity: 4,
             },
             Self::MedusaQueen => CS {
                 attack: 10,
@@ -818,7 +830,7 @@ impl Creature {
                 damage: (6, 8),
                 health: 30,
                 speed: 6,
-                ammo_capacity: 8
+                ammo_capacity: 8,
             },
             Self::Minotaur => CS {
                 attack: 14,
@@ -826,7 +838,7 @@ impl Creature {
                 damage: (12, 20),
                 health: 50,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::MinotaurKing => CS {
                 attack: 15,
@@ -834,7 +846,7 @@ impl Creature {
                 damage: (12, 20),
                 health: 50,
                 speed: 8,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Manticore => CS {
                 attack: 15,
@@ -842,7 +854,7 @@ impl Creature {
                 damage: (14, 20),
                 health: 80,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Scorpicore => CS {
                 attack: 16,
@@ -850,7 +862,7 @@ impl Creature {
                 damage: (14, 20),
                 health: 80,
                 speed: 11,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::RedDragon => CS {
                 attack: 19,
@@ -858,7 +870,7 @@ impl Creature {
                 damage: (40, 50),
                 health: 180,
                 speed: 11,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::BlackDragon => CS {
                 attack: 25,
@@ -866,7 +878,7 @@ impl Creature {
                 damage: (40, 50),
                 health: 300,
                 speed: 15,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Stronghold
             Self::Goblin => CS {
@@ -875,7 +887,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 5,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Hobgoblin => CS {
                 attack: 5,
@@ -883,7 +895,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 5,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::WolfRider => CS {
                 attack: 7,
@@ -891,7 +903,7 @@ impl Creature {
                 damage: (2, 4),
                 health: 10,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::WolfRaider => CS {
                 attack: 8,
@@ -899,7 +911,7 @@ impl Creature {
                 damage: (3, 4),
                 health: 10,
                 speed: 8,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Orc => CS {
                 attack: 8,
@@ -907,7 +919,7 @@ impl Creature {
                 damage: (2, 5),
                 health: 15,
                 speed: 4,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::OrcChieftain => CS {
                 attack: 8,
@@ -915,7 +927,7 @@ impl Creature {
                 damage: (2, 5),
                 health: 20,
                 speed: 5,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Ogre => CS {
                 attack: 13,
@@ -923,7 +935,7 @@ impl Creature {
                 damage: (6, 12),
                 health: 40,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::OgreMagi => CS {
                 attack: 13,
@@ -931,7 +943,7 @@ impl Creature {
                 damage: (6, 12),
                 health: 60,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Roc => CS {
                 attack: 13,
@@ -939,7 +951,7 @@ impl Creature {
                 damage: (11, 15),
                 health: 60,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Thunderbird => CS {
                 attack: 13,
@@ -947,7 +959,7 @@ impl Creature {
                 damage: (11, 15),
                 health: 60,
                 speed: 11,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Cyclops => CS {
                 attack: 15,
@@ -955,7 +967,7 @@ impl Creature {
                 damage: (16, 20),
                 health: 70,
                 speed: 6,
-                ammo_capacity: 16
+                ammo_capacity: 16,
             },
             Self::CyclopsKing => CS {
                 attack: 17,
@@ -963,7 +975,7 @@ impl Creature {
                 damage: (16, 20),
                 health: 70,
                 speed: 8,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Behemoth => CS {
                 attack: 17,
@@ -971,7 +983,7 @@ impl Creature {
                 damage: (30, 50),
                 health: 160,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::AncientBehemoth => CS {
                 attack: 19,
@@ -979,7 +991,7 @@ impl Creature {
                 damage: (30, 50),
                 health: 300,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Fortress
             Self::Gnoll => CS {
@@ -988,7 +1000,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 6,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::GnollMarauder => CS {
                 attack: 4,
@@ -996,7 +1008,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 6,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Lizardman => CS {
                 attack: 5,
@@ -1004,7 +1016,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 14,
                 speed: 4,
-                ammo_capacity: 12
+                ammo_capacity: 12,
             },
             Self::LizardWarrior => CS {
                 attack: 6,
@@ -1012,7 +1024,7 @@ impl Creature {
                 damage: (2, 5),
                 health: 15,
                 speed: 5,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::SerpentFly => CS {
                 attack: 7,
@@ -1020,7 +1032,7 @@ impl Creature {
                 damage: (2, 5),
                 health: 20,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::DragonFly => CS {
                 attack: 8,
@@ -1028,7 +1040,7 @@ impl Creature {
                 damage: (2, 5),
                 health: 20,
                 speed: 13,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Basilisk => CS {
                 attack: 11,
@@ -1036,7 +1048,7 @@ impl Creature {
                 damage: (6, 10),
                 health: 35,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::GreaterBasilisk => CS {
                 attack: 12,
@@ -1044,7 +1056,7 @@ impl Creature {
                 damage: (6, 10),
                 health: 40,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Gorgon => CS {
                 attack: 10,
@@ -1052,7 +1064,7 @@ impl Creature {
                 damage: (12, 16),
                 health: 70,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::MightyGorgon => CS {
                 attack: 11,
@@ -1060,7 +1072,7 @@ impl Creature {
                 damage: (12, 16),
                 health: 70,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Wyvern => CS {
                 attack: 14,
@@ -1068,7 +1080,7 @@ impl Creature {
                 damage: (14, 18),
                 health: 70,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::WyvernMonarch => CS {
                 attack: 14,
@@ -1076,7 +1088,7 @@ impl Creature {
                 damage: (18, 22),
                 health: 70,
                 speed: 11,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Hydra => CS {
                 attack: 16,
@@ -1084,7 +1096,7 @@ impl Creature {
                 damage: (25, 45),
                 health: 175,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::ChaosHydra => CS {
                 attack: 18,
@@ -1092,7 +1104,7 @@ impl Creature {
                 damage: (25, 45),
                 health: 250,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Conflux
             Self::Pixie => CS {
@@ -1101,7 +1113,7 @@ impl Creature {
                 damage: (1, 2),
                 health: 3,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Sprite => CS {
                 attack: 2,
@@ -1109,7 +1121,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 3,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::AirElemental => CS {
                 attack: 9,
@@ -1117,7 +1129,7 @@ impl Creature {
                 damage: (2, 8),
                 health: 25,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::StormElemental => CS {
                 attack: 9,
@@ -1125,7 +1137,7 @@ impl Creature {
                 damage: (2, 8),
                 health: 25,
                 speed: 8,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::WaterElemental => CS {
                 attack: 8,
@@ -1133,7 +1145,7 @@ impl Creature {
                 damage: (3, 7),
                 health: 30,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::IceElemental => CS {
                 attack: 8,
@@ -1141,7 +1153,7 @@ impl Creature {
                 damage: (3, 7),
                 health: 30,
                 speed: 6,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::FireElemental => CS {
                 attack: 10,
@@ -1149,7 +1161,7 @@ impl Creature {
                 damage: (4, 6),
                 health: 35,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::EnergyElemental => CS {
                 attack: 12,
@@ -1157,7 +1169,7 @@ impl Creature {
                 damage: (4, 6),
                 health: 35,
                 speed: 8,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::EarthElemental => CS {
                 attack: 10,
@@ -1165,7 +1177,7 @@ impl Creature {
                 damage: (4, 8),
                 health: 40,
                 speed: 4,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::MagmaElemental => CS {
                 attack: 11,
@@ -1173,7 +1185,7 @@ impl Creature {
                 damage: (6, 10),
                 health: 40,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::PsychicElemental => CS {
                 attack: 15,
@@ -1181,7 +1193,7 @@ impl Creature {
                 damage: (10, 20),
                 health: 75,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::MagicElemental => CS {
                 attack: 15,
@@ -1189,7 +1201,7 @@ impl Creature {
                 damage: (15, 25),
                 health: 80,
                 speed: 9,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Firebird => CS {
                 attack: 18,
@@ -1197,7 +1209,7 @@ impl Creature {
                 damage: (30, 40),
                 health: 150,
                 speed: 15,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Phoenix => CS {
                 attack: 21,
@@ -1205,7 +1217,7 @@ impl Creature {
                 damage: (30, 40),
                 health: 200,
                 speed: 21,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // Neutral
             Self::Peasant => CS {
@@ -1214,7 +1226,7 @@ impl Creature {
                 damage: (1, 1),
                 health: 1,
                 speed: 3,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Halfling => CS {
                 attack: 4,
@@ -1222,7 +1234,7 @@ impl Creature {
                 damage: (1, 3),
                 health: 4,
                 speed: 5,
-                ammo_capacity: 24
+                ammo_capacity: 24,
             },
             Self::Boar => CS {
                 attack: 6,
@@ -1230,7 +1242,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 15,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Rogue => CS {
                 attack: 8,
@@ -1238,7 +1250,7 @@ impl Creature {
                 damage: (2, 4),
                 health: 10,
                 speed: 6,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Mummy => CS {
                 attack: 7,
@@ -1246,7 +1258,7 @@ impl Creature {
                 damage: (3, 5),
                 health: 30,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Nomad => CS {
                 attack: 9,
@@ -1254,7 +1266,7 @@ impl Creature {
                 damage: (2, 6),
                 health: 30,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Sharpshooter => CS {
                 attack: 12,
@@ -1262,7 +1274,7 @@ impl Creature {
                 damage: (8, 10),
                 health: 15,
                 speed: 9,
-                ammo_capacity: 32
+                ammo_capacity: 32,
             },
             Self::Troll => CS {
                 attack: 14,
@@ -1270,7 +1282,7 @@ impl Creature {
                 damage: (10, 15),
                 health: 40,
                 speed: 7,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::GoldGolem => CS {
                 attack: 11,
@@ -1278,7 +1290,7 @@ impl Creature {
                 damage: (8, 10),
                 health: 50,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::DiamondGolem => CS {
                 attack: 13,
@@ -1286,7 +1298,7 @@ impl Creature {
                 damage: (10, 14),
                 health: 60,
                 speed: 5,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Enchanter => CS {
                 attack: 17,
@@ -1294,7 +1306,7 @@ impl Creature {
                 damage: (14, 14),
                 health: 30,
                 speed: 9,
-                ammo_capacity: 32
+                ammo_capacity: 32,
             },
             Self::FaerieDragon => CS {
                 attack: 20,
@@ -1302,7 +1314,7 @@ impl Creature {
                 damage: (20, 30),
                 health: 500,
                 speed: 15,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::RustDragon => CS {
                 attack: 30,
@@ -1310,7 +1322,7 @@ impl Creature {
                 damage: (50, 50),
                 health: 750,
                 speed: 17,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::CrystalDragon => CS {
                 attack: 40,
@@ -1318,7 +1330,7 @@ impl Creature {
                 damage: (60, 75),
                 health: 800,
                 speed: 16,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::AzureDragon => CS {
                 attack: 50,
@@ -1326,7 +1338,7 @@ impl Creature {
                 damage: (70, 80),
                 health: 1000,
                 speed: 19,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             // War Machines
             Self::Ballista => CS {
@@ -1335,7 +1347,7 @@ impl Creature {
                 damage: (2, 3),
                 health: 250,
                 speed: 0,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::FirstAidTent => CS {
                 attack: 0,
@@ -1343,7 +1355,7 @@ impl Creature {
                 damage: (0, 0),
                 health: 75,
                 speed: 0,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::Catapult => CS {
                 attack: 10,
@@ -1351,7 +1363,7 @@ impl Creature {
                 damage: (0, 0),
                 health: 1000,
                 speed: 0,
-                ammo_capacity: 0
+                ammo_capacity: 0,
             },
             Self::AmmoCart => CS {
                 attack: 0,
@@ -1359,10 +1371,19 @@ impl Creature {
                 damage: (0, 0),
                 health: 100,
                 speed: 0,
-                ammo_capacity: 0
-            }
+                ammo_capacity: 0,
+            },
         }
     }
+
+    pub fn abilities(&self) -> Vec<CreatureAbility> {
+        match self {
+            C::Behemoth => vec![CA::IgnoreDefence { percent: 40 }],
+            C::AncientBehemoth => vec![CA::IgnoreDefence { percent: 80 }],
+            _ => vec![]
+        }
+    }
+
 
     fn town(&self) -> Town {
         match self {
@@ -1377,49 +1398,76 @@ impl Creature {
             x if (Self::Pixie..=Self::Phoenix).contains(x) => Town::Conflux,
             x if (Self::Peasant..=Self::AzureDragon).contains(x) => Town::Neutral,
             x if (Self::Ballista..=Self::AmmoCart).contains(x) => Town::WarMachines,
-            _ => panic!("Creature without town!")
+            _ => panic!("Creature without town!"),
         }
     }
 
     fn is_wide(&self) -> bool {
         const WIDE_CREATURES: [Creature; 53] = [
             // Castle
-            C::Griffin, C::RoyalGriffin,
-            C::Cavalier, C::Champion,
+            C::Griffin,
+            C::RoyalGriffin,
+            C::Cavalier,
+            C::Champion,
             C::Archangel,
             // Rampart
-            C::Centaur, C::CentaurCaptain,
-            C::Pegasus, C::SilverPegasus,
-            C::Unicorn, C::WarUnicorn,
-            C::GreenDragon, C::GoldDragon,
+            C::Centaur,
+            C::CentaurCaptain,
+            C::Pegasus,
+            C::SilverPegasus,
+            C::Unicorn,
+            C::WarUnicorn,
+            C::GreenDragon,
+            C::GoldDragon,
             // Tower
-            C::Naga, C::NagaQueen,
+            C::Naga,
+            C::NagaQueen,
             // Inferno
-            C::HellHound, C::Cerberus,
+            C::HellHound,
+            C::Cerberus,
             // Necropolis
-            C::BlackKnight, C::DreadKnight,
-            C::BoneDragon, C::GhostDragon,
+            C::BlackKnight,
+            C::DreadKnight,
+            C::BoneDragon,
+            C::GhostDragon,
             // Dungeon
-            C::Medusa, C::MedusaQueen,
-            C::Manticore, C::Scorpicore,
-            C::RedDragon, C::BlackDragon,
+            C::Medusa,
+            C::MedusaQueen,
+            C::Manticore,
+            C::Scorpicore,
+            C::RedDragon,
+            C::BlackDragon,
             // Stronghold
-            C::WolfRider, C::WolfRaider,
-            C::Roc, C::Thunderbird,
-            C::Behemoth, C::AncientBehemoth,
+            C::WolfRider,
+            C::WolfRaider,
+            C::Roc,
+            C::Thunderbird,
+            C::Behemoth,
+            C::AncientBehemoth,
             // Fortress
-            C::Basilisk, C::GreaterBasilisk,
-            C::Gorgon, C::MightyGorgon,
-            C::Wyvern, C::WyvernMonarch,
-            C::Hydra, C::ChaosHydra,
+            C::Basilisk,
+            C::GreaterBasilisk,
+            C::Gorgon,
+            C::MightyGorgon,
+            C::Wyvern,
+            C::WyvernMonarch,
+            C::Hydra,
+            C::ChaosHydra,
             // Conflux
-            C::WaterElemental, C::IceElemental,
-            C::Firebird, C::Phoenix,
+            C::WaterElemental,
+            C::IceElemental,
+            C::Firebird,
+            C::Phoenix,
             // Neutral
-            C::Boar, C::Nomad,
-            C::FaerieDragon, C::RustDragon, C::CrystalDragon, C::AzureDragon,
+            C::Boar,
+            C::Nomad,
+            C::FaerieDragon,
+            C::RustDragon,
+            C::CrystalDragon,
+            C::AzureDragon,
             // War Machines
-            C::Ballista, C::Catapult
+            C::Ballista,
+            C::Catapult,
         ];
         WIDE_CREATURES.contains(self)
     }
@@ -1427,36 +1475,57 @@ impl Creature {
     fn is_flying(&self) -> bool {
         const FLYING_CREATURES: [Creature; 42] = [
             // Castle
-            C::Griffin, C::RoyalGriffin,
-            C::Angel, C::Archangel,
+            C::Griffin,
+            C::RoyalGriffin,
+            C::Angel,
+            C::Archangel,
             // Rampart
-            C::Pegasus, C::SilverPegasus,
-            C::GreenDragon, C::GoldDragon,
+            C::Pegasus,
+            C::SilverPegasus,
+            C::GreenDragon,
+            C::GoldDragon,
             // Tower
-            C::StoneGargoyle, C::ObsidianGargoyle,
-            C::Genie, C::MasterGenie,
+            C::StoneGargoyle,
+            C::ObsidianGargoyle,
+            C::Genie,
+            C::MasterGenie,
             // Inferno
-            C::Efreeti, C::EfreetSultan,
-            C::Devil, C::ArchDevil,
+            C::Efreeti,
+            C::EfreetSultan,
+            C::Devil,
+            C::ArchDevil,
             // Necropolis
-            C::Wight, C::Wraith,
-            C::Vampire, C::VampireLord,
-            C::BoneDragon, C::GhostDragon,
+            C::Wight,
+            C::Wraith,
+            C::Vampire,
+            C::VampireLord,
+            C::BoneDragon,
+            C::GhostDragon,
             // Dungeon
-            C::Harpy, C::HarpyHag,
-            C::Manticore, C::Scorpicore,
-            C::RedDragon, C::BlackDragon,
+            C::Harpy,
+            C::HarpyHag,
+            C::Manticore,
+            C::Scorpicore,
+            C::RedDragon,
+            C::BlackDragon,
             // Stronghold
-            C::Roc, C::Thunderbird,
+            C::Roc,
+            C::Thunderbird,
             // Fortress
-            C::SerpentFly, C::DragonFly,
-            C::Wyvern, C::WyvernMonarch,
+            C::SerpentFly,
+            C::DragonFly,
+            C::Wyvern,
+            C::WyvernMonarch,
             // Conflux
-            C::Pixie, C::Sprite,
+            C::Pixie,
+            C::Sprite,
             C::EnergyElemental,
-            C::Firebird, C::Phoenix,
+            C::Firebird,
+            C::Phoenix,
             // Neutral
-            C::FaerieDragon, C::RustDragon, C::AzureDragon
+            C::FaerieDragon,
+            C::RustDragon,
+            C::AzureDragon,
         ];
         FLYING_CREATURES.contains(self)
     }
@@ -1466,9 +1535,7 @@ impl Creature {
     }
 
     fn is_undead(&self) -> bool {
-        const NON_NECROPOLIS_UNDEAD: [Creature; 1] = [
-            C::Mummy
-        ];
+        const NON_NECROPOLIS_UNDEAD: [Creature; 1] = [C::Mummy];
         self.town() == Town::Necropolis || NON_NECROPOLIS_UNDEAD.contains(self)
     }
 }
