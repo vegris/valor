@@ -69,7 +69,7 @@ fn calculate_strike_damage(
     dbg!(base_damage);
 
     // Эффекты, модифицирующие атаку атакующего
-    let mut current_attack = attacker.base_stats().attack as u32;
+    let mut current_attack = (attacker.base_stats().attack + attacker_hero.attack) as u32;
     if let Some(bloodlust) = attacker.get_effect(Effect::Bloodlust) {
         current_attack +=
             if bloodlust.level() == Level::Basic {
@@ -139,7 +139,7 @@ fn calculate_strike_damage(
     }
 
     // Эффекты, модифицирующие защиту защищающегося
-    let mut current_defence = defender.base_stats().defence as u32;
+    let mut current_defence = (defender.base_stats().defence + defender_hero.defence) as u32;
     if let Some(stoneskin) = defender.get_effect(Effect::StoneSkin) {
         current_defence +=
             if stoneskin.level() == Level::Basic {
