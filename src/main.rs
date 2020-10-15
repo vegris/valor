@@ -8,7 +8,7 @@ mod skills;
 
 use creatures::{Creature, CreatureAbility};
 use creature_stack::CreatureStack;
-use skills::{Effect, Level, AppliedEffect, HeroAbility, Artifact};
+use skills::{Effect, Level, AppliedEffect, HeroAbility, Artifact, Specialty};
 
 enum StrikeType {
     Melee,
@@ -16,11 +16,14 @@ enum StrikeType {
 }
 
 struct Hero {
+    level: u8,
+
     attack: u8,
     defence: u8,
     spell_power: u8,
     knowledge: u8,
     
+    specialty: Specialty,
     skills: Vec<(HeroAbility, Level)>,
     artifacts: Vec<Artifact>
 }
@@ -231,27 +234,50 @@ fn calculate_strike_damage(
                 }
             }
         };
+    dbg!(m_off);
     
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off) * md_2;
+    // Модификатор специализации 
+    let m_spec =
+        if attacker_hero.specialty == Specialty::Spell(Effect::Bless) {
+            0.03 * (attacker_hero.level as f32 / attacker.base_stats().level as f32).floor()
+        } else if [
+                Specialty::HeroAbility(HeroAbility::Offense),
+                Specialty::HeroAbility(HeroAbility::Archery)
+            ].contains(&attacker_hero.specialty) {
+                0.05 * attacker_hero.level as f32
+        } else {
+            0.0
+        };
+    dbg!(m_spec);
+
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec) * md_2;
     damage.round() as u32
 }
 
 fn main() {
 
     let attacker_hero = Hero {
+        level: 5,
+
         attack: 1,
         defence: 1,
         spell_power: 1,
         knowledge: 1,
+        specialty: Specialty::HeroAbility(HeroAbility::Offense),
+
         skills: vec![(HeroAbility::Offense, Level::Basic)],
         artifacts: vec![]
     };
 
     let defender_hero = Hero {
+        level: 1,
+
         attack: 1,
         defence: 10,
         spell_power: 1,
         knowledge: 1,
+
+        specialty: Specialty::HeroAbility(HeroAbility::Armorer),
         skills: vec![(HeroAbility::Armorer, Level::Expert)],
         artifacts: vec![]
     };

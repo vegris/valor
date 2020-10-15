@@ -1,4 +1,5 @@
 pub struct CreatureStats {
+    pub level: u8,
     pub attack: u8,
     pub defence: u8,
     pub damage: (u8, u8),
@@ -204,6 +205,7 @@ impl Creature {
         match self {
             // Castle
             Self::Pikeman => CS {
+                level: 1,
                 attack: 4,
                 defence: 5,
                 damage: (1, 3),
@@ -212,6 +214,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Halberdier => CS {
+                level: 1,
                 attack: 6,
                 defence: 5,
                 damage: (2, 3),
@@ -220,6 +223,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Archer => CS {
+                level: 2,
                 attack: 6,
                 defence: 3,
                 damage: (2, 3),
@@ -228,6 +232,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::Marksman => CS {
+                level: 2,
                 attack: 6,
                 defence: 3,
                 damage: (2, 3),
@@ -236,6 +241,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Griffin => CS {
+                level: 3,
                 attack: 8,
                 defence: 8,
                 damage: (3, 6),
@@ -244,6 +250,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::RoyalGriffin => CS {
+                level: 3,
                 attack: 9,
                 defence: 9,
                 damage: (3, 6),
@@ -252,6 +259,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Swordsman => CS {
+                level: 4,
                 attack: 10,
                 defence: 12,
                 damage: (6, 9),
@@ -260,6 +268,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Crusader => CS {
+                level: 4,
                 attack: 12,
                 defence: 12,
                 damage: (7, 10),
@@ -268,6 +277,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Monk => CS {
+                level: 5,
                 attack: 12,
                 defence: 7,
                 damage: (10, 12),
@@ -276,6 +286,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::Zealot => CS {
+                level: 5,
                 attack: 12,
                 defence: 10,
                 damage: (10, 12),
@@ -284,6 +295,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Cavalier => CS {
+                level: 6,
                 attack: 15,
                 defence: 15,
                 damage: (15, 25),
@@ -292,6 +304,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Champion => CS {
+                level: 6,
                 attack: 16,
                 defence: 16,
                 damage: (20, 25),
@@ -300,6 +313,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Angel => CS {
+                level: 7,
                 attack: 20,
                 defence: 20,
                 damage: (50, 50),
@@ -308,6 +322,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Archangel => CS {
+                level: 7,
                 attack: 30,
                 defence: 30,
                 damage: (50, 50),
@@ -317,6 +332,7 @@ impl Creature {
             },
             // Rampart
             Self::Centaur => CS {
+                level: 1,
                 attack: 5,
                 defence: 3,
                 damage: (2, 3),
@@ -325,6 +341,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::CentaurCaptain => CS {
+                level: 1,
                 attack: 6,
                 defence: 3,
                 damage: (2, 3),
@@ -333,6 +350,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Dwarf => CS {
+                level: 2,
                 attack: 6,
                 defence: 7,
                 damage: (2, 4),
@@ -341,6 +359,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::BattleDwarf => CS {
+                level: 2,
                 attack: 7,
                 defence: 7,
                 damage: (2, 4),
@@ -349,6 +368,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::WoodElf => CS {
+                level: 3,
                 attack: 9,
                 defence: 5,
                 damage: (3, 5),
@@ -357,6 +377,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::GrandElf => CS {
+                level: 3,
                 attack: 9,
                 defence: 5,
                 damage: (3, 5),
@@ -365,6 +386,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Pegasus => CS {
+                level: 4,
                 attack: 9,
                 defence: 8,
                 damage: (5, 9),
@@ -373,6 +395,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::SilverPegasus => CS {
+                level: 4,
                 attack: 9,
                 defence: 10,
                 damage: (5, 9),
@@ -381,6 +404,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::DendroidGuard => CS {
+                level: 5,
                 attack: 9,
                 defence: 12,
                 damage: (10, 14),
@@ -389,6 +413,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::DendroidSoldier => CS {
+                level: 5,
                 attack: 9,
                 defence: 12,
                 damage: (10, 14),
@@ -397,6 +422,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Unicorn => CS {
+                level: 6,
                 attack: 15,
                 defence: 14,
                 damage: (18, 22),
@@ -405,6 +431,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::WarUnicorn => CS {
+                level: 6,
                 attack: 15,
                 defence: 14,
                 damage: (18, 22),
@@ -413,6 +440,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::GreenDragon => CS {
+                level: 7,
                 attack: 18,
                 defence: 18,
                 damage: (40, 50),
@@ -421,6 +449,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::GoldDragon => CS {
+                level: 7,
                 attack: 27,
                 defence: 27,
                 damage: (40, 50),
@@ -430,6 +459,7 @@ impl Creature {
             },
             // Tower
             Self::Gremlin => CS {
+                level: 1,
                 attack: 3,
                 defence: 3,
                 damage: (1, 2),
@@ -438,6 +468,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::MasterGremlin => CS {
+                level: 1,
                 attack: 4,
                 defence: 4,
                 damage: (1, 2),
@@ -446,6 +477,7 @@ impl Creature {
                 ammo_capacity: 8,
             },
             Self::StoneGargoyle => CS {
+                level: 2,
                 attack: 6,
                 defence: 6,
                 damage: (2, 3),
@@ -454,6 +486,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::ObsidianGargoyle => CS {
+                level: 2,
                 attack: 7,
                 defence: 7,
                 damage: (2, 3),
@@ -462,6 +495,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::StoneGolem => CS {
+                level: 3,
                 attack: 7,
                 defence: 10,
                 damage: (4, 5),
@@ -470,6 +504,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::IronGolem => CS {
+                level: 3,
                 attack: 9,
                 defence: 10,
                 damage: (4, 5),
@@ -478,6 +513,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Mage => CS {
+                level: 4,
                 attack: 11,
                 defence: 8,
                 damage: (7, 9),
@@ -486,6 +522,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::ArchMage => CS {
+                level: 4,
                 attack: 12,
                 defence: 9,
                 damage: (7, 9),
@@ -494,6 +531,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Genie => CS {
+                level: 5,
                 attack: 12,
                 defence: 12,
                 damage: (13, 16),
@@ -502,6 +540,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::MasterGenie => CS {
+                level: 5,
                 attack: 12,
                 defence: 12,
                 damage: (13, 16),
@@ -510,6 +549,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Naga => CS {
+                level: 6,
                 attack: 16,
                 defence: 13,
                 damage: (20, 20),
@@ -518,6 +558,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::NagaQueen => CS {
+                level: 6,
                 attack: 16,
                 defence: 13,
                 damage: (30, 30),
@@ -526,6 +567,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Giant => CS {
+                level: 7,
                 attack: 19,
                 defence: 16,
                 damage: (40, 60),
@@ -534,6 +576,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Titan => CS {
+                level: 7,
                 attack: 24,
                 defence: 24,
                 damage: (40, 60),
@@ -543,6 +586,7 @@ impl Creature {
             },
             // Inferno
             Self::Imp => CS {
+                level: 1,
                 attack: 2,
                 defence: 3,
                 damage: (1, 2),
@@ -551,6 +595,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Familiar => CS {
+                level: 1,
                 attack: 4,
                 defence: 4,
                 damage: (1, 2),
@@ -559,6 +604,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Gog => CS {
+                level: 2,
                 attack: 6,
                 defence: 4,
                 damage: (2, 4),
@@ -567,6 +613,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::Magog => CS {
+                level: 2,
                 attack: 7,
                 defence: 4,
                 damage: (2, 4),
@@ -575,6 +622,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::HellHound => CS {
+                level: 3,
                 attack: 10,
                 defence: 6,
                 damage: (2, 7),
@@ -583,6 +631,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Cerberus => CS {
+                level: 3,
                 attack: 10,
                 defence: 8,
                 damage: (2, 7),
@@ -591,6 +640,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Demon => CS {
+                level: 4,
                 attack: 10,
                 defence: 10,
                 damage: (7, 9),
@@ -599,6 +649,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::HornedDemon => CS {
+                level: 4,
                 attack: 10,
                 defence: 10,
                 damage: (7, 9),
@@ -607,6 +658,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::PitFiend => CS {
+                level: 5,
                 attack: 13,
                 defence: 13,
                 damage: (13, 17),
@@ -615,6 +667,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::PitLord => CS {
+                level: 5,
                 attack: 13,
                 defence: 13,
                 damage: (13, 17),
@@ -623,6 +676,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Efreeti => CS {
+                level: 6,
                 attack: 16,
                 defence: 12,
                 damage: (16, 24),
@@ -631,6 +685,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::EfreetSultan => CS {
+                level: 6,
                 attack: 16,
                 defence: 14,
                 damage: (16, 24),
@@ -639,6 +694,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Devil => CS {
+                level: 7,
                 attack: 19,
                 defence: 21,
                 damage: (30, 40),
@@ -647,6 +703,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::ArchDevil => CS {
+                level: 7,
                 attack: 26,
                 defence: 28,
                 damage: (30, 40),
@@ -656,6 +713,7 @@ impl Creature {
             },
             // Necropolis
             Self::Skeleton => CS {
+                level: 1,
                 attack: 5,
                 defence: 4,
                 damage: (1, 3),
@@ -664,6 +722,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::SkeletonWarrior => CS {
+                level: 1,
                 attack: 6,
                 defence: 6,
                 damage: (1, 3),
@@ -672,6 +731,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::WalkingDead => CS {
+                level: 2,
                 attack: 5,
                 defence: 5,
                 damage: (2, 3),
@@ -680,6 +740,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Zombie => CS {
+                level: 2,
                 attack: 5,
                 defence: 5,
                 damage: (2, 3),
@@ -688,6 +749,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Wight => CS {
+                level: 3,
                 attack: 7,
                 defence: 7,
                 damage: (3, 5),
@@ -696,6 +758,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Wraith => CS {
+                level: 3,
                 attack: 7,
                 defence: 7,
                 damage: (3, 5),
@@ -704,6 +767,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Vampire => CS {
+                level: 4,
                 attack: 10,
                 defence: 9,
                 damage: (5, 8),
@@ -712,6 +776,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::VampireLord => CS {
+                level: 4,
                 attack: 10,
                 defence: 10,
                 damage: (5, 8),
@@ -720,6 +785,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Lich => CS {
+                level: 5,
                 attack: 13,
                 defence: 10,
                 damage: (11, 13),
@@ -728,6 +794,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::PowerLich => CS {
+                level: 5,
                 attack: 13,
                 defence: 10,
                 damage: (11, 15),
@@ -736,6 +803,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::BlackKnight => CS {
+                level: 6,
                 attack: 16,
                 defence: 16,
                 damage: (15, 30),
@@ -744,6 +812,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::DreadKnight => CS {
+                level: 6,
                 attack: 18,
                 defence: 18,
                 damage: (15, 30),
@@ -752,6 +821,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::BoneDragon => CS {
+                level: 7,
                 attack: 17,
                 defence: 15,
                 damage: (25, 50),
@@ -760,6 +830,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::GhostDragon => CS {
+                level: 7,
                 attack: 19,
                 defence: 17,
                 damage: (25, 50),
@@ -769,6 +840,7 @@ impl Creature {
             },
             // Dungeon
             Self::Troglodyte => CS {
+                level: 1,
                 attack: 4,
                 defence: 3,
                 damage: (1, 3),
@@ -777,6 +849,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::InfernalTroglodyte => CS {
+                level: 1,
                 attack: 5,
                 defence: 4,
                 damage: (1, 3),
@@ -785,6 +858,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Harpy => CS {
+                level: 2,
                 attack: 6,
                 defence: 5,
                 damage: (1, 4),
@@ -793,6 +867,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::HarpyHag => CS {
+                level: 2,
                 attack: 6,
                 defence: 6,
                 damage: (1, 4),
@@ -801,6 +876,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Beholder => CS {
+                level: 3,
                 attack: 9,
                 defence: 7,
                 damage: (3, 5),
@@ -809,6 +885,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::EvilEye => CS {
+                level: 3,
                 attack: 10,
                 defence: 8,
                 damage: (3, 5),
@@ -817,6 +894,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Medusa => CS {
+                level: 4,
                 attack: 9,
                 defence: 9,
                 damage: (6, 8),
@@ -825,6 +903,7 @@ impl Creature {
                 ammo_capacity: 4,
             },
             Self::MedusaQueen => CS {
+                level: 4,
                 attack: 10,
                 defence: 10,
                 damage: (6, 8),
@@ -833,6 +912,7 @@ impl Creature {
                 ammo_capacity: 8,
             },
             Self::Minotaur => CS {
+                level: 5,
                 attack: 14,
                 defence: 12,
                 damage: (12, 20),
@@ -841,6 +921,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::MinotaurKing => CS {
+                level: 5,
                 attack: 15,
                 defence: 15,
                 damage: (12, 20),
@@ -849,6 +930,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Manticore => CS {
+                level: 6,
                 attack: 15,
                 defence: 13,
                 damage: (14, 20),
@@ -857,6 +939,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Scorpicore => CS {
+                level: 6,
                 attack: 16,
                 defence: 14,
                 damage: (14, 20),
@@ -865,6 +948,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::RedDragon => CS {
+                level: 7,
                 attack: 19,
                 defence: 19,
                 damage: (40, 50),
@@ -873,6 +957,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::BlackDragon => CS {
+                level: 7,
                 attack: 25,
                 defence: 25,
                 damage: (40, 50),
@@ -882,6 +967,7 @@ impl Creature {
             },
             // Stronghold
             Self::Goblin => CS {
+                level: 1,
                 attack: 4,
                 defence: 2,
                 damage: (1, 2),
@@ -890,6 +976,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Hobgoblin => CS {
+                level: 1,
                 attack: 5,
                 defence: 3,
                 damage: (1, 2),
@@ -898,6 +985,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::WolfRider => CS {
+                level: 2,
                 attack: 7,
                 defence: 5,
                 damage: (2, 4),
@@ -906,6 +994,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::WolfRaider => CS {
+                level: 2,
                 attack: 8,
                 defence: 5,
                 damage: (3, 4),
@@ -914,6 +1003,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Orc => CS {
+                level: 3,
                 attack: 8,
                 defence: 4,
                 damage: (2, 5),
@@ -922,6 +1012,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::OrcChieftain => CS {
+                level: 3,
                 attack: 8,
                 defence: 4,
                 damage: (2, 5),
@@ -930,6 +1021,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Ogre => CS {
+                level: 4,
                 attack: 13,
                 defence: 7,
                 damage: (6, 12),
@@ -938,6 +1030,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::OgreMagi => CS {
+                level: 4,
                 attack: 13,
                 defence: 7,
                 damage: (6, 12),
@@ -946,6 +1039,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Roc => CS {
+                level: 5,
                 attack: 13,
                 defence: 11,
                 damage: (11, 15),
@@ -954,6 +1048,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Thunderbird => CS {
+                level: 5,
                 attack: 13,
                 defence: 11,
                 damage: (11, 15),
@@ -962,6 +1057,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Cyclops => CS {
+                level: 6,
                 attack: 15,
                 defence: 12,
                 damage: (16, 20),
@@ -970,6 +1066,7 @@ impl Creature {
                 ammo_capacity: 16,
             },
             Self::CyclopsKing => CS {
+                level: 6,
                 attack: 17,
                 defence: 13,
                 damage: (16, 20),
@@ -978,6 +1075,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Behemoth => CS {
+                level: 7,
                 attack: 17,
                 defence: 17,
                 damage: (30, 50),
@@ -986,6 +1084,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::AncientBehemoth => CS {
+                level: 7,
                 attack: 19,
                 defence: 19,
                 damage: (30, 50),
@@ -995,6 +1094,7 @@ impl Creature {
             },
             // Fortress
             Self::Gnoll => CS {
+                level: 1,
                 attack: 3,
                 defence: 5,
                 damage: (2, 3),
@@ -1003,6 +1103,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::GnollMarauder => CS {
+                level: 1,
                 attack: 4,
                 defence: 6,
                 damage: (2, 3),
@@ -1011,6 +1112,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Lizardman => CS {
+                level: 2,
                 attack: 5,
                 defence: 6,
                 damage: (2, 3),
@@ -1019,6 +1121,7 @@ impl Creature {
                 ammo_capacity: 12,
             },
             Self::LizardWarrior => CS {
+                level: 2,
                 attack: 6,
                 defence: 8,
                 damage: (2, 5),
@@ -1027,6 +1130,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::SerpentFly => CS {
+                level: 3,
                 attack: 7,
                 defence: 9,
                 damage: (2, 5),
@@ -1035,6 +1139,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::DragonFly => CS {
+                level: 3,
                 attack: 8,
                 defence: 10,
                 damage: (2, 5),
@@ -1043,6 +1148,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Basilisk => CS {
+                level: 4,
                 attack: 11,
                 defence: 11,
                 damage: (6, 10),
@@ -1051,6 +1157,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::GreaterBasilisk => CS {
+                level: 4,
                 attack: 12,
                 defence: 12,
                 damage: (6, 10),
@@ -1059,6 +1166,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Gorgon => CS {
+                level: 5,
                 attack: 10,
                 defence: 14,
                 damage: (12, 16),
@@ -1067,6 +1175,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::MightyGorgon => CS {
+                level: 5,
                 attack: 11,
                 defence: 16,
                 damage: (12, 16),
@@ -1075,6 +1184,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Wyvern => CS {
+                level: 6,
                 attack: 14,
                 defence: 14,
                 damage: (14, 18),
@@ -1083,6 +1193,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::WyvernMonarch => CS {
+                level: 6,
                 attack: 14,
                 defence: 14,
                 damage: (18, 22),
@@ -1091,6 +1202,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Hydra => CS {
+                level: 7,
                 attack: 16,
                 defence: 18,
                 damage: (25, 45),
@@ -1099,6 +1211,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::ChaosHydra => CS {
+                level: 7,
                 attack: 18,
                 defence: 20,
                 damage: (25, 45),
@@ -1108,6 +1221,7 @@ impl Creature {
             },
             // Conflux
             Self::Pixie => CS {
+                level: 1,
                 attack: 2,
                 defence: 2,
                 damage: (1, 2),
@@ -1116,6 +1230,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Sprite => CS {
+                level: 1,
                 attack: 2,
                 defence: 2,
                 damage: (1, 3),
@@ -1124,6 +1239,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::AirElemental => CS {
+                level: 2,
                 attack: 9,
                 defence: 9,
                 damage: (2, 8),
@@ -1132,6 +1248,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::StormElemental => CS {
+                level: 2,
                 attack: 9,
                 defence: 9,
                 damage: (2, 8),
@@ -1140,6 +1257,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::WaterElemental => CS {
+                level: 3,
                 attack: 8,
                 defence: 10,
                 damage: (3, 7),
@@ -1148,6 +1266,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::IceElemental => CS {
+                level: 3,
                 attack: 8,
                 defence: 10,
                 damage: (3, 7),
@@ -1156,6 +1275,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::FireElemental => CS {
+                level: 4,
                 attack: 10,
                 defence: 8,
                 damage: (4, 6),
@@ -1164,6 +1284,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::EnergyElemental => CS {
+                level: 4,
                 attack: 12,
                 defence: 8,
                 damage: (4, 6),
@@ -1172,6 +1293,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::EarthElemental => CS {
+                level: 5,
                 attack: 10,
                 defence: 10,
                 damage: (4, 8),
@@ -1180,6 +1302,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::MagmaElemental => CS {
+                level: 5,
                 attack: 11,
                 defence: 11,
                 damage: (6, 10),
@@ -1188,6 +1311,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::PsychicElemental => CS {
+                level: 6,
                 attack: 15,
                 defence: 13,
                 damage: (10, 20),
@@ -1196,6 +1320,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::MagicElemental => CS {
+                level: 6,
                 attack: 15,
                 defence: 13,
                 damage: (15, 25),
@@ -1204,6 +1329,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Firebird => CS {
+                level: 7,
                 attack: 18,
                 defence: 18,
                 damage: (30, 40),
@@ -1212,6 +1338,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Phoenix => CS {
+                level: 7,
                 attack: 21,
                 defence: 18,
                 damage: (30, 40),
@@ -1221,6 +1348,7 @@ impl Creature {
             },
             // Neutral
             Self::Peasant => CS {
+                level: 1,
                 attack: 1,
                 defence: 1,
                 damage: (1, 1),
@@ -1229,6 +1357,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Halfling => CS {
+                level: 1,
                 attack: 4,
                 defence: 2,
                 damage: (1, 3),
@@ -1237,6 +1366,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             Self::Boar => CS {
+                level: 2,
                 attack: 6,
                 defence: 5,
                 damage: (2, 3),
@@ -1245,6 +1375,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Rogue => CS {
+                level: 2,
                 attack: 8,
                 defence: 3,
                 damage: (2, 4),
@@ -1253,6 +1384,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Mummy => CS {
+                level: 3,
                 attack: 7,
                 defence: 7,
                 damage: (3, 5),
@@ -1261,6 +1393,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Nomad => CS {
+                level: 3,
                 attack: 9,
                 defence: 8,
                 damage: (2, 6),
@@ -1269,6 +1402,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Sharpshooter => CS {
+                level: 4,
                 attack: 12,
                 defence: 10,
                 damage: (8, 10),
@@ -1277,6 +1411,7 @@ impl Creature {
                 ammo_capacity: 32,
             },
             Self::Troll => CS {
+                level: 5,
                 attack: 14,
                 defence: 7,
                 damage: (10, 15),
@@ -1285,6 +1420,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::GoldGolem => CS {
+                level: 5,
                 attack: 11,
                 defence: 12,
                 damage: (8, 10),
@@ -1293,6 +1429,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::DiamondGolem => CS {
+                level: 6,
                 attack: 13,
                 defence: 12,
                 damage: (10, 14),
@@ -1301,6 +1438,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Enchanter => CS {
+                level: 6,
                 attack: 17,
                 defence: 12,
                 damage: (14, 14),
@@ -1309,6 +1447,7 @@ impl Creature {
                 ammo_capacity: 32,
             },
             Self::FaerieDragon => CS {
+                level: 7,
                 attack: 20,
                 defence: 20,
                 damage: (20, 30),
@@ -1317,6 +1456,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::RustDragon => CS {
+                level: 7,
                 attack: 30,
                 defence: 30,
                 damage: (50, 50),
@@ -1325,6 +1465,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::CrystalDragon => CS {
+                level: 7,
                 attack: 40,
                 defence: 40,
                 damage: (60, 75),
@@ -1333,6 +1474,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::AzureDragon => CS {
+                level: 7,
                 attack: 50,
                 defence: 50,
                 damage: (70, 80),
@@ -1342,6 +1484,7 @@ impl Creature {
             },
             // War Machines
             Self::Ballista => CS {
+                level: 1,
                 attack: 10,
                 defence: 10,
                 damage: (2, 3),
@@ -1350,6 +1493,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::FirstAidTent => CS {
+                level: 1,
                 attack: 0,
                 defence: 0,
                 damage: (0, 0),
@@ -1358,6 +1502,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::Catapult => CS {
+                level: 1,
                 attack: 10,
                 defence: 10,
                 damage: (0, 0),
@@ -1366,6 +1511,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             Self::AmmoCart => CS {
+                level: 1,
                 attack: 0,
                 defence: 5,
                 damage: (0, 0),

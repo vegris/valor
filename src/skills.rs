@@ -50,3 +50,9 @@ pub enum Artifact {
     AngelFeatherArrows,
     BowOfTheSharpshooter
 }
+
+#[derive(PartialEq, Clone, Copy)]
+pub enum Specialty {
+    HeroAbility(HeroAbility),
+    Spell(Effect) // TODO: разделить Effects и Spells
+}
