@@ -40,38 +40,39 @@ fn calculate_strike_damage(
     defender_hero: Hero,
     defender: CreatureStack,
     strike_type: StrikeType) -> u32 {
+
     let (damage_min, damage_max) = attacker.base_stats().damage;
-    let (damage_min, damage_max) = (damage_min as f32, damage_max as f32);
+    let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);
     
     // Базовый урон
     let base_damage_single =
         if let Some(blessing) = attacker.get_effect(Effect::Bless) {
             if blessing.level() > Level::Basic {
-                damage_max + 1.0
+                damage_max + 1
             } else {
                 damage_max
             }
         } else if let Some(curse) = attacker.get_effect(Effect::Curse) {
            if curse.level() > Level::Basic {
-               damage_min - 1.0
+               damage_min - 1
            } else {
                damage_min
            }
         } else {
-            (damage_max + damage_min) / 2.0
+            (damage_max + damage_min) / 2
         };
     
-    let base_damage = base_damage_single * attacker.count() as f32;
+    let base_damage = base_damage_single * attacker.count();
     dbg!(base_damage);
 
     // Эффекты, модифицирующие атаку атакующего
-    let mut current_attack = attacker.base_stats().attack as f32;
+    let mut current_attack = attacker.base_stats().attack as u32;
     if let Some(bloodlust) = attacker.get_effect(Effect::Bloodlust) {
         current_attack +=
             if bloodlust.level() == Level::Basic {
-                3.0
+                3
             } else {
-                6.0
+                6
             };
     };
     if let Some(frenzy) = attacker.get_effect(Effect::Frenzy) {
@@ -81,7 +82,7 @@ fn calculate_strike_damage(
                 Level::Advanced => 1.5,
                 Level::Expert => 2.0
             };
-        current_attack += attacker.base_stats().defence as f32 * defence_multiplier;
+        current_attack += (attacker.base_stats().defence as f32 * defence_multiplier).round() as u32;
     }
     if let Some(slayer) = attacker.get_effect(Effect::Slayer) {
         let mut affected_creatures = vec![
@@ -105,7 +106,7 @@ fn calculate_strike_damage(
         }
 
         if affected_creatures.contains(&defender.creature()) {
-            current_attack += 7.0;
+            current_attack += 7;
         }
     }
 
@@ -116,9 +117,9 @@ fn calculate_strike_damage(
     if let Some(effect) = attacker.get_effect(effect) {
         current_attack +=
             if effect.level() == Level::Basic {
-                3.0
+                3
             } else {
-                6.0
+                6
             };
     }
 
@@ -127,21 +128,21 @@ fn calculate_strike_damage(
     if let Some(weakness) = attacker.get_effect(Effect::Weakness) {
         let value =
             if weakness.level() == Level::Basic {
-                3.0
+                3
             } else {
-                6.0
+                6
             };
-        current_attack = f32::max(current_attack - value, 0.0);
+        current_attack = max(current_attack - value, 0);
     }
 
     // Эффекты, модифицирующие защиту защищающегося
-    let mut current_defence = defender.base_stats().defence as f32;
+    let mut current_defence = defender.base_stats().defence as u32;
     if let Some(stoneskin) = defender.get_effect(Effect::StoneSkin) {
         current_defence +=
             if stoneskin.level() == Level::Basic {
-                3.0
+                3
             } else {
-                6.0
+                6
             };
     }
 
@@ -157,12 +158,12 @@ fn calculate_strike_damage(
                 Level::Expert => 5
             }
         })
-        .sum::<u8>();
-    current_defence -= stackable_defence_eaters as f32;
+        .sum::<u32>();
+    current_defence -= stackable_defence_eaters;
 
     let ability = attacker.get_ability(CreatureAbility::IgnoreDefence { percent: 0 });
     if let Some(CreatureAbility::IgnoreDefence {percent: pcnt}) = ability {
-        current_defence -= current_defence * (pcnt as f32 / 100.0) + 1.0;
+        current_defence -= (current_defence as f32 * (pcnt as f32 / 100.0)) as u32 + 1;
     }
 
     // текущие значения атаки и защиты
@@ -172,7 +173,7 @@ fn calculate_strike_damage(
     // основной модификатор урона в двух видах
     let md_1 = 
         if current_attack > current_defence {
-            0.05 * (current_attack - current_defence)
+            0.05 * (current_attack - current_defence) as f32
         } else {
             0.0
         };
@@ -181,7 +182,7 @@ fn calculate_strike_damage(
 
     let md_2 =
         if current_defence > current_attack {
-            1.0 - 0.025 * (current_defence - current_attack)
+            1.0 - 0.025 * (current_defence - current_attack) as f32
         } else {
             1.0
         };
@@ -231,7 +232,7 @@ fn calculate_strike_damage(
             }
         };
     
-    let damage = base_damage * (1.0 + md_1 + m_off) * md_2;
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off) * md_2;
     damage.round() as u32
 }
 
