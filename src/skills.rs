@@ -13,7 +13,7 @@ pub enum Effect {
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
-pub enum EffectLevel {
+pub enum Level {
     Basic,
     Advanced,
     Expert,
@@ -21,17 +21,17 @@ pub enum EffectLevel {
 
 pub struct AppliedEffect {
     effect: Effect,
-    level: EffectLevel,
+    level: Level,
 }
 
 impl AppliedEffect {
-    pub fn new(effect: Effect, level: EffectLevel) -> Self {
+    pub fn new(effect: Effect, level: Level) -> Self {
         Self { effect, level }
     }
     pub fn effect(&self) -> Effect {
         self.effect
     }
-    pub fn level(&self) -> EffectLevel {
+    pub fn level(&self) -> Level {
         self.level
     }
 }

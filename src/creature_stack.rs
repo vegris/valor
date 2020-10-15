@@ -1,5 +1,5 @@
 use super::creatures::{Creature, CreatureStats, CreatureAbility};
-use super::skills::{AppliedEffect, Effect, EffectLevel};
+use super::skills::{AppliedEffect, Effect, Level};
 
 pub struct CreatureStack {
     creature: Creature,
@@ -34,7 +34,7 @@ impl CreatureStack {
         self.applied_effects.iter().find(|&x| x.effect() == effect)
     }
 
-    pub fn apply_effect(&mut self, effect: Effect, level: EffectLevel) {
+    pub fn apply_effect(&mut self, effect: Effect, level: Level) {
         self.applied_effects.push(AppliedEffect::new(effect, level));
     }
 
