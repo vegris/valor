@@ -42,7 +42,8 @@ fn calculate_strike_damage(
     attacker: CreatureStack,
     defender_hero: Hero,
     defender: CreatureStack,
-    strike_type: StrikeType) -> u32 {
+    strike_type: StrikeType,
+    is_lucky: bool) -> u32 {
 
     let (damage_min, damage_max) = attacker.base_stats().damage;
     let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);
@@ -250,7 +251,11 @@ fn calculate_strike_damage(
         };
     dbg!(m_spec);
 
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec) * md_2;
+    // Модификатор удачи
+    let m_luck = is_lucky as u8 as f32;
+    dbg!(m_luck);
+
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck) * md_2;
     damage.round() as u32
 }
 
@@ -288,6 +293,6 @@ fn main() {
     let mut defender = CreatureStack::new(Creature::Demon, 100);
     defender.apply_effect(Effect::StoneSkin, Level::Basic);
 
-    let final_damage = calculate_strike_damage(attacker_hero, attacker, defender_hero, defender, StrikeType::Melee);
+    let final_damage = calculate_strike_damage(attacker_hero, attacker, defender_hero, defender, StrikeType::Melee, true);
     dbg!(final_damage);
 }
