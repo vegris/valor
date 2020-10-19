@@ -5,10 +5,12 @@ use std::cmp::{min, max};
 mod creatures;
 mod creature_stack;
 mod skills;
+mod action_queue;
 
 use creatures::{Creature, CreatureAbility};
 use creature_stack::CreatureStack;
 use skills::{Effect, Level, AppliedEffect, HeroAbility, Artifact, Specialty};
+use action_queue::{Action, ActionQueue};
 
 enum StrikeType {
     Melee,
@@ -43,7 +45,7 @@ fn calculate_strike_damage(
     defender_hero: Hero,
     defender: CreatureStack,
     strike_type: StrikeType,
-    is_lucky: bool) -> u32 {
+    action_queue: ActionQueue) -> u32 {
 
     let (damage_min, damage_max) = attacker.base_stats().damage;
     let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);
@@ -252,15 +254,28 @@ fn calculate_strike_damage(
     dbg!(m_spec);
 
     // Модификатор удачи
-    let m_luck = is_lucky as u8 as f32;
+    let m_luck = action_queue.has_proc(Effect::Luck) as u8 as f32;
     dbg!(m_luck);
 
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck) * md_2;
+    let m_at =
+        if attacker.has_ability(CreatureAbility::CavalierBonus) {
+            0.05 * action_queue.cells_walked() as f32
+        } else if action_queue.has_proc(Effect::DeathBlow) {
+            dbg!("here");
+            1.0
+        } else if let Some(CreatureAbility::Hatred { creature: c, value: v }) =
+            attacker.get_ability(CreatureAbility::Hatred { creature: attacker.creature(), value: 0.0}) {
+            if c == defender.creature() { v } else { 0.0 }
+        } else {
+            0.0
+        };
+    dbg!(m_at);
+
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2;
     damage.round() as u32
 }
 
 fn main() {
-
     let attacker_hero = Hero {
         level: 5,
 
@@ -287,12 +302,16 @@ fn main() {
         artifacts: vec![]
     };
 
-    let mut attacker = CreatureStack::new(Creature::Behemoth, 10);
+    let mut attacker = CreatureStack::new(Creature::Angel, 10);
     attacker.apply_effect(Effect::Bless, Level::Basic);
 
-    let mut defender = CreatureStack::new(Creature::Demon, 100);
+    let mut defender = CreatureStack::new(Creature::Devil, 100);
     defender.apply_effect(Effect::StoneSkin, Level::Basic);
 
-    let final_damage = calculate_strike_damage(attacker_hero, attacker, defender_hero, defender, StrikeType::Melee, true);
+    let action_queue = vec![
+        Action::Proc(Effect::Luck),
+    ].into();
+
+    let final_damage = calculate_strike_damage(attacker_hero, attacker, defender_hero, defender, StrikeType::Melee, action_queue);
     dbg!(final_damage);
 }

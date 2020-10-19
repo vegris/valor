@@ -9,7 +9,9 @@ pub enum Effect {
     Weakness,
     StoneSkin,
     DisruptingRay,
-    AcidBreath
+    AcidBreath,
+    Luck,
+    DeathBlow
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]

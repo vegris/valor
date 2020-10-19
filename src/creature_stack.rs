@@ -41,4 +41,8 @@ impl CreatureStack {
     pub fn get_ability(&self, ability: CreatureAbility) -> Option<CreatureAbility> {
         self.creature.abilities().into_iter().find(|a| *a == ability)
     }
+
+    pub fn has_ability(&self, ability: CreatureAbility) -> bool {
+        self.get_ability(ability).is_some()
+    }
 }

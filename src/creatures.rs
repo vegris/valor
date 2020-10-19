@@ -186,7 +186,9 @@ pub enum Creature {
 
 #[derive(Clone, Copy)]
 pub enum CreatureAbility {
-    IgnoreDefence { percent: u8 }
+    IgnoreDefence { percent: u8 },
+    CavalierBonus,
+    Hatred { creature: Creature, value: f32 }
 }
 
 impl PartialEq for CreatureAbility {
@@ -1526,6 +1528,9 @@ impl Creature {
         match self {
             C::Behemoth => vec![CA::IgnoreDefence { percent: 40 }],
             C::AncientBehemoth => vec![CA::IgnoreDefence { percent: 80 }],
+            C::Cavalier => vec![CA::CavalierBonus],
+            C::Champion => vec![CA::CavalierBonus],
+            C::Angel => vec![CA::Hatred { creature: C::Devil, value: 1.5 }],
             _ => vec![]
         }
     }
