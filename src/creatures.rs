@@ -8,7 +8,7 @@ pub struct CreatureStats {
     pub ammo_capacity: u8,
 }
 
-#[derive(PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Town {
     Castle,
     Rampart,
@@ -1537,20 +1537,23 @@ impl Creature {
 
 
     fn town(&self) -> Town {
-        match self {
-            x if (Self::Pikeman..=Self::Archangel).contains(x) => Town::Castle,
-            x if (Self::Centaur..=Self::GoldDragon).contains(x) => Town::Rampart,
-            x if (Self::Gremlin..=Self::Titan).contains(x) => Town::Tower,
-            x if (Self::Imp..=Self::ArchDevil).contains(x) => Town::Inferno,
-            x if (Self::Skeleton..=Self::GhostDragon).contains(x) => Town::Necropolis,
-            x if (Self::Troglodyte..=Self::BlackDragon).contains(x) => Town::Dungeon,
-            x if (Self::Goblin..=Self::AncientBehemoth).contains(x) => Town::Stronghold,
-            x if (Self::Gnoll..=Self::ChaosHydra).contains(x) => Town::Fortress,
-            x if (Self::Pixie..=Self::Phoenix).contains(x) => Town::Conflux,
-            x if (Self::Peasant..=Self::AzureDragon).contains(x) => Town::Neutral,
-            x if (Self::Ballista..=Self::AmmoCart).contains(x) => Town::WarMachines,
-            _ => panic!("Creature without town!"),
-        }
+        [
+            (Self::Pikeman,    Self::Archangel,       Town::Castle),
+            (Self::Centaur,    Self::GoldDragon,      Town::Rampart),
+            (Self::Gremlin,    Self::Titan,           Town::Tower),
+            (Self::Imp,        Self::ArchDevil,       Town::Inferno),
+            (Self::Skeleton,   Self::GhostDragon,     Town::Necropolis),
+            (Self::Troglodyte, Self::BlackDragon,     Town::Dungeon),
+            (Self::Goblin,     Self::AncientBehemoth, Town::Stronghold),
+            (Self::Gnoll,      Self::ChaosHydra,      Town::Fortress),
+            (Self::Pixie,      Self::Phoenix,         Town::Conflux),
+            (Self::Peasant,    Self::AzureDragon,     Town::Neutral),
+            (Self::Ballista,   Self::AmmoCart,        Town::WarMachines),
+        ]
+        .iter()
+        .find(|&&(first, last, _town)| (first..=last).contains(self))
+        .map(|&(_first, _last, town)| town)
+        .expect("Creature without town!")
     }
 
     fn is_wide(&self) -> bool {
