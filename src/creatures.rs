@@ -1535,7 +1535,6 @@ impl Creature {
         }
     }
 
-
     fn town(&self) -> Town {
         [
             (Self::Pikeman,    Self::Archangel,       Town::Castle),

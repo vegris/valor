@@ -291,7 +291,46 @@ fn calculate_strike_damage(
     let m_armor = 1.0 - armorer_bonus;
     dbg!(m_armor);
 
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2 * m_armor;
+    // Модификатор защитных заклинаний
+    let mut m_spell =
+        match strike_type {
+            StrikeType::Melee => {
+                let base = 1.0;
+                let modif =
+                    if let Some(shield) = defender.get_effect(Effect::Shield) {
+                        if shield.level() == Level::Basic {
+                            0.15
+                        } else {
+                            0.3
+                        }
+                    } else {
+                        0.0
+                    };
+                base - modif
+            },
+            StrikeType::Ranged => {
+                let base =
+                    attacker
+                        .get_effect(Effect::Forgetfulness)
+                        .filter(|e| e.level() == Level::Basic)
+                        .and(Some(0.5))
+                        .unwrap_or(1.0);
+                let modif =
+                    if let Some(shield) = defender.get_effect(Effect::AirShield) {
+                        if shield.level() == Level::Basic {
+                            0.25
+                        } else {
+                            0.5
+                        }
+                    } else {
+                        0.0
+                    };
+                base - modif
+            }
+        };
+    dbg!(m_spell);
+
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2 * m_armor * m_spell;
     damage.round() as u32
 }
 
@@ -326,7 +365,7 @@ fn main() {
     attacker.apply_effect(Effect::Bless, Level::Basic);
 
     let mut defender = CreatureStack::new(Creature::Devil, 100);
-    defender.apply_effect(Effect::StoneSkin, Level::Basic);
+    defender.apply_effect(Effect::Shield, Level::Basic);
 
     let action_queue = vec![
         Action::Move((8, 8)),
