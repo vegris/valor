@@ -261,7 +261,6 @@ fn calculate_strike_damage(
         if attacker.has_ability(CreatureAbility::CavalierBonus) {
             0.05 * action_queue.cells_walked() as f32
         } else if action_queue.has_proc(Effect::DeathBlow) {
-            dbg!("here");
             1.0
         } else if let Some(CreatureAbility::Hatred { creature: c, value: v }) =
             attacker.get_ability(CreatureAbility::Hatred { creature: attacker.creature(), value: 0.0}) {
@@ -271,7 +270,28 @@ fn calculate_strike_damage(
         };
     dbg!(m_at);
 
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2;
+    // Модификатор доспехов
+    let armorer_bonus =
+        defender_hero.get_skill(HeroAbility::Armorer)
+            .map(|level| {
+                match level {
+                    Level::Basic => 0.05,
+                    Level::Advanced => 0.1,
+                    Level::Expert => 0.15
+                }
+            })
+            .map(|bonus| {
+                if defender_hero.specialty == Specialty::HeroAbility(HeroAbility::Armorer) {
+                    bonus * (1.0 + 0.05 * defender_hero.level as f32)
+                } else {
+                    bonus
+                }
+            })
+            .unwrap_or(0.0);
+    let m_armor = 1.0 - armorer_bonus;
+    dbg!(m_armor);
+
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2 * m_armor;
     damage.round() as u32
 }
 
@@ -290,7 +310,7 @@ fn main() {
     };
 
     let defender_hero = Hero {
-        level: 1,
+        level: 5,
 
         attack: 1,
         defence: 10,
@@ -302,13 +322,17 @@ fn main() {
         artifacts: vec![]
     };
 
-    let mut attacker = CreatureStack::new(Creature::Angel, 10);
+    let mut attacker = CreatureStack::new(Creature::Champion, 10);
     attacker.apply_effect(Effect::Bless, Level::Basic);
 
     let mut defender = CreatureStack::new(Creature::Devil, 100);
     defender.apply_effect(Effect::StoneSkin, Level::Basic);
 
     let action_queue = vec![
+        Action::Move((8, 8)),
+        Action::Move((8, 8)),
+        Action::Move((8, 8)),
+        Action::Move((8, 8)),
         Action::Proc(Effect::Luck),
     ].into();
 
