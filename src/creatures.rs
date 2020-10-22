@@ -188,7 +188,9 @@ pub enum Creature {
 pub enum CreatureAbility {
     IgnoreDefence { percent: u8 },
     CavalierBonus,
-    Hatred { creature: Creature, value: f32 }
+    Hatred { creature: Creature, value: f32 },
+    NoMeleePenalty,
+    NoObstaclePenalty
 }
 
 impl PartialEq for CreatureAbility {
@@ -1683,7 +1685,7 @@ impl Creature {
         FLYING_CREATURES.contains(self)
     }
 
-    fn is_ranged(&self) -> bool {
+    pub fn is_ranged(&self) -> bool {
         self.base_stats().ammo_capacity != 0
     }
 

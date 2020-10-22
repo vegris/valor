@@ -8,10 +8,11 @@ mod skills;
 mod action_queue;
 
 use creatures::{Creature, CreatureAbility};
-use creature_stack::CreatureStack;
+use creature_stack::{CreatureStack, GridPos};
 use skills::{Effect, Level, AppliedEffect, HeroAbility, Artifact, Specialty};
 use action_queue::{Action, ActionQueue};
 
+#[derive(PartialEq)]
 enum StrikeType {
     Melee,
     Ranged
@@ -39,13 +40,25 @@ impl Hero {
     }
 }
 
+#[derive(PartialEq)]
+enum WallCondition {
+    New,
+    Damaged,
+    Destroyed
+}
+struct Wall {
+    position: GridPos,
+    condition: WallCondition
+}
+
 fn calculate_strike_damage(
     attacker_hero: Hero,
     attacker: CreatureStack,
     defender_hero: Hero,
     defender: CreatureStack,
     strike_type: StrikeType,
-    action_queue: ActionQueue) -> u32 {
+    action_queue: ActionQueue,
+    walls: Option<&Vec<Wall>>) -> u32 {
 
     let (damage_min, damage_max) = attacker.base_stats().damage;
     let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);
@@ -330,7 +343,28 @@ fn calculate_strike_damage(
         };
     dbg!(m_spell);
 
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2 * m_armor * m_spell;
+    let mut m_arch_penalty = 1.0;
+        if strike_type == StrikeType::Ranged {
+            let arrow_path = attacker.position().get_path_to(&defender.position()).unwrap();
+            if arrow_path.len() > 10 {
+                m_arch_penalty *= 0.5;
+            }
+            if !attacker.has_ability(CreatureAbility::NoObstaclePenalty) && walls.is_some() {
+                let standing = walls
+                    .unwrap()
+                    .iter()
+                    .filter(|w| w.condition != WallCondition::Destroyed)
+                    .map(|w| w.position)
+                    .collect::<Vec<GridPos>>();
+                if arrow_path.iter().any(|a| standing.contains(a)) {
+                    m_arch_penalty *= 0.5;
+                }
+            }
+        } else if attacker.creature().is_ranged() && !attacker.has_ability(CreatureAbility::NoMeleePenalty) {
+            m_arch_penalty *= 0.5
+        };
+
+    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2 * m_armor * m_spell * m_arch_penalty;
     damage.round() as u32
 }
 
@@ -375,6 +409,6 @@ fn main() {
         Action::Proc(Effect::Luck),
     ].into();
 
-    let final_damage = calculate_strike_damage(attacker_hero, attacker, defender_hero, defender, StrikeType::Melee, action_queue);
+    let final_damage = calculate_strike_damage(attacker_hero, attacker, defender_hero, defender, StrikeType::Melee, action_queue, None);
     dbg!(final_damage);
 }

@@ -6,6 +6,7 @@ pub struct CreatureStack {
     count: u32,
     current_health: u16,
     current_ammo: u8,
+    position: GridPos,
     pub applied_effects: Vec<AppliedEffect>,
 }
 
@@ -16,6 +17,7 @@ impl CreatureStack {
             count,
             current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
+            position: GridPos::new(1, 1),
             applied_effects: Vec::new(),
         }
     }
@@ -28,6 +30,9 @@ impl CreatureStack {
     }
     pub fn count(&self) -> u32 {
         self.count
+    }
+    pub fn position(&self) -> GridPos {
+        self.position
     }
 
     pub fn get_effect(&self, effect: Effect) -> Option<&AppliedEffect> {
@@ -44,5 +49,21 @@ impl CreatureStack {
 
     pub fn has_ability(&self, ability: CreatureAbility) -> bool {
         self.get_ability(ability).is_some()
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub struct GridPos {
+    x: u8,
+    y: u8
+}
+
+impl GridPos {
+    pub fn new(x: u8, y: u8) -> Self {
+        Self { x, y }
+    }
+    // TODO: placeholder
+    pub fn get_path_to(&self, other: &Self) -> Option<Vec<Self>> {
+        Some(vec![Self::new(1, 1)])
     }
 }
