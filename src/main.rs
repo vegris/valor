@@ -343,6 +343,7 @@ fn calculate_strike_damage(
         };
     dbg!(m_spell);
 
+    // Модификатор штрафа стрелков
     let mut m_arch_penalty = 1.0;
         if strike_type == StrikeType::Ranged {
             let arrow_path = attacker.position().get_path_to(&defender.position()).unwrap();
@@ -363,8 +364,30 @@ fn calculate_strike_damage(
         } else if attacker.creature().is_ranged() && !attacker.has_ability(CreatureAbility::NoMeleePenalty) {
             m_arch_penalty *= 0.5
         };
+    dbg!(m_arch_penalty);
 
-    let damage = base_damage as f32 * (1.0 + md_1 + m_off + m_spec + m_luck + m_at) * md_2 * m_armor * m_spell * m_arch_penalty;
+    // Прочие модификаторы защиты
+    let mut m_prot = 1.0;
+
+    if let Some(blind) = attacker.get_effect(Effect::Blinded) {
+        if blind.level() == Level::Basic {
+            m_prot *= 0.5;
+        } else {
+            m_prot *= 0.25;
+        }
+    }
+    if attacker.get_effect(Effect::TurnedToStone).is_some() {
+        m_prot *= 0.5;
+    }
+    if attacker.get_effect(Effect::Paralyzed).is_some() {
+        m_prot *= 0.25;
+    }
+    dbg!(m_prot);
+    
+    let damage = base_damage as f32 *
+        (1.0 + md_1 + m_off + m_spec + m_luck + m_at) *
+        md_2 * m_armor * m_spell * m_arch_penalty * m_prot;
+
     damage.round() as u32
 }
 

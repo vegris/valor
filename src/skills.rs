@@ -14,7 +14,10 @@ pub enum Effect {
     DeathBlow,
     Shield,
     AirShield,
-    Forgetfulness
+    Forgetfulness,
+    Blinded,
+    TurnedToStone,
+    Paralyzed
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
