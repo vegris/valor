@@ -1,6 +1,8 @@
+use num_traits::{ToPrimitive, FromPrimitive};
+
 use super::Faction;
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug, ToPrimitive, FromPrimitive)]
 pub enum Creature {
     // Castle
     Pikeman,
@@ -294,5 +296,35 @@ impl Creature {
     pub fn is_undead(&self) -> bool {
         const NON_NECROPOLIS_UNDEAD: [Creature; 1] = [C::Mummy];
         self.faction() == Faction::Necropolis || NON_NECROPOLIS_UNDEAD.contains(self)
+    }
+
+    pub fn upgrades_to(&self) -> Option<Creature> {
+        if [Faction::Neutral, Faction::WarMachines].contains(&self.faction()) {
+            return None
+        }
+        
+        let creature_id = self.to_u32().unwrap();
+
+        if creature_id % 2 == 0 {
+            let upgrade_id = Creature::from_u32(creature_id + 1).unwrap();
+            Some(upgrade_id)
+        } else {
+            None
+        }
+    }
+
+    pub fn upgrade_of(&self) -> Option<Creature> {
+        if [Faction::Neutral, Faction::WarMachines].contains(&self.faction()) {
+            return None
+        }
+        
+        let creature_id = self.to_u32().unwrap();
+
+        if creature_id % 2 == 1 {
+            let parent_id = Creature::from_u32(creature_id - 1).unwrap();
+            Some(parent_id)
+        } else {
+            None
+        }
     }
 }

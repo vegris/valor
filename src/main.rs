@@ -1,5 +1,8 @@
 #![allow(unused)]
 
+#[macro_use]
+extern crate num_derive;
+
 mod creature;
 mod creature_stack;
 mod skills;
