@@ -1,5 +1,12 @@
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
-pub enum Effect {
+pub enum SkillLevel {
+    Basic,
+    Advanced,
+    Expert
+}
+
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
+pub enum Spell {
     Bless,
     Curse,
     Frenzy,
@@ -20,47 +27,19 @@ pub enum Effect {
     Paralyzed
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
-pub enum Level {
-    Basic,
-    Advanced,
-    Expert,
+pub struct AppliedSpell {
+    spell: Spell,
+    level: SkillLevel,
 }
 
-pub struct AppliedEffect {
-    effect: Effect,
-    level: Level,
-}
-
-impl AppliedEffect {
-    pub fn new(effect: Effect, level: Level) -> Self {
-        Self { effect, level }
+impl AppliedSpell {
+    pub fn new(spell: Spell, level: SkillLevel) -> Self {
+        Self { spell, level }
     }
-    pub fn effect(&self) -> Effect {
-        self.effect
+    pub fn spell(&self) -> Spell {
+        self.spell
     }
-    pub fn level(&self) -> Level {
+    pub fn level(&self) -> SkillLevel {
         self.level
     }
-}
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum HeroAbility {
-    Offense,
-    Archery,
-    Armorer
-}
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum Artifact {
-    BowOfElvenCherrywood,
-    BowstringOfTheUnicorn,
-    AngelFeatherArrows,
-    BowOfTheSharpshooter
-}
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum Specialty {
-    HeroAbility(HeroAbility),
-    Spell(Effect) // TODO: разделить Effects и Spells
 }

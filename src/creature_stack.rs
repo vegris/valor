@@ -1,13 +1,27 @@
-use super::creatures::{Creature, CreatureStats, CreatureAbility};
-use super::skills::{AppliedEffect, Effect, Level};
+use super::creature::{Creature, CreatureAbility, CreatureStats};
+use super::skills::{Spell, AppliedSpell, SkillLevel};
+
+/// Существо в течение раунда может принимать одно из этих состояний
+#[derive(Clone, Copy, PartialEq)]
+pub enum CreatureTurnState {
+    HasTurn,
+    MoraledAndWaited,
+    Waited,
+    NoTurn
+}
 
 pub struct CreatureStack {
     creature: Creature,
     count: u32,
+
     current_health: u16,
     current_ammo: u8,
+
     position: GridPos,
-    pub applied_effects: Vec<AppliedEffect>,
+
+    applied_spells: Vec<AppliedSpell>,
+
+    pub turn_state: CreatureTurnState
 }
 
 impl CreatureStack {
@@ -18,7 +32,8 @@ impl CreatureStack {
             current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
             position: GridPos::new(1, 1),
-            applied_effects: Vec::new(),
+            applied_spells: Vec::new(),
+            turn_state: CreatureTurnState::HasTurn
         }
     }
     pub fn base_stats(&self) -> CreatureStats {
@@ -34,17 +49,23 @@ impl CreatureStack {
     pub fn position(&self) -> GridPos {
         self.position
     }
-
-    pub fn get_effect(&self, effect: Effect) -> Option<&AppliedEffect> {
-        self.applied_effects.iter().find(|&x| x.effect() == effect)
+    pub fn speed(&self) -> u8 {
+        self.creature.base_stats().speed
+    }
+    pub fn applied_effects(&self) -> &Vec<AppliedSpell> {
+        &self.applied_spells
     }
 
-    pub fn apply_effect(&mut self, effect: Effect, level: Level) {
-        self.applied_effects.push(AppliedEffect::new(effect, level));
+    pub fn get_effect(&self, spell: Spell) -> Option<&AppliedSpell> {
+        self.applied_spells.iter().find(|&x| x.spell() == spell)
+    }
+
+    pub fn apply_effect(&mut self, spell: Spell, level: SkillLevel) {
+        self.applied_spells.push(AppliedSpell::new(spell, level));
     }
 
     pub fn get_ability(&self, ability: CreatureAbility) -> Option<CreatureAbility> {
-        self.creature.abilities().into_iter().find(|a| *a == ability)
+        self.creature.abilities().iter().find(|&&a| a == ability).copied()
     }
 
     pub fn has_ability(&self, ability: CreatureAbility) -> bool {
@@ -63,7 +84,7 @@ impl GridPos {
         Self { x, y }
     }
     // TODO: placeholder
-    pub fn get_path_to(&self, other: &Self) -> Option<Vec<Self>> {
+    pub fn path_to(self, other: Self) -> Option<Vec<Self>> {
         Some(vec![Self::new(1, 1)])
     }
 }
