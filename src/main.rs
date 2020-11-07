@@ -72,28 +72,37 @@ fn main() {
 
     let mut battlestate = BattleState::new(attacker_army, defender_army);
 
-    let commands = vec![
-        // А. Ангелы на 3,7
-        Command::new(Side::Attacker, CommandType::Move { destination: (3, 7) }),
-        // З. Дьяволы на 7, 9
-        Command::new(Side::Defender, CommandType::Move { destination: (7, 9) }),
-        // З. Демоны ждут
-        Command::new(Side::Defender, CommandType::Wait),
-        // А. Арбалетчики стреляют в демонов
-        // демоны - в пятом слоте вражеской армии
-        Command::new(Side::Attacker, CommandType::Shoot { target: 5 }),
-        // 3. Демоны на 5, 7
-        Command::new(Side::Defender, CommandType::Move { destination: (5, 7) }),
+    // let commands = vec![
+    //     // А. Ангелы на 3,7
+    //     Command::new(Side::Attacker, CommandType::Move { destination: (3, 7) }),
+    //     // З. Дьяволы на 7, 9
+    //     Command::new(Side::Defender, CommandType::Move { destination: (7, 9) }),
+    //     // З. Демоны ждут
+    //     Command::new(Side::Defender, CommandType::Wait),
+    //     // А. Арбалетчики стреляют в демонов
+    //     // демоны - в пятом слоте вражеской армии
+    //     Command::new(Side::Attacker, CommandType::Shoot { target: 5 }),
+    //     // 3. Демоны на 5, 7
+    //     Command::new(Side::Defender, CommandType::Move { destination: (5, 7) }),
         
-        // Новый ход
+    //     // Новый ход
 
-        // А. Ангелы атакуют демонов стоя на 4, 7
-        Command::new(Side::Attacker, CommandType::Attack { position: (4, 7), target: 5 })
+    //     // А. Ангелы атакуют демонов стоя на 4, 7
+    //     Command::new(Side::Attacker, CommandType::Attack { position: (4, 7), target: 5 })
+    // ];
+
+    let commands = vec![
+        Command::new(Side::Attacker, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Defend),
+        Command::new(Side::Attacker, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Defend),
+        Command::new(Side::Attacker, CommandType::Defend)
     ];
 
     for command in commands {
-        if battlestate.is_applicable(command) {
-            battlestate.apply(command);
+        if command.is_applicable(&battlestate) {
+            command.apply(&mut battlestate);
         } else {
             panic!("Command is not applicable!")
         }

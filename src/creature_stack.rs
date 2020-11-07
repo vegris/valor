@@ -2,7 +2,7 @@ use super::creature::{Creature, CreatureAbility, CreatureStats};
 use super::skills::{Spell, AppliedSpell, SkillLevel};
 
 /// Существо в течение раунда может принимать одно из этих состояний
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum CreatureTurnState {
     HasTurn,
     MoraledAndWaited,
@@ -21,7 +21,8 @@ pub struct CreatureStack {
 
     applied_spells: Vec<AppliedSpell>,
 
-    pub turn_state: CreatureTurnState
+    pub turn_state: CreatureTurnState,
+    pub defending: bool
 }
 
 impl CreatureStack {
@@ -33,7 +34,8 @@ impl CreatureStack {
             current_ammo: creature.base_stats().ammo_capacity,
             position: GridPos::new(1, 1),
             applied_spells: Vec::new(),
-            turn_state: CreatureTurnState::HasTurn
+            turn_state: CreatureTurnState::HasTurn,
+            defending: false
         }
     }
     pub fn base_stats(&self) -> CreatureStats {

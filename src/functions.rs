@@ -7,32 +7,6 @@ use super::hero::{Hero, HeroSpecialty, HeroAbility, Artifact};
 use super::skills::{Spell, SkillLevel};
 use super::action_queue::ActionQueue;
 
-pub fn find_current_creature<'a>(
-    attacker_army: &'a mut Vec<CreatureStack>,
-    defender_army: &'a mut Vec<CreatureStack>,
-    last_turn_side: Side,
-    current_turn_state: CreatureTurnState
-) -> Option<&'a mut CreatureStack> {
-    // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
-    let (first_army, second_army) =
-        match last_turn_side {
-            Side::Attacker => (defender_army, attacker_army),
-            Side::Defender => (attacker_army, defender_army)
-        };
-
-    first_army
-        .iter_mut()
-        .chain(second_army.iter_mut())
-        .filter(|stack| stack.turn_state == current_turn_state)
-        .fold(None, |acc, stack| {
-            match acc {
-                None => Some(stack),
-                Some(x) if stack.speed() > x.speed() => Some(stack),
-                _ => acc
-            }
-        })
-}
-
 pub fn calculate_strike_damage(
     attacker_hero: Hero,
     attacker: CreatureStack,

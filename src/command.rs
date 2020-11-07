@@ -1,4 +1,6 @@
+use super::creature_stack::CreatureTurnState;
 use super::battlestate::{BattleState, Side};
+use super::functions;
 
 #[derive(Clone, Copy)]
 pub struct Command {
@@ -22,18 +24,33 @@ impl Command {
 pub enum CommandType {
     Move { destination: (u8, u8) },
     Wait,
+    Defend,
     Attack { position: (u8, u8), target: u8 },
     Shoot { target: u8 }
 }
 
 impl CommandType {
     fn is_applicable(&self, side: Side, state: &BattleState) -> bool {
-        unimplemented!()
+        match self {
+            Self::Defend => {
+                state.current_side() == side
+            },
+            _ => unimplemented!()
+        }
     }
     fn apply(&self, side: Side, state: &mut BattleState) {
-        unimplemented!();
+        match self {
+            Self::Defend => {
+                let cur_stack = state.get_current_stack_mut();
+                cur_stack.defending = true;
+                cur_stack.turn_state = CreatureTurnState::NoTurn;
+                state.update_current_stack();
+            },
+            _ => unimplemented!()
+        }
     }
 }
+
 
 // struct MoveCommand {
 //     destination: GridPos
