@@ -102,7 +102,7 @@ impl BattleState {
             self.current_stack = index;
             let mut stack = self.get_current_stack_mut();
             stack.defending = false;
-            println!("Current stack is {:?}:{:?}, {:?}", stack.creature(), stack.count(), side);
+            println!("Current stack is {}, {:?}", stack, side);
         } else {
             self.advance_phase();
             self.update_current_stack();

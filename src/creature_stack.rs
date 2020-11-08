@@ -1,5 +1,6 @@
 use super::creature::{Creature, CreatureAbility, CreatureStats};
 use super::skills::{Spell, AppliedSpell, SkillLevel};
+use super::gridpos::GridPos;
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -51,6 +52,9 @@ impl CreatureStack {
     pub fn position(&self) -> GridPos {
         self.position
     }
+    pub fn set_position(&mut self, pos: GridPos) {
+        self.position = pos;
+    }
     pub fn speed(&self) -> u8 {
         self.creature.base_stats().speed
     }
@@ -75,18 +79,9 @@ impl CreatureStack {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
-pub struct GridPos {
-    x: u8,
-    y: u8
-}
-
-impl GridPos {
-    pub fn new(x: u8, y: u8) -> Self {
-        Self { x, y }
-    }
-    // TODO: placeholder
-    pub fn path_to(self, other: Self) -> Option<Vec<Self>> {
-        Some(vec![Self::new(1, 1)])
+use std::fmt;
+impl fmt::Display for CreatureStack {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}:{}", self.creature, self.count)
     }
 }

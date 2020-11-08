@@ -34,8 +34,8 @@ impl GridPos {
         self.y % 2 == 0
     }
 
-    pub fn get_shortest_path_to(&self, destination: GridPos) -> Option<Vec<GridPos>> {
-        bfs(self, |p| p.get_successors(), |p| *p == destination)
+    pub fn get_shortest_path_to(&self, destination: &GridPos) -> Option<Vec<GridPos>> {
+        bfs(self, |p| p.get_successors(), |p| *p == *destination)
     }
 
     fn get_successors(&self) -> Vec<Self> {
@@ -67,5 +67,12 @@ impl GridPos {
 
     pub fn x(&self) -> u16 {
         self.x
+    }
+}
+
+use std::fmt;
+impl fmt::Display for GridPos {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
     }
 }

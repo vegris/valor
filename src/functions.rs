@@ -301,7 +301,7 @@ pub fn calculate_strike_damage(
     // Модификатор штрафа стрелков
     let mut m_arch_penalty = 1.0;
         if strike_type == StrikeType::Ranged {
-            let arrow_path = attacker.position().path_to(defender.position()).unwrap();
+            let arrow_path = attacker.position().get_shortest_path_to(&defender.position()).unwrap();
             if arrow_path.len() > 10 {
                 m_arch_penalty *= 0.5;
             }

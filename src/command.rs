@@ -1,6 +1,7 @@
 use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, Side};
 use super::functions;
+use super::gridpos::GridPos;
 
 #[derive(Clone, Copy)]
 pub struct Command {
@@ -22,10 +23,10 @@ impl Command {
 
 #[derive(Clone, Copy)]
 pub enum CommandType {
-    Move { destination: (u8, u8) },
+    Move { destination: GridPos },
     Wait,
     Defend,
-    Attack { position: (u8, u8), target: u8 },
+    Attack { position: GridPos, target: u8 },
     Shoot { target: u8 }
 }
 
@@ -41,6 +42,13 @@ impl CommandType {
 
                 state.current_side() == side &&
                 !wait_states.contains(&cur_stack.turn_state)
+            },
+            Self::Move { destination: dest } => {
+                let cur_stack = state.get_current_stack();
+                let maybe_path = cur_stack.position().get_shortest_path_to(dest);
+                state.current_side() == side &&
+                maybe_path.is_some() &&
+                maybe_path.unwrap().len() <= cur_stack.speed().into()
             }
             _ => unimplemented!()
         }
@@ -51,11 +59,20 @@ impl CommandType {
                 let cur_stack = state.get_current_stack_mut();
                 cur_stack.defending = true;
                 cur_stack.turn_state = CTS::NoTurn;
+                println!("{} is defending!", cur_stack);
                 state.update_current_stack();
             },
             Self::Wait => {
                 let cur_stack = state.get_current_stack_mut();
                 cur_stack.turn_state = CTS::Waited;
+                println!("{} is waiting!", cur_stack);
+                state.update_current_stack();
+            },
+            Self::Move { destination: dest } => {
+                let mut cur_stack = state.get_current_stack_mut();
+                println!("{} moves from {} to {}", cur_stack, cur_stack.position(), dest);
+                cur_stack.set_position(*dest);
+                cur_stack.turn_state = CTS::NoTurn;
                 state.update_current_stack();
             }
             _ => unimplemented!()

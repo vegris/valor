@@ -19,6 +19,7 @@ use battlestate::{Army, Side, BattleState};
 use creature::Creature;
 use creature_stack::CreatureTurnState;
 use command::{Command, CommandType};
+use gridpos::GridPos;
 
 
 fn main() {
@@ -75,7 +76,7 @@ fn main() {
     let commands = vec![
         Command::new(Side::Attacker, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Wait),
-        Command::new(Side::Defender, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Move { destination: GridPos::new(4, 7) }),
         Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Defend),
