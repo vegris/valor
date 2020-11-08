@@ -93,8 +93,8 @@ fn main() {
 
     let commands = vec![
         Command::new(Side::Attacker, CommandType::Defend),
-        Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Defend)

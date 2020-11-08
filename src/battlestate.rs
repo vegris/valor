@@ -14,6 +14,14 @@ pub enum Side {
     Attacker,
     Defender
 }
+impl Side {
+    fn other(self) -> Self {
+        match self {
+            Self::Attacker => Self::Defender,
+            Self::Defender => Self::Attacker
+        }
+    }
+}
 
 pub struct Army {
     hero: Hero,
@@ -46,6 +54,7 @@ pub struct BattleState {
     sides: [Army; 2],
     phase_iter: PhaseIterator,
     current_phase: CreatureTurnState,
+    last_turn_side: Side,
     current_side: Side,
     current_stack: usize,
     is_moraled: bool
@@ -57,14 +66,17 @@ impl BattleState {
         vec![CTS::HasTurn, CTS::MoraledAndWaited, CTS::Waited].into_iter()
     }
     pub fn new(attacker_army: Army, defender_army: Army) -> Self {
-        Self {
+        let mut state = Self {
             sides: [attacker_army, defender_army],
-            current_phase: CreatureTurnState::HasTurn,
             phase_iter: Self::new_phase_iter(),
+            current_phase: CreatureTurnState::HasTurn,
+            last_turn_side: Side::Defender,
             current_side: Side::Attacker,
             current_stack: 0,
             is_moraled: false
-        }
+        };
+        state.update_current_stack();
+        state
     }
     fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
         &self.sides[side as usize].battle_army
@@ -112,12 +124,13 @@ impl BattleState {
             .map(|side| &mut side.battle_army)
             .flatten()
             .for_each(|creature| creature.turn_state = CreatureTurnState::HasTurn);
+        self.last_turn_side = self.last_turn_side.other();
         println!("New turn!");
     }
 
     fn find_current_creature(&self) -> Option<(Side, usize)> {
         // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
-        match self.current_side {
+        match self.last_turn_side {
             Side::Attacker => vec![Side::Defender, Side::Attacker],
             Side::Defender => vec![Side::Attacker, Side::Defender]
         }
