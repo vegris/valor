@@ -1,6 +1,6 @@
 use super::hero::Hero;
 use super::creature::Creature;
-use super::creature_stack::{CreatureStack, CreatureTurnState};
+use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::command::{Command, CommandType};
 
 #[derive(PartialEq)]
@@ -48,12 +48,12 @@ impl Army {
     }
 }
 
-type PhaseIterator = std::vec::IntoIter<CreatureTurnState>;
+type PhaseIterator = std::vec::IntoIter<CTS>;
 
 pub struct BattleState {
     sides: [Army; 2],
     phase_iter: PhaseIterator,
-    current_phase: CreatureTurnState,
+    current_phase: CTS,
     last_turn_side: Side,
     current_side: Side,
     current_stack: usize,
@@ -62,14 +62,13 @@ pub struct BattleState {
 
 impl BattleState {
     fn new_phase_iter() -> PhaseIterator {
-        type CTS = CreatureTurnState;
         vec![CTS::HasTurn, CTS::MoraledAndWaited, CTS::Waited].into_iter()
     }
     pub fn new(attacker_army: Army, defender_army: Army) -> Self {
         let mut state = Self {
             sides: [attacker_army, defender_army],
             phase_iter: Self::new_phase_iter(),
-            current_phase: CreatureTurnState::HasTurn,
+            current_phase: CTS::HasTurn,
             last_turn_side: Side::Defender,
             current_side: Side::Attacker,
             current_stack: 0,
@@ -90,6 +89,9 @@ impl BattleState {
         &self.sides[side as usize].battle_army[index]
     }
 
+    pub fn get_current_stack(&self) -> &CreatureStack {
+        &self.sides[self.current_side as usize].battle_army[self.current_stack]
+    }
     pub fn get_current_stack_mut(&mut self) -> &mut CreatureStack {
         &mut self.sides[self.current_side as usize].battle_army[self.current_stack]
     }
@@ -123,7 +125,7 @@ impl BattleState {
             .iter_mut()
             .map(|side| &mut side.battle_army)
             .flatten()
-            .for_each(|creature| creature.turn_state = CreatureTurnState::HasTurn);
+            .for_each(|creature| creature.turn_state = CTS::HasTurn);
         self.last_turn_side = self.last_turn_side.other();
         println!("New turn!");
     }

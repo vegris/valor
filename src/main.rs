@@ -72,32 +72,14 @@ fn main() {
 
     let mut battlestate = BattleState::new(attacker_army, defender_army);
 
-    // let commands = vec![
-    //     // А. Ангелы на 3,7
-    //     Command::new(Side::Attacker, CommandType::Move { destination: (3, 7) }),
-    //     // З. Дьяволы на 7, 9
-    //     Command::new(Side::Defender, CommandType::Move { destination: (7, 9) }),
-    //     // З. Демоны ждут
-    //     Command::new(Side::Defender, CommandType::Wait),
-    //     // А. Арбалетчики стреляют в демонов
-    //     // демоны - в пятом слоте вражеской армии
-    //     Command::new(Side::Attacker, CommandType::Shoot { target: 5 }),
-    //     // 3. Демоны на 5, 7
-    //     Command::new(Side::Defender, CommandType::Move { destination: (5, 7) }),
-        
-    //     // Новый ход
-
-    //     // А. Ангелы атакуют демонов стоя на 4, 7
-    //     Command::new(Side::Attacker, CommandType::Attack { position: (4, 7), target: 5 })
-    // ];
-
     let commands = vec![
         Command::new(Side::Attacker, CommandType::Defend),
+        Command::new(Side::Attacker, CommandType::Wait),
+        Command::new(Side::Defender, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Defend),
+        Command::new(Side::Defender, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Defend),
-        Command::new(Side::Defender, CommandType::Defend),
-        Command::new(Side::Defender, CommandType::Defend),
-        Command::new(Side::Defender, CommandType::Defend),
-        Command::new(Side::Attacker, CommandType::Defend)
+        Command::new(Side::Attacker, CommandType::Defend),
     ];
 
     for command in commands {
@@ -108,27 +90,3 @@ fn main() {
         }
     }
 }
-
-    // // Фазы ходов существ
-    // let battle_phases = [CreatureTurnState::HasTurn, CreatureTurnState::MoraledAndWaited, CreatureTurnState::Waited];
-    // let phase_iter = battle_phases.iter();//.cycle();
-
-    // // Кто начинал первым в прошлый ход
-    // let last_turn_side = Side::Defender;
-
-    // for current_phase in phase_iter {
-    //     dbg!(current_phase);
-    //     while let Some(stack) = functions::find_current_creature(
-    //         &mut attacker_army.battle_army, 
-    //         &mut defender_army.battle_army,
-    //         last_turn_side,
-    //         *current_phase
-    //     ) {
-    //         stack.turn_phase = match current_phase {
-    //             CreatureTurnState::HasTurn => CreatureTurnState::Waited,
-    //             _ => CreatureTurnState::NoTurn
-    //         };
-    //         dbg!((stack.creature(), stack.count(), stack.turn_phase));
-    //     }
-    // }
-// }

@@ -1,4 +1,4 @@
-use super::creature_stack::CreatureTurnState;
+use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, Side};
 use super::functions;
 
@@ -35,6 +35,13 @@ impl CommandType {
             Self::Defend => {
                 state.current_side() == side
             },
+            Self::Wait => {
+                let cur_stack = state.get_current_stack();
+                let wait_states = [CTS::MoraledAndWaited, CTS::Waited];
+
+                state.current_side() == side &&
+                !wait_states.contains(&cur_stack.turn_state)
+            }
             _ => unimplemented!()
         }
     }
@@ -43,9 +50,14 @@ impl CommandType {
             Self::Defend => {
                 let cur_stack = state.get_current_stack_mut();
                 cur_stack.defending = true;
-                cur_stack.turn_state = CreatureTurnState::NoTurn;
+                cur_stack.turn_state = CTS::NoTurn;
                 state.update_current_stack();
             },
+            Self::Wait => {
+                let cur_stack = state.get_current_stack_mut();
+                cur_stack.turn_state = CTS::Waited;
+                state.update_current_stack();
+            }
             _ => unimplemented!()
         }
     }
