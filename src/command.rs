@@ -30,22 +30,32 @@ pub enum CommandType {
     Shoot { target: u8 }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+enum CommandTypeFieldless {
+    Move,
+    Wait,
+    Defend,
+    Attack,
+    Shoot
+}
+
 impl CommandType {
     fn is_applicable(&self, side: Side, state: &BattleState) -> bool {
+        let cur_stack = state.get_current_stack();
+
         match self {
             Self::Defend => {
                 state.current_side() == side
             },
             Self::Wait => {
-                let cur_stack = state.get_current_stack();
                 let wait_states = [CTS::MoraledAndWaited, CTS::Waited];
 
                 state.current_side() == side &&
                 !wait_states.contains(&cur_stack.turn_state)
             },
             Self::Move { destination: dest } => {
-                let cur_stack = state.get_current_stack();
                 let maybe_path = cur_stack.position().get_shortest_path_to(dest);
+
                 state.current_side() == side &&
                 maybe_path.is_some() &&
                 maybe_path.unwrap().len() <= cur_stack.speed().into()
@@ -54,44 +64,58 @@ impl CommandType {
         }
     }
     fn apply(&self, side: Side, state: &mut BattleState) {
+        let cur_stack = state.get_current_stack_mut();
+
         match self {
             Self::Defend => {
-                let cur_stack = state.get_current_stack_mut();
-                cur_stack.defending = true;
-                cur_stack.turn_state = CTS::NoTurn;
                 println!("{} is defending!", cur_stack);
-                state.update_current_stack();
+                cur_stack.defending = true;
             },
             Self::Wait => {
-                let cur_stack = state.get_current_stack_mut();
-                cur_stack.turn_state = CTS::Waited;
                 println!("{} is waiting!", cur_stack);
-                state.update_current_stack();
+                cur_stack.turn_state = CTS::Waited;
             },
             Self::Move { destination: dest } => {
-                let mut cur_stack = state.get_current_stack_mut();
                 println!("{} moves from {} to {}", cur_stack, cur_stack.position(), dest);
                 cur_stack.set_position(*dest);
-                cur_stack.turn_state = CTS::NoTurn;
-                state.update_current_stack();
             }
             _ => unimplemented!()
         }
+
+        if self.creature_spends_turn() {
+            cur_stack.turn_state = CTS::NoTurn;
+        }
+
+        if self.requires_current_stack_update() {
+            state.update_current_stack();
+        }
+    }
+
+    // TODO: заменить эту каку макросом
+    fn fieldless(&self) -> CommandTypeFieldless {
+        match self {
+            Self::Attack{ .. }  => CommandTypeFieldless::Attack,
+            Self::Defend { .. } => CommandTypeFieldless::Defend,
+            Self::Move { .. }   => CommandTypeFieldless::Move,
+            Self::Shoot { .. }  => CommandTypeFieldless::Shoot,
+            Self::Wait { .. }   => CommandTypeFieldless::Wait
+        }
+    }
+
+    fn requires_current_stack_update(&self) -> bool {
+        [
+            CommandTypeFieldless::Attack,
+            CommandTypeFieldless::Defend,
+            CommandTypeFieldless::Move,
+            CommandTypeFieldless::Shoot,
+            CommandTypeFieldless::Wait
+        ].contains(&self.fieldless())
+    }
+
+    fn creature_spends_turn(&self) -> bool {
+        match self {
+            Self::Wait => false,
+            _ => true
+        }
     }
 }
-
-
-// struct MoveCommand {
-//     destination: GridPos
-// }
-
-// impl CommandType for MoveCommand {
-//     fn is_applicable(&self, side: Side, state: &BattleState) -> bool {
-//         side == state.current_side &&
-//         state.current_stack.position().path_to(self.destination).is_some()
-//     }
-//     fn apply(&self, side: Side, state: &mut BattleState) {
-//         state.current_stack.set_position(self.destination);
-//         state.end_creature_turn();
-//     }
-// }
