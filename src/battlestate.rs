@@ -15,7 +15,7 @@ pub enum Side {
     Defender
 }
 impl Side {
-    fn other(self) -> Self {
+    pub fn other(self) -> Self {
         match self {
             Self::Attacker => Self::Defender,
             Self::Defender => Self::Attacker
@@ -45,6 +45,10 @@ impl Army {
             starting_army,
             battle_army
         }
+    }
+
+    pub fn hero(&self) -> &Hero {
+        &self.hero
     }
 }
 
@@ -77,7 +81,12 @@ impl BattleState {
         state.update_current_stack();
         state
     }
-    fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
+
+    pub fn get_army(&self, side: Side) -> &Army {
+        &self.sides[side as usize]
+    }
+
+    pub fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
         &self.sides[side as usize].battle_army
     }
 
@@ -85,8 +94,11 @@ impl BattleState {
         self.current_side
     }
 
-    fn get_stack(&self, side: Side, index: usize) -> &CreatureStack {
-        &self.sides[side as usize].battle_army[index]
+    pub fn get_stack(&self, side: Side, index: u8) -> Option<&CreatureStack> {
+        self.sides[side as usize].battle_army.get(index as usize)
+    }
+    pub fn get_stack_mut(&mut self, side: Side, index: u8) -> Option<&mut CreatureStack> {
+        self.sides[side as usize].battle_army.get_mut(index as usize)
     }
 
     pub fn get_current_stack(&self) -> &CreatureStack {

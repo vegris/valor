@@ -1,6 +1,9 @@
+use std::collections::HashSet;
+
 use super::creature::{Creature, CreatureAbility, CreatureStats};
 use super::skills::{Spell, AppliedSpell, SkillLevel};
 use super::gridpos::GridPos;
+use super::battlestate::Side;
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -76,6 +79,29 @@ impl CreatureStack {
 
     pub fn has_ability(&self, ability: CreatureAbility) -> bool {
         self.get_ability(ability).is_some()
+    }
+
+    pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
+        if self.creature.is_wide() {
+            let second_cell =
+                match side {
+                    Side::Attacker => self.position.relative(0, 1),
+                    Side::Defender => self.position.relative(0, -1)
+                };
+            vec![self.position, second_cell]
+        } else {
+            vec![self.position]
+        }
+    }
+
+    pub fn get_adjacent_cells(&self, side: Side) -> Vec<GridPos> {
+        self.get_occupied_cells(side)
+            .iter()
+            .map(|cell| cell.get_successors())
+            .flatten()
+            .collect::<HashSet<GridPos>>() // Оставляем уникальные
+            .drain()
+            .collect::<Vec<GridPos>>()
     }
 }
 

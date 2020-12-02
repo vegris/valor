@@ -78,7 +78,8 @@ fn main() {
         Command::new(Side::Attacker, CommandType::Wait),
         Command::new(Side::Defender, CommandType::Move { destination: GridPos::new(4, 7) }),
         Command::new(Side::Defender, CommandType::Defend),
-        Command::new(Side::Defender, CommandType::Defend),
+        // Таргет на самом деле арбалетчики, это баг в создании battle_army
+        Command::new(Side::Defender, CommandType::Attack { position: GridPos::new(1, 2), target: 2 }),
         Command::new(Side::Attacker, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Defend),
     ];

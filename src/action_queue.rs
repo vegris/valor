@@ -11,6 +11,10 @@ pub enum Action {
 pub struct ActionQueue(Vec<Action>);
 
 impl ActionQueue {
+    pub fn new() -> Self {
+        Vec::new().into()
+    }
+
     pub fn push_action(&mut self, action: Action) {
         self.0.push(action);
     }

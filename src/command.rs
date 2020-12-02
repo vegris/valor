@@ -1,7 +1,8 @@
 use super::creature_stack::CreatureTurnState as CTS;
-use super::battlestate::{BattleState, Side};
+use super::battlestate::{BattleState, Side, StrikeType};
 use super::functions;
 use super::gridpos::GridPos;
+use super::action_queue::ActionQueue;
 
 #[derive(Clone, Copy)]
 pub struct Command {
@@ -59,30 +60,59 @@ impl CommandType {
                 state.current_side() == side &&
                 maybe_path.is_some() &&
                 maybe_path.unwrap().len() <= cur_stack.speed().into()
+            },
+            Self::Attack { position: pos, target: index } => {
+                let maybe_path = cur_stack.position().get_shortest_path_to(pos);
+                let target_creature = state.get_stack(side.other(), *index);
+
+                state.current_side() == side &&
+                target_creature.map_or(false, |target| {
+                    target.get_adjacent_cells(side.other()).contains(pos)
+                }) &&
+                maybe_path.map_or(false, |path| path.len() <= cur_stack.speed() as usize)
             }
             _ => unimplemented!()
         }
     }
     fn apply(&self, side: Side, state: &mut BattleState) {
-        let cur_stack = state.get_current_stack_mut();
-
         match self {
             Self::Defend => {
+                let cur_stack = state.get_current_stack_mut();
                 println!("{} is defending!", cur_stack);
                 cur_stack.defending = true;
             },
             Self::Wait => {
+                let cur_stack = state.get_current_stack_mut();
                 println!("{} is waiting!", cur_stack);
                 cur_stack.turn_state = CTS::Waited;
             },
             Self::Move { destination: dest } => {
+                let cur_stack = state.get_current_stack_mut();
                 println!("{} moves from {} to {}", cur_stack, cur_stack.position(), dest);
                 cur_stack.set_position(*dest);
+            },
+            Self::Attack { position: pos, target: index } => {
+                let cur_stack = state.get_current_stack();
+                let target_stack = state.get_stack(side.other(), *index).unwrap();
+                let action_queue = ActionQueue::new();
+                let damage = functions::calculate_strike_damage(
+                    state.get_army(side).hero(),
+                    cur_stack,
+                    state.get_army(side.other()).hero(),
+                    target_stack,
+                    StrikeType::Melee,
+                    &action_queue
+                );
+                println!(
+                    "{} moves from {} to {} and attacks {} for {} damage",
+                    cur_stack, cur_stack.position(), pos, target_stack, damage
+                )
             }
             _ => unimplemented!()
         }
 
         if self.creature_spends_turn() {
+            let cur_stack = state.get_current_stack_mut();
             cur_stack.turn_state = CTS::NoTurn;
         }
 

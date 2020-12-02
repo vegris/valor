@@ -8,12 +8,12 @@ use super::skills::{Spell, SkillLevel};
 use super::action_queue::ActionQueue;
 
 pub fn calculate_strike_damage(
-    attacker_hero: Hero,
-    attacker: CreatureStack,
-    defender_hero: Hero,
-    defender: CreatureStack,
+    attacker_hero: &Hero,
+    attacker: &CreatureStack,
+    defender_hero: &Hero,
+    defender: &CreatureStack,
     strike_type: StrikeType,
-    action_queue: ActionQueue) -> u32 {
+    action_queue: &ActionQueue) -> u32 {
 
     let (damage_min, damage_max) = attacker.base_stats().damage;
     let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);

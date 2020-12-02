@@ -22,12 +22,20 @@ impl GridPos {
         Self {x, y}
     }
 
+    pub fn relative(&self, x_modif: i8, y_modif: i8) -> Self {
+        Self::new((self.x as i32 + x_modif as i32) as u16, (self.y as i32 + y_modif as i32) as u16)
+    }
+
     fn try_new(x: u16, y: u16) -> Option<Self> {
         if Self::is_point_valid(x, y) {
             Some(Self::new(x, y))
         } else {
             None
         }
+    }
+
+    pub fn try_relative(&self, x_modif: i8, y_modif: i8) -> Option<Self> {
+        Self::try_new((self.x as i32 + x_modif as i32) as u16, (self.y as i32 + y_modif as i32) as u16)
     }
 
     pub fn is_even_row(&self) -> bool {
@@ -38,7 +46,7 @@ impl GridPos {
         bfs(self, |p| p.get_successors(), |p| *p == *destination)
     }
 
-    fn get_successors(&self) -> Vec<Self> {
+    pub fn get_successors(&self) -> Vec<Self> {
         let Self { x, y } = *self;
 
         // набор соседних клеток отличается в зависимости от чётности ряда
