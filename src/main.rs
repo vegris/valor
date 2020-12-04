@@ -66,7 +66,7 @@ fn main() {
             Some((Creature::Devil, 10)),
             Some((Creature::Angel, 20)),
             None,
-            Some((Creature::HornedDemon, 50)),
+            Some((Creature::HornedDemon, 25)),
             None
         ]
     );

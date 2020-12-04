@@ -92,21 +92,43 @@ impl CommandType {
                 cur_stack.set_position(*dest);
             },
             Self::Attack { position: pos, target: index } => {
-                let cur_stack = state.get_current_stack();
-                let target_stack = state.get_stack(side.other(), *index).unwrap();
-                let action_queue = ActionQueue::new();
-                let damage = functions::calculate_strike_damage(
-                    state.get_army(side).hero(),
-                    cur_stack,
-                    state.get_army(side.other()).hero(),
-                    target_stack,
-                    StrikeType::Melee,
-                    &action_queue
-                );
-                println!(
-                    "{} moves from {} to {} and attacks {} for {} damage",
-                    cur_stack, cur_stack.position(), pos, target_stack, damage
-                )
+                {
+                    let cur_stack = state.get_current_stack();
+                    let target_stack = state.get_stack(side.other(), *index).unwrap();
+                    let action_queue = ActionQueue::new();
+                    let damage = functions::calculate_strike_damage(
+                        state.get_army(side).hero(),
+                        cur_stack,
+                        state.get_army(side.other()).hero(),
+                        target_stack,
+                        StrikeType::Melee,
+                        &action_queue
+                    );
+                    println!(
+                        "{} moves from {} to {} and attacks {} for {} damage",
+                        cur_stack, cur_stack.position(), pos, target_stack, damage
+                    );
+                    let target_stack = state.get_stack_mut(side.other(), *index).unwrap();
+                    target_stack.receive_damage(damage);
+                }
+                {
+                    let target_stack = state.get_stack(side.other(), *index).unwrap();
+                    if target_stack.is_alive() {
+                        let cur_stack = state.get_current_stack();
+                        let action_queue = ActionQueue::new();
+                        let damage = functions::calculate_strike_damage(
+                            state.get_army(side.other()).hero(),
+                            target_stack,
+                            state.get_army(side).hero(),
+                            cur_stack,
+                            StrikeType::Melee,
+                            &action_queue
+                        );
+                        println!("{} retaliates with {} damage", target_stack, damage);
+                        let cur_stack = state.get_current_stack_mut();
+                        cur_stack.receive_damage(damage);
+                    }
+                }
             }
             _ => unimplemented!()
         }
