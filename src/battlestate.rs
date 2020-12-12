@@ -101,6 +101,9 @@ impl BattleState {
         self.sides[side as usize].battle_army.get_mut(index as usize)
     }
 
+    pub fn current_stack_id(&self) -> (Side, u8) {
+        (self.current_side, self.current_stack as u8)
+    }
     pub fn get_current_stack(&self) -> &CreatureStack {
         &self.sides[self.current_side as usize].battle_army[self.current_stack]
     }
