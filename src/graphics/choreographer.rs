@@ -56,19 +56,26 @@ fn animate_turning(unit: &mut CreatureStack) {
 }
 
 pub fn animate_melee_attack(state: &mut BattleState, rr: &mut ResourceRegistry, attacker_index: usize, defender_index: usize) {
+    let defender_pos = state.get_unit_mut(defender_index).grid_pos();
+    let attacker_pos = state.get_unit_mut(attacker_index).grid_pos();
+
     let defender = state.get_unit_mut(defender_index);
-    animate_turning(defender);
+
+    if need_turning(defender_pos, attacker_pos, defender.direction) {
+        animate_turning(defender);
+    }
     let turning_duration = defender.get_animations_duration();
     defender.push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
 
     let attacker = state.get_unit_mut(attacker_index);
+    if need_turning(attacker_pos, defender_pos, attacker.direction) {
+        animate_turning(attacker);
+    }
     attacker.push_animation(CreatureAnimation::new_delayed(AnimationType::AttackStraight, turning_duration));
     let attack_duration = attacker.get_animations_duration();
     attacker.push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
 
     let defender = state.get_unit_mut(defender_index);
     defender.push_animation(CreatureAnimation::new_delayed(AnimationType::GettingHit, attack_duration / 2));
-    animate_turning(defender);
     defender.push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-    
 }

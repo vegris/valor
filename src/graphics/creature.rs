@@ -46,10 +46,10 @@ impl AnimationType {
 
     pub fn duration(self) -> Duration {
         match self {
-            Self::Moving => Self::BASE_DURATION * 4,
+            Self::Moving => Self::BASE_DURATION * 3,
             Self::Standing => Self::BASE_DURATION * 4,
             Self::AttackStraight => Self::BASE_DURATION * 4,
-            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION * 4,
+            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
             Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 2,
             Self::GettingHit => Self::BASE_DURATION * 2,
             _ => Self::BASE_DURATION
@@ -83,6 +83,7 @@ impl CreatureSprite {
         const FULL_WIDTH: u32 = 450;
         const FULL_HEIGHT: u32 = 400;
 
+        // Поправка чтобы спрайт существа ровно располагался на спрайте клетки
         const X_CORRECTION: i32 = 30;
         const Y_CORRECTION: i32 = -50;
 
