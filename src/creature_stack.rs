@@ -19,7 +19,7 @@ pub struct CreatureStack {
     count: u32,
 
     current_health: u16,
-    current_ammo: u8,
+    pub current_ammo: u8,
 
     position: GridPos,
 

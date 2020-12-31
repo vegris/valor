@@ -37,7 +37,7 @@ pub fn calculate_strike_damage(
         };
     
     let base_damage = base_damage_single * attacker.count();
-    dbg!(base_damage);
+    // dbg!(base_damage);
 
     // Эффекты, модифицирующие атаку атакующего
     let mut current_attack = (attacker.base_stats().attack + attacker_hero.attack) as u32;
@@ -141,8 +141,8 @@ pub fn calculate_strike_damage(
     }
 
     // текущие значения атаки и защиты
-    dbg!(current_attack);
-    dbg!(current_defence);
+    // dbg!(current_attack);
+    // dbg!(current_defence);
 
     // основной модификатор урона в двух видах
     let md_1 = 
@@ -152,7 +152,7 @@ pub fn calculate_strike_damage(
             0.0
         };
     let md_1 = f32::min(md_1, 3.0);
-    dbg!(md_1);
+    // dbg!(md_1);
 
     let md_2 =
         if current_defence > current_attack {
@@ -161,7 +161,7 @@ pub fn calculate_strike_damage(
             1.0
         };
     let md_2 = f32::max(md_2, 0.3);
-    dbg!(md_2);
+    // dbg!(md_2);
 
     // Модификатор вторичного навыка Нападение/Стрельба
     let m_off =
@@ -205,7 +205,7 @@ pub fn calculate_strike_damage(
                 }
             }
         };
-    dbg!(m_off);
+    // dbg!(m_off);
     
     // Модификатор специализации 
     let m_spec =
@@ -219,11 +219,11 @@ pub fn calculate_strike_damage(
         } else {
             0.0
         };
-    dbg!(m_spec);
+    // dbg!(m_spec);
 
     // Модификатор удачи
     let m_luck = action_queue.has_proc(Spell::Luck) as u8 as f32;
-    dbg!(m_luck);
+    // dbg!(m_luck);
 
     let m_at =
         if attacker.has_ability(CreatureAbility::CavalierBonus) {
@@ -236,7 +236,7 @@ pub fn calculate_strike_damage(
         } else {
             0.0
         };
-    dbg!(m_at);
+    // dbg!(m_at);
 
     // Модификатор доспехов
     let armorer_bonus =
@@ -257,7 +257,7 @@ pub fn calculate_strike_damage(
             })
             .unwrap_or(0.0);
     let m_armor = 1.0 - armorer_bonus;
-    dbg!(m_armor);
+    // dbg!(m_armor);
 
     // Модификатор защитных заклинаний
     let mut m_spell =
@@ -296,7 +296,7 @@ pub fn calculate_strike_damage(
                 base - modif
             }
         };
-    dbg!(m_spell);
+    // dbg!(m_spell);
 
     // Модификатор штрафа стрелков
     let mut m_arch_penalty = 1.0;
@@ -308,7 +308,7 @@ pub fn calculate_strike_damage(
         } else if attacker.creature().is_ranged() && !attacker.has_ability(CreatureAbility::NoMeleePenalty) {
             m_arch_penalty *= 0.5
         };
-    dbg!(m_arch_penalty);
+    // dbg!(m_arch_penalty);
 
     // Прочие модификаторы защиты
     let mut m_prot = 1.0;
@@ -326,7 +326,7 @@ pub fn calculate_strike_damage(
     if attacker.get_effect(Spell::Paralyzed).is_some() {
         m_prot *= 0.25;
     }
-    dbg!(m_prot);
+    // dbg!(m_prot);
     
     let damage = base_damage as f32 *
         (1.0 + md_1 + m_off + m_spec + m_luck + m_at) *

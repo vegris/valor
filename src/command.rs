@@ -70,8 +70,12 @@ impl CommandType {
                     target.get_adjacent_cells(side.other()).contains(pos)
                 }) &&
                 maybe_path.map_or(false, |path| path.len() <= cur_stack.speed() as usize)
+            },
+            Self::Shoot { target: index } => {
+                state.current_side() == side &&
+                state.get_stack(side.other(), *index).is_some() &&
+                state.get_current_stack().current_ammo > 0
             }
-            _ => unimplemented!()
         }
     }
     fn apply(&self, side: Side, state: &mut BattleState) {
@@ -96,8 +100,13 @@ impl CommandType {
                 let att_stack = state.get_current_stack();
                 let def_stack = state.get_stack(side.other(), *index).unwrap();
                 println!("{} attacks {} for {} damage", att_stack, def_stack, damage);
+            },
+            Self::Shoot { target: index } => {
+                let damage = make_strike(state, state.current_stack_id(), (side.other(), *index));
+                let att_stack = state.get_current_stack();
+                let def_stack = state.get_stack(side.other(), *index).unwrap();
+                println!("{} shoots {} for {} damage", att_stack, def_stack, damage);
             }
-            _ => unimplemented!()
         }
 
         if self.creature_spends_turn() {
