@@ -5,15 +5,13 @@ use super::creature_stack::{CreatureStack, CreatureTurnState};
 use super::battlestate::{Side, StrikeType};
 use super::hero::{Hero, HeroSpecialty, HeroAbility, Artifact};
 use super::skills::{Spell, SkillLevel};
-use super::action_queue::ActionQueue;
 
 pub fn calculate_strike_damage(
     attacker_hero: &Hero,
     attacker: &CreatureStack,
     defender_hero: &Hero,
     defender: &CreatureStack,
-    strike_type: StrikeType,
-    action_queue: &ActionQueue) -> u32 {
+    strike_type: StrikeType) -> u32 {
 
     let (damage_min, damage_max) = attacker.base_stats().damage;
     let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);
@@ -222,15 +220,16 @@ pub fn calculate_strike_damage(
     // dbg!(m_spec);
 
     // Модификатор удачи
-    let m_luck = action_queue.has_proc(Spell::Luck) as u8 as f32;
+    let m_luck = 0.0;
     // dbg!(m_luck);
 
     let m_at =
-        if attacker.has_ability(CreatureAbility::CavalierBonus) {
-            0.05 * action_queue.cells_walked() as f32
-        } else if action_queue.has_proc(Spell::DeathBlow) {
-            1.0
-        } else if let Some(CreatureAbility::Hatred { creature: c, value: v }) =
+        // if attacker.has_ability(CreatureAbility::CavalierBonus) {
+        //     0.05 * action_queue.cells_walked() as f32
+        // } else if action_queue.has_proc(Spell::DeathBlow) {
+        //     1.0
+        // } else if let Some(CreatureAbility::Hatred { creature: c, value: v }) =
+        if let Some(CreatureAbility::Hatred { creature: c, value: v }) =
             attacker.get_ability(CreatureAbility::Hatred { creature: attacker.creature(), value: 0.0}) {
             if c == defender.creature() { v } else { 0.0 }
         } else {

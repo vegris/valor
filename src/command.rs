@@ -2,7 +2,6 @@ use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, Side, StrikeType};
 use super::functions;
 use super::gridpos::GridPos;
-use super::action_queue::ActionQueue;
 
 #[derive(Clone, Copy)]
 pub struct Command {
@@ -152,15 +151,12 @@ pub fn make_strike(state: &mut BattleState, attacker: (Side, u8), defender: (Sid
     let att_stack = state.get_stack(attacker.0, attacker.1).unwrap();
     let def_stack = state.get_stack(defender.0, defender.1).unwrap();
 
-    let action_queue = ActionQueue::new();
-
     let damage = functions::calculate_strike_damage(
         state.get_army(attacker.0).hero(),
         att_stack,
         state.get_army(defender.0).hero(),
         def_stack,
-        StrikeType::Melee,
-        &action_queue
+        StrikeType::Melee
     );
     let def_stack_mut = state.get_stack_mut(defender.0, defender.1).unwrap();
     def_stack_mut.receive_damage(damage);

@@ -6,7 +6,6 @@ extern crate num_derive;
 mod creature;
 mod creature_stack;
 mod skills;
-mod action_queue;
 mod battlestate;
 mod command;
 mod hero;
