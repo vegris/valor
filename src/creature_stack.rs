@@ -9,11 +9,11 @@ use super::battlestate::Side;
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum CreatureTurnState {
     HasTurn,
-    MoraledAndWaited,
     Waited,
     NoTurn
 }
 
+#[derive(Debug)]
 pub struct CreatureStack {
     creature: Creature,
     count: u32,
@@ -30,13 +30,13 @@ pub struct CreatureStack {
 }
 
 impl CreatureStack {
-    pub fn new(creature: Creature, count: u32) -> Self {
+    pub fn new(creature: Creature, count: u32, position: GridPos) -> Self {
         CreatureStack {
             creature,
             count,
             current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
-            position: GridPos::new(1, 1),
+            position,
             applied_spells: Vec::new(),
             turn_state: CreatureTurnState::HasTurn,
             defending: false

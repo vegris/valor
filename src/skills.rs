@@ -1,11 +1,11 @@
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub enum SkillLevel {
     Basic,
     Advanced,
     Expert
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub enum Spell {
     Bless,
     Curse,
@@ -27,6 +27,7 @@ pub enum Spell {
     Paralyzed
 }
 
+#[derive(Debug)]
 pub struct AppliedSpell {
     spell: Spell,
     level: SkillLevel,

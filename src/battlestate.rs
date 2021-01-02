@@ -1,7 +1,10 @@
+use std::cmp::{Ord, Ordering};
+
 use super::hero::Hero;
 use super::creature::Creature;
 use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::command::{Command, CommandType};
+use super::GridPos;
 
 #[derive(PartialEq)]
 pub enum StrikeType {
@@ -24,22 +27,17 @@ impl Side {
 }
 
 pub struct Army {
-    hero: Hero,
+    hero: Option<Hero>,
     starting_army: [Option<(Creature, u32)>; 7],
     battle_army: Vec<CreatureStack>
 }
 
 impl Army {
-    pub fn new(hero: Hero, starting_army: [Option<(Creature, u32)>; 7]) -> Self {
-        let battle_army = starting_army
-            .iter()
-            .filter(|x| x.is_some())
-            .map(|option| {
-                let (creature, count) = option.unwrap();
-                CreatureStack::new(creature, count)
-            })
-            .collect::<Vec<CreatureStack>>();
-
+    pub fn new(
+        hero: Option<Hero>,
+        starting_army: [Option<(Creature, u32)>; 7],
+        battle_army: Vec<CreatureStack>
+    ) -> Self {
         Self {
             hero,
             starting_army,
@@ -47,8 +45,8 @@ impl Army {
         }
     }
 
-    pub fn hero(&self) -> &Hero {
-        &self.hero
+    pub fn hero(&self) -> Option<&Hero> {
+        self.hero.as_ref()
     }
 }
 
@@ -64,11 +62,52 @@ pub struct BattleState {
     is_moraled: bool
 }
 
+fn initial_placement(units_count: u8) -> Vec<u16> {
+    match units_count {
+        1 => vec![6],
+        2 => vec![3, 9],
+        3 => vec![3, 6, 9],
+        4 => vec![1, 5, 7, 11],
+        5 => vec![1, 3, 6, 9, 11],
+        6 => vec![1, 3, 5, 7, 9, 11],
+        7 => vec![1, 3, 5, 6, 7, 9, 11],
+        _ => unreachable!()
+    }
+}
+
+fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> Vec<CreatureStack> {
+    let units_count = starting_army.iter().filter(|c| c.is_some()).count();
+    let formation = initial_placement(units_count as u8);
+    let starting_x = *match side {
+        Side::Attacker => GridPos::X_RANGE.start(),
+        Side::Defender => GridPos::X_RANGE.end()
+    };
+    starting_army
+        .into_iter()
+        .filter_map(|c| *c)
+        .zip(formation.into_iter())
+        .map(|((creature, count), y_pos)| {
+            CreatureStack::new(creature, count, GridPos::new(starting_x, y_pos))
+        })
+        .collect()
+}
+
 impl BattleState {
     fn new_phase_iter() -> PhaseIterator {
-        vec![CTS::HasTurn, CTS::MoraledAndWaited, CTS::Waited].into_iter()
+        vec![CTS::HasTurn, CTS::Waited].into_iter()
     }
-    pub fn new(attacker_army: Army, defender_army: Army) -> Self {
+    pub fn new(
+        attacker_hero: Option<Hero>,
+        attacker_units: [Option<(Creature, u32)>; 7],
+        defender_hero: Option<Hero>,
+        defender_units: [Option<(Creature, u32)>; 7],
+    ) -> Self {
+        let attacker_stacks = form_units(&attacker_units, Side::Attacker);
+        let defender_stacks = form_units(&defender_units, Side::Defender);
+
+        let attacker_army = Army::new(attacker_hero, attacker_units, attacker_stacks);
+        let defender_army = Army::new(defender_hero, defender_units, defender_stacks);
+
         let mut state = Self {
             sides: [attacker_army, defender_army],
             phase_iter: Self::new_phase_iter(),
@@ -78,6 +117,7 @@ impl BattleState {
             current_stack: 0,
             is_moraled: false
         };
+
         state.update_current_stack();
         state
     }
@@ -158,10 +198,14 @@ impl BattleState {
         ))
         .map(|(side, (index, stack))| (side, index, stack)) // чтоб не утонуть в скобках
         .filter(|(_side, index, stack)| stack.turn_state == self.current_phase)
-        .fold(None, |acc, (side, index, stack)| {
+        .fold(None, |acc, current| {
+            // Без max_first тяжко
+            fn key((_, _, stack): (Side, usize, &CreatureStack)) -> u8 {
+                stack.speed()
+            };
             match acc {
-                None => Some((side, index, stack)),
-                Some((_, _, acc_stack)) if stack.speed() > acc_stack.speed() => Some((side, index, stack)),
+                None => Some(current),
+                Some(acc) if key(current) > key(acc) => Some(current),
                 _ => acc
             }
         })

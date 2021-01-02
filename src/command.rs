@@ -48,13 +48,13 @@ impl CommandType {
                 state.current_side() == side
             },
             Self::Wait => {
-                let wait_states = [CTS::MoraledAndWaited, CTS::Waited];
-
                 state.current_side() == side &&
-                !wait_states.contains(&cur_stack.turn_state)
+                cur_stack.turn_state == CTS::HasTurn
             },
             Self::Move { destination: dest } => {
                 let maybe_path = cur_stack.position().get_shortest_path_to(dest);
+                let maybe_len = maybe_path.as_ref().map_or(100500, |x| x.len());
+                println!("Shortest path from {} to {} is {:?}", cur_stack.position(), dest, maybe_len);
 
                 state.current_side() == side &&
                 maybe_path.is_some() &&

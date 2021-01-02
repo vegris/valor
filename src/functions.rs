@@ -7,11 +7,16 @@ use super::hero::{Hero, HeroSpecialty, HeroAbility, Artifact};
 use super::skills::{Spell, SkillLevel};
 
 pub fn calculate_strike_damage(
-    attacker_hero: &Hero,
+    attacker_hero: Option<&Hero>,
     attacker: &CreatureStack,
-    defender_hero: &Hero,
+    defender_hero: Option<&Hero>,
     defender: &CreatureStack,
     strike_type: StrikeType) -> u32 {
+
+    let attacker_hero_atk = attacker_hero.map_or(0, |h| h.attack);
+    let attacker_hero_def = attacker_hero.map_or(0, |h| h.defence);
+    let defender_hero_atk = defender_hero.map_or(0, |h| h.attack);
+    let defender_hero_def = defender_hero.map_or(0, |h| h.defence);
 
     let (damage_min, damage_max) = attacker.base_stats().damage;
     let (damage_min, damage_max) = (damage_min as u32, damage_max as u32);
@@ -38,7 +43,7 @@ pub fn calculate_strike_damage(
     // dbg!(base_damage);
 
     // Эффекты, модифицирующие атаку атакующего
-    let mut current_attack = (attacker.base_stats().attack + attacker_hero.attack) as u32;
+    let mut current_attack = (attacker.base_stats().attack + attacker_hero_atk) as u32;
     if let Some(bloodlust) = attacker.get_effect(Spell::Bloodlust) {
         current_attack +=
             if bloodlust.level() == SkillLevel::Basic {
@@ -108,7 +113,7 @@ pub fn calculate_strike_damage(
     }
 
     // Эффекты, модифицирующие защиту защищающегося
-    let mut current_defence = (defender.base_stats().defence + defender_hero.defence) as u32;
+    let mut current_defence = (defender.base_stats().defence + defender_hero_def) as u32;
     if let Some(stoneskin) = defender.get_effect(Spell::StoneSkin) {
         current_defence +=
             if stoneskin.level() == SkillLevel::Basic {
@@ -165,7 +170,7 @@ pub fn calculate_strike_damage(
     let m_off =
         match strike_type {
             StrikeType::Melee => {
-                if let Some(level) = attacker_hero.get_skill(HeroAbility::Offense) {
+                if let Some(level) = attacker_hero.map(|h| h.get_skill(HeroAbility::Offense)).flatten() {
                     match level {
                         SkillLevel::Basic => 0.1,
                         SkillLevel::Advanced => 0.2,
@@ -176,7 +181,7 @@ pub fn calculate_strike_damage(
                 }
             },
             StrikeType::Ranged => {
-                if let Some(level) = attacker_hero.get_skill(HeroAbility::Archery) {
+                if let Some(level) = attacker_hero.map(|h| h.get_skill(HeroAbility::Archery)).flatten() {
                     let base_modifier =
                         match level {
                             SkillLevel::Basic => 0.1,
@@ -193,7 +198,7 @@ pub fn calculate_strike_damage(
                     let artifacts_modifier =
                         artifacts
                             .iter()
-                            .filter(|(art, _val)| attacker_hero.has_artifact(*art))
+                            .filter(|(art, _val)| attacker_hero.map_or(false, |h| h.has_artifact(*art)))
                             .map(|(_art, val)| val)
                             .sum::<f32>();
 
@@ -207,13 +212,17 @@ pub fn calculate_strike_damage(
     
     // Модификатор специализации 
     let m_spec =
-        if attacker_hero.specialty == HeroSpecialty::Spell(Spell::Bless) {
-            0.03 * (attacker_hero.level as f32 / attacker.base_stats().level as f32).floor()
-        } else if [
-                HeroSpecialty::HeroAbility(HeroAbility::Offense),
-                HeroSpecialty::HeroAbility(HeroAbility::Archery)
-            ].contains(&attacker_hero.specialty) {
-                0.05 * attacker_hero.level as f32
+        if let Some(hero) = attacker_hero {
+            if hero.specialty == HeroSpecialty::Spell(Spell::Bless) {
+                0.03 * (hero.level as f32 / attacker.base_stats().level as f32).floor()
+            } else if [
+                    HeroSpecialty::HeroAbility(HeroAbility::Offense),
+                    HeroSpecialty::HeroAbility(HeroAbility::Archery)
+                ].contains(&hero.specialty) {
+                    0.05 * hero.level as f32
+            } else {
+                0.0
+            }
         } else {
             0.0
         };
@@ -239,22 +248,26 @@ pub fn calculate_strike_damage(
 
     // Модификатор доспехов
     let armorer_bonus =
-        defender_hero.get_skill(HeroAbility::Armorer)
-            .map(|level| {
-                match level {
-                    SkillLevel::Basic => 0.05,
-                    SkillLevel::Advanced => 0.1,
-                    SkillLevel::Expert => 0.15
-                }
-            })
-            .map(|bonus| {
-                if defender_hero.specialty == HeroSpecialty::HeroAbility(HeroAbility::Armorer) {
-                    bonus * (1.0 + 0.05 * defender_hero.level as f32)
-                } else {
-                    bonus
-                }
-            })
-            .unwrap_or(0.0);
+        if let Some(hero) = defender_hero {
+            hero.get_skill(HeroAbility::Armorer)
+                .map(|level| {
+                    match level {
+                        SkillLevel::Basic => 0.05,
+                        SkillLevel::Advanced => 0.1,
+                        SkillLevel::Expert => 0.15
+                    }
+                })
+                .map(|bonus| {
+                    if hero.specialty == HeroSpecialty::HeroAbility(HeroAbility::Armorer) {
+                        bonus * (1.0 + 0.05 * hero.level as f32)
+                    } else {
+                        bonus
+                    }
+                })
+                .unwrap_or(0.0)
+        } else {
+            0.0
+        };
     let m_armor = 1.0 - armorer_bonus;
     // dbg!(m_armor);
 

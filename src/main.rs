@@ -48,7 +48,7 @@ fn main() {
         artifacts: vec![]
     };
 
-    let mut attacker_army = Army::new(attacker_hero, [
+    let attacker_units = [
             Some((Creature::Angel, 8)),
             Some((Creature::Angel, 10)),
             None,
@@ -56,10 +56,9 @@ fn main() {
             Some((Creature::Archer, 55)),
             None,
             None
-        ],
-    );
+        ];
 
-    let mut defender_army = Army::new(defender_hero, [
+    let defender_units = [
             None,
             None,
             Some((Creature::Devil, 10)),
@@ -67,18 +66,19 @@ fn main() {
             None,
             Some((Creature::HornedDemon, 25)),
             None
-        ]
-    );
+        ];
 
-    let mut battlestate = BattleState::new(attacker_army, defender_army);
+    let mut battlestate = BattleState::new(
+        Some(attacker_hero), attacker_units,
+        Some(defender_hero), defender_units
+    );
 
     let commands = vec![
         Command::new(Side::Attacker, CommandType::Defend),
         Command::new(Side::Attacker, CommandType::Wait),
         Command::new(Side::Defender, CommandType::Move { destination: GridPos::new(4, 7) }),
         Command::new(Side::Defender, CommandType::Defend),
-        // Таргет на самом деле арбалетчики, это баг в создании battle_army
-        Command::new(Side::Defender, CommandType::Attack { position: GridPos::new(1, 2), target: 2 }),
+        Command::new(Side::Defender, CommandType::Move { destination: GridPos::new(11, 8)}),
         Command::new(Side::Attacker, CommandType::Shoot { target: 2 }),
         Command::new(Side::Attacker, CommandType::Defend),
     ];

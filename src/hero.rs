@@ -17,7 +17,9 @@ pub struct Hero {
 pub enum HeroAbility {
     Offense,
     Archery,
-    Armorer
+    Armorer,
+    Navigation,
+    Wisdom
 }
 
 #[derive(PartialEq, Clone, Copy)]
