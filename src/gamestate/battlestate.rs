@@ -16,8 +16,9 @@ use crate::Battlefield;
 use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
 
-use super::GridPos;
-use super::creature::{CreatureStack, Direction};
+use crate::gridpos::GridPos;
+use crate::creature_stack::CreatureStack;
+use crate::battlestate::Side;
 use crate::graphics::animations::CreatureAnimation;
 use crate::graphics::creature::AnimationType;
 use crate::graphics::choreographer;
@@ -68,13 +69,14 @@ impl<'a> BattleState<'a> {
             pending_command: None,
 
             creatures: vec![
-                CreatureStack::new(Creature::Behemoth, GridPos::new(4, 9), Direction::Left),
-                CreatureStack::new(Creature::Archangel, GridPos::new(6, 9), Direction::Right)
+                CreatureStack::new(Creature::Behemoth, 1, GridPos::new(4, 9), Side::Attacker),
+                CreatureStack::new(Creature::Archangel, 1, GridPos::new(6, 9), Side::Defender)
             ]
 
         };
 
         battlestate.creatures[0].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+        battlestate.creatures[1].push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
 
         Ok(battlestate)
     }
@@ -95,7 +97,7 @@ impl<'a> BattleState<'a> {
         
         // Юнит под курсором
         let is_unit_selected = self.current_hover.and_then(|grid| {
-            self.creatures.iter().find(|unit| unit.grid_pos == grid)
+            self.creatures.iter().find(|unit| unit.position == grid)
         }).is_some();
 
         // Выбираем тип курсора
@@ -138,11 +140,11 @@ impl<'a> BattleState<'a> {
             match type_ {
                 CommandType::Move => {
                     // Команда "Двигаться"
-                    let start_pos = self.creatures[0].grid_pos;
-                    if let Some(path) = start_pos.get_shortest_path_to(destination) {
+                    let start_pos = self.creatures[0].position;
+                    if let Some(path) = start_pos.get_shortest_path_to(&destination) {
                         choreographer::animate_unit_move(self, rr, 0, &path);
                         let last_grid = path.last().unwrap();
-                        self.creatures[0].grid_pos = *last_grid;
+                        self.creatures[0].position = *last_grid;
                     }
                 },
                 CommandType::Attack => {

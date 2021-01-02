@@ -1,8 +1,9 @@
 use super::creature::AnimationType;
 use super::animations::CreatureAnimation;
-use crate::gamestate::{BattleState, GridPos};
+use crate::gamestate::BattleState;
 use crate::resources::ResourceRegistry;
-use crate::gamestate::creature::{CreatureStack, Direction};
+use crate::creature_stack::{CreatureStack, Direction};
+use crate::gridpos::GridPos;
 
 
 pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, unit_index: usize, path: &Vec<GridPos>) {
@@ -13,7 +14,7 @@ pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, uni
         unit.push_animation(CreatureAnimation::new(AnimationType::StartMoving));
     }
 
-    let mut cur_grid_pos = unit.grid_pos;
+    let mut cur_grid_pos = unit.position;
     let mut cur_direction = unit.direction;
     for grid_pos in &path[1..] {
         if need_turning(cur_grid_pos, *grid_pos, cur_direction) {
@@ -34,13 +35,13 @@ pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, uni
 fn need_turning(current_pos: GridPos, next_pos: GridPos, current_direction: Direction) -> bool {
     let needed_direction = 
         if current_pos.is_even_row() {
-            if next_pos.x() < current_pos.x() {
+            if next_pos.x < current_pos.x {
                 Direction::Left
             } else {
                 Direction::Right
             }
         } else {
-            if next_pos.x() > current_pos.x() {
+            if next_pos.x > current_pos.x {
                 Direction::Right
             } else {
                 Direction::Left
@@ -56,8 +57,8 @@ fn animate_turning(unit: &mut CreatureStack) {
 }
 
 pub fn animate_melee_attack(state: &mut BattleState, _rr: &mut ResourceRegistry, attacker_index: usize, defender_index: usize) {
-    let defender_pos = state.get_unit_mut(defender_index).grid_pos;
-    let attacker_pos = state.get_unit_mut(attacker_index).grid_pos;
+    let defender_pos = state.get_unit_mut(defender_index).position;
+    let attacker_pos = state.get_unit_mut(attacker_index).position;
 
     let defender = state.get_unit_mut(defender_index);
 

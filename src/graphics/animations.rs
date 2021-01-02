@@ -3,7 +3,7 @@ use std::time::Duration;
 use sdl2::rect::Point;
 
 use crate::graphics::creature::AnimationType;
-use crate::gamestate::creature::CreatureStack;
+use crate::creature_stack::CreatureStack;
 
 
 struct TimeProgress {

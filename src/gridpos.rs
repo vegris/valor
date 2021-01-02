@@ -1,17 +1,27 @@
 use std::ops::RangeInclusive;
 
+extern crate sdl2;
+use sdl2::rect::{Point, Rect};
+
 extern crate pathfinding;
 use pathfinding::directed::bfs::bfs;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct GridPos {
-    x: u16,
-    y: u16
+    pub x: u16,
+    pub y: u16
 }
 
 impl GridPos {
     pub const X_RANGE: RangeInclusive<u16> = 1..=15;
     pub const Y_RANGE: RangeInclusive<u16> = 1..=11;
+
+    const CELL_WIDTH: u32 = 45;
+    const CELL_HEIGHT: u32 = 52;
+    const CELL_VERTICAL_SIDE_LENGTH: u32 = 32;
+
+    const ODD_START_POINT: (i32, i32) = (105, 117);
+    const EVEN_START_POINT: (i32, i32) = (83, 159);
 
     fn is_point_valid(x: u16, y: u16) -> bool {
         Self::X_RANGE.contains(&x) && Self::Y_RANGE.contains(&y)
@@ -71,6 +81,31 @@ impl GridPos {
         }.into_iter()
          .filter_map(|(x, y)| Self::try_new(x, y))
          .collect()
+    }
+
+    pub fn draw_center(&self) -> Point {
+        let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
+
+        // Вычитаем единицу чтобы рисовать клетки "внахлёст"
+        let x_offset = x * (Self::CELL_WIDTH - 1);
+        let y_offset = y / 2 * (Self::CELL_HEIGHT + Self::CELL_VERTICAL_SIDE_LENGTH);
+
+        let start_point = 
+            if self.is_even_row() {
+                Self::EVEN_START_POINT
+            } else {
+                Self::ODD_START_POINT
+            };
+        
+        Point::from(start_point).offset(x_offset as i32, y_offset as i32)
+    }
+
+    pub fn draw_rect(&self) -> Rect {
+        Rect::from_center(self.draw_center(), Self::CELL_WIDTH, Self::CELL_HEIGHT)
+    }
+
+    pub fn contains_point(&self, point: (i32, i32)) -> bool {
+        self.draw_rect().contains_point(point)
     }
 }
 

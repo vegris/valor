@@ -52,7 +52,7 @@ fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> Vec<C
         .filter_map(|c| *c)
         .zip(formation.into_iter())
         .map(|((creature, count), y_pos)| {
-            CreatureStack::new(creature, count, GridPos::new(starting_x, y_pos))
+            CreatureStack::new(creature, count, GridPos::new(starting_x, y_pos), side)
         })
         .collect()
 }
