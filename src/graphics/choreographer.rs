@@ -7,13 +7,13 @@ use crate::gamestate::creature::{CreatureStack, Direction};
 
 pub fn animate_unit_move(state: &mut BattleState, rr: &mut ResourceRegistry, unit_index: usize, path: &Vec<GridPos>) {
     let unit = state.get_unit_mut(unit_index);
-    let creature = unit.creature();
+    let creature = unit.creature;
 
     if rr.get_creature_container(creature).has_animation_block(AnimationType::StartMoving) {
         unit.push_animation(CreatureAnimation::new(AnimationType::StartMoving));
     }
 
-    let mut cur_grid_pos = unit.grid_pos();
+    let mut cur_grid_pos = unit.grid_pos;
     let mut cur_direction = unit.direction;
     for grid_pos in &path[1..] {
         if need_turning(cur_grid_pos, *grid_pos, cur_direction) {
@@ -55,9 +55,9 @@ fn animate_turning(unit: &mut CreatureStack) {
     unit.push_animation(CreatureAnimation::new(AnimationType::TurnRight));
 }
 
-pub fn animate_melee_attack(state: &mut BattleState, rr: &mut ResourceRegistry, attacker_index: usize, defender_index: usize) {
-    let defender_pos = state.get_unit_mut(defender_index).grid_pos();
-    let attacker_pos = state.get_unit_mut(attacker_index).grid_pos();
+pub fn animate_melee_attack(state: &mut BattleState, _rr: &mut ResourceRegistry, attacker_index: usize, defender_index: usize) {
+    let defender_pos = state.get_unit_mut(defender_index).grid_pos;
+    let attacker_pos = state.get_unit_mut(attacker_index).grid_pos;
 
     let defender = state.get_unit_mut(defender_index);
 

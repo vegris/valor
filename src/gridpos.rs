@@ -72,10 +72,6 @@ impl GridPos {
          .filter_map(|(x, y)| Self::try_new(x, y))
          .collect()
     }
-
-    pub fn x(&self) -> u16 {
-        self.x
-    }
 }
 
 use std::fmt;

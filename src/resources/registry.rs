@@ -48,7 +48,7 @@ impl ResourceRegistry {
     pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, AnyError> {
         let bytes = self.pcx_archive.read_file(filename);
         let mut pcx = PcxImage::from_bytes(bytes)?;
-        pcx.apply_transparency()?;
+        pcx.apply_transparency();
         pcx.to_surface()
     }
 

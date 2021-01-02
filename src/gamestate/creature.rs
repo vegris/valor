@@ -30,15 +30,15 @@ impl Direction {
 }
 
 pub struct CreatureStack {
-    creature: Creature,
-    grid_pos: GridPos,
+    pub creature: Creature,
+    pub grid_pos: GridPos,
 
-    draw_pos: Point,
-    animation_type: AnimationType,
-    animation_progress: f32,
+    pub draw_pos: Point,
+    pub animation_type: AnimationType,
+    pub animation_progress: f32,
 
-    current_animation: Option<CreatureAnimation>,
-    animation_queue: VecDeque<CreatureAnimation>,
+    pub current_animation: Option<CreatureAnimation>,
+    pub animation_queue: VecDeque<CreatureAnimation>,
 
     pub direction: Direction
 }
@@ -137,34 +137,6 @@ impl CreatureStack {
         // canvas.set_draw_color(Color::BLACK);
 
         Ok(())
-    }
-
-    pub fn creature(&self) -> Creature {
-        self.creature
-    }
-
-    pub fn grid_pos(&self) -> GridPos {
-        self.grid_pos
-    }
-
-    pub fn set_grid_pos(&mut self, pos: GridPos) {
-        self.grid_pos = pos;
-    }
-
-    pub fn draw_pos(&self) -> Point {
-        self.draw_pos
-    }
-
-    pub fn set_draw_pos(&mut self, pos: Point) {
-        self.draw_pos = pos
-    }
-    
-    pub fn set_animation_type(&mut self, animation_type: AnimationType) {
-        self.animation_type = animation_type;
-    }
-
-    pub fn set_animation_progress(&mut self, progress: f32) {
-        self.animation_progress = progress;
     }
 
     pub fn push_animation(&mut self, animation: CreatureAnimation) {

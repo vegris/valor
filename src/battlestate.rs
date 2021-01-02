@@ -1,16 +1,6 @@
-use std::cmp::{Ord, Ordering};
-
-use super::hero::Hero;
 use super::creature::Creature;
 use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use super::command::{Command, CommandType};
 use super::GridPos;
-
-#[derive(PartialEq)]
-pub enum StrikeType {
-    Melee,
-    Ranged
-}
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Side {
@@ -26,40 +16,15 @@ impl Side {
     }
 }
 
-pub struct Army {
-    hero: Option<Hero>,
-    starting_army: [Option<(Creature, u32)>; 7],
-    battle_army: Vec<CreatureStack>
-}
-
-impl Army {
-    pub fn new(
-        hero: Option<Hero>,
-        starting_army: [Option<(Creature, u32)>; 7],
-        battle_army: Vec<CreatureStack>
-    ) -> Self {
-        Self {
-            hero,
-            starting_army,
-            battle_army
-        }
-    }
-
-    pub fn hero(&self) -> Option<&Hero> {
-        self.hero.as_ref()
-    }
-}
-
 type PhaseIterator = std::vec::IntoIter<CTS>;
 
 pub struct BattleState {
-    sides: [Army; 2],
-    phase_iter: PhaseIterator,
-    current_phase: CTS,
-    last_turn_side: Side,
-    current_side: Side,
-    current_stack: usize,
-    is_moraled: bool
+    pub sides: [Vec<CreatureStack>; 2],
+    pub phase_iter: PhaseIterator,
+    pub current_phase: CTS,
+    pub last_turn_side: Side,
+    pub current_side: Side,
+    pub current_stack: usize
 }
 
 fn initial_placement(units_count: u8) -> Vec<u16> {
@@ -97,16 +62,11 @@ impl BattleState {
         vec![CTS::HasTurn, CTS::Waited].into_iter()
     }
     pub fn new(
-        attacker_hero: Option<Hero>,
         attacker_units: [Option<(Creature, u32)>; 7],
-        defender_hero: Option<Hero>,
         defender_units: [Option<(Creature, u32)>; 7],
     ) -> Self {
-        let attacker_stacks = form_units(&attacker_units, Side::Attacker);
-        let defender_stacks = form_units(&defender_units, Side::Defender);
-
-        let attacker_army = Army::new(attacker_hero, attacker_units, attacker_stacks);
-        let defender_army = Army::new(defender_hero, defender_units, defender_stacks);
+        let attacker_army = form_units(&attacker_units, Side::Attacker);
+        let defender_army = form_units(&defender_units, Side::Defender);
 
         let mut state = Self {
             sides: [attacker_army, defender_army],
@@ -114,41 +74,36 @@ impl BattleState {
             current_phase: CTS::HasTurn,
             last_turn_side: Side::Defender,
             current_side: Side::Attacker,
-            current_stack: 0,
-            is_moraled: false
+            current_stack: 0
         };
 
         state.update_current_stack();
         state
     }
 
-    pub fn get_army(&self, side: Side) -> &Army {
+    pub fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
         &self.sides[side as usize]
     }
-
-    pub fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
-        &self.sides[side as usize].battle_army
-    }
-
-    pub fn current_side(&self) -> Side {
-        self.current_side
+    pub fn battle_army_mut(&mut self, side: Side) -> &mut Vec<CreatureStack> {
+        &mut self.sides[side as usize]
     }
 
     pub fn get_stack(&self, side: Side, index: u8) -> Option<&CreatureStack> {
-        self.sides[side as usize].battle_army.get(index as usize)
+        self.sides[side as usize].get(index as usize)
     }
     pub fn get_stack_mut(&mut self, side: Side, index: u8) -> Option<&mut CreatureStack> {
-        self.sides[side as usize].battle_army.get_mut(index as usize)
+        self.sides[side as usize].get_mut(index as usize)
     }
 
     pub fn current_stack_id(&self) -> (Side, u8) {
         (self.current_side, self.current_stack as u8)
     }
     pub fn get_current_stack(&self) -> &CreatureStack {
-        &self.sides[self.current_side as usize].battle_army[self.current_stack]
+        &self.battle_army(self.current_side)[self.current_stack]
     }
     pub fn get_current_stack_mut(&mut self) -> &mut CreatureStack {
-        &mut self.sides[self.current_side as usize].battle_army[self.current_stack]
+        let stack_id = self.current_stack;
+        &mut self.battle_army_mut(self.current_side)[stack_id]
     }
 
     pub fn update_current_stack(&mut self) {
@@ -178,7 +133,6 @@ impl BattleState {
         self.phase_iter = Self::new_phase_iter();
         self.sides
             .iter_mut()
-            .map(|side| &mut side.battle_army)
             .flatten()
             .for_each(|creature| creature.turn_state = CTS::HasTurn);
         self.last_turn_side = self.last_turn_side.other();
@@ -197,7 +151,7 @@ impl BattleState {
             self.battle_army(side).iter().enumerate()
         ))
         .map(|(side, (index, stack))| (side, index, stack)) // чтоб не утонуть в скобках
-        .filter(|(_side, index, stack)| stack.turn_state == self.current_phase)
+        .filter(|(_side, _index, stack)| stack.turn_state == self.current_phase)
         .fold(None, |acc, current| {
             // Без max_first тяжко
             fn key((_, _, stack): (Side, usize, &CreatureStack)) -> u8 {
@@ -209,6 +163,6 @@ impl BattleState {
                 _ => acc
             }
         })
-        .map(|(side, index, stack)| (side, index))
+        .map(|(side, index, _stack)| (side, index))
     }
 }

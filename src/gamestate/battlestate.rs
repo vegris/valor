@@ -12,7 +12,7 @@ use sdl2::rect::Rect;
 use itertools::iproduct;
 
 use crate::creature::Creature;
-use crate::enumerations::{Battlefield, Misc};
+use crate::Battlefield;
 use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
 
@@ -59,8 +59,8 @@ impl<'a> BattleState<'a> {
     pub fn new(rr: &mut ResourceRegistry, tc: &'a TextureCreator<WindowContext>, battlefield: Battlefield) -> Result<Self, AnyError> {
         let mut battlestate = Self {
             battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
-            grid_cell: rr.load_pcx_with_transparency(Misc::CellGrid.filename())?.as_texture(&tc)?,
-            grid_cell_shadow: rr.load_pcx_with_transparency(Misc::CellGridShadow.filename())?.as_texture(&tc)?,
+            grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
+            grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
 
             cursors: Cursors::load(rr),
 
@@ -95,7 +95,7 @@ impl<'a> BattleState<'a> {
         
         // Юнит под курсором
         let is_unit_selected = self.current_hover.and_then(|grid| {
-            self.creatures.iter().find(|unit| unit.grid_pos() == grid)
+            self.creatures.iter().find(|unit| unit.grid_pos == grid)
         }).is_some();
 
         // Выбираем тип курсора
@@ -138,11 +138,11 @@ impl<'a> BattleState<'a> {
             match type_ {
                 CommandType::Move => {
                     // Команда "Двигаться"
-                    let start_pos = self.creatures[0].grid_pos();
+                    let start_pos = self.creatures[0].grid_pos;
                     if let Some(path) = start_pos.get_shortest_path_to(destination) {
                         choreographer::animate_unit_move(self, rr, 0, &path);
                         let last_grid = path.last().unwrap();
-                        self.creatures[0].set_grid_pos(*last_grid);
+                        self.creatures[0].grid_pos = *last_grid;
                     }
                 },
                 CommandType::Attack => {

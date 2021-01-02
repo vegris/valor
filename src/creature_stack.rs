@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
-use super::creature::{Creature, CreatureAbility, CreatureStats};
-use super::skills::{Spell, AppliedSpell, SkillLevel};
+use super::creature::{Creature, CreatureStats};
 use super::gridpos::GridPos;
 use super::battlestate::Side;
 
@@ -15,15 +14,13 @@ pub enum CreatureTurnState {
 
 #[derive(Debug)]
 pub struct CreatureStack {
-    creature: Creature,
-    count: u32,
+    pub creature: Creature,
+    pub count: u32,
 
-    current_health: u16,
+    pub current_health: u16,
     pub current_ammo: u8,
 
-    position: GridPos,
-
-    applied_spells: Vec<AppliedSpell>,
+    pub position: GridPos,
 
     pub turn_state: CreatureTurnState,
     pub defending: bool
@@ -37,7 +34,6 @@ impl CreatureStack {
             current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
             position,
-            applied_spells: Vec::new(),
             turn_state: CreatureTurnState::HasTurn,
             defending: false
         }
@@ -46,43 +42,12 @@ impl CreatureStack {
         self.creature.base_stats()
     }
 
-    pub fn creature(&self) -> Creature {
-        self.creature
-    }
-    pub fn count(&self) -> u32 {
-        self.count
-    }
-    pub fn position(&self) -> GridPos {
-        self.position
-    }
-    pub fn set_position(&mut self, pos: GridPos) {
-        self.position = pos;
-    }
     pub fn speed(&self) -> u8 {
-        self.creature.base_stats().speed
-    }
-    pub fn applied_effects(&self) -> &Vec<AppliedSpell> {
-        &self.applied_spells
+        self.base_stats().speed
     }
 
     pub fn is_alive(&self) -> bool {
         self.count == 0
-    }
-
-    pub fn get_effect(&self, spell: Spell) -> Option<&AppliedSpell> {
-        self.applied_spells.iter().find(|&x| x.spell() == spell)
-    }
-
-    pub fn apply_effect(&mut self, spell: Spell, level: SkillLevel) {
-        self.applied_spells.push(AppliedSpell::new(spell, level));
-    }
-
-    pub fn get_ability(&self, ability: CreatureAbility) -> Option<CreatureAbility> {
-        self.creature.abilities().iter().find(|&&a| a == ability).copied()
-    }
-
-    pub fn has_ability(&self, ability: CreatureAbility) -> bool {
-        self.get_ability(ability).is_some()
     }
 
     pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {

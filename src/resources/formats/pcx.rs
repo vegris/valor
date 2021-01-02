@@ -53,19 +53,17 @@ impl PcxImage {
         Ok(Self(image))
     }
 
-    pub fn apply_transparency(&mut self) -> Result<(), String> {
-        self.0
-            .as_mut()
-            .right()
-            .ok_or("Transparency can only be applied to PCX with palette".to_string())
-            .and_then(|Index8PCX {surface, colors}| {
-                colors[0] = Color::RGBA(0, 0, 0, 0);
-                colors[1] = Color::RGBA(0, 0, 0, 32);
-                colors[2] = Color::RGBA(0, 0, 0, 64);
-                colors[3] = Color::RGBA(0, 0, 0, 128);
-                colors[4] = Color::RGBA(0, 0, 0, 128);
-                surface.set_color_key(true, Color::RGB(0, 0, 0))
-            })
+    pub fn apply_transparency(&mut self) {
+        if let Right(Index8PCX {surface, colors}) = &mut self.0 {
+            colors[0] = Color::RGBA(0, 0, 0, 0);
+            colors[1] = Color::RGBA(0, 0, 0, 32);
+            colors[2] = Color::RGBA(0, 0, 0, 64);
+            colors[3] = Color::RGBA(0, 0, 0, 128);
+            colors[4] = Color::RGBA(0, 0, 0, 128);
+            surface.set_color_key(true, Color::RGB(0, 0, 0)).unwrap()
+        } else {
+            panic!("Transparency can only be applied to PCX with palette")
+        }
     }
 
     pub fn to_surface(self) -> Result<Surface<'static>, AnyError> {

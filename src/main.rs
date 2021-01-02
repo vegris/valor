@@ -1,53 +1,19 @@
-#![allow(unused)]
-
-#[macro_use]
-extern crate num_derive;
+// #![allow(unused)]
 
 mod creature;
 mod creature_stack;
-mod skills;
 mod battlestate;
 mod command;
-mod hero;
 mod functions;
 mod gridpos;
 
-use hero::{Hero, HeroAbility, HeroSpecialty};
-use skills::SkillLevel;
-use battlestate::{Army, Side, BattleState};
+use battlestate::{Side, BattleState};
 use creature::Creature;
-use creature_stack::CreatureTurnState;
 use command::{Command, CommandType};
 use gridpos::GridPos;
 
 
 fn main_server() {
-    let attacker_hero = Hero {
-        level: 5,
-
-        attack: 1,
-        defence: 1,
-        spell_power: 1,
-        knowledge: 1,
-        specialty: HeroSpecialty::HeroAbility(HeroAbility::Offense),
-
-        skills: vec![(HeroAbility::Offense, SkillLevel::Basic)],
-        artifacts: vec![]
-    };
-
-    let defender_hero = Hero {
-        level: 5,
-
-        attack: 1,
-        defence: 10,
-        spell_power: 1,
-        knowledge: 1,
-
-        specialty: HeroSpecialty::HeroAbility(HeroAbility::Armorer),
-        skills: vec![(HeroAbility::Armorer, SkillLevel::Expert)],
-        artifacts: vec![]
-    };
-
     let attacker_units = [
             Some((Creature::Angel, 8)),
             Some((Creature::Angel, 10)),
@@ -68,10 +34,7 @@ fn main_server() {
             None
         ];
 
-    let mut battlestate = BattleState::new(
-        Some(attacker_hero), attacker_units,
-        Some(defender_hero), defender_units
-    );
+    let mut battlestate = BattleState::new(attacker_units, defender_units);
 
     let commands = vec![
         Command::new(Side::Attacker, CommandType::Defend),
@@ -98,8 +61,8 @@ extern crate sdl2;
 mod resources;
 use resources::ResourceRegistry;
 
-mod enumerations;
-use enumerations::Battlefield;
+mod battlefields;
+use battlefields::Battlefield;
 
 mod gamestate;
 use gamestate::BattleState as BattleStateGraphics;
