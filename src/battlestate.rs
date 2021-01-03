@@ -1,12 +1,32 @@
+use std::time::Duration;
+
+extern crate sdl2;
+use sdl2::render::{WindowCanvas, TextureCreator, Texture};
+use sdl2::video::WindowContext;
+use sdl2::rect::Rect;
+use sdl2::EventPump;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+
+extern crate itertools;
+use itertools::iproduct;
+
 use super::creature::Creature;
 use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::GridPos;
+use crate::Battlefield;
+use crate::resources::ResourceRegistry;
+use crate::util::AnyError;
+use crate::graphics::cursors::{Cursors, Cursor};
+use crate::graphics::animations::CreatureAnimation;
+use crate::graphics::creature::AnimationType;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Side {
     Attacker,
     Defender
 }
+
 impl Side {
     pub fn other(self) -> Self {
         match self {
@@ -18,13 +38,27 @@ impl Side {
 
 type PhaseIterator = std::vec::IntoIter<CTS>;
 
-pub struct BattleState {
+pub struct BattleState<'a> {
+    // Логика
+
     pub sides: [Vec<CreatureStack>; 2],
     pub phase_iter: PhaseIterator,
     pub current_phase: CTS,
     pub last_turn_side: Side,
     pub current_side: Side,
-    pub current_stack: usize
+    pub current_stack: usize,
+
+    // Графика
+
+    // Постоянно используемые текстуры,
+    // которые нет смысла прокачивать сквозь кэш
+    battlefield: Texture<'a>,
+    grid_cell: Texture<'a>,
+    grid_cell_shadow: Texture<'a>,
+
+    cursors: Cursors,
+
+    current_hover: Option<GridPos>,
 }
 
 fn initial_placement(units_count: u8) -> Vec<u16> {
@@ -57,28 +91,46 @@ fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> Vec<C
         .collect()
 }
 
-impl BattleState {
-    fn new_phase_iter() -> PhaseIterator {
-        vec![CTS::HasTurn, CTS::Waited].into_iter()
-    }
+fn new_phase_iter() -> PhaseIterator {
+    vec![CTS::HasTurn, CTS::Waited].into_iter()
+}
+
+impl<'a> BattleState<'a> {
     pub fn new(
         attacker_units: [Option<(Creature, u32)>; 7],
         defender_units: [Option<(Creature, u32)>; 7],
-    ) -> Self {
+        rr: &mut ResourceRegistry,
+        tc: &'a TextureCreator<WindowContext>,
+        battlefield: Battlefield
+    ) -> Result<Self, AnyError> {
         let attacker_army = form_units(&attacker_units, Side::Attacker);
         let defender_army = form_units(&defender_units, Side::Defender);
 
         let mut state = Self {
             sides: [attacker_army, defender_army],
-            phase_iter: Self::new_phase_iter(),
+            phase_iter: new_phase_iter(),
             current_phase: CTS::HasTurn,
             last_turn_side: Side::Defender,
             current_side: Side::Attacker,
-            current_stack: 0
+            current_stack: 0,
+
+            battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
+            grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
+            grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
+
+            cursors: Cursors::load(rr),
+
+            current_hover: None,
         };
 
+        for side in &mut state.sides {
+            for unit in side {
+                unit.push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
+            }
+        }
+
         state.update_current_stack();
-        state
+        Ok(state)
     }
 
     pub fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
@@ -130,7 +182,7 @@ impl BattleState {
     }
 
     pub fn new_turn(&mut self) {
-        self.phase_iter = Self::new_phase_iter();
+        self.phase_iter = new_phase_iter();
         self.sides
             .iter_mut()
             .flatten()
@@ -164,5 +216,84 @@ impl BattleState {
             }
         })
         .map(|(side, index, _stack)| (side, index))
+    }
+
+    // Графика
+
+    pub fn process_input(&mut self, event_pump: &mut EventPump) {
+        // Опрашиваем устройства
+        event_pump.pump_events();
+
+        // Получаем позицию мыши
+        let mouse_state = event_pump.mouse_state();
+        let point = (mouse_state.x(), mouse_state.y());
+
+        // Текущая клетка под курсором
+        self.current_hover = 
+            iproduct!(GridPos::X_RANGE, GridPos::Y_RANGE)
+                .map(|(x, y)| GridPos::new(x, y))
+                .find(|pos| pos.contains_point(point));
+        
+        // Юнит под курсором
+        let is_unit_selected = self.current_hover.and_then(|grid| {
+            self.sides.iter().flatten().find(|unit| unit.position == grid)
+        }).is_some();
+
+        // Выбираем тип курсора
+        let cursor =
+            if is_unit_selected {
+                Cursor::AttackLeft
+            } else if self.current_hover.is_some() {
+                Cursor::Run
+            } else {
+                Cursor::Pointer
+            };
+        self.cursors.set(cursor);
+
+        // Ловим конкретные события
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
+                    std::process::exit(0)
+                },
+                _ => {}
+            }
+        }
+    }
+
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        for side in &mut self.sides {
+            for unit in side {
+                unit.update(dt);
+            }
+        }
+    }
+
+    pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
+        // Рисуем поле боя
+        canvas.copy(&self.battlefield, None, Rect::new(0, 0, 800, 556))?;
+
+        // Рисуем клетки на поле
+        for x in GridPos::X_RANGE {
+            for y in GridPos::Y_RANGE {
+                let draw_rect = GridPos::new(x, y).draw_rect();
+                canvas.copy(&self.grid_cell, None, draw_rect)?;
+            }
+        }
+
+        // Выделяем клетку под курсором
+        if let Some(pos) = &self.current_hover {
+            canvas.copy(&self.grid_cell_shadow, None, pos.draw_rect())?;
+        }
+
+        // Рисуем существ
+        for side in &self.sides {
+            for unit in side {
+                unit.draw(canvas, rr, tc)?;
+            }
+        }
+
+        Ok(())
     }
 }

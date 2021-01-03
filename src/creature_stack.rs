@@ -78,6 +78,7 @@ impl CreatureStack {
             position,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
+
             draw_pos: position.draw_center(),
             animation_type: AnimationType::Standing,
             animation_progress: 0.0,
