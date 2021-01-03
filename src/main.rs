@@ -1,4 +1,4 @@
-// #![allow(unused)]
+#![allow(unused)]
 use std::time::Instant;
 
 mod creature;
@@ -9,7 +9,6 @@ mod functions;
 mod gridpos;
 mod resources;
 mod battlefields;
-mod gamestate;
 mod util;
 mod graphics;
 

@@ -18,8 +18,6 @@ use crate::Battlefield;
 use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
 use crate::graphics::cursors::{Cursors, Cursor};
-use crate::graphics::animations::CreatureAnimation;
-use crate::graphics::creature::AnimationType;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Side {
@@ -122,12 +120,6 @@ impl<'a> BattleState<'a> {
 
             current_hover: None,
         };
-
-        for side in &mut state.sides {
-            for unit in side {
-                unit.push_animation(CreatureAnimation::new_looping(AnimationType::Standing));
-            }
-        }
 
         state.update_current_stack();
         Ok(state)

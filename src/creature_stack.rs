@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::collections::VecDeque;
 use std::time::Duration;
 
 extern crate sdl2;
@@ -9,8 +8,7 @@ use sdl2::rect::Point;
 
 use crate::util::AnyError;
 use crate::resources::ResourceRegistry;
-use crate::graphics::creature::{AnimationType, CreatureSprite};
-use crate::graphics::animations::CreatureAnimation;
+use crate::graphics::creature::{CreatureSprite, AnimationType};
 
 use super::creature::{Creature, CreatureStats};
 use super::gridpos::GridPos;
@@ -40,7 +38,6 @@ impl Direction {
 }
 
 pub struct CreatureStack {
-    // Логика
     pub creature: Creature,
     pub count: u32,
 
@@ -51,14 +48,6 @@ pub struct CreatureStack {
 
     pub turn_state: CreatureTurnState,
     pub defending: bool,
-
-    // Графика
-    pub draw_pos: Point,
-    pub animation_type: AnimationType,
-    pub animation_progress: f32,
-
-    pub current_animation: Option<CreatureAnimation>,
-    pub animation_queue: VecDeque<CreatureAnimation>,
 
     pub direction: Direction
 }
@@ -78,19 +67,9 @@ impl CreatureStack {
             position,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
-
-            draw_pos: position.draw_center(),
-            animation_type: AnimationType::Standing,
-            animation_progress: 0.0,
-
-            current_animation: None,
-            animation_queue: VecDeque::new(),
-
             direction
         }
     }
-
-    // Логика
 
     pub fn base_stats(&self) -> CreatureStats {
         self.creature.base_stats()
@@ -150,69 +129,19 @@ impl CreatureStack {
 
     // Графика
 
-    pub fn update(&mut self, dt: Duration) {
-        if let Some(animation) = &mut self.current_animation {
-            if let Some(next_animation) = self.animation_queue.front_mut() {
-                // Специальный случай для looping анимаций
-                // Если есть чем заменить - меняем
-                // Если следующая в очереди анимация ещё на delay,
-                // то обновляем delay
-                if animation.is_looping() {
-                    if next_animation.is_delayed() {
-                        next_animation.update(dt);
-                    } else {
-                        self.take_new_animation();
-                    }
-                }
-            }
-        }
-
-        if let Some(animation) = &mut self.current_animation {
-            animation.update(dt);
-            if let Some(progress) = animation.progress() {
-                self.animation_progress = progress;
-                if let Some((start_pos, end_pos)) = animation.tween_data() {
-                    let diff = end_pos - start_pos;
-                    let (diff_x, diff_y) = (diff.x(), diff.y());
-                    let offset_x = (diff_x as f32 * progress) as i32;
-                    let offset_y = (diff_y as f32 * progress) as i32;
-                    self.draw_pos = start_pos.offset(offset_x, offset_y);
-                }
-            }
-            if animation.is_finished() {
-                animation.at_end().map(|function| function(self));
-                self.current_animation = None;
-            }
-        } else {
-            self.take_new_animation();
-        }
-    }
-
-    fn take_new_animation(&mut self) {
-        self.current_animation = self.animation_queue.pop_front();
-        if let Some(animation) = &self.current_animation {
-           self.animation_type = animation.animation_type();
-           self.animation_progress = 0.0;
-        }
-    }
+    pub fn update(&mut self, _dt: Duration) {}
 
     fn get_sprite<'a>(&self, rr: &'a mut ResourceRegistry) -> &'a CreatureSprite {
         let spritesheet = rr.get_creature_container(self.creature);
-        let animation_block = spritesheet.get_animation_block(self.animation_type);
-        // Номер спрайта в анимации
-        let sprite_num = (animation_block.len() as f32 * self.animation_progress).floor() as usize;
-        // Индекс спрайта в массиве всех спрайтов
-        let sprite_index = animation_block[sprite_num];
+        let animation_block = spritesheet.get_animation_block(AnimationType::Standing);
+        let sprite_index = animation_block[0];
         spritesheet.get_sprite(sprite_index)
     }
 
     pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
         let sprite = self.get_sprite(rr);
 
-        // canvas.set_draw_color(Color::BLUE);
-        // canvas.fill_rect(Rect::from_center(self.current_pos, 10, 10))?;
-
-        let draw_rect = sprite.draw_rect(self.draw_pos, self.direction);
+        let draw_rect = sprite.draw_rect(self.position.draw_center(), self.direction);
         let texture = sprite.surface().as_texture(tc)?;
 
         match self.direction {
@@ -222,30 +151,9 @@ impl CreatureStack {
                 canvas.copy(&texture, None, draw_rect)?
         };
 
-        // canvas.set_draw_color(Color::RED);
-        // canvas.draw_rect(draw_rect)?;
-        // canvas.set_draw_color(Color::BLACK);
-
         Ok(())
     }
 
-    pub fn push_animation(&mut self, animation: CreatureAnimation) {
-        self.animation_queue.push_back(animation);
-    }
-
-    pub fn get_animations_duration(&self) -> Duration {
-        let queue_duration =
-            self.animation_queue
-                .iter()
-                .map(|animation| animation.total_duration())
-                .sum();
-       
-        self.current_animation
-            .as_ref()
-            .map_or(queue_duration, |animation| {
-                queue_duration + animation.total_duration()
-            })
-    }
 }
 
 use std::fmt;

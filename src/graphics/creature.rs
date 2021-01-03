@@ -1,17 +1,20 @@
 use std::mem::MaybeUninit;
 use std::collections::HashMap;
-use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 
+extern crate strum_macros;
+use strum::{IntoEnumIterator, EnumCount};
+use strum_macros::{EnumIter, EnumCount as EnumCountMacro};
+
 use crate::resources::formats::{DefSprite, DefContainer};
 use crate::creature_stack::Direction;
 
 // Номера повторяют номера в реальном Def файле
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, EnumCountMacro, EnumIter)]
 #[allow(unused, non_camel_case_types)]
 pub enum AnimationType {
     Moving = 0,
@@ -38,25 +41,6 @@ pub enum AnimationType {
     StartMoving = 20,
     StopMoving = 21
 }
-
-impl AnimationType {
-    const BLOCKS_NUM: usize = 22;
-
-    const BASE_DURATION: Duration = Duration::from_millis(200);
-
-    pub fn duration(self) -> Duration {
-        match self {
-            Self::Moving => Self::BASE_DURATION * 3,
-            Self::Standing => Self::BASE_DURATION * 4,
-            Self::AttackStraight => Self::BASE_DURATION * 4,
-            Self::TurnLeft | Self::TurnRight => Self::BASE_DURATION / 2,
-            Self::StartMoving | Self::StopMoving => Self::BASE_DURATION / 2,
-            Self::GettingHit => Self::BASE_DURATION * 2,
-            _ => Self::BASE_DURATION
-        }
-    }
-}
-
 
 pub struct CreatureSprite {
     width: u32,
@@ -115,7 +99,7 @@ type AnimationBlock = Box<[usize]>;
 pub struct CreatureSpritesheet {
     colors: Box<[Color]>,
     sprites: Box<[CreatureSprite]>,
-    blocks: [Option<AnimationBlock>; AnimationType::BLOCKS_NUM]
+    blocks: [Option<AnimationBlock>; AnimationType::COUNT]
 }
 
 impl CreatureSpritesheet {
@@ -144,18 +128,18 @@ impl CreatureSpritesheet {
         sprites.iter_mut().for_each(|sprite| sprite.apply_palette(&palette));
         
         // Блоки анимаций - последовательности индексов спрайтов 
-        let mut blocks: [MaybeUninit<Option<AnimationBlock>>; AnimationType::BLOCKS_NUM] = unsafe {
+        let mut blocks: [MaybeUninit<Option<AnimationBlock>>; AnimationType::COUNT] = unsafe {
             MaybeUninit::uninit().assume_init()
         };
         for elem in &mut blocks[..] {
             *elem = MaybeUninit::new(None);
         }
-        let mut blocks = unsafe { std::mem::transmute::<_, [Option<AnimationBlock>; AnimationType::BLOCKS_NUM]>(blocks) };
+        let mut blocks = unsafe { std::mem::transmute::<_, [Option<AnimationBlock>; AnimationType::COUNT]>(blocks) };
 
-        for animation_block_index in 0..AnimationType::BLOCKS_NUM {
-            if let Some(block) = blocks2names.get(&(animation_block_index as u32)) {
+        for (block_index, _) in AnimationType::iter().enumerate() {
+            if let Some(block) = blocks2names.get(&(block_index as u32)) {
                 let block = block.iter().map(|sprite_name| names2indexes[sprite_name]).collect::<AnimationBlock>();        
-                blocks[animation_block_index] = Some(block);
+                blocks[block_index] = Some(block);
             }
         }
 
