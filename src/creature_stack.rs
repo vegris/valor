@@ -131,15 +131,18 @@ impl CreatureStack {
 
     pub fn update(&mut self, _dt: Duration) {}
 
-    fn get_sprite<'a>(&self, rr: &'a mut ResourceRegistry) -> &'a CreatureSprite {
-        let spritesheet = rr.get_creature_container(self.creature);
+    pub fn draw(
+        &self,
+        canvas: &mut WindowCanvas,
+        rr: &mut ResourceRegistry,
+        tc: &TextureCreator<WindowContext>,
+        is_selected: bool
+    ) -> Result<(), AnyError> {
+        let mut spritesheet = rr.get_creature_container(self.creature);
         let animation_block = spritesheet.get_animation_block(AnimationType::Standing);
         let sprite_index = animation_block[0];
-        spritesheet.get_sprite(sprite_index)
-    }
-
-    pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
-        let sprite = self.get_sprite(rr);
+        let mut sprite = &mut spritesheet.sprites[sprite_index];
+        if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
         let draw_rect = sprite.draw_rect(self.position.draw_center(), self.direction);
         let texture = sprite.surface().as_texture(tc)?;
@@ -150,6 +153,8 @@ impl CreatureStack {
             Direction::Right =>
                 canvas.copy(&texture, None, draw_rect)?
         };
+
+        if is_selected { sprite.turn_selection(&mut spritesheet.colors, false) };
 
         Ok(())
     }

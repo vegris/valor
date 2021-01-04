@@ -1495,7 +1495,7 @@ impl Creature {
         }
     }
 
-    pub fn is_ranged(&self) -> bool {
+    pub const fn is_ranged(&self) -> bool {
         self.base_stats().ammo_capacity != 0
     }
 

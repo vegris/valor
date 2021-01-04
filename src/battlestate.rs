@@ -249,6 +249,12 @@ impl<'a> BattleState<'a> {
                 Event::KeyDown { keycode: Some(Keycode::Escape), ..} => { 
                     std::process::exit(0)
                 },
+                Event::KeyDown { keycode: Some(Keycode::D), ..} => {
+                    let current_stack = self.get_current_stack_mut();
+                    current_stack.defending = true;
+                    current_stack.turn_state = CTS::NoTurn;
+                    self.update_current_stack();
+                }
                 _ => {}
             }
         }
@@ -282,9 +288,12 @@ impl<'a> BattleState<'a> {
         // Рисуем существ
         for side in &self.sides {
             for unit in side {
-                unit.draw(canvas, rr, tc)?;
+                unit.draw(canvas, rr, tc, false)?;
             }
         }
+
+        let current_stack = self.get_current_stack();
+        current_stack.draw(canvas, rr, tc, true)?;
 
         Ok(())
     }

@@ -63,6 +63,12 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
+    pub fn turn_selection(&mut self, colors: &mut Box<[Color]>, on: bool) {
+        colors[5] = if on { Color::YELLOW } else { Color::RGBA(0, 0, 0, 0) };
+        let palette = Palette::with_colors(colors).unwrap();
+        self.apply_palette(&palette);
+    }
+
     pub fn draw_rect(&self, center: Point, direction: Direction) -> Rect {
         const FULL_WIDTH: u32 = 450;
         const FULL_HEIGHT: u32 = 400;
@@ -97,9 +103,9 @@ type AnimationBlock = Box<[usize]>;
 
 
 pub struct CreatureSpritesheet {
-    colors: Box<[Color]>,
-    sprites: Box<[CreatureSprite]>,
-    blocks: [Option<AnimationBlock>; AnimationType::COUNT]
+    pub colors: Box<[Color]>,
+    pub sprites: Box<[CreatureSprite]>,
+    pub blocks: [Option<AnimationBlock>; AnimationType::COUNT]
 }
 
 impl CreatureSpritesheet {
@@ -152,9 +158,5 @@ impl CreatureSpritesheet {
 
     pub fn get_animation_block(&self, animation: AnimationType) -> &AnimationBlock {
         self.blocks[animation as usize].as_ref().unwrap()
-    }
-
-    pub fn get_sprite(&self, index: usize) -> &CreatureSprite {
-        &self.sprites[index]
     }
 }
