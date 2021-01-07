@@ -3,7 +3,8 @@ use std::time::Duration;
 extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::video::WindowContext;
-use sdl2::rect::Rect;
+use sdl2::rect::{Rect, Point};
+use sdl2::pixels::Color;
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -221,10 +222,12 @@ impl<'a> BattleState<'a> {
         let point = (mouse_state.x(), mouse_state.y());
 
         // Текущая клетка под курсором
-        self.current_hover = 
-            iproduct!(GridPos::X_RANGE, GridPos::Y_RANGE)
-                .map(|(x, y)| GridPos::new(x, y))
-                .find(|pos| pos.contains_point(point));
+        // self.current_hover = 
+        //     iproduct!(GridPos::X_RANGE, GridPos::Y_RANGE)
+        //         .map(|(x, y)| GridPos::new(x, y))
+        //         .find(|pos| pos.contains_point(point));
+        let point = Point::from((mouse_state.x(), mouse_state.y()));
+        self.current_hover = GridPos::find_pointer_position(point);
         
         // Юнит под курсором
         let is_unit_selected = self.current_hover.and_then(|grid| {
@@ -232,15 +235,15 @@ impl<'a> BattleState<'a> {
         }).is_some();
 
         // Выбираем тип курсора
-        let cursor =
-            if is_unit_selected {
-                Cursor::AttackLeft
-            } else if self.current_hover.is_some() {
-                Cursor::Run
-            } else {
-                Cursor::Pointer
-            };
-        self.cursors.set(cursor);
+        // let cursor =
+        //     if is_unit_selected {
+        //         Cursor::AttackLeft
+        //     } else if self.current_hover.is_some() {
+        //         Cursor::Run
+        //     } else {
+        //         Cursor::Pointer
+        //     };
+        // self.cursors.set(cursor);
 
         // Ловим конкретные события
         for event in event_pump.poll_iter() {
@@ -279,6 +282,15 @@ impl<'a> BattleState<'a> {
                 canvas.copy(&self.grid_cell, None, draw_rect)?;
             }
         }
+
+        let pos = GridPos::new(6, 6);
+        canvas.set_draw_color(Color::RED);
+        // canvas.draw_rect(pos.draw_rect())?;
+        canvas.draw_point(pos.draw_center())?;
+
+        let top_right = pos.draw_center().offset((GridPos::CELL_WIDTH / 2) as i32, -((GridPos::CELL_VERTICAL / 2) as i32));
+        canvas.draw_point(top_right)?;
+        canvas.set_draw_color(Color::BLACK);
 
         // Выделяем клетку под курсором
         if let Some(pos) = &self.current_hover {
