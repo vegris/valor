@@ -87,8 +87,8 @@ impl CreatureStack {
         if self.creature.is_wide() {
             let second_cell =
                 match side {
-                    Side::Attacker => self.position.relative(0, 1),
-                    Side::Defender => self.position.relative(0, -1)
+                    Side::Attacker => self.position.relative(1, 0),
+                    Side::Defender => self.position.relative(-1, 0)
                 };
             vec![self.position, second_cell]
         } else {
@@ -144,7 +144,7 @@ impl CreatureStack {
         let mut sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let draw_rect = sprite.draw_rect(self.position.draw_center(), self.direction);
+        let draw_rect = sprite.draw_rect(self.position.center(), self.direction);
         let texture = sprite.surface().as_texture(tc)?;
 
         match self.direction {

@@ -6,6 +6,52 @@ use sdl2::rect::{Point, Rect};
 extern crate pathfinding;
 use pathfinding::directed::bfs::bfs;
 
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
+#[derive(Clone, Copy, Debug, EnumIter)]
+pub enum HexagonPart {
+    Left,
+    TopLeft,
+    TopHalfLeft,
+    TopHalfRight,
+    TopRight,
+    Right,
+    BotRight,
+    BotHalfRight,
+    BotHalfLeft,
+    BotLeft
+}
+
+impl HexagonPart {
+    // Конец дуги соответствующей части
+    // если идти по часовой стрелке
+    fn arc_end(&self) -> f32 {
+        use std::f32::consts::*;
+        // [0; 2*PI]
+        // Ноль - середина левой стороны
+        // Идём по часовой стрелке
+        match self {
+            Self::Left         => -(PI - FRAC_2_PI),
+            Self::TopLeft      => -(FRAC_PI_2 + FRAC_2_PI),
+            Self::TopHalfLeft  => -FRAC_PI_2,
+            Self::TopHalfRight => -(FRAC_PI_2 - FRAC_2_PI),
+            Self::TopRight     => -FRAC_2_PI,
+            Self::Right        =>  FRAC_2_PI,
+            Self::BotRight     =>  FRAC_PI_2 - FRAC_2_PI,
+            Self::BotHalfRight =>  FRAC_PI_2,
+            Self::BotHalfLeft  =>  FRAC_PI_2 + FRAC_2_PI,
+            Self::BotLeft      =>  (PI - FRAC_2_PI)
+        }
+    }
+
+    fn find_part_for_angle(angle: f32) -> Self {
+        Self::iter()
+            .find(|hex_part| angle < hex_part.arc_end())
+            .unwrap_or(Self::Left)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct GridPos {
     pub x: u16,
@@ -83,7 +129,7 @@ impl GridPos {
          .collect()
     }
 
-    pub fn draw_center(&self) -> Point {
+    pub fn center(&self) -> Point {
         let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
 
         // Вычитаем единицу чтобы рисовать клетки "внахлёст"
@@ -100,8 +146,8 @@ impl GridPos {
         Point::from(start_point).offset(x_offset as i32, y_offset as i32)
     }
 
-    pub fn draw_rect(&self) -> Rect {
-        Rect::from_center(self.draw_center(), Self::CELL_WIDTH, Self::CELL_HEIGHT)
+    pub fn bounding_rect(&self) -> Rect {
+        Rect::from_center(self.center(), Self::CELL_WIDTH, Self::CELL_HEIGHT)
     }
 
     pub fn find_pointer_position(point: Point) -> Option<GridPos> {
@@ -143,14 +189,23 @@ impl GridPos {
         }
     }
 
+    pub fn calculate_direction(&self, point: Point) -> HexagonPart {
+        let grid_center = self.center();
+        let point = point - grid_center;
+        let x = point.x() as f32;
+        let y = point.y() as f32;
+        let angle = f32::atan2(y, x);
+        HexagonPart::find_part_for_angle(angle)
+    }
+
     pub fn contains_point(&self, point: Point) -> bool {
-        self.draw_rect().contains_point(point)
+        self.bounding_rect().contains_point(point)
     }
 
     fn contains_point_precise(&self, point: Point) -> bool {
         // http://www.playchilla.com/how-to-check-if-a-point-is-inside-a-hexagon
-        let rel_point = point - self.draw_center();
-        let (abs_x, abs_y) = (rel_point.x().abs(), rel_point.y().abs());
+        let relative_point = point - self.center();
+        let (abs_x, abs_y) = (relative_point.x().abs(), relative_point.y().abs());
         // -2 выбрано подбором
         let v = Self::CELL_VERTICAL as i32 / 2 - 2;
         let h = Self::CELL_HEIGHT as i32 / 2;

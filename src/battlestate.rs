@@ -228,11 +228,21 @@ impl<'a> BattleState<'a> {
         //         .find(|pos| pos.contains_point(point));
         let point = Point::from((mouse_state.x(), mouse_state.y()));
         self.current_hover = GridPos::find_pointer_position(point);
+
+        if let Some(pos) = self.current_hover {
+           pos.calculate_direction(point);
+        }
         
         // Юнит под курсором
         let is_unit_selected = self.current_hover.and_then(|grid| {
-            self.sides.iter().flatten().find(|unit| unit.position == grid)
+            self.sides.iter()
+                .zip(vec![Side::Attacker, Side::Defender].into_iter())
+                .map(|(units, side)| units.iter().map(move |unit| (side, unit)))
+                .flatten()
+                .find(|(side, unit)| unit.get_occupied_cells(*side).contains(&grid))
         }).is_some();
+
+        dbg!(is_unit_selected);
 
         // Выбираем тип курсора
         // let cursor =
@@ -278,7 +288,7 @@ impl<'a> BattleState<'a> {
         // Рисуем клетки на поле
         for x in GridPos::X_RANGE {
             for y in GridPos::Y_RANGE {
-                let draw_rect = GridPos::new(x, y).draw_rect();
+                let draw_rect = GridPos::new(x, y).bounding_rect();
                 canvas.copy(&self.grid_cell, None, draw_rect)?;
             }
         }
@@ -286,15 +296,15 @@ impl<'a> BattleState<'a> {
         let pos = GridPos::new(6, 6);
         canvas.set_draw_color(Color::RED);
         // canvas.draw_rect(pos.draw_rect())?;
-        canvas.draw_point(pos.draw_center())?;
+        canvas.draw_point(pos.center())?;
 
-        let top_right = pos.draw_center().offset((GridPos::CELL_WIDTH / 2) as i32, -((GridPos::CELL_VERTICAL / 2) as i32));
+        let top_right = pos.center().offset((GridPos::CELL_WIDTH / 2) as i32, -((GridPos::CELL_VERTICAL / 2) as i32));
         canvas.draw_point(top_right)?;
         canvas.set_draw_color(Color::BLACK);
 
         // Выделяем клетку под курсором
         if let Some(pos) = &self.current_hover {
-            canvas.copy(&self.grid_cell_shadow, None, pos.draw_rect())?;
+            canvas.copy(&self.grid_cell_shadow, None, pos.bounding_rect())?;
         }
 
         // Рисуем существ
