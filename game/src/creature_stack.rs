@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::time::Duration;
+use std::error::Error;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
@@ -8,7 +9,6 @@ use sdl2::rect::Point;
 
 use creature::{Creature, CreatureStats};
 
-use crate::util::AnyError;
 use crate::resources::ResourceRegistry;
 use crate::graphics::creature::{CreatureSprite, AnimationType};
 
@@ -138,7 +138,7 @@ impl CreatureStack {
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
         is_selected: bool
-    ) -> Result<(), AnyError> {
+    ) -> Result<(), Box<dyn Error>> {
         let mut spritesheet = rr.get_creature_container(self.creature);
         let animation_block = spritesheet.get_animation_block(AnimationType::Standing);
         let sprite_index = animation_block[0];

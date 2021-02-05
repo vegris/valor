@@ -1,5 +1,6 @@
 #![allow(unused)]
 use std::time::Instant;
+use std::error::Error;
 
 mod creature_stack;
 mod battlestate;
@@ -8,7 +9,6 @@ mod functions;
 mod gridpos;
 mod resources;
 mod battlefields;
-mod util;
 mod graphics;
 
 extern crate sdl2;
@@ -18,9 +18,8 @@ use creature::Creature;
 use gridpos::GridPos;
 use resources::ResourceRegistry;
 use battlefields::Battlefield;
-use util::AnyError;
 
-fn main() -> Result<(), AnyError> {
+fn main() -> Result<(), Box<dyn Error>> {
     let sdl_context = sdl2::init()?; 
 
     // Инициализация видео подсистемы

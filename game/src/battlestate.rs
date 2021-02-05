@@ -1,4 +1,5 @@
 use std::time::Duration;
+use std::error::Error;
 
 extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
@@ -17,7 +18,6 @@ use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::gridpos::{GridPos, HexagonPart};
 use crate::Battlefield;
 use crate::resources::ResourceRegistry;
-use crate::util::AnyError;
 use crate::graphics::cursors::{Cursors, Cursor};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -101,7 +101,7 @@ impl<'a> BattleState<'a> {
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
         battlefield: Battlefield
-    ) -> Result<Self, AnyError> {
+    ) -> Result<Self, Box<dyn Error>> {
         let attacker_army = form_units(&attacker_units, Side::Attacker);
         let defender_army = form_units(&defender_units, Side::Defender);
 
@@ -305,7 +305,12 @@ impl<'a> BattleState<'a> {
         }
     }
 
-    pub fn draw(&self, canvas: &mut WindowCanvas, rr: &mut ResourceRegistry, tc: &TextureCreator<WindowContext>) -> Result<(), AnyError> {
+    pub fn draw(
+        &self,
+        canvas: &mut WindowCanvas,
+        rr: &mut ResourceRegistry,
+        tc: &TextureCreator<WindowContext>
+    ) -> Result<(), Box<dyn Error>> {
         // Рисуем поле боя
         canvas.copy(&self.battlefield, None, Rect::new(0, 0, 800, 556))?;
 

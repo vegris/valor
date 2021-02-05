@@ -1,11 +1,11 @@
 use std::path::Path;
+use std::error::Error;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
 
 use creature::Creature;
 
-use crate::util::AnyError;
 use crate::graphics::creature::CreatureSpritesheet;
 
 use formats::{LodIndex, PcxImage, DefContainer};
@@ -41,12 +41,12 @@ impl ResourceRegistry {
         }
     }
     
-    pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, AnyError> {
+    pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
         let bytes = self.pcx_archive.read_file(filename);
         let pcx = PcxImage::from_bytes(bytes)?;
         pcx.to_surface()
     }
-    pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, AnyError> {
+    pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
         let bytes = self.pcx_archive.read_file(filename);
         let mut pcx = PcxImage::from_bytes(bytes)?;
         pcx.apply_transparency();
