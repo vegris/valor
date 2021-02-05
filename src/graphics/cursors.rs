@@ -9,7 +9,7 @@ use strum_macros::EnumIter;
 use crate::resources::ResourceRegistry;
 use crate::resources::formats::DefContainer;
 
-#[derive(Clone, Copy, EnumIter)]
+#[derive(Clone, Copy, EnumIter, Debug)]
 #[allow(unused)]
 pub enum Cursor {
     Forbidden = 0,
@@ -38,16 +38,29 @@ impl Cursor {
     const fn pointer_offset(self) -> (i32, i32) {
         match self {
             Self::Forbidden => (12, 12),
-            Self::Run => (8, 8),
-            Self::Fly => (12, 10),
-            Self::Arrow => (12, 10),
-            Self::Hero => (10, 10),
-            Self::Question => (8, 10),
-            Self::Pointer => (1, 2),
-            Self::Catapult => (12, 10),
-            Self::Heal => (12, 10),
+            Self::Run       => (8, 8),
+            Self::Fly       => (12, 10),
+            Self::Arrow     => (12, 10),
+            Self::Hero      => (10, 10),
+            Self::Question  => (8, 10),
+            Self::Pointer   => (1, 2),
+            Self::Catapult  => (12, 10),
+            Self::Heal      => (12, 10),
             Self::Sacrifice => (12, 10),
-            Self::Teleport => (12, 12),
+            Self::Teleport  => (12, 12),
+
+            Self::AttackDownLeft  => (21, 0),
+            Self::AttackLeft      => (31, 6),
+            Self::AttackUpLeft    => (21, 21),
+            Self::AttackUpRight   => (0, 21),
+            Self::AttackDownLeft  => (21, 0),
+            Self::AttackUpLeft    => (21, 21),
+            Self::AttackUpRight   => (0, 21),
+            Self::AttackRight     => (0, 6),
+            Self::AttackDownRight => (0, 0),
+            Self::AttackDown      => (6, 0),
+            Self::AttackUp        => (6, 16),
+
             _ => (0, 0)
         }
     }
@@ -76,6 +89,8 @@ impl Cursors {
                 let mut surface = sprite.surface;
                 surface.set_palette(&palette).unwrap();
                 let (off_x, off_y) = cursor.pointer_offset();
+                dbg!(cursor);
+                dbg!(surface.rect());
                 SDLCursor::from_surface(surface, off_x, off_y).unwrap()
             })
             .collect::<Box<[SDLCursor]>>();

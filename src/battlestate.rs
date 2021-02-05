@@ -14,7 +14,7 @@ use itertools::iproduct;
 
 use super::creature::Creature;
 use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use super::GridPos;
+use super::gridpos::{GridPos, HexagonPart};
 use crate::Battlefield;
 use crate::resources::ResourceRegistry;
 use crate::util::AnyError;
@@ -211,6 +211,21 @@ impl<'a> BattleState<'a> {
         .map(|(side, index, _stack)| (side, index))
     }
 
+    fn units(&self) -> Vec<(Side, &CreatureStack)> {
+        self.sides
+            .iter()
+            .zip(vec![Side::Attacker, Side::Defender].into_iter())
+            .map(|(units, side)| units.iter().map(move |unit| (side, unit)))
+            .flatten()
+            .collect()
+    }
+
+    fn find_selected_unit(&self, pos: GridPos) -> Option<(Side, &CreatureStack)> {
+        self.units()
+            .into_iter()
+            .find(|(side, unit)| unit.get_occupied_cells(*side).contains(&pos))
+    }
+
     // Графика
 
     pub fn process_input(&mut self, event_pump: &mut EventPump) {
@@ -229,20 +244,29 @@ impl<'a> BattleState<'a> {
         let point = Point::from((mouse_state.x(), mouse_state.y()));
         self.current_hover = GridPos::find_pointer_position(point);
 
+        self.cursors.set(Cursor::Pointer);
         if let Some(pos) = self.current_hover {
-           pos.calculate_direction(point);
-        }
-        
-        // Юнит под курсором
-        let is_unit_selected = self.current_hover.and_then(|grid| {
-            self.sides.iter()
-                .zip(vec![Side::Attacker, Side::Defender].into_iter())
-                .map(|(units, side)| units.iter().map(move |unit| (side, unit)))
-                .flatten()
-                .find(|(side, unit)| unit.get_occupied_cells(*side).contains(&grid))
-        }).is_some();
+            if let Some((side, unit)) = self.find_selected_unit(pos) {
+                let hovered_part = pos.calculate_direction(point);
+                dbg!((unit.creature, hovered_part));
 
-        dbg!(is_unit_selected);
+                let cursor =
+                    match hovered_part {
+                        HexagonPart::Left         => Cursor::AttackLeft,
+                        HexagonPart::Right        => Cursor::AttackRight,
+                        HexagonPart::TopHalfLeft  => Cursor::AttackUpLeft,
+                        HexagonPart::TopHalfRight => Cursor::AttackUpRight,
+                        HexagonPart::BotHalfLeft  => Cursor::AttackDownLeft,
+                        HexagonPart::BotHalfRight => Cursor::AttackDownRight,
+                        HexagonPart::BotLeft      => Cursor::AttackDownLeft,
+                        HexagonPart::BotRight     => Cursor::AttackDownRight,
+                        HexagonPart::TopLeft      => Cursor::AttackUpLeft,
+                        HexagonPart::TopRight     => Cursor::AttackUpRight,
+                        _ => Cursor::Pointer
+                    };
+                self.cursors.set(cursor);
+            }
+        }
 
         // Выбираем тип курсора
         // let cursor =
