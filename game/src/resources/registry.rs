@@ -8,7 +8,7 @@ use creature::Creature;
 use crate::util::AnyError;
 use crate::graphics::creature::CreatureSpritesheet;
 
-use super::formats::{LodIndex, PcxImage, DefContainer};
+use formats::{LodIndex, PcxImage, DefContainer};
 use super::caches::CreaturesCache;
 
 

@@ -10,7 +10,7 @@ extern crate strum_macros;
 use strum::{IntoEnumIterator, EnumCount};
 use strum_macros::{EnumIter, EnumCount as EnumCountMacro};
 
-use crate::resources::formats::{DefSprite, DefContainer};
+use formats::{DefSprite, DefContainer};
 use crate::creature_stack::Direction;
 
 // Номера повторяют номера в реальном Def файле

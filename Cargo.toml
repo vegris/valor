@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "game",
-    "creature"
+    "creature",
+    "formats"
 ]

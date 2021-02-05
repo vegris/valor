@@ -6,8 +6,8 @@ extern crate strum_macros;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
+use formats::DefContainer;
 use crate::resources::ResourceRegistry;
-use crate::resources::formats::DefContainer;
 
 #[derive(Clone, Copy, EnumIter, Debug)]
 #[allow(unused)]

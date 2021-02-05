@@ -1,7 +1,6 @@
 use std::convert::TryInto;
 use std::ops::Deref;
-
-use crate::util::AnyError;
+use std::error::Error;
 
 extern crate either;
 use either::{Either, Left, Right};
@@ -19,7 +18,7 @@ struct Index8PCX {
 }
 
 impl PcxImage {
-    pub fn from_bytes(mut bytes: Box<[u8]>) -> Result<Self, AnyError> {
+    pub fn from_bytes(mut bytes: Box<[u8]>) -> Result<Self, Box<dyn Error>> {
         let (header, data) = bytes.split_at_mut(12); 
         let [size, width, height]: [u32; 3] = header
             .chunks_exact(4)
@@ -66,7 +65,7 @@ impl PcxImage {
         }
     }
 
-    pub fn to_surface(self) -> Result<Surface<'static>, AnyError> {
+    pub fn to_surface(self) -> Result<Surface<'static>, Box<dyn Error>> {
         match self.0 {
             Left(RGB24PCX(surface)) => Ok(surface),
             Right(Index8PCX {mut surface, colors}) =>  {
