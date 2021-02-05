@@ -1,7 +1,6 @@
 #![allow(unused)]
 use std::time::Instant;
 
-mod creature;
 mod creature_stack;
 mod battlestate;
 mod command;

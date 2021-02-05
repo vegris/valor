@@ -6,11 +6,12 @@ use sdl2::video::WindowContext;
 use sdl2::render::{WindowCanvas, TextureCreator};
 use sdl2::rect::Point;
 
+use creature::{Creature, CreatureStats};
+
 use crate::util::AnyError;
 use crate::resources::ResourceRegistry;
 use crate::graphics::creature::{CreatureSprite, AnimationType};
 
-use super::creature::{Creature, CreatureStats};
 use super::gridpos::GridPos;
 use super::battlestate::Side;
 

@@ -3,8 +3,9 @@ use std::path::Path;
 extern crate sdl2;
 use sdl2::surface::Surface;
 
+use creature::Creature;
+
 use crate::util::AnyError;
-use crate::creature::Creature;
 use crate::graphics::creature::CreatureSpritesheet;
 
 use super::formats::{LodIndex, PcxImage, DefContainer};

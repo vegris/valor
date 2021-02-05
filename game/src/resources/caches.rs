@@ -1,8 +1,6 @@
 use std::mem::MaybeUninit;
 
-extern crate sdl2;
-
-use crate::creature::Creature;
+use creature::Creature;
 use crate::graphics::creature::CreatureSpritesheet;
 
 type CachedValue = CreatureSpritesheet;

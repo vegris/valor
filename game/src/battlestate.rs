@@ -12,7 +12,7 @@ use sdl2::keyboard::Keycode;
 extern crate itertools;
 use itertools::iproduct;
 
-use super::creature::Creature;
+use creature::Creature;
 use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::gridpos::{GridPos, HexagonPart};
 use crate::Battlefield;
