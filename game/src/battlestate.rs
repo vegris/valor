@@ -237,10 +237,6 @@ impl<'a> BattleState<'a> {
         let point = (mouse_state.x(), mouse_state.y());
 
         // Текущая клетка под курсором
-        // self.current_hover = 
-        //     iproduct!(GridPos::X_RANGE, GridPos::Y_RANGE)
-        //         .map(|(x, y)| GridPos::new(x, y))
-        //         .find(|pos| pos.contains_point(point));
         let point = Point::from((mouse_state.x(), mouse_state.y()));
         self.current_hover = GridPos::find_pointer_position(point);
 

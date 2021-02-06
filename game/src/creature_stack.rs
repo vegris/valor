@@ -140,7 +140,7 @@ impl CreatureStack {
         is_selected: bool
     ) -> Result<(), Box<dyn Error>> {
         let mut spritesheet = rr.get_creature_container(self.creature);
-        let animation_block = spritesheet.get_animation_block(AnimationType::Standing);
+        let animation_block = spritesheet.animation_block(AnimationType::Standing);
         let sprite_index = animation_block[0];
         let mut sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };

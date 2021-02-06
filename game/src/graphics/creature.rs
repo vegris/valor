@@ -152,11 +152,7 @@ impl CreatureSpritesheet {
         Self { colors, sprites, blocks }
     }
 
-    pub fn has_animation_block(&self, animation: AnimationType) -> bool {
-        self.blocks[animation as usize].is_some()
-    }
-
-    pub fn get_animation_block(&self, animation: AnimationType) -> &AnimationBlock {
+    pub fn animation_block(&self, animation: AnimationType) -> &AnimationBlock {
         self.blocks[animation as usize].as_ref().unwrap()
     }
 }
