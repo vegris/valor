@@ -9,7 +9,7 @@ use sdl2::rect::Point;
 
 use creature::{Creature, CreatureStats};
 
-use crate::resources::ResourceRegistry;
+use crate::registry::ResourceRegistry;
 use crate::graphics::creature::{CreatureSprite, AnimationType};
 
 use super::gridpos::GridPos;

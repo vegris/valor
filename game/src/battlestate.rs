@@ -17,7 +17,7 @@ use creature::Creature;
 use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::gridpos::{GridPos, HexagonPart};
 use crate::Battlefield;
-use crate::resources::ResourceRegistry;
+use crate::registry::ResourceRegistry;
 use crate::graphics::cursors::{Cursors, Cursor};
 
 #[derive(Clone, Copy, PartialEq, Debug)]

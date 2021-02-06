@@ -7,7 +7,7 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use formats::DefContainer;
-use crate::resources::ResourceRegistry;
+use crate::registry::ResourceRegistry;
 
 #[derive(Clone, Copy, EnumIter, Debug)]
 #[allow(unused)]

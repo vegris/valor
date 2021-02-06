@@ -7,7 +7,7 @@ mod battlestate;
 mod command;
 mod functions;
 mod gridpos;
-mod resources;
+mod registry;
 mod battlefields;
 mod graphics;
 
@@ -16,7 +16,7 @@ extern crate sdl2;
 use battlestate::BattleState;
 use creature::Creature;
 use gridpos::GridPos;
-use resources::ResourceRegistry;
+use registry::ResourceRegistry;
 use battlefields::Battlefield;
 
 fn main() -> Result<(), Box<dyn Error>> {

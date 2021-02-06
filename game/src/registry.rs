@@ -1,5 +1,6 @@
 use std::path::Path;
 use std::error::Error;
+use std::mem::MaybeUninit;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
@@ -9,35 +10,28 @@ use creature::Creature;
 use crate::graphics::creature::CreatureSpritesheet;
 
 use formats::{LodIndex, PcxImage, DefContainer};
-use super::caches::CreaturesCache;
-
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
 
 
-struct Caches {
-    creatures: CreaturesCache
-}
-
 pub struct ResourceRegistry {
     pcx_archive: LodIndex,
     def_archive: LodIndex,
-    caches: Caches
+    cache: CreaturesCache
 }
 
 impl ResourceRegistry {
     pub fn init() -> Self {
         let pcx_archive = LodIndex::open(Path::new(PCX_ARCHIVE));
         let def_archive = LodIndex::open(Path::new(DEF_ARCHIVE));
-        let caches = Caches {
-            creatures: CreaturesCache::new()
-        }; 
+
+        let cache = CreaturesCache::new();
         
         ResourceRegistry {
             pcx_archive,
             def_archive,
-            caches
+            cache
         }
     }
     
@@ -59,11 +53,39 @@ impl ResourceRegistry {
     }
 
     pub fn get_creature_container(&mut self, creature: Creature) -> &mut CreatureSpritesheet {
-        if self.caches.creatures.get(creature).is_none() {
+        if self.cache.get(creature).is_none() {
             let def = self.load_def(creature.spritesheet_filename());
             let spritesheet = CreatureSpritesheet::from_def_container(def);
-            self.caches.creatures.put(creature, spritesheet);
+            self.cache.put(creature, spritesheet);
         }
-        self.caches.creatures.get(creature).unwrap()
+        self.cache.get(creature).unwrap()
+    }
+}
+
+
+type CachedValue = CreatureSpritesheet;
+
+pub struct CreaturesCache {
+    cache: [Option<CachedValue>; Creature::COUNT]
+}
+
+impl CreaturesCache {
+    pub fn new() -> Self {
+        let mut cache: [MaybeUninit<Option<CachedValue>>; Creature::COUNT] = unsafe {
+            MaybeUninit::uninit().assume_init()
+        };
+        for elem in &mut cache[..] {
+            *elem = MaybeUninit::new(None);
+        }
+        let cache = unsafe { std::mem::transmute::<_, [Option<CachedValue>; Creature::COUNT]>(cache) };
+        Self { cache }
+    }
+    
+    pub fn get(&mut self, creature: Creature) -> Option<&mut CachedValue> {
+        self.cache[creature as usize].as_mut()
+    }
+
+    pub fn put(&mut self, creature: Creature, value: CachedValue) {
+        self.cache[creature as usize] = Some(value);
     }
 }
