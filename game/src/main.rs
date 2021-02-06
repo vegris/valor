@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         current_state.process_input(&mut event_pump);
 
         // Обновление игрового состояния
-        current_state.update(current_time - last_time, &mut resource_registry);
+        // current_state.update(current_time - last_time, &mut resource_registry);
         
         // Отображение игрового состояния
         canvas.clear();
