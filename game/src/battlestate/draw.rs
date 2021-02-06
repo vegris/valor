@@ -1,13 +1,10 @@
 use std::error::Error;
 
 extern crate sdl2;
-use sdl2::render::{WindowCanvas, TextureCreator, Texture};
+use sdl2::render::{WindowCanvas, TextureCreator};
 use sdl2::video::WindowContext;
-use sdl2::rect::{Rect, Point};
+use sdl2::rect::Rect;
 use sdl2::pixels::Color;
-use sdl2::EventPump;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
 
 use crate::registry::ResourceRegistry;
 use crate::gridpos::GridPos;

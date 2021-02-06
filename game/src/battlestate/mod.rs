@@ -1,24 +1,16 @@
-use std::time::Duration;
 use std::error::Error;
 
 extern crate sdl2;
-use sdl2::render::{WindowCanvas, TextureCreator, Texture};
+use sdl2::render::{TextureCreator, Texture};
 use sdl2::video::WindowContext;
-use sdl2::rect::{Rect, Point};
-use sdl2::pixels::Color;
-use sdl2::EventPump;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-
-extern crate itertools;
-use itertools::iproduct;
 
 use creature::Creature;
-use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use super::gridpos::{GridPos, HexagonPart};
+
+use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
+use crate::gridpos::GridPos;
 use crate::Battlefield;
 use crate::registry::ResourceRegistry;
-use crate::graphics::cursors::{Cursors, Cursor};
+use crate::graphics::cursors::Cursors;
 
 mod army;
 mod turns;

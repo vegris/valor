@@ -1,5 +1,4 @@
-#![allow(unused)]
-use std::time::Instant;
+#[allow(unused)]
 use std::error::Error;
 
 mod creature_stack;
@@ -15,7 +14,6 @@ extern crate sdl2;
 
 use battlestate::BattleState;
 use creature::Creature;
-use gridpos::GridPos;
 use registry::ResourceRegistry;
 use battlefields::Battlefield;
 
@@ -64,9 +62,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         &mut resource_registry, &texture_creator, Battlefield::GRMT
     )?;
 
-    let mut last_time = Instant::now();
+    // let mut last_time = Instant::now();
     loop {
-        let current_time = Instant::now();
+        // let current_time = Instant::now();
         // Обработка ввода
         current_state.process_input(&mut event_pump);
 
@@ -78,6 +76,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         current_state.draw(&mut canvas, &mut resource_registry, &texture_creator)?;
         canvas.present();
 
-        last_time = current_time;
+        // last_time = current_time;
     }
 }

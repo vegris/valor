@@ -2,7 +2,7 @@ extern crate sdl2;
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::rect::{Rect, Point};
+use sdl2::rect::Point;
 
 use crate::creature_stack::CreatureTurnState as CTS;
 use crate::gridpos::{GridPos, HexagonPart};
@@ -17,7 +17,6 @@ impl<'a> BattleState<'a> {
 
         // Получаем позицию мыши
         let mouse_state = event_pump.mouse_state();
-        let point = (mouse_state.x(), mouse_state.y());
 
         // Текущая клетка под курсором
         let point = Point::from((mouse_state.x(), mouse_state.y()));
@@ -25,7 +24,7 @@ impl<'a> BattleState<'a> {
 
         self.cursors.set(Cursor::Pointer);
         if let Some(pos) = self.current_hover {
-            if let Some((side, unit)) = self.find_selected_unit(pos) {
+            if let Some((_side, unit)) = self.find_selected_unit(pos) {
                 let hovered_part = pos.calculate_direction(point);
                 dbg!((unit.creature, hovered_part));
 
@@ -40,8 +39,7 @@ impl<'a> BattleState<'a> {
                         HexagonPart::BotLeft      => Cursor::AttackDownLeft,
                         HexagonPart::BotRight     => Cursor::AttackDownRight,
                         HexagonPart::TopLeft      => Cursor::AttackUpLeft,
-                        HexagonPart::TopRight     => Cursor::AttackUpRight,
-                        _ => Cursor::Pointer
+                        HexagonPart::TopRight     => Cursor::AttackUpRight
                     };
                 self.cursors.set(cursor);
             }

@@ -21,6 +21,7 @@ impl Command {
     }
 }
 
+#[allow(unused)]
 #[derive(Clone, Copy)]
 pub enum CommandType {
     Move { destination: GridPos },
@@ -30,6 +31,7 @@ pub enum CommandType {
     Shoot { target: u8 }
 }
 
+#[allow(unused)]
 #[derive(Clone, Copy, PartialEq)]
 enum CommandTypeFieldless {
     Move,

@@ -90,10 +90,6 @@ impl GridPos {
         }
     }
 
-    pub fn try_relative(&self, x_modif: i8, y_modif: i8) -> Option<Self> {
-        Self::try_new((self.x as i32 + x_modif as i32) as u16, (self.y as i32 + y_modif as i32) as u16)
-    }
-
     pub fn is_even_row(&self) -> bool {
         self.y % 2 == 0
     }

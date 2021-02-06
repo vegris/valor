@@ -1,16 +1,14 @@
 use std::collections::HashSet;
-use std::time::Duration;
 use std::error::Error;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
 use sdl2::render::{WindowCanvas, TextureCreator};
-use sdl2::rect::Point;
 
 use creature::{Creature, CreatureStats};
 
 use crate::registry::ResourceRegistry;
-use crate::graphics::creature::{CreatureSprite, AnimationType};
+use crate::graphics::creature::AnimationType;
 
 use super::gridpos::GridPos;
 use super::battlestate::Side;
@@ -128,10 +126,6 @@ impl CreatureStack {
         }
     }
 
-    // Графика
-
-    pub fn update(&mut self, _dt: Duration) {}
-
     pub fn draw(
         &self,
         canvas: &mut WindowCanvas,
@@ -139,10 +133,10 @@ impl CreatureStack {
         tc: &TextureCreator<WindowContext>,
         is_selected: bool
     ) -> Result<(), Box<dyn Error>> {
-        let mut spritesheet = rr.get_creature_container(self.creature);
+        let spritesheet = rr.get_creature_container(self.creature);
         let animation_block = spritesheet.animation_block(AnimationType::Standing);
         let sprite_index = animation_block[0];
-        let mut sprite = &mut spritesheet.sprites[sprite_index];
+        let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
         let draw_rect = sprite.draw_rect(self.position.center(), self.direction);
