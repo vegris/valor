@@ -1,6 +1,5 @@
 use std::path::Path;
 use std::error::Error;
-use std::mem::MaybeUninit;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
@@ -65,27 +64,19 @@ impl ResourceRegistry {
 
 type CachedValue = CreatureSpritesheet;
 
-pub struct CreaturesCache {
-    cache: [Option<CachedValue>; Creature::COUNT]
-}
+pub struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
 
 impl CreaturesCache {
     pub fn new() -> Self {
-        let mut cache: [MaybeUninit<Option<CachedValue>>; Creature::COUNT] = unsafe {
-            MaybeUninit::uninit().assume_init()
-        };
-        for elem in &mut cache[..] {
-            *elem = MaybeUninit::new(None);
-        }
-        let cache = unsafe { std::mem::transmute::<_, [Option<CachedValue>; Creature::COUNT]>(cache) };
-        Self { cache }
+        const NONE: Option<CachedValue> = None;
+        Self([NONE; Creature::COUNT])
     }
     
     pub fn get(&mut self, creature: Creature) -> Option<&mut CachedValue> {
-        self.cache[creature as usize].as_mut()
+        self.0[creature as usize].as_mut()
     }
 
     pub fn put(&mut self, creature: Creature, value: CachedValue) {
-        self.cache[creature as usize] = Some(value);
+        self.0[creature as usize] = Some(value);
     }
 }

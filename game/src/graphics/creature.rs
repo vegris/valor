@@ -1,4 +1,3 @@
-use std::mem::MaybeUninit;
 use std::collections::HashMap;
 
 extern crate sdl2;
@@ -134,13 +133,8 @@ impl CreatureSpritesheet {
         sprites.iter_mut().for_each(|sprite| sprite.apply_palette(&palette));
         
         // Блоки анимаций - последовательности индексов спрайтов 
-        let mut blocks: [MaybeUninit<Option<AnimationBlock>>; AnimationType::COUNT] = unsafe {
-            MaybeUninit::uninit().assume_init()
-        };
-        for elem in &mut blocks[..] {
-            *elem = MaybeUninit::new(None);
-        }
-        let mut blocks = unsafe { std::mem::transmute::<_, [Option<AnimationBlock>; AnimationType::COUNT]>(blocks) };
+        const NONE: Option<AnimationBlock> = None;
+        let mut blocks = [NONE; AnimationType::COUNT];
 
         for (block_index, _) in AnimationType::iter().enumerate() {
             if let Some(block) = blocks2names.get(&(block_index as u32)) {
