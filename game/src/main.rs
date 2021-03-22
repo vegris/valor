@@ -66,7 +66,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         // let current_time = Instant::now();
         // Обработка ввода
-        current_state.process_input(&mut event_pump);
+        let frame_input = current_state.gather_input(&mut event_pump);
+        current_state.process_input(frame_input);
 
         // Обновление игрового состояния
         // current_state.update(current_time - last_time, &mut resource_registry);

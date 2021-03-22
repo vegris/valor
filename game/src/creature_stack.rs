@@ -82,6 +82,10 @@ impl CreatureStack {
         self.count == 0
     }
 
+    pub fn can_shoot(&self) -> bool {
+        self.current_ammo != 0
+    }
+
     pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
         if self.creature.is_wide() {
             let second_cell =

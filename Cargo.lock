@@ -51,9 +51,9 @@ checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
 
 [[package]]
 name = "fixedbitset"
-version = "0.2.0"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
+checksum = "45e780567ed7abc415d12fd464571d265eb4a5710ddc97cdb1a31a4c35bb479d"
 
 [[package]]
 name = "flate2"
@@ -82,7 +82,6 @@ version = "0.1.0"
 dependencies = [
  "creature",
  "formats",
- "itertools 0.9.0",
  "pathfinding",
  "sdl2",
  "strum",
@@ -112,15 +111,6 @@ checksum = "55e2e4c765aa53a0424761bf9f41aa7a6ac1efa87238f59560640e27fca028f2"
 dependencies = [
  "autocfg",
  "hashbrown",
-]
-
-[[package]]
-name = "itertools"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f56a2d0bc861f9165be4eb3442afd3c236d8a98afd426f65d92324ae1091a484"
-dependencies = [
- "either",
 ]
 
 [[package]]
@@ -165,13 +155,13 @@ dependencies = [
 
 [[package]]
 name = "pathfinding"
-version = "2.0.4"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86f4d8cc85ca67860ef4324faf86973a39e4e1c78338987eda29a8e6b6ec0c0e"
+checksum = "420892051ecafcc27148ffdca64491dc14f65cfd8b1283df336b04f792c7a6a3"
 dependencies = [
  "fixedbitset",
  "indexmap",
- "itertools 0.8.2",
+ "itertools",
  "num-traits",
 ]
 

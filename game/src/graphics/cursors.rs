@@ -86,8 +86,6 @@ impl Cursors {
                 let mut surface = sprite.surface;
                 surface.set_palette(&palette).unwrap();
                 let (off_x, off_y) = cursor.pointer_offset();
-                dbg!(cursor);
-                dbg!(surface.rect());
                 SDLCursor::from_surface(surface, off_x, off_y).unwrap()
             })
             .collect::<Box<[SDLCursor]>>();

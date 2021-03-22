@@ -5,7 +5,7 @@ use crate::gridpos::GridPos;
 
 use super::Side;
 
-pub fn initial_placement(units_count: u8) -> Vec<u16> {
+pub fn initial_placement(units_count: u8) -> Vec<i32> {
     match units_count {
         1 => vec![6],
         2 => vec![3, 9],

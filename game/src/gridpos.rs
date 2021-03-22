@@ -1,10 +1,8 @@
+use std::collections::HashSet;
 use std::ops::RangeInclusive;
 
 extern crate sdl2;
 use sdl2::rect::{Point, Rect};
-
-extern crate pathfinding;
-use pathfinding::directed::bfs::bfs;
 
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -52,15 +50,15 @@ impl HexagonPart {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct GridPos {
-    pub x: u16,
-    pub y: u16
+    pub x: i32,
+    pub y: i32
 }
 
 impl GridPos {
-    pub const X_RANGE: RangeInclusive<u16> = 1..=15;
-    pub const Y_RANGE: RangeInclusive<u16> = 1..=11;
+    pub const X_RANGE: RangeInclusive<i32> = 1..=15;
+    pub const Y_RANGE: RangeInclusive<i32> = 1..=11;
 
     pub const CELL_WIDTH: u32 = 46;
     pub const CELL_HEIGHT: u32 = 52;
@@ -69,20 +67,20 @@ impl GridPos {
     const ODD_START_POINT: (i32, i32) = (105, 117);
     const EVEN_START_POINT: (i32, i32) = (83, 159);
 
-    fn is_point_valid(x: u16, y: u16) -> bool {
+    fn is_point_valid(x: i32, y: i32) -> bool {
         Self::X_RANGE.contains(&x) && Self::Y_RANGE.contains(&y)
     }
 
-    pub fn new(x: u16, y: u16) -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         assert!(Self::is_point_valid(x, y));
         Self {x, y}
     }
 
     pub fn relative(&self, x_modif: i8, y_modif: i8) -> Self {
-        Self::new((self.x as i32 + x_modif as i32) as u16, (self.y as i32 + y_modif as i32) as u16)
+        Self::new(self.x + x_modif as i32, self.y + y_modif as i32)
     }
 
-    fn try_new(x: u16, y: u16) -> Option<Self> {
+    fn try_new(x: i32, y: i32) -> Option<Self> {
         if Self::is_point_valid(x, y) {
             Some(Self::new(x, y))
         } else {
@@ -94,12 +92,12 @@ impl GridPos {
         self.y % 2 == 0
     }
 
-    pub fn get_shortest_path_to(&self, destination: &GridPos) -> Option<Vec<GridPos>> {
-        bfs(self, |p| p.get_successors(), |p| *p == *destination)
+    pub fn get_shortest_path(self, destination: GridPos) -> Option<Vec<GridPos>> {
+        unimplemented!()
     }
 
-    pub fn get_successors(&self) -> Vec<Self> {
-        let Self { x, y } = *self;
+    pub fn get_successors(self) -> Vec<Self> {
+        let Self { x, y } = self;
 
         // набор соседних клеток отличается в зависимости от чётности ряда
         if self.is_even_row() {
@@ -123,6 +121,29 @@ impl GridPos {
         }.into_iter()
          .filter_map(|(x, y)| Self::try_new(x, y))
          .collect()
+    }
+
+    pub fn get_reachable_cells(self, radius: u8) -> Vec<Self> {
+        let mut reachable_cells = HashSet::new();
+        reachable_cells.insert(self);
+
+        let mut current_cells = vec![self];
+        for _ in 0..radius {
+            let successors = current_cells
+                .iter()
+                .flat_map(|cell| cell.get_successors())
+                .collect::<HashSet<Self>>();
+            
+            let new_cells = successors
+                .difference(&reachable_cells)
+                .copied()
+                .collect::<Vec<Self>>();
+            
+            reachable_cells.extend(new_cells.iter().copied());
+
+            current_cells = new_cells;
+        }
+        reachable_cells.into_iter().collect()
     }
 
     pub fn center(&self) -> Point {
@@ -160,8 +181,8 @@ impl GridPos {
         let odd_y_rect_real = odd_y_rect * 2 - 1;
         let even_y_rect_real = even_y_rect * 2;
 
-        let odd_cell = GridPos::try_new(odd_x_rect as u16, odd_y_rect_real as u16);
-        let even_cell = GridPos::try_new(even_x_rect as u16, even_y_rect_real as u16);
+        let odd_cell = GridPos::try_new(odd_x_rect, odd_y_rect_real);
+        let even_cell = GridPos::try_new(even_x_rect, even_y_rect_real);
 
         match (odd_cell, even_cell) {
             (None, None) => None,
@@ -212,6 +233,11 @@ impl GridPos {
 
 use std::fmt;
 impl fmt::Display for GridPos {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+impl fmt::Debug for GridPos {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }

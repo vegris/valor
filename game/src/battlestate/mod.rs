@@ -124,7 +124,7 @@ impl<'a> BattleState<'a> {
             .collect()
     }
 
-    fn find_selected_unit(&self, pos: GridPos) -> Option<(Side, &CreatureStack)> {
+    fn find_unit_for_cell(&self, pos: GridPos) -> Option<(Side, &CreatureStack)> {
         self.units()
             .into_iter()
             .find(|(side, unit)| unit.get_occupied_cells(*side).contains(&pos))

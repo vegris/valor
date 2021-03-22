@@ -54,16 +54,12 @@ impl CommandType {
                 cur_stack.turn_state == CTS::HasTurn
             },
             Self::Move { destination: dest } => {
-                let maybe_path = cur_stack.position.get_shortest_path_to(dest);
-                let maybe_len = maybe_path.as_ref().map_or(100500, |x| x.len());
-                println!("Shortest path from {} to {} is {:?}", cur_stack.position, dest, maybe_len);
-
-                state.current_side == side &&
-                maybe_path.is_some() &&
-                maybe_path.unwrap().len() <= cur_stack.speed().into()
+                if let Some(path) = cur_stack.position.get_shortest_path(*dest) {
+                    state.current_side == side && path.len() <= cur_stack.speed().into()
+                } else { false }
             },
             Self::Attack { position: pos, target: index } => {
-                let maybe_path = cur_stack.position.get_shortest_path_to(pos);
+                let maybe_path = cur_stack.position.get_shortest_path(*pos);
                 let target_creature = state.get_stack(side.other(), *index);
 
                 state.current_side == side &&
@@ -123,11 +119,11 @@ impl CommandType {
     // TODO: заменить эту каку макросом
     fn fieldless(&self) -> CommandTypeFieldless {
         match self {
-            Self::Attack{ .. }  => CommandTypeFieldless::Attack,
-            Self::Defend { .. } => CommandTypeFieldless::Defend,
-            Self::Move { .. }   => CommandTypeFieldless::Move,
-            Self::Shoot { .. }  => CommandTypeFieldless::Shoot,
-            Self::Wait { .. }   => CommandTypeFieldless::Wait
+            Self::Attack { .. }  => CommandTypeFieldless::Attack,
+            Self::Defend { .. }  => CommandTypeFieldless::Defend,
+            Self::Move   { .. }  => CommandTypeFieldless::Move,
+            Self::Shoot  { .. }  => CommandTypeFieldless::Shoot,
+            Self::Wait   { .. }  => CommandTypeFieldless::Wait
         }
     }
 

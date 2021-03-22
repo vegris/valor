@@ -10,8 +10,7 @@ edition = "2018"
 sdl2 = "0.34.1"
 strum = "0.19.2"
 strum_macros = "0.19"
-itertools = "0.9.0"
-pathfinding = "2.0.4"
+pathfinding = "2.1.1"
 
 creature = { path = "../creature" }
 formats = { path = "../formats" }
