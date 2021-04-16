@@ -6,6 +6,7 @@ mod battlestate;
 mod command;
 mod functions;
 mod gridpos;
+mod pathfinding;
 mod registry;
 mod battlefields;
 mod graphics;

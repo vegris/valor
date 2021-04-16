@@ -45,7 +45,7 @@ impl CommandType {
     fn is_applicable(&self, side: Side, state: &BattleState) -> bool {
         let cur_stack = state.get_current_stack();
 
-        match self {
+        match *self {
             Self::Defend => {
                 state.current_side == side
             },
@@ -54,29 +54,33 @@ impl CommandType {
                 cur_stack.turn_state == CTS::HasTurn
             },
             Self::Move { destination: dest } => {
-                if let Some(path) = cur_stack.position.get_shortest_path(*dest) {
+                // let h = cur_stack.position.shortest_path_heuristic(dest);
+                // dbg!((cur_stack.position, dest));
+                // dbg!(h);
+                // false
+                if let Some(path) = cur_stack.position.get_shortest_path(dest) {
                     state.current_side == side && path.len() <= cur_stack.speed().into()
                 } else { false }
             },
             Self::Attack { position: pos, target: index } => {
-                let maybe_path = cur_stack.position.get_shortest_path(*pos);
-                let target_creature = state.get_stack(side.other(), *index);
+                let maybe_path = cur_stack.position.get_shortest_path(pos);
+                let target_creature = state.get_stack(side.other(), index);
 
                 state.current_side == side &&
                 target_creature.map_or(false, |target| {
-                    target.get_adjacent_cells(side.other()).contains(pos)
+                    target.get_adjacent_cells(side.other()).contains(&pos)
                 }) &&
                 maybe_path.map_or(false, |path| path.len() <= cur_stack.speed() as usize)
             },
             Self::Shoot { target: index } => {
                 state.current_side == side &&
-                state.get_stack(side.other(), *index).is_some() &&
+                state.get_stack(side.other(), index).is_some() &&
                 state.get_current_stack().current_ammo > 0
             }
         }
     }
     fn apply(&self, side: Side, state: &mut BattleState) {
-        match self {
+        match *self {
             Self::Defend => {
                 let cur_stack = state.get_current_stack_mut();
                 println!("{} is defending!", cur_stack);
@@ -90,18 +94,18 @@ impl CommandType {
             Self::Move { destination: dest } => {
                 let cur_stack = state.get_current_stack_mut();
                 println!("{} moves from {} to {}", cur_stack, cur_stack.position, dest);
-                cur_stack.position = *dest;
+                cur_stack.position = dest;
             },
             Self::Attack { position: _pos, target: index } => {
-                let damage = make_strike(state, state.current_stack_id(), (side.other(), *index));
+                let damage = make_strike(state, state.current_stack_id(), (side.other(), index));
                 let att_stack = state.get_current_stack();
-                let def_stack = state.get_stack(side.other(), *index).unwrap();
+                let def_stack = state.get_stack(side.other(), index).unwrap();
                 println!("{} attacks {} for {} damage", att_stack, def_stack, damage);
             },
             Self::Shoot { target: index } => {
-                let damage = make_strike(state, state.current_stack_id(), (side.other(), *index));
+                let damage = make_strike(state, state.current_stack_id(), (side.other(), index));
                 let att_stack = state.get_current_stack();
-                let def_stack = state.get_stack(side.other(), *index).unwrap();
+                let def_stack = state.get_stack(side.other(), index).unwrap();
                 println!("{} shoots {} for {} damage", att_stack, def_stack, damage);
             }
         }

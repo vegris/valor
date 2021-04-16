@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, BinaryHeap};
 use std::ops::RangeInclusive;
 
 extern crate sdl2;
@@ -60,6 +60,8 @@ impl GridPos {
     pub const X_RANGE: RangeInclusive<i32> = 1..=15;
     pub const Y_RANGE: RangeInclusive<i32> = 1..=11;
 
+    pub const TOTAL_CELLS: usize = 15 * 11;
+
     pub const CELL_WIDTH: u32 = 46;
     pub const CELL_HEIGHT: u32 = 52;
     pub const CELL_VERTICAL: u32 = 32;
@@ -80,7 +82,7 @@ impl GridPos {
         Self::new(self.x + x_modif as i32, self.y + y_modif as i32)
     }
 
-    fn try_new(x: i32, y: i32) -> Option<Self> {
+    pub fn try_new(x: i32, y: i32) -> Option<Self> {
         if Self::is_point_valid(x, y) {
             Some(Self::new(x, y))
         } else {
@@ -90,60 +92,6 @@ impl GridPos {
 
     pub fn is_even_row(&self) -> bool {
         self.y % 2 == 0
-    }
-
-    pub fn get_shortest_path(self, destination: GridPos) -> Option<Vec<GridPos>> {
-        unimplemented!()
-    }
-
-    pub fn get_successors(self) -> Vec<Self> {
-        let Self { x, y } = self;
-
-        // набор соседних клеток отличается в зависимости от чётности ряда
-        if self.is_even_row() {
-            vec![
-                (x - 1, y), // начинаем слева и по часовой стрелке
-                (x - 1, y - 1),
-                (x, y - 1),
-                (x + 1, y),
-                (x, y + 1),
-                (x - 1, y + 1)
-            ]
-        } else {
-            vec![
-                (x - 1, y),
-                (x, y - 1),
-                (x + 1, y - 1),
-                (x + 1, y),
-                (x + 1, y + 1),
-                (x, y + 1)
-            ]
-        }.into_iter()
-         .filter_map(|(x, y)| Self::try_new(x, y))
-         .collect()
-    }
-
-    pub fn get_reachable_cells(self, radius: u8) -> Vec<Self> {
-        let mut reachable_cells = HashSet::new();
-        reachable_cells.insert(self);
-
-        let mut current_cells = vec![self];
-        for _ in 0..radius {
-            let successors = current_cells
-                .iter()
-                .flat_map(|cell| cell.get_successors())
-                .collect::<HashSet<Self>>();
-            
-            let new_cells = successors
-                .difference(&reachable_cells)
-                .copied()
-                .collect::<Vec<Self>>();
-            
-            reachable_cells.extend(new_cells.iter().copied());
-
-            current_cells = new_cells;
-        }
-        reachable_cells.into_iter().collect()
     }
 
     pub fn center(&self) -> Point {
