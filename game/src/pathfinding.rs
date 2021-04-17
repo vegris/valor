@@ -1,6 +1,110 @@
-use std::collections::{HashSet, BinaryHeap};
+use std::collections::VecDeque;
 
 use crate::gridpos::GridPos;
+
+// Структуры для алгоритма Дейкстры
+#[derive(Clone, Copy, Debug)]
+struct VisitedCell {
+    came_from: GridPos,
+    cost_to_here: u32
+}
+
+const X_MAX: usize = *GridPos::X_RANGE.end() as usize;
+const Y_MAX: usize = *GridPos::Y_RANGE.end() as usize;
+
+pub struct NavigationArray([Option<VisitedCell>; X_MAX * Y_MAX]);
+
+impl NavigationArray {
+    pub fn empty() -> Self {
+        Self([None; X_MAX * Y_MAX])
+    }
+
+    pub fn new(cell: GridPos) -> Self {
+        let mut map = Self([None; X_MAX * Y_MAX]);
+        map.put_cell(cell, cell, 0);
+
+        let mut to_see: VecDeque<(GridPos, u32)> = VecDeque::new();
+        to_see.push_back((cell, 0));
+
+        while let Some((cell, cost_to_here)) = to_see.pop_front() {
+            let new_cost = cost_to_here + 1;
+
+            for successor in cell.get_successors() {
+                // dbg!(successor);
+                match map.get_cell(successor) {
+                    // Уже видели вариант лучше
+                    Some(seen_cell) if seen_cell.cost_to_here <= new_cost => {
+                        continue;
+                    },
+                    // Этот вариант лучше
+                    Some(_seen_cell) => {},
+                    // Встретили клетку впервые
+                    None => {
+                        to_see.push_back((successor, new_cost));
+                    }
+                }
+
+                // Если пришли в клетку дешевле чем раньше (или впервые) - 
+                // записываем откуда пришли
+                map.put_cell(successor, cell, new_cost);
+            }
+        }
+        map
+    }
+
+    pub fn get_shortest_path(&self, destination: GridPos) -> Vec<GridPos> {
+        let mut path = vec![destination];
+
+        let mut current_cell = destination;
+
+        while let Some(visited_cell) = self.get_cell(current_cell) {
+            // Клетка, из которой строился этот NavigationArray,
+            // зациклена сама на себя
+            // Значит, мы дошли до начала
+            if current_cell == visited_cell.came_from {
+                break;
+            } else {
+                current_cell = visited_cell.came_from;
+                path.push(current_cell);
+            }
+        }
+
+        path.pop();
+        path.reverse();
+        path
+    }
+
+    pub fn get_reachable_cells(&self, speed: u32) -> Vec<GridPos> {
+        let mut reachable = vec![];
+
+        for x in GridPos::X_RANGE {
+            for y in GridPos::Y_RANGE {
+                let cell = GridPos::new(x, y);
+                if let Some(visited_cell) = self.get_cell(cell) {
+                    if visited_cell.cost_to_here <= speed {
+                        reachable.push(cell);
+                    }
+                }
+            }
+        }
+
+        reachable
+    }
+
+    fn cell_to_index(cell: GridPos) -> usize {
+        (cell.y - 1) as usize * X_MAX + (cell.x - 1) as usize
+    }
+    fn get_cell(&self, cell: GridPos) -> Option<VisitedCell> {
+        self.0[Self::cell_to_index(cell)]
+    }
+    fn put_cell(&mut self, cell: GridPos, previous_cell: GridPos, cost_to_here: u32) {
+        let visited_cell = VisitedCell {
+            came_from: previous_cell,
+            cost_to_here: cost_to_here
+        };
+        self.0[Self::cell_to_index(cell)] = Some(visited_cell);
+    }
+}
 
 impl GridPos {
     pub fn get_successors(self) -> Vec<Self> {
@@ -29,156 +133,18 @@ impl GridPos {
          .filter_map(|(x, y)| Self::try_new(x, y))
          .collect()
     }
+}
 
-    pub fn get_reachable_cells(self, radius: u8) -> Vec<Self> {
-        // Breadth-first search
-        let mut reachable_cells = HashSet::with_capacity(Self::TOTAL_CELLS);
-        reachable_cells.insert(self);
+#[test]
+fn name() {
+    let start_cell = GridPos::new(3, 3);
+    let navigation_array = NavigationArray::new(start_cell);
+    dbg!(navigation_array.get_cell(GridPos::new(7, 7)));
+    dbg!(navigation_array.get_shortest_path(GridPos::new(7, 7)));
+}
 
-        let mut current_cells = vec![self];
-        for _ in 0..radius {
-            let successors = current_cells
-                .iter()
-                .flat_map(|cell| cell.get_successors())
-                .collect::<HashSet<Self>>();
-            
-            let new_cells = successors
-                .difference(&reachable_cells)
-                .copied()
-                .collect::<Vec<Self>>();
-            
-            reachable_cells.extend(new_cells.iter().copied());
-
-            current_cells = new_cells;
-        }
-        reachable_cells.into_iter().collect()
-    }
-
-    pub fn shortest_path_heuristic(self, destination: GridPos) -> usize {
-        let i = (destination.x - self.x).pow(2) + (destination.y - self.y).pow(2);
-        (i as f32).sqrt().floor() as usize
-    }
-
-    pub fn get_shortest_path(self, destination: GridPos) -> Option<Vec<GridPos>> {
-        // A-star search
-
-        // dbg!((self, destination));
-
-        #[derive(Eq, Debug)]
-        struct ToSeeCell {
-            previous_cell: GridPos,
-            cost_to_here: usize,
-            estimated_cost_to_goal: usize
-        };
-        use std::cmp::Ordering;
-        impl Ord for ToSeeCell {
-            fn cmp(&self, other: &Self) -> Ordering {
-                match other.estimated_cost_to_goal.cmp(&self.estimated_cost_to_goal) {
-                    Ordering::Equal => other.cost_to_here.cmp(&self.cost_to_here),
-                    ord => ord
-                }
-            }
-        }
-        impl PartialOrd for ToSeeCell {
-            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-                Some(self.cmp(other))
-            }
-        }
-        impl PartialEq for ToSeeCell {
-            fn eq(&self, other: &Self) -> bool {
-                self.estimated_cost_to_goal == other.estimated_cost_to_goal &&
-                self.cost_to_here == other.cost_to_here
-            }
-        }
-
-        #[derive(Clone, Copy, Debug)]
-        struct VisitedCell {
-            came_from: GridPos,
-            cost_to_here: usize
-        };
-        const X_MAX: usize = *GridPos::X_RANGE.end() as usize;
-        const Y_MAX: usize = *GridPos::Y_RANGE.end() as usize;
-        struct CellsArray([Option<VisitedCell>; X_MAX *Y_MAX]);
-        impl CellsArray {
-            fn new() -> Self {
-                Self([None; X_MAX * Y_MAX])
-            }
-            fn cell_to_index(cell: GridPos) -> usize {
-                ((cell.x - 1) * Y_MAX as i32 + (cell.y - 1)) as usize
-            }
-            fn get_cell(&self, cell: GridPos) -> Option<VisitedCell> {
-                self.0[Self::cell_to_index(cell)]
-            }
-            fn put_cell(&mut self, cell: GridPos, visited_cell: VisitedCell) {
-                self.0[Self::cell_to_index(cell)] = Some(visited_cell);
-            }
-        }
-
-        let mut to_see = BinaryHeap::with_capacity(Self::TOTAL_CELLS);
-        to_see.push(ToSeeCell {
-            previous_cell: self,
-            cost_to_here: 0,
-            estimated_cost_to_goal: 0
-        });
-
-        let mut cells = CellsArray::new();
-        cells.put_cell(self, VisitedCell { came_from: self, cost_to_here: usize::max_value() });
-
-        while let Some(ToSeeCell { previous_cell, cost_to_here, .. }) = to_see.pop() {
-            // dbg!((previous_cell, cost_to_here));
-            let successors = {
-                if previous_cell == destination {
-                    let count = cells.0.iter().filter(|&&c| c.is_some()).count();
-                    dbg!(count);
-                    let mut path = Vec::with_capacity(cost_to_here);
-                    path.push(previous_cell);
-                    let mut previous_cell = previous_cell;
-                    while previous_cell != self {
-                        let VisitedCell { came_from, .. } = cells.get_cell(previous_cell).unwrap();
-                        path.push(came_from);
-                        previous_cell = came_from;
-                    }
-                    path.reverse();
-                    dbg!(&path);
-                    return Some(path)
-                }
-                let VisitedCell { cost_to_here: c, .. } = cells.get_cell(previous_cell).unwrap();
-                // dbg!((cost_to_here, c));
-                if cost_to_here > c {
-                    continue;
-                }
-                previous_cell.get_successors()
-            };
-            for successor in successors {
-                // dbg!(successor);
-                let new_cost = cost_to_here + 1;
-                let h; // heuristic(&successor)
-                if let Some(visited_cell) = cells.get_cell(successor) {
-                    if cost_to_here < visited_cell.cost_to_here {
-                        h = successor.shortest_path_heuristic(destination);
-                        // переписываем старый маршрут новымVisi
-                        let visited_cell = VisitedCell { came_from: previous_cell, cost_to_here: new_cost };
-                        // dbg!(visited_cell);
-                        cells.put_cell(successor, visited_cell);
-                    } else { 
-                        // dbg!("continue");
-                        continue;
-                    }
-                } else {
-                    h = successor.shortest_path_heuristic(destination);
-                    // переписываем старый маршрут новымVisi
-                    let visited_cell = VisitedCell { came_from: previous_cell, cost_to_here: new_cost };
-                    // dbg!(visited_cell);
-                    cells.put_cell(successor, visited_cell);
-                }
-
-                let to_see_cell = ToSeeCell { previous_cell: successor, cost_to_here: new_cost, estimated_cost_to_goal: h };
-                // dbg!(&to_see_cell);
-                // сохраняем новую пограничную клетку
-                to_see.push(to_see_cell);
-            }
-        }
-        // dbg!("return none");
-        None
-    }
+#[test]
+fn name_2() {
+    let result = NavigationArray::cell_to_index(GridPos::new(3, 4));
+    dbg!(result);
 }

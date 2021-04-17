@@ -8,6 +8,7 @@ use creature::Creature;
 
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use crate::gridpos::GridPos;
+use crate::pathfinding::NavigationArray;
 use crate::Battlefield;
 use crate::registry::ResourceRegistry;
 use crate::graphics::cursors::Cursors;
@@ -42,6 +43,7 @@ pub struct BattleState<'a> {
     pub last_turn_side: Side,
     pub current_side: Side,
     pub current_stack: usize,
+    pub navigation_array: NavigationArray,
 
     // Графика
 
@@ -75,6 +77,7 @@ impl<'a> BattleState<'a> {
             last_turn_side: Side::Defender,
             current_side: Side::Attacker,
             current_stack: 0,
+            navigation_array: NavigationArray::empty(),
 
             battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
             grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,

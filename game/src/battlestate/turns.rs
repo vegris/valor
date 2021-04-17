@@ -1,4 +1,5 @@
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
+use crate::pathfinding::NavigationArray;
 
 use super::{BattleState, Side};
 
@@ -16,6 +17,7 @@ impl<'a> BattleState<'a> {
             let mut stack = self.get_current_stack_mut();
             stack.defending = false;
             println!("Current stack is {}, {:?}", stack, side);
+            self.navigation_array = NavigationArray::new(stack.position);
         } else {
             self.advance_phase();
             self.update_current_stack();

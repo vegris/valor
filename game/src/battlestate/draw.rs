@@ -48,7 +48,7 @@ impl<'a> BattleState<'a> {
 
         let current_stack = self.get_current_stack();
 
-        let accessible_cells = current_stack.position.get_reachable_cells(current_stack.speed());
+        let accessible_cells = self.navigation_array.get_reachable_cells(current_stack.speed().into());
         for cell in accessible_cells {
             canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
         }

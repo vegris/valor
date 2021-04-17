@@ -54,23 +54,20 @@ impl CommandType {
                 cur_stack.turn_state == CTS::HasTurn
             },
             Self::Move { destination: dest } => {
-                // let h = cur_stack.position.shortest_path_heuristic(dest);
-                // dbg!((cur_stack.position, dest));
-                // dbg!(h);
-                // false
-                if let Some(path) = cur_stack.position.get_shortest_path(dest) {
-                    state.current_side == side && path.len() <= cur_stack.speed().into()
-                } else { false }
+                dbg!((cur_stack.position, dest));
+                let path = state.navigation_array.get_shortest_path(dest);
+                dbg!(&path);
+                state.current_side == side && path.len() <= cur_stack.speed().into()
             },
             Self::Attack { position: pos, target: index } => {
-                let maybe_path = cur_stack.position.get_shortest_path(pos);
+                let path = state.navigation_array.get_shortest_path(pos);
                 let target_creature = state.get_stack(side.other(), index);
 
                 state.current_side == side &&
                 target_creature.map_or(false, |target| {
                     target.get_adjacent_cells(side.other()).contains(&pos)
                 }) &&
-                maybe_path.map_or(false, |path| path.len() <= cur_stack.speed() as usize)
+                path.len() <= cur_stack.speed().into()
             },
             Self::Shoot { target: index } => {
                 state.current_side == side &&
