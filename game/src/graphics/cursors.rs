@@ -8,6 +8,7 @@ use strum_macros::EnumIter;
 
 use formats::DefContainer;
 use crate::registry::ResourceRegistry;
+use crate::gridpos::HexagonPart;
 
 #[derive(Clone, Copy, EnumIter, Debug)]
 #[allow(unused)]
@@ -59,6 +60,21 @@ impl Cursor {
             Self::AttackUp        => (6, 16),
 
             _ => (0, 0)
+        }
+    }
+
+    pub fn from_hexagon_part(hexagon_part: HexagonPart) -> Self {
+        match hexagon_part {
+            HexagonPart::Left         => Cursor::AttackLeft,
+            HexagonPart::Right        => Cursor::AttackRight,
+            HexagonPart::TopHalfLeft  => Cursor::AttackUpLeft,
+            HexagonPart::TopHalfRight => Cursor::AttackUpRight,
+            HexagonPart::BotHalfLeft  => Cursor::AttackDownLeft,
+            HexagonPart::BotHalfRight => Cursor::AttackDownRight,
+            HexagonPart::BotLeft      => Cursor::AttackDownLeft,
+            HexagonPart::BotRight     => Cursor::AttackDownRight,
+            HexagonPart::TopLeft      => Cursor::AttackUpLeft,
+            HexagonPart::TopRight     => Cursor::AttackUpRight,
         }
     }
 }

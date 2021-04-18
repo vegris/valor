@@ -17,7 +17,12 @@ impl<'a> BattleState<'a> {
             let mut stack = self.get_current_stack_mut();
             stack.defending = false;
             println!("Current stack is {}, {:?}", stack, side);
-            self.navigation_array = NavigationArray::new(stack.position);
+
+            // borrow checker was unhappy
+            let navigation_array = NavigationArray::new(stack.position);
+            let reachable_cells = navigation_array.get_reachable_cells(stack.speed().into());
+            self.navigation_array = navigation_array;
+            self.reachable_cells = reachable_cells;
         } else {
             self.advance_phase();
             self.update_current_stack();

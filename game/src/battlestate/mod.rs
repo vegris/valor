@@ -7,7 +7,7 @@ use sdl2::video::WindowContext;
 use creature::Creature;
 
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use crate::gridpos::GridPos;
+use crate::gridpos::{GridPos, HexagonPart};
 use crate::pathfinding::NavigationArray;
 use crate::Battlefield;
 use crate::registry::ResourceRegistry;
@@ -43,7 +43,10 @@ pub struct BattleState<'a> {
     pub last_turn_side: Side,
     pub current_side: Side,
     pub current_stack: usize,
+
+    // Поиск пути
     pub navigation_array: NavigationArray,
+    pub reachable_cells: Vec<GridPos>,
 
     // Графика
 
@@ -56,6 +59,7 @@ pub struct BattleState<'a> {
     cursors: Cursors,
 
     current_hover: Option<GridPos>,
+    hexagon_part: Option<HexagonPart>
 }
 
 
@@ -78,6 +82,7 @@ impl<'a> BattleState<'a> {
             current_side: Side::Attacker,
             current_stack: 0,
             navigation_array: NavigationArray::empty(),
+            reachable_cells: vec![],
 
             battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
             grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
@@ -86,6 +91,7 @@ impl<'a> BattleState<'a> {
             cursors: Cursors::load(rr),
 
             current_hover: None,
+            hexagon_part: None
         };
 
         state.update_current_stack();

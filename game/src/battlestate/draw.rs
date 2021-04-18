@@ -20,8 +20,6 @@ impl<'a> BattleState<'a> {
         tc: &TextureCreator<WindowContext>
     ) -> Result<(), Box<dyn Error>> {
 
-        self.cursors.set(Cursor::Pointer);
-
         // Рисуем поле боя
         canvas.copy(&self.battlefield, None, Rect::new(0, 0, 800, 556))?;
 
@@ -36,20 +34,15 @@ impl<'a> BattleState<'a> {
         // Выделяем клетку под курсором
         if let Some(cell) = self.current_hover {
             canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
-
-            if let Some((side, _)) = self.find_unit_for_cell(cell) {
-                if self.current_side != side {
-                    if self.get_current_stack().can_shoot() {
-                        self.cursors.set(Cursor::Arrow);
-                    }
-                }
-            }
         }
+
+        // Выставляем курсор под ситуацию
+        let cursor = choose_cursor(self);
+        self.cursors.set(cursor);
 
         let current_stack = self.get_current_stack();
 
-        let accessible_cells = self.navigation_array.get_reachable_cells(current_stack.speed().into());
-        for cell in accessible_cells {
+        for cell in &self.reachable_cells {
             canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
         }
 
@@ -63,4 +56,26 @@ impl<'a> BattleState<'a> {
 
         Ok(())
     }
+}
+
+fn choose_cursor(state: &BattleState) -> Cursor {
+    if let Some(cell) = state.current_hover {
+        let maybe_unit_for_cell = state.find_unit_for_cell(cell);
+        let has_unit = maybe_unit_for_cell.is_some();
+        let is_enemy = maybe_unit_for_cell.map_or(false, |(side, _stack)| state.current_side != side);
+
+        if state.reachable_cells.contains(&cell) 
+        {
+            if has_unit && is_enemy {
+                return Cursor::from_hexagon_part(state.hexagon_part.unwrap());
+            }
+            return Cursor::Run
+        }
+
+        if has_unit && is_enemy && state.get_current_stack().can_shoot() {
+            return Cursor::Arrow
+        }
+    }
+
+    return Cursor::Pointer
 }

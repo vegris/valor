@@ -66,7 +66,9 @@ impl<'a> BattleState<'a> {
             std::process::exit(0);
         }
 
-        self.current_hover = GridPos::find_pointer_position(frame_input.cursor_position.into());
+        let cursor_pos = frame_input.cursor_position;
+        self.current_hover = GridPos::find_pointer_position(cursor_pos.into());
+        self.hexagon_part = self.current_hover.map(|cell| cell.calculate_direction(cursor_pos.into()));
 
         if let Some(command) = self.construct_command(frame_input) {
             if command.is_applicable(self) {
