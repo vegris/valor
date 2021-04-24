@@ -55,6 +55,7 @@ pub struct BattleState<'a> {
     battlefield: Texture<'a>,
     grid_cell: Texture<'a>,
     grid_cell_shadow: Texture<'a>,
+    stack_count_bg: Texture<'a>,
 
     cursors: Cursors,
 
@@ -87,6 +88,7 @@ impl<'a> BattleState<'a> {
             battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
             grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
             grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
+            stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(&tc)?,
 
             cursors: Cursors::load(rr),
 

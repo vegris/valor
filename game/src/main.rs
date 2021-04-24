@@ -31,6 +31,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         .build()?;
     let texture_creator = canvas.texture_creator();
 
+    // Инициализация системы рендера шрифтов
+    let ttf_context = sdl2::ttf::init()?;
+    let font = ttf_context.load_font("/usr/share/fonts/liberation/LiberationMono-Bold.ttf", 16)?;
+
     // Открытие файлов с ресурсами
     let mut resource_registry = ResourceRegistry::init();
 
@@ -75,7 +79,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         
         // Отображение игрового состояния
         canvas.clear();
-        current_state.draw(&mut canvas, &mut resource_registry, &texture_creator)?;
+        current_state.draw(&mut canvas, &mut resource_registry, &texture_creator, &font)?;
         canvas.present();
 
         // last_time = current_time;

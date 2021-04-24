@@ -4,7 +4,7 @@ extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
-use sdl2::pixels::Color;
+use sdl2::ttf::Font;
 
 use crate::registry::ResourceRegistry;
 use crate::gridpos::GridPos;
@@ -17,7 +17,8 @@ impl<'a> BattleState<'a> {
         &self,
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
-        tc: &TextureCreator<WindowContext>
+        tc: &TextureCreator<WindowContext>,
+        font: &Font
     ) -> Result<(), Box<dyn Error>> {
 
         // Рисуем поле боя
@@ -49,10 +50,10 @@ impl<'a> BattleState<'a> {
         // Рисуем существ
         for side in &self.sides {
             for unit in side {
-                unit.draw(canvas, rr, tc, false)?;
+                unit.draw(canvas, rr, tc, false, &self.stack_count_bg, &font)?;
             }
         }
-        current_stack.draw(canvas, rr, tc, true)?;
+        current_stack.draw(canvas, rr, tc, true, &self.stack_count_bg, &font)?;
 
         Ok(())
     }

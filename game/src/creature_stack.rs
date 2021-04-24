@@ -3,7 +3,10 @@ use std::error::Error;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
-use sdl2::render::{WindowCanvas, TextureCreator};
+use sdl2::render::{WindowCanvas, TextureCreator, Texture};
+use sdl2::pixels::Color;
+use sdl2::rect::Rect;
+use sdl2::ttf::Font;
 
 use creature::{Creature, CreatureStats};
 
@@ -135,7 +138,9 @@ impl CreatureStack {
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
-        is_selected: bool
+        is_selected: bool,
+        stack_count_bg: &Texture,
+        font: &Font
     ) -> Result<(), Box<dyn Error>> {
         let spritesheet = rr.get_creature_container(self.creature);
         let animation_block = spritesheet.animation_block(AnimationType::Standing);
@@ -154,6 +159,18 @@ impl CreatureStack {
         };
 
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, false) };
+
+        let cell_center = self.position.bounding_rect().center();
+        let draw_center = cell_center.offset(0, 10);
+        canvas.copy(stack_count_bg, None, Rect::from_center(draw_center, 30, 11))?;
+
+        let font_surface = font.render(&self.count.to_string()).solid(Color::BLUE)?;
+        let font_texture = font_surface.as_texture(&tc)?;
+
+        let mut font_rect = font_surface.rect();
+        font_rect.center_on(draw_center);
+
+        canvas.copy(&font_texture, None, font_rect)?;
 
         Ok(())
     }
