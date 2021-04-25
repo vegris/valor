@@ -48,12 +48,10 @@ impl<'a> BattleState<'a> {
         }
 
         // Рисуем существ
-        for side in &self.sides {
-            for unit in side {
-                unit.draw(canvas, rr, tc, false, &self.stack_count_bg, &font)?;
-            }
+        for (side, unit) in self.units() {
+            unit.draw(canvas, rr, tc, false, side, &self.stack_count_bg, &font)?;
         }
-        current_stack.draw(canvas, rr, tc, true, &self.stack_count_bg, &font)?;
+        current_stack.draw(canvas, rr, tc, true, self.current_side, &self.stack_count_bg, &font)?;
 
         Ok(())
     }

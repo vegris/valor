@@ -89,17 +89,25 @@ impl CreatureStack {
         self.current_ammo != 0
     }
 
-    pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
+    pub fn head(&self, side: Side) -> GridPos {
         if self.creature.is_wide() {
-            let second_cell =
-                match side {
-                    Side::Attacker => self.position.relative(1, 0),
-                    Side::Defender => self.position.relative(-1, 0)
-                };
-            vec![self.position, second_cell]
+            match side {
+                Side::Attacker => self.position.relative(1, 0),
+                Side::Defender => self.position.relative(-1, 0)
+            }
         } else {
-            vec![self.position]
+            self.tail()
         }
+    }
+
+    pub fn tail(&self) -> GridPos {
+        self.position
+    }
+
+    pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
+        let mut cells = vec![self.head(side), self.tail()];
+        cells.dedup();
+        cells
     }
 
     pub fn get_adjacent_cells(&self, side: Side) -> Vec<GridPos> {
@@ -139,6 +147,7 @@ impl CreatureStack {
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
         is_selected: bool,
+        side: Side,
         stack_count_bg: &Texture,
         font: &Font
     ) -> Result<(), Box<dyn Error>> {
@@ -148,7 +157,7 @@ impl CreatureStack {
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let draw_rect = sprite.draw_rect(self.position.center(), self.direction);
+        let draw_rect = sprite.draw_rect(self.tail().center(), self.direction);
         let texture = sprite.surface().as_texture(tc)?;
 
         match self.direction {
@@ -160,7 +169,7 @@ impl CreatureStack {
 
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, false) };
 
-        let cell_center = self.position.bounding_rect().center();
+        let cell_center = self.head(side).bounding_rect().center();
         let draw_center = cell_center.offset(0, 10);
         canvas.copy(stack_count_bg, None, Rect::from_center(draw_center, 30, 11))?;
 
