@@ -89,9 +89,10 @@ impl CommandType {
                 cur_stack.turn_state = CTS::Waited;
             },
             Self::Move { destination: dest } => {
+                let cur_side = state.current_side;
                 let cur_stack = state.get_current_stack_mut();
-                println!("{} moves from {} to {}", cur_stack, cur_stack.position, dest);
-                cur_stack.position = dest;
+                println!("{} moves from {} to {}", cur_stack, cur_stack.head(cur_side), dest);
+                cur_stack.set_head(cur_side, dest);
             },
             Self::Attack { position: _pos, target: index } => {
                 let damage = make_strike(state, state.current_stack_id(), (side.other(), index));
