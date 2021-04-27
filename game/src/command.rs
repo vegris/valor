@@ -1,4 +1,4 @@
-use super::creature_stack::CreatureTurnState as CTS;
+use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use super::battlestate::{BattleState, Side};
 use super::functions;
 use super::gridpos::GridPos;
@@ -17,7 +17,7 @@ impl Command {
         self.type_.is_applicable(self.side, state)
     }
     pub fn apply(&self, state: &mut BattleState) {
-        self.type_.apply(self.side, state);
+        self.type_.apply(state);
     }
 }
 
@@ -43,72 +43,37 @@ enum CommandTypeFieldless {
 
 impl CommandType {
     fn is_applicable(&self, side: Side, state: &BattleState) -> bool {
-        let cur_stack = state.get_current_stack();
+        // Пока нет команд, которые можно исполнять в чужой ход
+        if state.current_side != side { return false };
 
         match *self {
-            Self::Defend => {
-                state.current_side == side
-            },
-            Self::Wait => {
-                state.current_side == side &&
-                cur_stack.turn_state == CTS::HasTurn
-            },
-            Self::Move { destination: dest } => {
-                dbg!((cur_stack.position, dest));
-                let path = state.navigation_array.get_shortest_path(dest);
-                dbg!(&path);
-                state.current_side == side && path.len() <= cur_stack.speed().into()
-            },
-            Self::Attack { position: pos, target: index } => {
-                let path = state.navigation_array.get_shortest_path(pos);
-                let target_creature = state.get_stack(side.other(), index);
-
-                state.current_side == side &&
-                target_creature.map_or(false, |target| {
-                    target.get_adjacent_cells(side.other()).contains(&pos)
-                }) &&
-                path.len() <= cur_stack.speed().into()
-            },
-            Self::Shoot { target: index } => {
-                state.current_side == side &&
-                state.get_stack(side.other(), index).is_some() &&
-                state.get_current_stack().current_ammo > 0
-            }
+            Self::Defend =>
+                is_applicable_defend(),
+            Self::Wait =>
+                is_applicable_wait(state),
+            Self::Move { destination } =>
+                is_applicable_move(state, destination),
+            Self::Attack { position, target } =>
+                is_applicable_attack(state, side, position, target),
+            Self::Shoot { target } => 
+                is_applicable_shoot(state, side, target)
         }
     }
-    fn apply(&self, side: Side, state: &mut BattleState) {
+    fn apply(&self, state: &mut BattleState) {
         match *self {
-            Self::Defend => {
-                let cur_stack = state.get_current_stack_mut();
-                println!("{} is defending!", cur_stack);
-                cur_stack.defending = true;
-            },
-            Self::Wait => {
-                let cur_stack = state.get_current_stack_mut();
-                println!("{} is waiting!", cur_stack);
-                cur_stack.turn_state = CTS::Waited;
-            },
-            Self::Move { destination: dest } => {
-                let cur_side = state.current_side;
-                let cur_stack = state.get_current_stack_mut();
-                println!("{} moves from {} to {}", cur_stack, cur_stack.head(cur_side), dest);
-                cur_stack.set_head(cur_side, dest);
-            },
-            Self::Attack { position: _pos, target: index } => {
-                let damage = make_strike(state, state.current_stack_id(), (side.other(), index));
-                let att_stack = state.get_current_stack();
-                let def_stack = state.get_stack(side.other(), index).unwrap();
-                println!("{} attacks {} for {} damage", att_stack, def_stack, damage);
-            },
-            Self::Shoot { target: index } => {
-                let damage = make_strike(state, state.current_stack_id(), (side.other(), index));
-                let att_stack = state.get_current_stack();
-                let def_stack = state.get_stack(side.other(), index).unwrap();
-                println!("{} shoots {} for {} damage", att_stack, def_stack, damage);
-            }
+            Self::Defend =>
+                apply_defend(state),
+            Self::Wait =>
+                apply_wait(state),
+            Self::Move { destination } =>
+                apply_move(state, destination),
+            Self::Attack { target, .. } =>
+                apply_attack(state, target),
+            Self::Shoot { target } =>
+                apply_shoot(state, target)
         }
 
-        if self.creature_spends_turn() {
+        if self.spends_turn() {
             let cur_stack = state.get_current_stack_mut();
             cur_stack.turn_state = CTS::NoTurn;
         }
@@ -139,7 +104,7 @@ impl CommandType {
         ].contains(&self.fieldless())
     }
 
-    fn creature_spends_turn(&self) -> bool {
+    fn spends_turn(&self) -> bool {
         match self {
             Self::Wait => false,
             _ => true
@@ -147,7 +112,7 @@ impl CommandType {
     }
 }
 
-pub fn make_strike(state: &mut BattleState, attacker: (Side, u8), defender: (Side, u8)) -> u32 {
+fn make_strike(state: &mut BattleState, attacker: (Side, u8), defender: (Side, u8)) -> u32 {
     let att_stack = state.get_stack(attacker.0, attacker.1).unwrap();
     let def_stack = state.get_stack(defender.0, defender.1).unwrap();
 
@@ -156,4 +121,76 @@ pub fn make_strike(state: &mut BattleState, attacker: (Side, u8), defender: (Sid
     def_stack_mut.receive_damage(damage);
 
     damage
+}
+
+fn is_applicable_defend() -> bool {
+    true
+}
+fn apply_defend(state: &mut BattleState) {
+    let current_stack = state.get_current_stack_mut();
+    current_stack.defending = true;
+}
+
+fn is_applicable_wait(state: &BattleState) -> bool {
+    state.get_current_stack().turn_state == CTS::HasTurn
+}
+fn apply_wait(state: &mut BattleState) {
+    let current_stack = state.get_current_stack_mut();
+    current_stack.turn_state = CTS::Waited;
+}
+
+fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
+    let current_stack = state.get_current_stack();
+    let path = state.navigation_array.get_shortest_path(destination);
+    
+    path.len() <= current_stack.speed().into()
+}
+fn apply_move(state: &mut BattleState, destination: GridPos) {
+    let current_side = state.current_side;
+    let current_stack = state.get_current_stack_mut();
+    current_stack.set_head(current_side, destination);
+}
+
+fn is_applicable_attack(state: &BattleState, side: Side, position: GridPos, target: u8) -> bool {
+    let path = state.navigation_array.get_shortest_path(position);
+    let current_stack = state.get_current_stack();
+    let target_creature = state.get_stack(side.other(), target);
+
+    let is_position_near_target_func = |target: &CreatureStack| {
+        target.get_adjacent_cells(side.other()).contains(&position)
+    };
+    let is_position_near_target = target_creature.map_or(false, is_position_near_target_func);
+
+    let has_enough_speed = path.len() <= current_stack.speed().into();
+
+    is_position_near_target && has_enough_speed
+}
+fn apply_attack(state: &mut BattleState, target: u8) {
+    let current_side = state.current_side;
+
+    let attack_stack_id = state.current_stack_id();
+    let defend_stack_id = (current_side.other(), target);
+
+    let damage = make_strike(state, attack_stack_id, defend_stack_id);
+
+    let defend_stack = state.get_stack_mut(current_side.other(), target).unwrap();
+    defend_stack.receive_damage(damage);
+}
+
+fn is_applicable_shoot(state: &BattleState, side: Side, target: u8) -> bool {
+    let has_target = state.get_stack(side.other(), target).is_some();
+    let has_ammo = state.get_current_stack().current_ammo > 0;
+
+    has_target && has_ammo
+}
+fn apply_shoot(state: &mut BattleState, target: u8) {
+    let current_side = state.current_side;
+
+    let attack_stack_id = state.current_stack_id();
+    let defend_stack_id = (current_side.other(), target);
+
+    let damage = make_strike(state, attack_stack_id, defend_stack_id);
+
+    let defend_stack = state.get_stack_mut(current_side.other(), target).unwrap();
+    defend_stack.receive_damage(damage);
 }
