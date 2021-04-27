@@ -1,4 +1,3 @@
-use std::collections::{HashSet, BinaryHeap};
 use std::ops::RangeInclusive;
 
 extern crate sdl2;
@@ -59,8 +58,6 @@ pub struct GridPos {
 impl GridPos {
     pub const X_RANGE: RangeInclusive<i32> = 1..=15;
     pub const Y_RANGE: RangeInclusive<i32> = 1..=11;
-
-    pub const TOTAL_CELLS: usize = 15 * 11;
 
     pub const CELL_WIDTH: u32 = 46;
     pub const CELL_HEIGHT: u32 = 52;

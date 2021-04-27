@@ -3,14 +3,11 @@ use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::mouse::MouseButton;
-use sdl2::rect::Point;
 
-use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use crate::gridpos::{GridPos, HexagonPart};
-use crate::graphics::cursors::Cursor;
+use crate::gridpos::GridPos;
 use crate::command::{Command, CommandType};
 
-use super::{BattleState, Side};
+use super::BattleState;
 
 #[derive(Default)]
 pub struct FrameInput {

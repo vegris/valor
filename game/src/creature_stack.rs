@@ -30,15 +30,6 @@ pub enum Direction {
     Right
 }
 
-impl Direction {
-    pub fn inversion(&self) -> Self {
-        match self {
-            Self::Left => Self::Right,
-            Self::Right => Self::Left
-        }
-    }
-}
-
 pub struct CreatureStack {
     pub creature: Creature,
     pub count: u32,
@@ -79,10 +70,6 @@ impl CreatureStack {
 
     pub fn speed(&self) -> u8 {
         self.base_stats().speed
-    }
-
-    pub fn is_alive(&self) -> bool {
-        self.count == 0
     }
 
     pub fn can_shoot(&self) -> bool {
