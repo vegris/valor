@@ -5,7 +5,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::mouse::MouseButton;
 
 use crate::gridpos::GridPos;
-use crate::command::{Command, CommandType};
+use crate::command::Command;
 
 use super::BattleState;
 
@@ -78,17 +78,14 @@ impl<'a> BattleState<'a> {
     }
 
     fn construct_command(&self, frame_input: FrameInput) -> Option<Command> {
-        let command_type =
-            if frame_input.key_d {
-                Some(CommandType::Defend)
-            } else if frame_input.key_w {
-                Some(CommandType::Wait)
-            } else if self.current_hover.is_some() && frame_input.btn_lmb {
-                Some(CommandType::Move { destination: self.current_hover.unwrap() })
-            } else {
-                None
-            };
-        
-        command_type.map(|type_| Command::new(self.current_side, type_))
+        if frame_input.key_d {
+            Some(Command::Defend)
+        } else if frame_input.key_w {
+            Some(Command::Wait)
+        } else if self.current_hover.is_some() && frame_input.btn_lmb {
+            Some(Command::Move { destination: self.current_hover.unwrap() })
+        } else {
+            None
+        }
     }
 }

@@ -3,27 +3,9 @@ use super::battlestate::{BattleState, Side};
 use super::functions;
 use super::gridpos::GridPos;
 
-#[derive(Clone, Copy)]
-pub struct Command {
-    side: Side,
-    type_: CommandType
-}
-
-impl Command {
-    pub fn new(side: Side, type_: CommandType) -> Self {
-        Self { side, type_ }
-    }
-    pub fn is_applicable(&self, state: &BattleState) -> bool {
-        self.type_.is_applicable(self.side, state)
-    }
-    pub fn apply(&self, state: &mut BattleState) {
-        self.type_.apply(state);
-    }
-}
-
 #[allow(unused)]
 #[derive(Clone, Copy)]
-pub enum CommandType {
+pub enum Command {
     Move { destination: GridPos },
     Wait,
     Defend,
@@ -33,7 +15,7 @@ pub enum CommandType {
 
 #[allow(unused)]
 #[derive(Clone, Copy, PartialEq)]
-enum CommandTypeFieldless {
+enum CommandFieldless {
     Move,
     Wait,
     Defend,
@@ -41,11 +23,8 @@ enum CommandTypeFieldless {
     Shoot
 }
 
-impl CommandType {
-    fn is_applicable(&self, side: Side, state: &BattleState) -> bool {
-        // Пока нет команд, которые можно исполнять в чужой ход
-        if state.current_side != side { return false };
-
+impl Command {
+    pub fn is_applicable(&self, state: &BattleState) -> bool {
         match *self {
             Self::Defend =>
                 is_applicable_defend(),
@@ -54,12 +33,12 @@ impl CommandType {
             Self::Move { destination } =>
                 is_applicable_move(state, destination),
             Self::Attack { position, target } =>
-                is_applicable_attack(state, side, position, target),
+                is_applicable_attack(state, position, target),
             Self::Shoot { target } => 
-                is_applicable_shoot(state, side, target)
+                is_applicable_shoot(state, target)
         }
     }
-    fn apply(&self, state: &mut BattleState) {
+    pub fn apply(&self, state: &mut BattleState) {
         match *self {
             Self::Defend =>
                 apply_defend(state),
@@ -84,23 +63,23 @@ impl CommandType {
     }
 
     // TODO: заменить эту каку макросом
-    fn fieldless(&self) -> CommandTypeFieldless {
+    fn fieldless(&self) -> CommandFieldless {
         match self {
-            Self::Attack { .. }  => CommandTypeFieldless::Attack,
-            Self::Defend { .. }  => CommandTypeFieldless::Defend,
-            Self::Move   { .. }  => CommandTypeFieldless::Move,
-            Self::Shoot  { .. }  => CommandTypeFieldless::Shoot,
-            Self::Wait   { .. }  => CommandTypeFieldless::Wait
+            Self::Attack { .. }  => CommandFieldless::Attack,
+            Self::Defend { .. }  => CommandFieldless::Defend,
+            Self::Move   { .. }  => CommandFieldless::Move,
+            Self::Shoot  { .. }  => CommandFieldless::Shoot,
+            Self::Wait   { .. }  => CommandFieldless::Wait
         }
     }
 
     fn requires_current_stack_update(&self) -> bool {
         [
-            CommandTypeFieldless::Attack,
-            CommandTypeFieldless::Defend,
-            CommandTypeFieldless::Move,
-            CommandTypeFieldless::Shoot,
-            CommandTypeFieldless::Wait
+            CommandFieldless::Attack,
+            CommandFieldless::Defend,
+            CommandFieldless::Move,
+            CommandFieldless::Shoot,
+            CommandFieldless::Wait
         ].contains(&self.fieldless())
     }
 
@@ -151,13 +130,14 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     current_stack.set_head(current_side, destination);
 }
 
-fn is_applicable_attack(state: &BattleState, side: Side, position: GridPos, target: u8) -> bool {
+fn is_applicable_attack(state: &BattleState, position: GridPos, target: u8) -> bool {
     let path = state.navigation_array.get_shortest_path(position);
     let current_stack = state.get_current_stack();
-    let target_creature = state.get_stack(side.other(), target);
+    let opponent_side = state.current_side.other();
+    let target_creature = state.get_stack(opponent_side, target);
 
     let is_position_near_target_func = |target: &CreatureStack| {
-        target.get_adjacent_cells(side.other()).contains(&position)
+        target.get_adjacent_cells(opponent_side).contains(&position)
     };
     let is_position_near_target = target_creature.map_or(false, is_position_near_target_func);
 
@@ -177,8 +157,9 @@ fn apply_attack(state: &mut BattleState, target: u8) {
     defend_stack.receive_damage(damage);
 }
 
-fn is_applicable_shoot(state: &BattleState, side: Side, target: u8) -> bool {
-    let has_target = state.get_stack(side.other(), target).is_some();
+fn is_applicable_shoot(state: &BattleState, target: u8) -> bool {
+    let opponent_side = state.current_side.other();
+    let has_target = state.get_stack(opponent_side, target).is_some();
     let has_ammo = state.get_current_stack().current_ammo > 0;
 
     has_target && has_ammo
