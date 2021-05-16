@@ -33,6 +33,11 @@ impl Side {
     }
 }
 
+#[derive(Clone, Copy)]
+pub struct CreatureStackHandle {
+    pub side: Side,
+    pub index: usize
+}
 
 pub struct BattleState<'a> {
     // Логика
@@ -41,8 +46,7 @@ pub struct BattleState<'a> {
     pub phase_iter: turns::PhaseIterator,
     pub current_phase: CTS,
     pub last_turn_side: Side,
-    pub current_side: Side,
-    pub current_stack: usize,
+    pub current_stack: CreatureStackHandle,
 
     // Поиск пути
     pub navigation_array: NavigationArray,
@@ -80,8 +84,7 @@ impl<'a> BattleState<'a> {
             phase_iter: turns::new_phase_iter(),
             current_phase: CTS::HasTurn,
             last_turn_side: Side::Defender,
-            current_side: Side::Attacker,
-            current_stack: 0,
+            current_stack: CreatureStackHandle { side: Side::Attacker, index: 0 },
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
 
@@ -100,44 +103,40 @@ impl<'a> BattleState<'a> {
         Ok(state)
     }
 
-    pub fn battle_army(&self, side: Side) -> &Vec<CreatureStack> {
-        &self.sides[side as usize]
+    pub fn get_stack(&self, handle: CreatureStackHandle) -> &CreatureStack {
+        &self.sides[handle.side as usize][handle.index]
     }
-    pub fn battle_army_mut(&mut self, side: Side) -> &mut Vec<CreatureStack> {
-        &mut self.sides[side as usize]
-    }
-
-    pub fn get_stack(&self, side: Side, index: u8) -> Option<&CreatureStack> {
-        self.sides[side as usize].get(index as usize)
-    }
-    pub fn get_stack_mut(&mut self, side: Side, index: u8) -> Option<&mut CreatureStack> {
-        self.sides[side as usize].get_mut(index as usize)
+    pub fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut CreatureStack {
+        &mut self.sides[handle.side as usize][handle.index]
     }
 
-    pub fn current_stack_id(&self) -> (Side, u8) {
-        (self.current_side, self.current_stack as u8)
-    }
     pub fn get_current_stack(&self) -> &CreatureStack {
-        &self.battle_army(self.current_side)[self.current_stack]
+        self.get_stack(self.current_stack)
     }
+
     pub fn get_current_stack_mut(&mut self) -> &mut CreatureStack {
-        let stack_id = self.current_stack;
-        &mut self.battle_army_mut(self.current_side)[stack_id]
+        self.get_stack_mut(self.current_stack)
     }
 
-
-    fn units(&self) -> Vec<(Side, &CreatureStack)> {
-        self.sides
-            .iter()
-            .zip(vec![Side::Attacker, Side::Defender].into_iter())
-            .map(|(units, side)| units.iter().map(move |unit| (side, unit)))
-            .flatten()
-            .collect()
+    pub fn units(&self) -> Vec<CreatureStackHandle> {
+        let total_units = self.sides.iter().map(|side| side.len()).sum();
+        let mut units = Vec::with_capacity(total_units);
+        for side in vec![Side::Attacker, Side::Defender].into_iter() {
+            for index in 0..self.sides[side as usize].len() {
+                let handle = CreatureStackHandle { side, index };
+                units.push(handle);
+            }
+        }
+        units
     }
 
-    fn find_unit_for_cell(&self, pos: GridPos) -> Option<(Side, &CreatureStack)> {
+    pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
         self.units()
             .into_iter()
-            .find(|(side, unit)| unit.get_occupied_cells(*side).contains(&pos))
+            .find(|&handle| {
+                let stack = self.get_stack(handle);
+                let occupied_cells = stack.get_occupied_cells(handle.side);
+                occupied_cells.contains(&cell)
+            })
     }
 }

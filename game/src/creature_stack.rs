@@ -30,6 +30,7 @@ pub enum Direction {
     Right
 }
 
+#[derive(Clone)]
 pub struct CreatureStack {
     pub creature: Creature,
     pub count: u32,
@@ -119,27 +120,6 @@ impl CreatureStack {
             .collect::<HashSet<GridPos>>() // Оставляем уникальные
             .drain()
             .collect::<Vec<GridPos>>()
-    }
-
-    pub fn receive_damage(&mut self, damage: u32) {
-        let unit_health = self.base_stats().health;
-        let total_health = (self.count - 1) * unit_health as u32 + self.current_health as u32;
-        if total_health <= damage {
-            self.current_health = 0;
-            self.count = 0;
-        } else {
-            let health_left = total_health - damage;
-            let creatures_left = health_left / unit_health as u32;
-            let current_health = health_left as u16 % unit_health;
-
-            if current_health == 0 {
-                self.count = creatures_left - 1;
-                self.current_health = unit_health;
-            } else {
-                self.count = creatures_left;
-                self.current_health = current_health;
-            }
-        }
     }
 
     pub fn draw(

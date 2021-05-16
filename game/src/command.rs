@@ -1,6 +1,5 @@
-use super::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use super::battlestate::{BattleState, Side};
-use super::functions;
+use super::creature_stack::CreatureTurnState as CTS;
+use super::battlestate::BattleState;
 use super::gridpos::GridPos;
 
 #[allow(unused)]
@@ -83,17 +82,6 @@ impl Command {
     }
 }
 
-fn make_strike(state: &mut BattleState, attacker: (Side, u8), defender: (Side, u8)) -> u32 {
-    let att_stack = state.get_stack(attacker.0, attacker.1).unwrap();
-    let def_stack = state.get_stack(defender.0, defender.1).unwrap();
-
-    let damage = functions::calculate_strike_damage(att_stack, def_stack);
-    let def_stack_mut = state.get_stack_mut(defender.0, defender.1).unwrap();
-    def_stack_mut.receive_damage(damage);
-
-    damage
-}
-
 fn is_applicable_defend() -> bool {
     true
 }
@@ -117,26 +105,28 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
     path.len() <= current_stack.speed().into()
 }
 fn apply_move(state: &mut BattleState, destination: GridPos) {
-    let current_side = state.current_side;
+    let side = state.current_stack.side;
     let current_stack = state.get_current_stack_mut();
-    current_stack.set_head(current_side, destination);
+    current_stack.set_head(side, destination);
 }
 
 fn is_applicable_shoot(state: &BattleState, target: u8) -> bool {
-    let opponent_side = state.current_side.other();
-    let has_target = state.get_stack(opponent_side, target).is_some();
-    let has_ammo = state.get_current_stack().current_ammo > 0;
+    todo!()
+    // let opponent_side = state.current_side.other();
+    // let has_target = state.get_stack(opponent_side, target).is_some();
+    // let has_ammo = state.get_current_stack().current_ammo > 0;
 
-    has_target && has_ammo
+    // has_target && has_ammo
 }
 fn apply_shoot(state: &mut BattleState, target: u8) {
-    let current_side = state.current_side;
+    todo!()
+    // let current_side = state.current_side;
 
-    let attack_stack_id = state.current_stack_id();
-    let defend_stack_id = (current_side.other(), target);
+    // let attack_stack_id = state.current_stack_id();
+    // let defend_stack_id = (current_side.other(), target);
 
-    let damage = make_strike(state, attack_stack_id, defend_stack_id);
+    // let damage = make_strike(state, attack_stack_id, defend_stack_id);
 
-    let defend_stack = state.get_stack_mut(current_side.other(), target).unwrap();
-    defend_stack.receive_damage(damage);
+    // let defend_stack = state.get_stack_mut(current_side.other(), target).unwrap();
+    // defend_stack.receive_damage(damage);
 }

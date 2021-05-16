@@ -41,17 +41,19 @@ impl<'a> BattleState<'a> {
         let cursor = choose_cursor(self);
         self.cursors.set(cursor);
 
-        let current_stack = self.get_current_stack();
 
         for cell in &self.reachable_cells {
             canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
         }
 
         // Рисуем существ
-        for (side, unit) in self.units() {
-            unit.draw(canvas, rr, tc, false, side, &self.stack_count_bg, &font)?;
+        for handle in self.units() {
+            let stack = self.get_stack(handle);
+            stack.draw(canvas, rr, tc, false, handle.side, &self.stack_count_bg, &font)?;
         }
-        current_stack.draw(canvas, rr, tc, true, self.current_side, &self.stack_count_bg, &font)?;
+
+        let current_stack = self.get_current_stack();
+        current_stack.draw(canvas, rr, tc, true, self.current_stack.side, &self.stack_count_bg, &font)?;
 
         Ok(())
     }
@@ -61,7 +63,7 @@ fn choose_cursor(state: &BattleState) -> Cursor {
     if let Some(cell) = state.current_hover {
         let maybe_unit_for_cell = state.find_unit_for_cell(cell);
         let has_unit = maybe_unit_for_cell.is_some();
-        let is_enemy = maybe_unit_for_cell.map_or(false, |(side, _stack)| state.current_side != side);
+        let is_enemy = maybe_unit_for_cell.map_or(false, |handle| state.current_stack.side != handle.side);
 
         if state.reachable_cells.contains(&cell) 
         {

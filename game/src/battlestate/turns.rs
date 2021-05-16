@@ -1,7 +1,7 @@
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use crate::pathfinding::NavigationArray;
 
-use super::{BattleState, Side};
+use super::{BattleState, Side, CreatureStackHandle};
 
 
 pub type PhaseIterator = std::vec::IntoIter<CTS>;
@@ -11,12 +11,12 @@ pub fn new_phase_iter() -> PhaseIterator {
 
 impl<'a> BattleState<'a> {
     pub fn update_current_stack(&mut self) {
-        if let Some((side, index)) = self.find_current_creature() {
-            self.current_side = side;
-            self.current_stack = index;
+        if let Some(handle) = self.find_current_creature() {
+            self.current_stack = handle;
+
             let mut stack = self.get_current_stack_mut();
             stack.defending = false;
-            println!("Current stack is {}, {:?}", stack, side);
+            println!("Current stack is {}, {:?}", stack, handle.side);
 
             // borrow checker was unhappy
             let navigation_array = NavigationArray::new(stack.position);
@@ -49,7 +49,7 @@ impl<'a> BattleState<'a> {
         println!("New turn!");
     }
 
-    fn find_current_creature(&self) -> Option<(Side, usize)> {
+    fn find_current_creature(&self) -> Option<CreatureStackHandle> {
         // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
         match self.last_turn_side {
             Side::Attacker => vec![Side::Defender, Side::Attacker],
@@ -58,7 +58,7 @@ impl<'a> BattleState<'a> {
         .into_iter()
         .flat_map(|side| Iterator::zip(
             std::iter::repeat(side),
-            self.battle_army(side).iter().enumerate()
+            self.sides[side as usize].iter().enumerate()
         ))
         .map(|(side, (index, stack))| (side, index, stack)) // чтоб не утонуть в скобках
         .filter(|(_side, _index, stack)| stack.turn_state == self.current_phase)
@@ -66,13 +66,13 @@ impl<'a> BattleState<'a> {
             // Без max_first тяжко
             fn key((_, _, stack): (Side, usize, &CreatureStack)) -> u8 {
                 stack.speed()
-            };
+            }
             match acc {
                 None => Some(current),
                 Some(acc) if key(current) > key(acc) => Some(current),
                 _ => acc
             }
         })
-        .map(|(side, index, _stack)| (side, index))
+        .map(|(side, index, _stack)| CreatureStackHandle { side, index })
     }
 }

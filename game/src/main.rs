@@ -4,7 +4,6 @@ use std::error::Error;
 mod creature_stack;
 mod battlestate;
 mod command;
-mod functions;
 mod gridpos;
 mod pathfinding;
 mod registry;
