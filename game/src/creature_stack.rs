@@ -76,6 +76,10 @@ impl CreatureStack {
     pub fn can_shoot(&self) -> bool {
         self.current_ammo != 0
     }
+    
+    pub fn is_alive(&self) -> bool {
+        self.count > 0
+    }
 
     pub fn head(&self, side: Side) -> GridPos {
         if self.creature.is_wide() {
@@ -133,8 +137,16 @@ impl CreatureStack {
         font: &Font
     ) -> Result<(), Box<dyn Error>> {
         let spritesheet = rr.get_creature_container(self.creature);
-        let animation_block = spritesheet.animation_block(AnimationType::Standing);
-        let sprite_index = animation_block[0];
+
+        let animation_type =
+            if self.is_alive() {
+                AnimationType::Standing
+            } else {
+                AnimationType::Death
+            };
+
+        let animation_block = spritesheet.animation_block(animation_type);
+        let sprite_index = animation_block[animation_block.len() - 1];
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 

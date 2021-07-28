@@ -1,5 +1,5 @@
 use super::creature_stack::CreatureTurnState as CTS;
-use super::battlestate::BattleState;
+use super::battlestate::{BattleState, CreatureStackHandle};
 use super::gridpos::GridPos;
 
 #[allow(unused)]
@@ -8,7 +8,7 @@ pub enum Command {
     Move { destination: GridPos },
     Wait,
     Defend,
-    Shoot { target: u8 }
+    Shoot { target: CreatureStackHandle }
 }
 
 #[allow(unused)]
@@ -110,23 +110,14 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     current_stack.set_head(side, destination);
 }
 
-fn is_applicable_shoot(state: &BattleState, target: u8) -> bool {
-    todo!()
-    // let opponent_side = state.current_side.other();
-    // let has_target = state.get_stack(opponent_side, target).is_some();
-    // let has_ammo = state.get_current_stack().current_ammo > 0;
-
-    // has_target && has_ammo
+fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
+    let has_ammo = state.get_current_stack().current_ammo > 0;
+    has_ammo
 }
-fn apply_shoot(state: &mut BattleState, target: u8) {
-    todo!()
-    // let current_side = state.current_side;
+fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
+    let mut attack_stack = state.get_current_stack_mut();
+    attack_stack.current_ammo -= 1;
 
-    // let attack_stack_id = state.current_stack_id();
-    // let defend_stack_id = (current_side.other(), target);
-
-    // let damage = make_strike(state, attack_stack_id, defend_stack_id);
-
-    // let defend_stack = state.get_stack_mut(current_side.other(), target).unwrap();
-    // defend_stack.receive_damage(damage);
+    let mut defend_stack = state.get_stack_mut(target);
+    defend_stack.count -= 1;
 }

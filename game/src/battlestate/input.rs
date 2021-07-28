@@ -78,14 +78,27 @@ impl<'a> BattleState<'a> {
     }
 
     fn construct_command(&self, frame_input: FrameInput) -> Option<Command> {
-        if frame_input.key_d {
-            Some(Command::Defend)
-        } else if frame_input.key_w {
-            Some(Command::Wait)
-        } else if self.current_hover.is_some() && frame_input.btn_lmb {
-            Some(Command::Move { destination: self.current_hover.unwrap() })
-        } else {
-            None
+        if frame_input.key_d { return Some(Command::Defend) }
+        if frame_input.key_w { return Some(Command::Wait) }
+
+        if frame_input.btn_lmb {
+            if let Some(gridpos) = self.current_hover {
+                let current_stack = self.get_current_stack();
+                let current_side = self.get_current_side();
+
+                if let Some(unit) = self.find_unit_for_cell(gridpos) {
+                    if self.get_stack(unit).is_alive() {
+                        if unit.side != current_side {
+                            if current_stack.can_shoot() {
+                                return Some(Command::Shoot { target: unit })
+                            }
+                        }
+                    }
+                } else {
+                    return Some(Command::Move { destination: gridpos })
+                }
+            }
         }
+        return None
     }
 }

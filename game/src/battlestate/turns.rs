@@ -61,6 +61,7 @@ impl<'a> BattleState<'a> {
             self.sides[side as usize].iter().enumerate()
         ))
         .map(|(side, (index, stack))| (side, index, stack)) // чтоб не утонуть в скобках
+        .filter(|(_side, _index, stack)| stack.is_alive())
         .filter(|(_side, _index, stack)| stack.turn_state == self.current_phase)
         .fold(None, |acc, current| {
             // Без max_first тяжко
@@ -73,6 +74,6 @@ impl<'a> BattleState<'a> {
                 _ => acc
             }
         })
-        .map(|(side, index, _stack)| CreatureStackHandle { side, index })
+        .map(|(side, index, _stack)| CreatureStackHandle { side, index: index as u8 })
     }
 }

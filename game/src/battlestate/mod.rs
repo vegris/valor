@@ -36,7 +36,7 @@ impl Side {
 #[derive(Clone, Copy)]
 pub struct CreatureStackHandle {
     pub side: Side,
-    pub index: usize
+    pub index: u8
 }
 
 pub struct BattleState<'a> {
@@ -104,10 +104,10 @@ impl<'a> BattleState<'a> {
     }
 
     pub fn get_stack(&self, handle: CreatureStackHandle) -> &CreatureStack {
-        &self.sides[handle.side as usize][handle.index]
+        &self.sides[handle.side as usize][handle.index as usize]
     }
     pub fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut CreatureStack {
-        &mut self.sides[handle.side as usize][handle.index]
+        &mut self.sides[handle.side as usize][handle.index as usize]
     }
 
     pub fn get_current_stack(&self) -> &CreatureStack {
@@ -118,12 +118,16 @@ impl<'a> BattleState<'a> {
         self.get_stack_mut(self.current_stack)
     }
 
+    pub fn get_current_side(&self) -> Side {
+        self.current_stack.side
+    }
+
     pub fn units(&self) -> Vec<CreatureStackHandle> {
         let total_units = self.sides.iter().map(|side| side.len()).sum();
         let mut units = Vec::with_capacity(total_units);
         for side in vec![Side::Attacker, Side::Defender].into_iter() {
             for index in 0..self.sides[side as usize].len() {
-                let handle = CreatureStackHandle { side, index };
+                let handle = CreatureStackHandle { side, index: index as u8};
                 units.push(handle);
             }
         }

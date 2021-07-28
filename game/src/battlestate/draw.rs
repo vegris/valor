@@ -64,6 +64,7 @@ fn choose_cursor(state: &BattleState) -> Cursor {
         let maybe_unit_for_cell = state.find_unit_for_cell(cell);
         let has_unit = maybe_unit_for_cell.is_some();
         let is_enemy = maybe_unit_for_cell.map_or(false, |handle| state.current_stack.side != handle.side);
+        let is_alive = maybe_unit_for_cell.map_or(false, |handle| state.get_stack(handle).is_alive());
 
         if state.reachable_cells.contains(&cell) 
         {
@@ -73,7 +74,7 @@ fn choose_cursor(state: &BattleState) -> Cursor {
             return Cursor::Run
         }
 
-        if has_unit && is_enemy && state.get_current_stack().can_shoot() {
+        if has_unit && is_enemy && is_alive && state.get_current_stack().can_shoot() {
             return Cursor::Arrow
         }
     }

@@ -42,11 +42,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Создание начального игрового состояния
     let attacker_units = [
-            Some((Creature::Angel, 8)),
-            Some((Creature::Angel, 10)),
+            Some((Creature::Archer, 55)),
+            None, // Some((Creature::Angel, 8)),
+            None, // Some((Creature::Angel, 10)),
             Some((Creature::RoyalGriffin, 30)),
             None,
-            Some((Creature::Archer, 55)),
             None,
             None
         ];
@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             None,
             Some((Creature::Devil, 10)),
             Some((Creature::Angel, 20)),
-            Some((Creature::Hydra, 25)),
+            Some((Creature::Hydra, 1)),
             Some((Creature::HornedDemon, 25)),
             None
         ];
