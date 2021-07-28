@@ -60,22 +60,30 @@ impl<'a> BattleState<'a> {
 }
 
 fn choose_cursor(state: &BattleState) -> Cursor {
+    let current_stack = state.get_current_stack();
+
     if let Some(cell) = state.current_hover {
-        let maybe_unit_for_cell = state.find_unit_for_cell(cell);
-        let has_unit = maybe_unit_for_cell.is_some();
-        let is_enemy = maybe_unit_for_cell.map_or(false, |handle| state.current_stack.side != handle.side);
-        let is_alive = maybe_unit_for_cell.map_or(false, |handle| state.get_stack(handle).is_alive());
+        let is_reachable = state.reachable_cells.contains(&cell);
 
-        if state.reachable_cells.contains(&cell) 
-        {
-            if has_unit && is_enemy {
-                return Cursor::from_hexagon_part(state.hexagon_part.unwrap());
+        if let Some(handle) = state.find_unit_for_cell(cell) {
+            let is_enemy = state.get_current_side() != handle.side;
+            let unit = state.get_stack(handle);
+            if is_enemy && unit.is_alive() {
+                if current_stack.can_shoot() {
+                    return Cursor::Arrow;
+                }
+                if is_reachable {
+                    return Cursor::from_hexagon_part(state.hexagon_part.unwrap());
+                }
             }
-            return Cursor::Run
-        }
-
-        if has_unit && is_enemy && is_alive && state.get_current_stack().can_shoot() {
-            return Cursor::Arrow
+        } else {
+            if is_reachable {
+                if current_stack.creature.is_flying() {
+                    return Cursor::Fly;
+                } else {
+                    return Cursor::Run;
+                }
+            }
         }
     }
 
