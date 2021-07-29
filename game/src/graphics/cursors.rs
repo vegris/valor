@@ -8,7 +8,7 @@ use strum_macros::EnumIter;
 
 use formats::DefContainer;
 use crate::registry::ResourceRegistry;
-use crate::gridpos::HexagonPart;
+use crate::gridpos::AttackDirection;
 
 #[derive(Clone, Copy, EnumIter, Debug)]
 #[allow(unused)]
@@ -63,18 +63,16 @@ impl Cursor {
         }
     }
 
-    pub fn from_hexagon_part(hexagon_part: HexagonPart) -> Self {
-        match hexagon_part {
-            HexagonPart::Left         => Cursor::AttackLeft,
-            HexagonPart::Right        => Cursor::AttackRight,
-            HexagonPart::TopHalfLeft  => Cursor::AttackUpLeft,
-            HexagonPart::TopHalfRight => Cursor::AttackUpRight,
-            HexagonPart::BotHalfLeft  => Cursor::AttackDownLeft,
-            HexagonPart::BotHalfRight => Cursor::AttackDownRight,
-            HexagonPart::BotLeft      => Cursor::AttackDownLeft,
-            HexagonPart::BotRight     => Cursor::AttackDownRight,
-            HexagonPart::TopLeft      => Cursor::AttackUpLeft,
-            HexagonPart::TopRight     => Cursor::AttackUpRight,
+    pub fn from_attack_direction(attack_direction: AttackDirection) -> Self {
+        match attack_direction {
+            AttackDirection::Left => Self::AttackLeft,
+            AttackDirection::TopLeft => Self::AttackUpLeft,
+            AttackDirection::Top => Self::AttackUp,
+            AttackDirection::TopRight => Self::AttackUpRight,
+            AttackDirection::Right => Self::AttackRight,
+            AttackDirection::BottomRight => Self::AttackDownRight,
+            AttackDirection::Bottom => Self::AttackDown,
+            AttackDirection::BottomLeft => Self::AttackDownLeft
         }
     }
 }

@@ -9,12 +9,15 @@ use sdl2::ttf::Font;
 use crate::registry::ResourceRegistry;
 use crate::gridpos::GridPos;
 use crate::graphics::cursors::Cursor;
+use crate::command::CommandFieldless;
 
 use super::BattleState;
+use super::input::FrameData;
 
 impl<'a> BattleState<'a> {
     pub fn draw(
         &self,
+        frame_data: FrameData,
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
@@ -33,12 +36,12 @@ impl<'a> BattleState<'a> {
         }
 
         // Выделяем клетку под курсором
-        if let Some(cell) = self.current_hover {
+        if let Some(cell) = frame_data.current_hover {
             canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
         }
 
         // Выставляем курсор под ситуацию
-        let cursor = choose_cursor(self);
+        let cursor = choose_cursor(self, frame_data);
         self.cursors.set(cursor);
 
 
@@ -59,33 +62,26 @@ impl<'a> BattleState<'a> {
     }
 }
 
-fn choose_cursor(state: &BattleState) -> Cursor {
+fn choose_cursor(state: &BattleState, frame_data: FrameData) -> Cursor {
     let current_stack = state.get_current_stack();
 
-    if let Some(cell) = state.current_hover {
-        let is_reachable = state.reachable_cells.contains(&cell);
-
-        if let Some(handle) = state.find_unit_for_cell(cell) {
-            let is_enemy = state.get_current_side() != handle.side;
-            let unit = state.get_stack(handle);
-            if is_enemy && unit.is_alive() {
-                if current_stack.can_shoot() {
-                    return Cursor::Arrow;
-                }
-                if is_reachable {
-                    return Cursor::from_hexagon_part(state.hexagon_part.unwrap());
-                }
-            }
-        } else {
-            if is_reachable {
+    if let Some(command) = frame_data.potential_lmb_command {
+        match command.fieldless() {
+            CommandFieldless::Move => {
                 if current_stack.creature.is_flying() {
-                    return Cursor::Fly;
+                    Cursor::Fly
                 } else {
-                    return Cursor::Run;
+                    Cursor::Run
                 }
-            }
+            },
+            CommandFieldless::Attack => {
+                let attack_direction = frame_data.attack_direction.unwrap();
+                Cursor::from_attack_direction(attack_direction)
+            },
+            CommandFieldless::Shoot => Cursor::Arrow,
+            _ => unreachable!()
         }
+    } else {
+        Cursor::Pointer
     }
-
-    return Cursor::Pointer
 }

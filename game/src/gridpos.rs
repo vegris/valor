@@ -6,6 +6,41 @@ use sdl2::rect::{Point, Rect};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
+use creature::Creature;
+
+#[derive(Clone, Copy, Debug)]
+pub enum AttackDirection {
+    Left,
+    TopLeft,
+    Top,
+    TopRight,
+    Right,
+    BottomRight,
+    Bottom,
+    BottomLeft
+}
+
+impl AttackDirection {
+    fn from_hexagon_part(hexagon_part: HexagonPart, attacking_creature: Creature) -> Self {
+        match (hexagon_part, attacking_creature.is_wide()) {
+            (HexagonPart::Left, _)             => Self::Left,
+            (HexagonPart::Right, _)            => Self::Right,
+            (HexagonPart::TopHalfLeft,  false) => Self::TopLeft,
+            (HexagonPart::TopHalfLeft,  true)  => Self::Top,
+            (HexagonPart::TopHalfRight, false) => Self::TopRight,
+            (HexagonPart::TopHalfRight, true)  => Self::Top,
+            (HexagonPart::BotHalfLeft,  false) => Self::BottomLeft,
+            (HexagonPart::BotHalfLeft,  true)  => Self::Bottom,
+            (HexagonPart::BotHalfRight, false) => Self::BottomRight,
+            (HexagonPart::BotHalfRight, true)  => Self::Bottom,
+            (HexagonPart::BotLeft, _)          => Self::BottomLeft,
+            (HexagonPart::BotRight, _)         => Self::BottomRight,
+            (HexagonPart::TopLeft, _)          => Self::TopLeft,
+            (HexagonPart::TopRight, _)         => Self::TopRight
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, EnumIter)]
 pub enum HexagonPart {
     Left,
@@ -151,13 +186,15 @@ impl GridPos {
         }
     }
 
-    pub fn calculate_direction(&self, point: Point) -> HexagonPart {
+    pub fn calculate_attack_direction(&self, point: Point, attacking_creature: Creature) -> AttackDirection {
         let grid_center = self.center();
         let point = point - grid_center;
         let x = point.x() as f32;
         let y = point.y() as f32;
         let angle = f32::atan2(y, x);
-        HexagonPart::find_part_for_angle(angle)
+        let hexagon_part = HexagonPart::find_part_for_angle(angle);
+
+        AttackDirection::from_hexagon_part(hexagon_part, attacking_creature) 
     }
 
     pub fn contains_point(&self, point: Point) -> bool {

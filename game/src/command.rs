@@ -1,20 +1,20 @@
 use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
-use super::gridpos::GridPos;
+use super::gridpos::{GridPos, AttackDirection};
 
 #[allow(unused)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Command {
     Move { destination: GridPos },
     Wait,
     Defend,
-    Attack { position: GridPos, target: CreatureStackHandle },
+    Attack { attack_direction: AttackDirection, target: CreatureStackHandle },
     Shoot { target: CreatureStackHandle }
 }
 
 #[allow(unused)]
 #[derive(Clone, Copy, PartialEq)]
-enum CommandFieldless {
+pub enum CommandFieldless {
     Move,
     Wait,
     Defend,
@@ -31,8 +31,8 @@ impl Command {
                 is_applicable_wait(state),
             Self::Move { destination } =>
                 is_applicable_move(state, destination),
-            Self::Attack { position, target } =>
-                is_applicable_attack(state, position, target),
+            Self::Attack { attack_direction, target } =>
+                is_applicable_attack(state, attack_direction, target),
             Self::Shoot { target } => 
                 is_applicable_shoot(state, target)
         }
@@ -45,8 +45,8 @@ impl Command {
                 apply_wait(state),
             Self::Move { destination } =>
                 apply_move(state, destination),
-            Self::Attack { position, target } =>
-                apply_attack(state, position, target),
+            Self::Attack { attack_direction, target } =>
+                apply_attack(state, attack_direction, target),
             Self::Shoot { target } =>
                 apply_shoot(state, target)
         }
@@ -62,7 +62,7 @@ impl Command {
     }
 
     // TODO: заменить эту каку макросом
-    fn fieldless(&self) -> CommandFieldless {
+    pub fn fieldless(&self) -> CommandFieldless {
         match self {
             Self::Defend { .. } => CommandFieldless::Defend,
             Self::Move   { .. } => CommandFieldless::Move,
@@ -118,8 +118,15 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     current_stack.set_head(side, destination);
 }
 
-fn is_applicable_shoot(state: &BattleState, _target: CreatureStackHandle) -> bool {
-    state.get_current_stack().can_shoot()
+fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
+    let current_stack = state.get_current_stack();
+    let current_side = state.get_current_side();
+
+    let is_enemy = current_side != target.side;
+    let is_alive = state.get_stack(target).is_alive();
+    let can_shoot = current_stack.can_shoot();
+
+    is_enemy && is_alive && can_shoot
 }
 fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
     let mut attack_stack = state.get_current_stack_mut();
@@ -129,14 +136,16 @@ fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
     defend_stack.count -= 1;
 }
 
-fn is_applicable_attack(state: &BattleState, position: GridPos, target: CreatureStackHandle) -> bool {
+fn is_applicable_attack(state: &BattleState, attack_direction: AttackDirection, target: CreatureStackHandle) -> bool {
     let current_stack = state.get_current_stack();
     let current_side = state.get_current_side();
 
-    let cells = current_stack.get_occupied_cells_for(current_side, position);
-    let occupied = cells.iter().any(|&cell| state.find_unit_for_cell(cell).is_some());
+    let is_enemy = current_side != target.side;
+    let target_alive = state.get_stack(target).is_alive();
+    // let cells = current_stack.get_occupied_cells_for(current_side, position);
+    // let occupied = cells.iter().any(|&cell| state.find_unit_for_cell(cell).is_some());
 
-    false
+    is_enemy && target_alive 
 }
-fn apply_attack(mut state: &BattleState, position: GridPos, target: CreatureStackHandle) {
+fn apply_attack(mut state: &BattleState, attack_direction: AttackDirection, target: CreatureStackHandle) {
 }

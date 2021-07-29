@@ -7,7 +7,7 @@ use sdl2::video::WindowContext;
 use creature::Creature;
 
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use crate::gridpos::{GridPos, HexagonPart};
+use crate::gridpos::GridPos;
 use crate::pathfinding::NavigationArray;
 use crate::Battlefield;
 use crate::registry::ResourceRegistry;
@@ -33,7 +33,7 @@ impl Side {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct CreatureStackHandle {
     pub side: Side,
     pub index: u8
@@ -61,10 +61,7 @@ pub struct BattleState<'a> {
     grid_cell_shadow: Texture<'a>,
     stack_count_bg: Texture<'a>,
 
-    cursors: Cursors,
-
-    current_hover: Option<GridPos>,
-    hexagon_part: Option<HexagonPart>
+    cursors: Cursors
 }
 
 
@@ -93,10 +90,7 @@ impl<'a> BattleState<'a> {
             grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
             stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(&tc)?,
 
-            cursors: Cursors::load(rr),
-
-            current_hover: None,
-            hexagon_part: None
+            cursors: Cursors::load(rr)
         };
 
         state.update_current_stack();

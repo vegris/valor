@@ -71,14 +71,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         // let current_time = Instant::now();
         // Обработка ввода
         let frame_input = current_state.gather_input(&mut event_pump);
-        current_state.process_input(frame_input);
+        let frame_data = current_state.process_input(frame_input);
 
         // Обновление игрового состояния
         // current_state.update(current_time - last_time, &mut resource_registry);
         
         // Отображение игрового состояния
         canvas.clear();
-        current_state.draw(&mut canvas, &mut resource_registry, &texture_creator, &font)?;
+        current_state.draw(frame_data, &mut canvas, &mut resource_registry, &texture_creator, &font)?;
         canvas.present();
 
         // last_time = current_time;
