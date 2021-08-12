@@ -8,7 +8,7 @@ pub enum Command {
     Move { destination: GridPos },
     Wait,
     Defend,
-    Attack { attack_direction: AttackDirection, target: CreatureStackHandle },
+    Attack { attack_position: GridPos, attack_direction: AttackDirection},
     Shoot { target: CreatureStackHandle }
 }
 
@@ -31,8 +31,8 @@ impl Command {
                 is_applicable_wait(state),
             Self::Move { destination } =>
                 is_applicable_move(state, destination),
-            Self::Attack { attack_direction, target } =>
-                is_applicable_attack(state, attack_direction, target),
+            Self::Attack { attack_position, attack_direction } =>
+                is_applicable_attack(state, attack_position, attack_direction),
             Self::Shoot { target } => 
                 is_applicable_shoot(state, target)
         }
@@ -45,8 +45,8 @@ impl Command {
                 apply_wait(state),
             Self::Move { destination } =>
                 apply_move(state, destination),
-            Self::Attack { attack_direction, target } =>
-                apply_attack(state, attack_direction, target),
+            Self::Attack { attack_position, attack_direction } =>
+                apply_attack(state, attack_position, attack_direction),
             Self::Shoot { target } =>
                 apply_shoot(state, target)
         }
@@ -136,16 +136,12 @@ fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
     defend_stack.count -= 1;
 }
 
-fn is_applicable_attack(state: &BattleState, attack_direction: AttackDirection, target: CreatureStackHandle) -> bool {
+fn is_applicable_attack(state: &BattleState, attack_position: GridPos, attack_direction: AttackDirection) -> bool {
     let current_stack = state.get_current_stack();
     let current_side = state.get_current_side();
 
-    let is_enemy = current_side != target.side;
-    let target_alive = state.get_stack(target).is_alive();
-    // let cells = current_stack.get_occupied_cells_for(current_side, position);
-    // let occupied = cells.iter().any(|&cell| state.find_unit_for_cell(cell).is_some());
-
-    is_enemy && target_alive 
+    true
 }
-fn apply_attack(mut state: &BattleState, attack_direction: AttackDirection, target: CreatureStackHandle) {
+
+fn apply_attack(mut state: &BattleState, attack_position: GridPos, attack_direction: AttackDirection) {
 }

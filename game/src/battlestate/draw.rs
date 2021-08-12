@@ -9,7 +9,8 @@ use sdl2::ttf::Font;
 use crate::registry::ResourceRegistry;
 use crate::gridpos::GridPos;
 use crate::graphics::cursors::Cursor;
-use crate::command::CommandFieldless;
+use crate::command::{Command, CommandFieldless};
+use crate::pathfinding;
 
 use super::BattleState;
 use super::input::FrameData;
@@ -35,17 +36,54 @@ impl<'a> BattleState<'a> {
             }
         }
 
+        let mut highlighted_cells = vec![];
+
         // Выделяем клетку под курсором
         if let Some(cell) = frame_data.current_hover {
-            canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
+            highlighted_cells.push(cell);
         }
 
         // Выставляем курсор под ситуацию
-        let cursor = choose_cursor(self, frame_data);
+        let cursor = choose_cursor(self, &frame_data);
         self.cursors.set(cursor);
 
+        if let Some(command) = frame_data.potential_lmb_command {
+            match command {
+                // Выделяем потенциальную позицию атакующего стека в случае атаки
+                Command::Attack { attack_position, attack_direction } => {
+                    let current_side = self.get_current_side();
+                    let current_stack = self.get_current_stack();
+
+                    let potential_position = pathfinding::unit_position_for_attack(
+                        attack_position, attack_direction, current_side, current_stack.creature.is_wide()
+                    );
+                    
+                    for cell in current_stack.get_occupied_cells_for(current_side, potential_position) {
+                        highlighted_cells.push(cell);
+                    }
+
+                },
+                // Выделяем потенциальную позицию после перемещения (объединить в функцию с верхней)
+                Command::Move { destination } => {
+                    let current_side = self.get_current_side();
+                    let current_stack = self.get_current_stack();
+
+                    let potential_tail_pos = current_stack.tail_from_head(current_side, destination);
+                    for cell in current_stack.get_occupied_cells_for(current_side, potential_tail_pos) {
+                        highlighted_cells.push(cell);
+                    }
+                }
+                _ => {}
+            }
+        }
 
         for cell in &self.reachable_cells {
+            canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
+        }
+
+        highlighted_cells.sort();
+        highlighted_cells.dedup();
+        for cell in highlighted_cells {
             canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
         }
 
@@ -62,7 +100,7 @@ impl<'a> BattleState<'a> {
     }
 }
 
-fn choose_cursor(state: &BattleState, frame_data: FrameData) -> Cursor {
+fn choose_cursor(state: &BattleState, frame_data: &FrameData) -> Cursor {
     let current_stack = state.get_current_stack();
 
     if let Some(command) = frame_data.potential_lmb_command {

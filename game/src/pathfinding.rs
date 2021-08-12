@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
-use crate::gridpos::GridPos;
+use crate::gridpos::{GridPos, AttackDirection};
+use crate::battlestate::Side;
 
 // Структуры для алгоритма Дейкстры
 #[derive(Clone, Copy, Debug)]
@@ -135,16 +136,56 @@ impl GridPos {
     }
 }
 
-#[test]
-fn name() {
-    let start_cell = GridPos::new(3, 3);
-    let navigation_array = NavigationArray::new(start_cell);
-    dbg!(navigation_array.get_cell(GridPos::new(7, 7)));
-    dbg!(navigation_array.get_shortest_path(GridPos::new(7, 7)));
-}
+// Нужна функция, определяющая положение существа при атаке
+// Положение существа зависит от:
+// 1. Атакуемого гекса
+// 2. Направления атаки
+// 3. Стороны существа
+// 4. Ширины существа
+// TODO: порефакторить это говно
+pub fn unit_position_for_attack(
+    attack_position: GridPos,
+    attack_direction: AttackDirection,
+    creature_side: Side,
+    is_wide: bool
+) -> GridPos {
+    let successors = attack_position.get_successors();
 
-#[test]
-fn name_2() {
-    let result = NavigationArray::cell_to_index(GridPos::new(3, 4));
-    dbg!(result);
+    if !is_wide {
+        let slim_creature_attack_directions = vec![
+            AttackDirection::Left,
+            AttackDirection::TopLeft,
+            AttackDirection::TopRight,
+            AttackDirection::Right,
+            AttackDirection::BottomRight,
+            AttackDirection::BottomLeft
+        ];
+
+        Iterator::zip(
+            successors.into_iter(),
+            slim_creature_attack_directions.into_iter()
+        )
+        .find(|(_hex, slim_attack_direction)| attack_direction == *slim_attack_direction)
+        .unwrap()
+        .0
+    } else {
+        match (attack_direction, creature_side) {
+            (AttackDirection::Left, Side::Attacker) => successors[0].relative(-1, 0),
+            (AttackDirection::Left, Side::Defender) => successors[0],
+            (AttackDirection::TopLeft, Side::Attacker) => successors[1].relative(-1, 0),
+            (AttackDirection::TopLeft, Side::Defender) => successors[1],
+            (AttackDirection::Top, Side::Attacker) => successors[1],
+            (AttackDirection::Top, Side::Defender) => successors[2],
+            (AttackDirection::TopRight, Side::Attacker) => successors[2],
+            (AttackDirection::TopRight, Side::Defender) => successors[2].relative(1, 0),
+            (AttackDirection::Right, Side::Attacker) => successors[3],
+            (AttackDirection::Right, Side::Defender) => successors[3].relative(1, 0),
+            (AttackDirection::BottomRight, Side::Attacker) => successors[4],
+            (AttackDirection::BottomRight, Side::Defender) => successors[4].relative(1, 0),
+            (AttackDirection::Bottom, Side::Attacker) => successors[5],
+            (AttackDirection::Bottom, Side::Defender) => successors[4],
+            (AttackDirection::BottomLeft, Side::Attacker) => successors[5].relative(-1, 0),
+            (AttackDirection::BottomLeft, Side::Defender) => successors[5]
+        }
+    }
 }

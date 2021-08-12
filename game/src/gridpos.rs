@@ -8,7 +8,7 @@ use strum_macros::EnumIter;
 
 use creature::Creature;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AttackDirection {
     Left,
     TopLeft,

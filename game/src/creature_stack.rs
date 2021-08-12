@@ -96,17 +96,18 @@ impl CreatureStack {
     }
 
     pub fn set_head(&mut self, side: Side, cell: GridPos) {
-        let would_be_tail =
-            if self.creature.is_wide() {
-                match side {
-                    Side::Attacker => cell.relative(-1, 0),
-                    Side::Defender => cell.relative(1, 0)
-                }
-            } else {
-                cell
-            };
+        self.position = self.tail_from_head(side, cell);
+    }
 
-        self.position = would_be_tail;
+    pub fn tail_from_head(&self, side: Side, head_cell: GridPos) -> GridPos {
+        if self.creature.is_wide() {
+            match side {
+                Side::Attacker => head_cell.relative(-1, 0),
+                Side::Defender => head_cell.relative(1, 0)
+            }
+        } else {
+            head_cell
+        }
     }
 
     pub fn tail_for(&self, pos: GridPos) -> GridPos {

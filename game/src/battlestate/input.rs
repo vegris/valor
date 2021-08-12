@@ -110,7 +110,7 @@ impl<'a> BattleState<'a> {
                     if current_stack.can_shoot() {
                         Some(Command::Shoot { target })
                     } else {
-                        Some(Command::Attack { attack_direction: attack_direction.unwrap(), target })
+                        Some(Command::Attack { attack_position: gridpos, attack_direction: attack_direction.unwrap() })
                     }
                 } else {
                     Some(Command::Move { destination: gridpos })
