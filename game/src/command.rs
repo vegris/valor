@@ -1,6 +1,7 @@
 use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
 use super::gridpos::{GridPos, AttackDirection};
+use crate::pathfinding::unit_position_for_attack;
 
 #[allow(unused)]
 #[derive(Clone, Copy, Debug)]
@@ -139,9 +140,42 @@ fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
 fn is_applicable_attack(state: &BattleState, attack_position: GridPos, attack_direction: AttackDirection) -> bool {
     let current_stack = state.get_current_stack();
     let current_side = state.get_current_side();
+    let is_wide = current_stack.creature.is_wide();
 
-    true
+    let potential_pos = unit_position_for_attack(
+        attack_position, attack_direction, current_side, is_wide
+    );
+
+    // успех в случае
+    // 1. на позиции есть существо
+    // 2. оно - враг
+    // 3. атакующий может дойти до позиции атаки и поместиться там
+    state
+        .find_unit_for_cell(attack_position)
+        .filter(|handle| handle.side != current_side)
+        .and(potential_pos)
+        .filter(|&creature_pos| is_applicable_move(state, creature_pos))
+        .is_some()
 }
 
-fn apply_attack(mut state: &BattleState, attack_position: GridPos, attack_direction: AttackDirection) {
+fn apply_attack(state: &mut BattleState, attack_position: GridPos, attack_direction: AttackDirection) {
+    let current_stack = state.get_current_stack();
+    let current_side = state.get_current_side();
+    let is_wide = current_stack.creature.is_wide();
+
+    let creature_tail_pos = unit_position_for_attack(
+        attack_position, attack_direction, current_side, is_wide
+    ).unwrap();
+
+    let head_pos = current_stack.head_for(current_side, creature_tail_pos);
+    apply_move(state, head_pos);
+
+    let defending_unit_handle = state.find_unit_for_cell(attack_position).unwrap();
+    let mut defending_unit = state.get_stack_mut(defending_unit_handle);
+    defending_unit.count -= 1;
+
+    if defending_unit.is_alive() {
+        let mut current_stack = state.get_current_stack_mut();
+        current_stack.count -= 1;
+    }
 }
