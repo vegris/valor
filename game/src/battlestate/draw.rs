@@ -57,11 +57,12 @@ impl<'a> BattleState<'a> {
                     let potential_position = pathfinding::unit_position_for_attack(
                         attack_position, attack_direction, current_side, current_stack.creature.is_wide()
                     );
-                    
-                    for cell in current_stack.get_occupied_cells_for(current_side, potential_position) {
-                        highlighted_cells.push(cell);
-                    }
 
+                    if let Some(pos) = potential_position {
+                        for cell in current_stack.get_occupied_cells_for(current_side, pos) {
+                            highlighted_cells.push(cell);
+                        }
+                    }
                 },
                 // Выделяем потенциальную позицию после перемещения (объединить в функцию с верхней)
                 Command::Move { destination } => {

@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::convert::TryInto;
 
 use crate::gridpos::{GridPos, AttackDirection};
 use crate::battlestate::Side;
@@ -108,12 +109,12 @@ impl NavigationArray {
 }
 
 impl GridPos {
-    pub fn get_successors(self) -> Vec<Self> {
+    pub fn get_successors_positional(self) -> [Option<Self>; 6] {
         let Self { x, y } = self;
 
         // набор соседних клеток отличается в зависимости от чётности ряда
         if self.is_even_row() {
-            vec![
+            [
                 (x - 1, y), // начинаем слева и по часовой стрелке
                 (x - 1, y - 1),
                 (x, y - 1),
@@ -122,7 +123,7 @@ impl GridPos {
                 (x - 1, y + 1)
             ]
         } else {
-            vec![
+            [
                 (x - 1, y),
                 (x, y - 1),
                 (x + 1, y - 1),
@@ -130,9 +131,18 @@ impl GridPos {
                 (x + 1, y + 1),
                 (x, y + 1)
             ]
-        }.into_iter()
-         .filter_map(|(x, y)| Self::try_new(x, y))
-         .collect()
+        }.iter()
+         .map(|&(x, y)| Self::try_new(x, y))
+         .collect::<Vec<Option<Self>>>()
+         .try_into()
+         .unwrap()
+    }
+
+    pub fn get_successors(self) -> Vec<Self> {
+        self.get_successors_positional()
+            .iter()
+            .filter_map(|&x| x)
+            .collect()
     }
 }
 
@@ -148,44 +158,52 @@ pub fn unit_position_for_attack(
     attack_direction: AttackDirection,
     creature_side: Side,
     is_wide: bool
-) -> GridPos {
-    let successors = attack_position.get_successors();
+) -> Option<GridPos> {
+    let successors = attack_position.get_successors_positional();
 
-    if !is_wide {
-        let slim_creature_attack_directions = vec![
-            AttackDirection::Left,
-            AttackDirection::TopLeft,
-            AttackDirection::TopRight,
-            AttackDirection::Right,
-            AttackDirection::BottomRight,
-            AttackDirection::BottomLeft
-        ];
+    let slim_creature_attack_directions = [
+        AttackDirection::Left,
+        AttackDirection::TopLeft,
+        AttackDirection::TopRight,
+        AttackDirection::Right,
+        AttackDirection::BottomRight,
+        AttackDirection::BottomLeft
+    ];
 
-        Iterator::zip(
-            successors.into_iter(),
-            slim_creature_attack_directions.into_iter()
-        )
-        .find(|(_hex, slim_attack_direction)| attack_direction == *slim_attack_direction)
-        .unwrap()
-        .0
+    // Короткий путь до индекса с нужной клеткой
+    // Всегда работает для обычных существ
+    // Для широких есть дополнительные варианты
+    let shortcut_gridpos_index =
+            slim_creature_attack_directions
+                .iter()
+                .position(|&x| x == attack_direction);
+    
+    if is_wide {
+        let gridpos_index =
+            if let Some(gridpos_index) = shortcut_gridpos_index {
+                gridpos_index    
+            } else {
+                match (attack_direction, creature_side) {
+                    (AttackDirection::Top, Side::Attacker) => 1,
+                    (AttackDirection::Top, Side::Defender) => 2,
+                    (AttackDirection::Bottom, Side::Attacker) => 5,
+                    (AttackDirection::Bottom, Side::Defender) => 4,
+                    _ => unreachable!()
+                }
+            };
+        let (x_modif, y_modif) =
+            match (attack_direction, creature_side) {
+                (AttackDirection::Left, Side::Attacker) => (-1, 0),
+                (AttackDirection::TopLeft, Side::Attacker) => (-1, 0),
+                (AttackDirection::TopRight, Side::Defender) => (1, 0),
+                (AttackDirection::Right, Side::Defender) => (1, 0),
+                (AttackDirection::BottomRight, Side::Defender) => (1, 0),
+                (AttackDirection::BottomLeft, Side::Attacker) => (-1, 0),
+                _ => (0, 0)
+            };
+        
+        successors[gridpos_index].map(|gridpos| gridpos.relative(x_modif, y_modif))
     } else {
-        match (attack_direction, creature_side) {
-            (AttackDirection::Left, Side::Attacker) => successors[0].relative(-1, 0),
-            (AttackDirection::Left, Side::Defender) => successors[0],
-            (AttackDirection::TopLeft, Side::Attacker) => successors[1].relative(-1, 0),
-            (AttackDirection::TopLeft, Side::Defender) => successors[1],
-            (AttackDirection::Top, Side::Attacker) => successors[1],
-            (AttackDirection::Top, Side::Defender) => successors[2],
-            (AttackDirection::TopRight, Side::Attacker) => successors[2],
-            (AttackDirection::TopRight, Side::Defender) => successors[2].relative(1, 0),
-            (AttackDirection::Right, Side::Attacker) => successors[3],
-            (AttackDirection::Right, Side::Defender) => successors[3].relative(1, 0),
-            (AttackDirection::BottomRight, Side::Attacker) => successors[4],
-            (AttackDirection::BottomRight, Side::Defender) => successors[4].relative(1, 0),
-            (AttackDirection::Bottom, Side::Attacker) => successors[5],
-            (AttackDirection::Bottom, Side::Defender) => successors[4],
-            (AttackDirection::BottomLeft, Side::Attacker) => successors[5].relative(-1, 0),
-            (AttackDirection::BottomLeft, Side::Defender) => successors[5]
-        }
+        successors[shortcut_gridpos_index.unwrap()]
     }
 }
