@@ -21,7 +21,6 @@ pub struct FrameInput {
 
 pub struct FrameData {
     pub current_hover: Option<GridPos>,
-    pub attack_direction: Option<AttackDirection>,
     pub potential_lmb_command: Option<Command>
 }
 
@@ -75,19 +74,25 @@ impl<'a> BattleState<'a> {
         let current_stack = self.get_current_stack();
         let attack_direction = current_hover.map(|cell| cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature));
 
-        let potential_lmb_command = self.construct_potential_lmb_command(current_hover, attack_direction);
+        let mut potential_lmb_command = self.construct_potential_lmb_command(current_hover, attack_direction);
 
         if let Some(command) = self.construct_command(frame_input, potential_lmb_command) {
             dbg!(command);
             if command.is_applicable(self) {
                 println!("Command applied!");
                 command.apply(self);
+
+                // Если команда поменяла игровое состояние,
+                // то есть шанс, что в potentail_lmb_command
+                // стала содержаться устаревшая инфа
+                // Лучше сбросить от греха
+                potential_lmb_command = None;
             } else {
                 println!("Command is not applicable!");
             }
         }
 
-        FrameData { current_hover, attack_direction, potential_lmb_command }
+        FrameData { current_hover, potential_lmb_command }
     }
 
     fn construct_command(&self, frame_input: FrameInput, potential_lmb_command: Option<Command>) -> Option<Command> {

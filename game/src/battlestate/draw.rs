@@ -9,7 +9,7 @@ use sdl2::ttf::Font;
 use crate::registry::ResourceRegistry;
 use crate::gridpos::GridPos;
 use crate::graphics::cursors::Cursor;
-use crate::command::{Command, CommandFieldless};
+use crate::command::Command;
 use crate::pathfinding;
 
 use super::BattleState;
@@ -105,19 +105,18 @@ fn choose_cursor(state: &BattleState, frame_data: &FrameData) -> Cursor {
     let current_stack = state.get_current_stack();
 
     if let Some(command) = frame_data.potential_lmb_command {
-        match command.fieldless() {
-            CommandFieldless::Move => {
+        match command {
+            Command::Move { .. } => {
                 if current_stack.creature.is_flying() {
                     Cursor::Fly
                 } else {
                     Cursor::Run
                 }
             },
-            CommandFieldless::Attack => {
-                let attack_direction = frame_data.attack_direction.unwrap();
+            Command::Attack { attack_direction, .. } => {
                 Cursor::from_attack_direction(attack_direction)
             },
-            CommandFieldless::Shoot => Cursor::Arrow,
+            Command::Shoot { .. } => Cursor::Arrow,
             _ => unreachable!()
         }
     } else {
