@@ -14,7 +14,7 @@ use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
 use super::gridpos::GridPos;
-use super::battlestate::Side;
+use super::battlestate::{BattleState, Side};
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -73,8 +73,15 @@ impl CreatureStack {
         self.base_stats().speed
     }
 
-    pub fn can_shoot(&self) -> bool {
-        self.current_ammo != 0
+    pub fn can_shoot(&self, side: Side, state: &BattleState) -> bool {
+        let has_ammo = self.current_ammo != 0;
+        let has_enemies_around =
+            self.get_adjacent_cells(side)
+                .iter()
+                .filter_map(|&cell| state.find_unit_for_cell(cell))
+                .find(|stack| stack.side != side) 
+                .is_some();
+        has_ammo && !has_enemies_around
     }
     
     pub fn is_alive(&self) -> bool {

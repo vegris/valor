@@ -105,9 +105,10 @@ impl<'a> BattleState<'a> {
         let command =
             if let Some(gridpos) = current_hover {
                 let current_stack = self.get_current_stack();
+                let current_side = self.get_current_side();
 
                 if let Some(target) = self.find_unit_for_cell(gridpos) {
-                    if current_stack.can_shoot() {
+                    if current_stack.can_shoot(current_side, self) {
                         Some(Command::Shoot { target })
                     } else {
                         Some(Command::Attack { attack_position: gridpos, attack_direction: attack_direction.unwrap() })
