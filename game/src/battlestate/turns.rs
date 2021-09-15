@@ -19,7 +19,7 @@ impl<'a> BattleState<'a> {
             println!("Current stack is {}, {:?}", stack, handle.side);
 
             // borrow checker was unhappy
-            let navigation_array = NavigationArray::new(stack.position);
+            let navigation_array = NavigationArray::new(stack.head);
             let reachable_cells = navigation_array.get_reachable_cells(stack.speed().into());
             self.navigation_array = navigation_array;
             self.reachable_cells = reachable_cells;

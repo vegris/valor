@@ -1,4 +1,8 @@
+use super::gridpos::GridPos;
+use super::battlestate::Side;
+
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
+#[allow(unused)]
 pub enum Creature {
     // Castle
     Pikeman,
@@ -1495,10 +1499,6 @@ impl Creature {
         }
     }
 
-    pub const fn is_ranged(&self) -> bool {
-        self.base_stats().ammo_capacity != 0
-    }
-
     pub fn is_wide(&self) -> bool {
         const WIDE_CREATURES: [Creature; 53] = [
             // Castle
@@ -1785,6 +1785,36 @@ impl Creature {
             Self::FirstAidTent => "SMtent.def",
             Self::Catapult => "SMCata.def",
             Self::AmmoCart => "SMCart.def"
+        }
+    }
+
+    pub fn tail_for(self, side: Side, head: GridPos) -> GridPos {
+        if self.is_wide() {
+            match side {
+                Side::Attacker => head.relative(-1, 0),
+                Side::Defender => head.relative(1, 0)
+            }
+        } else {
+            head
+        }
+    }
+
+    pub fn head_from_tail(self, side: Side, tail: GridPos) -> GridPos {
+        if self.is_wide() {
+            match side {
+                Side::Attacker => tail.relative(1, 0),
+                Side::Defender => tail.relative(-1, 0),
+            }
+        } else {
+            tail
+        }
+    }
+
+    pub fn get_occupied_cells_for(self, side: Side, head: GridPos) -> Vec<GridPos> {
+        if self.is_wide() {
+            vec![head, self.tail_for(side, head)]
+        } else {
+            vec![head]
         }
     }
 }

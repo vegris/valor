@@ -59,7 +59,7 @@ impl<'a> BattleState<'a> {
                     );
 
                     if let Some(pos) = potential_position {
-                        for cell in current_stack.get_occupied_cells_for(current_side, pos) {
+                        for cell in current_stack.creature.get_occupied_cells_for(current_side, pos) {
                             highlighted_cells.push(cell);
                         }
                     }
@@ -69,8 +69,7 @@ impl<'a> BattleState<'a> {
                     let current_side = self.get_current_side();
                     let current_stack = self.get_current_stack();
 
-                    let potential_tail_pos = current_stack.tail_from_head(current_side, destination);
-                    for cell in current_stack.get_occupied_cells_for(current_side, potential_tail_pos) {
+                    for cell in current_stack.creature.get_occupied_cells_for(current_side, destination) {
                         highlighted_cells.push(cell);
                     }
                 }

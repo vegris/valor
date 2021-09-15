@@ -1,5 +1,4 @@
-use creature::Creature;
-
+use crate::creature::Creature;
 use crate::creature_stack::CreatureStack;
 use crate::gridpos::GridPos;
 
@@ -30,7 +29,8 @@ pub fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> V
         .filter_map(|c| *c)
         .zip(formation.into_iter())
         .map(|((creature, count), y_pos)| {
-            CreatureStack::new(creature, count, GridPos::new(starting_x, y_pos), side)
+            let head = creature.head_from_tail(side, GridPos::new(starting_x, y_pos));
+            CreatureStack::new(creature, count, head, side)
         })
         .collect()
 }

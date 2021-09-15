@@ -116,7 +116,7 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
 fn apply_move(state: &mut BattleState, destination: GridPos) {
     let side = state.current_stack.side;
     let current_stack = state.get_current_stack_mut();
-    current_stack.set_head(side, destination);
+    current_stack.head = destination;
 }
 
 fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
@@ -163,12 +163,12 @@ fn apply_attack(state: &mut BattleState, attack_position: GridPos, attack_direct
     let current_side = state.get_current_side();
     let is_wide = current_stack.creature.is_wide();
 
-    let creature_tail_pos = unit_position_for_attack(
-        attack_position, attack_direction, current_side, is_wide
-    ).unwrap();
+    // let creature_tail_pos = unit_position_for_attack(
+    //     attack_position, attack_direction, current_side, is_wide
+    // ).unwrap();
 
-    let head_pos = current_stack.head_for(current_side, creature_tail_pos);
-    apply_move(state, head_pos);
+    // let head_pos = current_stack.head_for(current_side, creature_tail_pos);
+    apply_move(state, attack_position);
 
     let defending_unit_handle = state.find_unit_for_cell(attack_position).unwrap();
     let mut defending_unit = state.get_stack_mut(defending_unit_handle);

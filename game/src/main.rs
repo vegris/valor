@@ -1,6 +1,7 @@
 #[allow(unused)]
 use std::error::Error;
 
+mod creature;
 mod creature_stack;
 mod battlestate;
 mod command;

@@ -4,8 +4,7 @@ extern crate sdl2;
 use sdl2::render::{TextureCreator, Texture};
 use sdl2::video::WindowContext;
 
-use creature::Creature;
-
+use crate::creature::Creature;
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use crate::gridpos::GridPos;
 use crate::pathfinding::NavigationArray;

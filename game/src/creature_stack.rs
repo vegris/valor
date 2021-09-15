@@ -8,11 +8,10 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::ttf::Font;
 
-use creature::{Creature, CreatureStats};
-
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
+use super::creature::{Creature, CreatureStats};
 use super::gridpos::GridPos;
 use super::battlestate::{BattleState, Side};
 
@@ -38,7 +37,7 @@ pub struct CreatureStack {
     pub current_health: u16,
     pub current_ammo: u8,
 
-    pub position: GridPos,
+    pub head: GridPos,
 
     pub turn_state: CreatureTurnState,
     pub defending: bool,
@@ -47,7 +46,7 @@ pub struct CreatureStack {
 }
 
 impl CreatureStack {
-    pub fn new(creature: Creature, count: u32, position: GridPos, side: Side) -> Self {
+    pub fn new(creature: Creature, count: u32, head: GridPos, side: Side) -> Self {
         let direction = match side {
             Side::Attacker => Direction::Right,
             Side::Defender => Direction::Left
@@ -58,7 +57,7 @@ impl CreatureStack {
             count,
             current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
-            position,
+            head,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
             direction
@@ -88,49 +87,12 @@ impl CreatureStack {
         self.count > 0
     }
 
-    pub fn head_for(&self, side: Side, pos: GridPos) -> GridPos {
-        if self.creature.is_wide() {
-            match side {
-                Side::Attacker => pos.relative(1, 0),
-                Side::Defender => pos.relative(-1, 0)
-            }
-        } else {
-            self.tail_for(pos)
-        }
-    }
-    pub fn head(&self, side: Side) -> GridPos {
-        self.head_for(side, self.position)
-    }
-
-    pub fn set_head(&mut self, side: Side, cell: GridPos) {
-        self.position = self.tail_from_head(side, cell);
-    }
-
-    pub fn tail_from_head(&self, side: Side, head_cell: GridPos) -> GridPos {
-        if self.creature.is_wide() {
-            match side {
-                Side::Attacker => head_cell.relative(-1, 0),
-                Side::Defender => head_cell.relative(1, 0)
-            }
-        } else {
-            head_cell
-        }
-    }
-
-    pub fn tail_for(&self, pos: GridPos) -> GridPos {
-        pos
-    }
-    pub fn tail(&self) -> GridPos {
-        self.tail_for(self.position)
+    pub fn tail(&self, side: Side) -> GridPos {
+        self.creature.tail_for(side, self.head)
     }
     
-    pub fn get_occupied_cells_for(&self, side: Side, pos: GridPos) -> Vec<GridPos> {
-        let mut cells = vec![self.head_for(side, pos), self.tail_for(pos)];
-        cells.dedup();
-        cells
-    }
     pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
-        self.get_occupied_cells_for(side, self.position)
+        self.creature.get_occupied_cells_for(side, self.head)
     }
 
     pub fn get_adjacent_cells(&self, side: Side) -> Vec<GridPos> {
@@ -167,7 +129,7 @@ impl CreatureStack {
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let draw_rect = sprite.draw_rect(self.tail().center(), self.direction);
+        let draw_rect = sprite.draw_rect(self.tail(side).center(), self.direction);
         let texture = sprite.surface().as_texture(tc)?;
 
         match self.direction {
@@ -180,7 +142,7 @@ impl CreatureStack {
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, false) };
 
         if self.is_alive() {
-            let cell_center = self.head(side).bounding_rect().center();
+            let cell_center = self.head.bounding_rect().center();
             let draw_center = cell_center.offset(0, 10);
             canvas.copy(stack_count_bg, None, Rect::from_center(draw_center, 30, 11))?;
 

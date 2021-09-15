@@ -15,5 +15,4 @@ features = ["ttf"]
 strum = "0.19.2"
 strum_macros = "0.19"
 
-creature = { path = "../creature" }
 formats = { path = "../formats" }

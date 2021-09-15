@@ -4,7 +4,7 @@ use std::error::Error;
 extern crate sdl2;
 use sdl2::surface::Surface;
 
-use creature::Creature;
+use super::creature::Creature;
 
 use crate::graphics::creature::CreatureSpritesheet;
 

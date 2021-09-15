@@ -40,10 +40,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "creature"
-version = "0.1.0"
-
-[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -74,7 +70,6 @@ dependencies = [
 name = "game"
 version = "0.1.0"
 dependencies = [
- "creature",
  "formats",
  "sdl2",
  "strum",
