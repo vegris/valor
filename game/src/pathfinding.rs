@@ -159,51 +159,55 @@ pub fn unit_position_for_attack(
     creature_side: Side,
     is_wide: bool
 ) -> Option<GridPos> {
-    let successors = attack_position.get_successors_positional();
-
-    let slim_creature_attack_directions = [
-        AttackDirection::Left,
-        AttackDirection::TopLeft,
-        AttackDirection::TopRight,
-        AttackDirection::Right,
-        AttackDirection::BottomRight,
-        AttackDirection::BottomLeft
-    ];
-
-    // Короткий путь до индекса с нужной клеткой
-    // Всегда работает для обычных существ
-    // Для широких есть дополнительные варианты
-    let shortcut_gridpos_index =
-            slim_creature_attack_directions
-                .iter()
-                .position(|&x| x == attack_direction);
+    let position_index =
+        match attack_direction {
+            AttackDirection::Left => 0,
+            AttackDirection::TopLeft => 1,
+            AttackDirection::TopRight => 2,
+            AttackDirection::Right => 3,
+            AttackDirection::BottomRight => 4,
+            AttackDirection::BottomLeft => 5,
+            // Только для широких существ
+            AttackDirection::Top => 1,
+            AttackDirection::Bottom => 4
+        };
+    let position =
+        attack_position.get_successors_positional()[position_index];
     
     if is_wide {
-        let gridpos_index =
-            if let Some(gridpos_index) = shortcut_gridpos_index {
-                gridpos_index    
-            } else {
-                match (attack_direction, creature_side) {
-                    (AttackDirection::Top, Side::Attacker) => 1,
-                    (AttackDirection::Top, Side::Defender) => 2,
-                    (AttackDirection::Bottom, Side::Attacker) => 5,
-                    (AttackDirection::Bottom, Side::Defender) => 4,
-                    _ => unreachable!()
+        let (directions, potential_adjustment) =
+            match creature_side {
+                Side::Attacker => {
+                    let directions = [
+                        AttackDirection::Top,
+                        AttackDirection::TopRight,
+                        AttackDirection::Right,
+                        AttackDirection::BottomRight
+                    ];
+                    let adjustment = 1;
+                    (directions, adjustment)
+                },
+                Side::Defender => {
+                    let directions = [
+                        AttackDirection::TopLeft,
+                        AttackDirection::Left,
+                        AttackDirection::BottomLeft,
+                        AttackDirection::Bottom
+                    ];
+                    let adjustment = -1;
+                    (directions, adjustment)
                 }
             };
-        let (x_modif, y_modif) =
-            match (attack_direction, creature_side) {
-                (AttackDirection::Left, Side::Attacker) => (-1, 0),
-                (AttackDirection::TopLeft, Side::Attacker) => (-1, 0),
-                (AttackDirection::TopRight, Side::Defender) => (1, 0),
-                (AttackDirection::Right, Side::Defender) => (1, 0),
-                (AttackDirection::BottomRight, Side::Defender) => (1, 0),
-                (AttackDirection::BottomLeft, Side::Attacker) => (-1, 0),
-                _ => (0, 0)
+
+        let adjustment =
+            if directions.contains(&attack_direction) {
+                potential_adjustment
+            } else {
+                0
             };
         
-        successors[gridpos_index].map(|gridpos| gridpos.relative(x_modif, y_modif))
+        position.map(|x| x.relative(adjustment, 0))
     } else {
-        successors[shortcut_gridpos_index.unwrap()]
+        position
     }
 }

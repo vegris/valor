@@ -163,12 +163,11 @@ fn apply_attack(state: &mut BattleState, attack_position: GridPos, attack_direct
     let current_side = state.get_current_side();
     let is_wide = current_stack.creature.is_wide();
 
-    // let creature_tail_pos = unit_position_for_attack(
-    //     attack_position, attack_direction, current_side, is_wide
-    // ).unwrap();
+    let position = unit_position_for_attack(
+        attack_position, attack_direction, current_side, is_wide
+    ).unwrap();
 
-    // let head_pos = current_stack.head_for(current_side, creature_tail_pos);
-    apply_move(state, attack_position);
+    apply_move(state, position);
 
     let defending_unit_handle = state.find_unit_for_cell(attack_position).unwrap();
     let mut defending_unit = state.get_stack_mut(defending_unit_handle);
