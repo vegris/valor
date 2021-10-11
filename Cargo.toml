@@ -3,3 +3,6 @@ members = [
     "game",
     "formats"
 ]
+
+[profile.dev]
+debug = false
