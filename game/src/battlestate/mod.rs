@@ -130,10 +130,11 @@ impl<'a> BattleState<'a> {
     pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
         self.units()
             .into_iter()
+            .filter(|&handle| self.get_stack(handle).is_alive())
             .find(|&handle| {
-                let stack = self.get_stack(handle);
-                let occupied_cells = stack.get_occupied_cells(handle.side);
-                occupied_cells.contains(&cell)
+                self.get_stack(handle)
+                    .get_occupied_cells(handle.side)
+                    .contains(&cell)
             })
     }
 }

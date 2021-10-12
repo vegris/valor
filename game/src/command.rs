@@ -109,12 +109,21 @@ fn apply_wait(state: &mut BattleState) {
 
 fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
     let current_stack = state.get_current_stack();
+    let current_side = state.get_current_side();
+
+    let is_position_available =
+        current_stack
+            .creature
+            .get_occupied_cells_for(current_side, destination)
+            .into_iter()
+            .all(|cell| state.find_unit_for_cell(cell).is_none());
+
     let path = state.navigation_array.get_shortest_path(destination);
+    let is_path_reachable = path.len() <= current_stack.speed().into();
     
-    path.len() <= current_stack.speed().into()
+    is_position_available && is_path_reachable
 }
 fn apply_move(state: &mut BattleState, destination: GridPos) {
-    let side = state.current_stack.side;
     let current_stack = state.get_current_stack_mut();
     current_stack.head = destination;
 }

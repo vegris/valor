@@ -18,9 +18,12 @@ impl<'a> BattleState<'a> {
             stack.defending = false;
             println!("Current stack is {}, {:?}", stack, handle.side);
 
-            // borrow checker was unhappy
-            let navigation_array = NavigationArray::new(stack.head);
-            let reachable_cells = navigation_array.get_reachable_cells(stack.speed().into());
+            let stack_head = stack.head;
+            let is_flying = stack.creature.is_flying();
+            let stack_speed = stack.speed().into();
+
+            let navigation_array = NavigationArray::new(stack_head, self, is_flying);
+            let reachable_cells = navigation_array.get_reachable_cells(stack_speed);
             self.navigation_array = navigation_array;
             self.reachable_cells = reachable_cells;
         } else {

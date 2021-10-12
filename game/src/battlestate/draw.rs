@@ -62,6 +62,13 @@ impl<'a> BattleState<'a> {
                         for cell in current_stack.creature.get_occupied_cells_for(current_side, pos) {
                             highlighted_cells.push(cell);
                         }
+
+                        let handle = self.find_unit_for_cell(attack_position).unwrap();
+                        let target_creature = self.get_stack(handle);
+
+                        for cell in target_creature.get_occupied_cells(handle.side) {
+                            highlighted_cells.push(cell);
+                        }
                     }
                 },
                 // Выделяем потенциальную позицию после перемещения (объединить в функцию с верхней)

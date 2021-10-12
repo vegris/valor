@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::convert::TryInto;
 
 use crate::gridpos::{GridPos, AttackDirection};
-use crate::battlestate::Side;
+use crate::battlestate::{BattleState, Side};
 
 // Структуры для алгоритма Дейкстры
 #[derive(Clone, Copy, Debug)]
@@ -21,7 +21,7 @@ impl NavigationArray {
         Self([None; X_MAX * Y_MAX])
     }
 
-    pub fn new(cell: GridPos) -> Self {
+    pub fn new(cell: GridPos, state: &BattleState, is_flying: bool) -> Self {
         let mut map = Self([None; X_MAX * Y_MAX]);
         map.put_cell(cell, cell, 0);
 
@@ -31,8 +31,19 @@ impl NavigationArray {
         while let Some((cell, cost_to_here)) = to_see.pop_front() {
             let new_cost = cost_to_here + 1;
 
-            for successor in cell.get_successors() {
-                // dbg!(successor);
+            let successors = cell.get_successors();
+
+            let successors =
+                if is_flying {
+                    successors
+                } else {
+                    successors
+                        .into_iter()
+                        .filter(|x| state.find_unit_for_cell(*x).is_none())
+                        .collect()
+                };
+
+            for successor in successors {
                 match map.get_cell(successor) {
                     // Уже видели вариант лучше
                     Some(seen_cell) if seen_cell.cost_to_here <= new_cost => {
@@ -146,13 +157,6 @@ impl GridPos {
     }
 }
 
-// Нужна функция, определяющая положение существа при атаке
-// Положение существа зависит от:
-// 1. Атакуемого гекса
-// 2. Направления атаки
-// 3. Стороны существа
-// 4. Ширины существа
-// TODO: порефакторить это говно
 pub fn unit_position_for_attack(
     attack_position: GridPos,
     attack_direction: AttackDirection,
@@ -175,6 +179,9 @@ pub fn unit_position_for_attack(
         attack_position.get_successors_positional()[position_index];
     
     if is_wide {
+        // Широкое существо для определённых направлений атаки
+        // по умолчанию встаёт на клетку мимо
+        // в таких случаях его нужно немного подвинуть
         let (directions, potential_adjustment) =
             match creature_side {
                 Side::Attacker => {
