@@ -1788,14 +1788,14 @@ impl Creature {
         }
     }
 
-    pub fn tail_for(self, side: Side, head: GridPos) -> GridPos {
+    pub fn tail_for(self, side: Side, head: GridPos) -> Option<GridPos> {
         if self.is_wide() {
             match side {
-                Side::Attacker => head.relative(-1, 0),
-                Side::Defender => head.relative(1, 0)
+                Side::Attacker => head.try_relative(-1, 0),
+                Side::Defender => head.try_relative(1, 0)
             }
         } else {
-            head
+            Some(head)
         }
     }
 
@@ -1810,11 +1810,12 @@ impl Creature {
         }
     }
 
-    pub fn get_occupied_cells_for(self, side: Side, head: GridPos) -> Vec<GridPos> {
+    pub fn get_occupied_cells_for(self, side: Side, head: GridPos) -> Option<Vec<GridPos>> {
         if self.is_wide() {
-            vec![head, self.tail_for(side, head)]
+            self.tail_for(side, head)
+                .map(|tail| vec![head, tail])
         } else {
-            vec![head]
+            Some(vec![head])
         }
     }
 }

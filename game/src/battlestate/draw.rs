@@ -59,8 +59,13 @@ impl<'a> BattleState<'a> {
                     );
 
                     if let Some(pos) = potential_position {
-                        for cell in current_stack.creature.get_occupied_cells_for(current_side, pos) {
-                            highlighted_cells.push(cell);
+                        let occupied_cells =
+                            current_stack
+                                .creature
+                                .get_occupied_cells_for(current_side, pos);
+
+                        if let Some(cells) = occupied_cells {
+                            highlighted_cells.extend(cells)
                         }
 
                         let handle = self.find_unit_for_cell(attack_position).unwrap();
@@ -76,8 +81,13 @@ impl<'a> BattleState<'a> {
                     let current_side = self.get_current_side();
                     let current_stack = self.get_current_stack();
 
-                    for cell in current_stack.creature.get_occupied_cells_for(current_side, destination) {
-                        highlighted_cells.push(cell);
+                    let occupied_cells =
+                        current_stack
+                            .creature
+                            .get_occupied_cells_for(current_side, destination);
+                    
+                    if let Some(cells) = occupied_cells {
+                        highlighted_cells.extend(cells);
                     }
                 }
                 _ => {}

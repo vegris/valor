@@ -115,8 +115,13 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
         current_stack
             .creature
             .get_occupied_cells_for(current_side, destination)
-            .into_iter()
-            .all(|cell| state.find_unit_for_cell(cell).is_none());
+            .map(|cells| {
+                cells
+                    .into_iter()
+                    .map(|cell| state.find_unit_for_cell(cell))
+                    .all(|option| option.is_none())
+            })
+            .unwrap_or(false);
 
     let path = state.navigation_array.get_shortest_path(destination);
     let is_path_reachable = path.len() <= current_stack.speed().into();

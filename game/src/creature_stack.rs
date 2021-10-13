@@ -88,11 +88,15 @@ impl CreatureStack {
     }
 
     pub fn tail(&self, side: Side) -> GridPos {
-        self.creature.tail_for(side, self.head)
+        self.creature
+            .tail_for(side, self.head)
+            .unwrap()
     }
     
     pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
-        self.creature.get_occupied_cells_for(side, self.head)
+        self.creature
+            .get_occupied_cells_for(side, self.head)
+            .unwrap()
     }
 
     pub fn get_adjacent_cells(&self, side: Side) -> Vec<GridPos> {
