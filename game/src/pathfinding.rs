@@ -213,7 +213,7 @@ pub fn unit_position_for_attack(
                 0
             };
         
-        position.map(|x| x.relative(adjustment, 0))
+        position.and_then(|x| x.try_relative(adjustment, 0))
     } else {
         position
     }
