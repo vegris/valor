@@ -123,10 +123,7 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
             })
             .unwrap_or(false);
 
-    let path = state.navigation_array.get_shortest_path(destination);
-    let is_path_reachable = path.len() <= current_stack.speed().into();
-    
-    is_position_available && is_path_reachable
+    is_position_available && state.reachable_cells.contains(&destination)
 }
 fn apply_move(state: &mut BattleState, destination: GridPos) {
     let current_stack = state.get_current_stack_mut();

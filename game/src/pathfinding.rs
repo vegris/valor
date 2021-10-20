@@ -65,7 +65,7 @@ impl NavigationArray {
         map
     }
 
-    pub fn get_shortest_path(&self, destination: GridPos) -> Vec<GridPos> {
+    pub fn get_shortest_path(&self, destination: GridPos) -> Option<Vec<GridPos>> {
         let mut path = vec![destination];
 
         let mut current_cell = destination;
@@ -75,16 +75,16 @@ impl NavigationArray {
             // зациклена сама на себя
             // Значит, мы дошли до начала
             if current_cell == visited_cell.came_from {
-                break;
+                path.pop();
+                path.reverse();
+                return Some(path);
             } else {
                 current_cell = visited_cell.came_from;
                 path.push(current_cell);
             }
         }
 
-        path.pop();
-        path.reverse();
-        path
+        return None
     }
 
     pub fn get_reachable_cells(&self, speed: u32) -> Vec<GridPos> {
