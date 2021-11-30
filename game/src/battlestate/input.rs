@@ -81,6 +81,10 @@ impl<'a> BattleState<'a> {
             if command.is_applicable(self) {
                 println!("Command applied!");
                 command.apply(self);
+                if let Some(winner) = self.find_winner() {
+                    println!("{:?} wins!", winner);
+                    std::process::exit(0);
+                }
 
                 // Если команда поменяла игровое состояние,
                 // то есть шанс, что в potentail_lmb_command

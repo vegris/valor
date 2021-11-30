@@ -32,6 +32,12 @@ impl Side {
     }
 }
 
+#[derive(Debug)]
+pub enum Winner {
+    Side(Side),
+    Tie
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct CreatureStackHandle {
     pub side: Side,
@@ -136,5 +142,23 @@ impl<'a> BattleState<'a> {
                     .get_occupied_cells(handle.side)
                     .contains(&cell)
             })
+    }
+
+
+    pub fn find_winner(&self) -> Option<Winner> {
+        let alive_sides = 
+            [Side::Attacker, Side::Defender]
+                .into_iter()
+                .filter(|&side| {
+                    self.sides[side as usize].iter().any(|creature| creature.is_alive())
+                })
+                .collect::<Vec<Side>>();
+        
+        match alive_sides.len() {
+            0 => Some(Winner::Tie),
+            1 => Some(Winner::Side(alive_sides[0])),
+            2 => None,
+            _ => unreachable!()
+        }
     }
 }
