@@ -105,13 +105,14 @@ impl<'a> BattleState<'a> {
         }
 
         // Рисуем существ
-        for handle in self.units() {
-            let stack = self.get_stack(handle);
-            stack.draw(canvas, rr, tc, false, handle.side, &self.stack_count_bg, &font)?;
-        }
+        let mut units = self.units();
+        units.sort_unstable_by_key(|&handle| self.get_stack(handle).head.y);
 
-        let current_stack = self.get_current_stack();
-        current_stack.draw(canvas, rr, tc, true, self.current_stack.side, &self.stack_count_bg, &font)?;
+        for handle in units {
+            let is_current = handle == self.current_stack;
+            let stack = self.get_stack(handle);
+            stack.draw(canvas, rr, tc, is_current, handle.side, &self.stack_count_bg, &font)?;
+        }
 
         Ok(())
     }

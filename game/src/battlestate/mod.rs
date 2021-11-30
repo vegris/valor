@@ -38,7 +38,7 @@ pub enum Winner {
     Tie
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct CreatureStackHandle {
     pub side: Side,
     pub index: u8
