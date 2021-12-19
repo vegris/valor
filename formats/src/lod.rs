@@ -2,11 +2,13 @@ use std::collections::HashMap;
 use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
 use std::path::Path;
-use std::convert::TryInto;
+use std::ops::Deref;
 
 extern crate flate2;
 use flate2::read::ZlibDecoder;
 
+
+const FILE_INFO_SIZE: usize = 32;
 
 struct LodFileInfo {
     offset: u32,
@@ -30,25 +32,18 @@ impl LodIndex {
         let total_files = u32::from_le_bytes(parse_buffer[0..4].try_into().unwrap());
 
         f.seek(SeekFrom::Start(92)).unwrap();
-        let mut file_registry: HashMap<String, LodFileInfo> = HashMap::with_capacity(total_files as usize);
 
-        for _ in 0..total_files {
-            // Reading filename
-            f.read_exact(&mut parse_buffer).unwrap();
-            let str_bytes = parse_buffer.split(|chr| *chr == 0).next().unwrap();
-            let filename = String::from_utf8(str_bytes.to_vec()).unwrap();
-            
-            // Reading sizes and offset
-            f.read_exact(&mut parse_buffer).unwrap();
-            let offset = u32::from_le_bytes(parse_buffer[0..4].try_into().unwrap());
-            let size = u32::from_le_bytes(parse_buffer[4..8].try_into().unwrap());
-            let csize = u32::from_le_bytes(parse_buffer[12..16].try_into().unwrap());
+        let mut parse_buffer = vec![0; FILE_INFO_SIZE * total_files as usize];
+        f.read_exact(&mut parse_buffer).unwrap();
 
-            let file_info = LodFileInfo { offset, size, compressed: csize != 0 };
-            file_registry.insert(filename, file_info);
-        }
-    
-        LodIndex {handle: f, registry: file_registry}
+        let registry = parse_buffer
+            .chunks_exact(FILE_INFO_SIZE)
+            .map(TryInto::try_into)
+            .map(Result::unwrap)
+            .map(parse_file_info)
+            .collect();
+
+        LodIndex {handle: f, registry }
     }
 
     pub fn read_file(&mut self, filename: &str) -> Box<[u8]> {
@@ -69,4 +64,22 @@ impl LodIndex {
             .map(u8::from_le)
             .collect::<Box<[u8]>>()
     }
+}
+
+fn parse_file_info(data: [u8; 32]) -> (String, LodFileInfo) {
+    let str_bytes = data.split(|chr| *chr == 0).next().unwrap();
+    let filename = String::from_utf8(str_bytes.to_vec()).unwrap();
+
+    // Reading sizes and offset
+    let [offset, size, _, compressed_size]: [u32; 4] = data[16..]
+        .chunks_exact(4)
+        .map(TryInto::try_into)
+        .map(Result::unwrap)
+        .map(u32::from_le_bytes)
+        .collect::<Box<[u32]>>()
+        .deref().try_into().unwrap();
+
+    let compressed = compressed_size != 0;
+
+    (filename, LodFileInfo { offset, size, compressed })
 }
