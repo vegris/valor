@@ -7,6 +7,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-flate2 = "1.0.14"
-either = "1.5.3"
-sdl2 = "~0.35"
+flate2 = "1.0"
+sdl2 = "0.35"
