@@ -2,19 +2,16 @@ use std::convert::TryInto;
 use std::ops::Deref;
 use std::error::Error;
 
-extern crate either;
-use either::{Either, Left, Right};
-
 extern crate sdl2;
 use sdl2::surface::Surface;
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 
-pub struct PcxImage(Either<RGB24PCX, Index8PCX>);
-
-struct RGB24PCX(Surface<'static>);
-struct Index8PCX {
-    surface: Surface<'static>,
-    colors: Box<[Color]>
+pub enum PcxImage {
+    RGB24PCX(Surface<'static>),
+    Index8PCX {
+        surface: Surface<'static>,
+        colors: Box<[Color]>
+    }
 }
 
 impl PcxImage {
@@ -32,7 +29,8 @@ impl PcxImage {
             if size == width * height * 3 {
                 let surface = Surface::from_data(data, width, height, width * 3, PixelFormatEnum::BGR24)?;
                 let static_surface = surface.convert_format(surface.pixel_format_enum())?;
-                Left(RGB24PCX(static_surface))
+                
+                Self::RGB24PCX(static_surface)
             } 
             else if size == width * height { 
                 let (pixel_data, palette_data) = data.split_at_mut(size as usize);
@@ -44,16 +42,16 @@ impl PcxImage {
                 
                 let surface = Surface::from_data(pixel_data, width, height, width * 1, PixelFormatEnum::Index8)?;
                 let static_surface = surface.convert_format(surface.pixel_format_enum())?;
-                Right(Index8PCX {surface: static_surface, colors})
+                Self::Index8PCX {surface: static_surface, colors}
             }
             else {
                 panic!("Unknown pcx format!")
             };
-        Ok(Self(image))
+        Ok(image)
     }
 
     pub fn apply_transparency(&mut self) {
-        if let Right(Index8PCX {surface, colors}) = &mut self.0 {
+        if let Self::Index8PCX {surface, colors} = self {
             colors[0] = Color::RGBA(0, 0, 0, 0);
             colors[1] = Color::RGBA(0, 0, 0, 32);
             colors[2] = Color::RGBA(0, 0, 0, 64);
@@ -66,9 +64,9 @@ impl PcxImage {
     }
 
     pub fn to_surface(self) -> Result<Surface<'static>, Box<dyn Error>> {
-        match self.0 {
-            Left(RGB24PCX(surface)) => Ok(surface),
-            Right(Index8PCX {mut surface, colors}) =>  {
+        match self {
+            Self::RGB24PCX(surface) => Ok(surface),
+            Self::Index8PCX {mut surface, colors} =>  {
                 let palette = Palette::with_colors(&colors)?;
                 surface.set_palette(&palette)?;
                 Ok(surface)
