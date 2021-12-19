@@ -48,7 +48,7 @@ impl ResourceRegistry {
 
     pub fn load_def(&mut self, filename: &str) -> DefContainer {
         let bytes = self.def_archive.read_file(filename);
-        DefContainer::from_bytes(bytes)
+        DefContainer::from_bytes(&bytes)
     }
 
     pub fn get_creature_container(&mut self, creature: Creature) -> &mut CreatureSpritesheet {
