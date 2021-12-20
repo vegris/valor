@@ -70,7 +70,7 @@ impl<'a> BattleState<'a> {
                         let handle = self.find_unit_for_cell(attack_position).unwrap();
                         let target_creature = self.get_stack(handle);
 
-                        for cell in target_creature.get_occupied_cells(handle.side) {
+                        for cell in target_creature.get_occupied_cells() {
                             highlighted_cells.push(cell);
                         }
                     }
@@ -108,7 +108,7 @@ impl<'a> BattleState<'a> {
         for handle in units {
             let is_current = handle == self.current_stack;
             let stack = self.get_stack(handle);
-            stack.draw(canvas, rr, tc, is_current, handle.side, &self.stack_count_bg, &font)?;
+            stack.draw(canvas, rr, tc, is_current, &self.stack_count_bg, &font)?;
         }
 
         Ok(())

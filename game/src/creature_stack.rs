@@ -25,12 +25,6 @@ pub enum CreatureTurnState {
     NoTurn
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum Direction {
-    Left,
-    Right
-}
-
 #[derive(Clone)]
 pub struct CreatureStack {
     pub creature: Creature,
@@ -40,29 +34,23 @@ pub struct CreatureStack {
     pub current_ammo: u8,
 
     pub head: GridPos,
+    pub side: Side,
 
     pub turn_state: CreatureTurnState,
-    pub defending: bool,
-
-    pub direction: Direction
+    pub defending: bool
 }
 
 impl CreatureStack {
     pub fn new(creature: Creature, count: u32, head: GridPos, side: Side) -> Self {
-        let direction = match side {
-            Side::Attacker => Direction::Right,
-            Side::Defender => Direction::Left
-        };
-
         CreatureStack {
             creature,
             count,
             current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
             head,
+            side,
             turn_state: CreatureTurnState::HasTurn,
-            defending: false,
-            direction
+            defending: false
         }
     }
 
@@ -74,13 +62,13 @@ impl CreatureStack {
         self.base_stats().speed
     }
 
-    pub fn can_shoot(&self, side: Side, state: &BattleState) -> bool {
+    pub fn can_shoot(&self, state: &BattleState) -> bool {
         let has_ammo = self.current_ammo != 0;
         let has_enemies_around =
-            self.get_adjacent_cells(side)
+            self.get_adjacent_cells()
                 .iter()
                 .filter_map(|&cell| state.find_unit_for_cell(cell))
-                .find(|stack| stack.side != side) 
+                .find(|stack| stack.side != self.side) 
                 .is_some();
         has_ammo && !has_enemies_around
     }
@@ -89,18 +77,18 @@ impl CreatureStack {
         self.count > 0
     }
 
-    pub fn tail(&self, side: Side) -> GridPos {
-        pathfinding::tail_for(self.creature, side, self.head)
+    pub fn tail(&self) -> GridPos {
+        pathfinding::tail_for(self.creature, self.side, self.head)
             .unwrap()
     }
     
-    pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
-        pathfinding::get_occupied_cells_for(self.creature, side, self.head)
+    pub fn get_occupied_cells(&self) -> Vec<GridPos> {
+        pathfinding::get_occupied_cells_for(self.creature, self.side, self.head)
             .unwrap()
     }
 
-    pub fn get_adjacent_cells(&self, side: Side) -> Vec<GridPos> {
-        self.get_occupied_cells(side)
+    pub fn get_adjacent_cells(&self) -> Vec<GridPos> {
+        self.get_occupied_cells()
             .iter()
             .map(|cell| cell.get_successors())
             .flatten()
@@ -115,7 +103,6 @@ impl CreatureStack {
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
         is_selected: bool,
-        side: Side,
         stack_count_bg: &Texture,
         font: &Font
     ) -> Result<(), Box<dyn Error>> {
@@ -133,14 +120,14 @@ impl CreatureStack {
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let draw_rect = sprite.draw_rect(self.tail(side).center(), self.direction);
+        let draw_rect = sprite.draw_rect(self.tail().center(), self.side);
         let texture = sprite.surface().as_texture(tc)?;
 
-        match self.direction {
-            Direction::Left =>
-                canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?,
-            Direction::Right =>
-                canvas.copy(&texture, None, draw_rect)?
+        match self.side {
+            Side::Attacker =>
+                canvas.copy(&texture, None, draw_rect)?,
+            Side::Defender =>
+                canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?
         };
 
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, false) };

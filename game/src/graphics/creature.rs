@@ -10,7 +10,8 @@ use strum::{IntoEnumIterator, EnumCount};
 use strum_macros::{EnumIter, EnumCount as EnumCountMacro};
 
 use formats::{DefSprite, DefContainer};
-use crate::creature_stack::Direction;
+
+use crate::battlestate::Side;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy, EnumCountMacro, EnumIter)]
@@ -68,7 +69,7 @@ impl CreatureSprite {
         self.apply_palette(&palette);
     }
 
-    pub fn draw_rect(&self, center: Point, direction: Direction) -> Rect {
+    pub fn draw_rect(&self, center: Point, side: Side) -> Rect {
         const FULL_WIDTH: u32 = 450;
         const FULL_HEIGHT: u32 = 400;
 
@@ -80,13 +81,11 @@ impl CreatureSprite {
 
         let full_rect = Rect::from_center(center, FULL_WIDTH, FULL_HEIGHT);
         let (reference_point, x_offset) =
-            match direction {
-                Direction::Left => {
+            match side {
+                Side::Attacker =>
+                    (full_rect.top_left(), left_margin as i32 + X_CORRECTION),
+                Side::Defender =>
                     (full_rect.top_right(), -((left_margin + width) as i32 + X_CORRECTION))
-                },
-                Direction::Right => {
-                    (full_rect.top_left(), left_margin as i32 + X_CORRECTION)
-                }
             };
         
         let top_left = reference_point.offset(x_offset, top_margin as i32 + Y_CORRECTION);

@@ -134,7 +134,7 @@ fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool
 
     let is_enemy = current_side != target.side;
     let is_alive = state.get_stack(target).is_alive();
-    let can_shoot = current_stack.can_shoot(current_side, state);
+    let can_shoot = current_stack.can_shoot(state);
 
     is_enemy && is_alive && can_shoot
 }

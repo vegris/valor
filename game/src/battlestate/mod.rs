@@ -140,7 +140,7 @@ impl<'a> BattleState<'a> {
             .filter(|&handle| self.get_stack(handle).is_alive())
             .find(|&handle| {
                 self.get_stack(handle)
-                    .get_occupied_cells(handle.side)
+                    .get_occupied_cells()
                     .contains(&cell)
             })
     }
