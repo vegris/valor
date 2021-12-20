@@ -12,7 +12,6 @@ use gridpos::AttackDirection;
 use crate::registry::ResourceRegistry;
 
 #[derive(Clone, Copy, EnumIter, Debug)]
-#[allow(unused)]
 pub enum Cursor {
     Forbidden = 0,
     Run = 1,

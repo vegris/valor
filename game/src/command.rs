@@ -4,7 +4,6 @@ use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
 use crate::pathfinding;
 
-#[allow(unused)]
 #[derive(Clone, Copy, Debug)]
 pub enum Command {
     Move { destination: GridPos },
@@ -14,7 +13,6 @@ pub enum Command {
     Shoot { target: CreatureStackHandle }
 }
 
-#[allow(unused)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum CommandFieldless {
     Move,

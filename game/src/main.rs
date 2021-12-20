@@ -1,4 +1,3 @@
-#[allow(unused)]
 use std::error::Error;
 
 mod creature_stack;

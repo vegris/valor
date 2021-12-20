@@ -14,7 +14,7 @@ use crate::creature_stack::Direction;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy, EnumCountMacro, EnumIter)]
-#[allow(unused, non_camel_case_types)]
+#[allow(non_camel_case_types)]
 pub enum AnimationType {
     Moving = 0,
     MouseOver = 1,
