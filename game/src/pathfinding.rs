@@ -4,6 +4,8 @@ use std::convert::TryInto;
 use crate::gridpos::{GridPos, AttackDirection};
 use crate::battlestate::{BattleState, Side};
 
+use creature::Creature;
+
 // Структуры для алгоритма Дейкстры
 #[derive(Clone, Copy, Debug)]
 struct VisitedCell {
@@ -216,5 +218,36 @@ pub fn unit_position_for_attack(
         position.and_then(|x| x.try_relative(adjustment, 0))
     } else {
         position
+    }
+}
+
+
+pub fn tail_for(creature: Creature, side: Side, head: GridPos) -> Option<GridPos> {
+    if creature.is_wide() {
+        match side {
+            Side::Attacker => head.try_relative(-1, 0),
+            Side::Defender => head.try_relative(1, 0)
+        }
+    } else {
+        Some(head)
+    }
+}
+
+pub fn head_from_tail(creature: Creature, side: Side, tail: GridPos) -> GridPos {
+    if creature.is_wide() {
+        match side {
+            Side::Attacker => tail.relative(1, 0),
+            Side::Defender => tail.relative(-1, 0),
+        }
+    } else {
+        tail
+    }
+}
+
+pub fn get_occupied_cells_for(creature: Creature, side: Side, head: GridPos) -> Option<Vec<GridPos>> {
+    if creature.is_wide() {
+        tail_for(creature, side, head).map(|tail| vec![head, tail])
+    } else {
+        Some(vec![head])
     }
 }

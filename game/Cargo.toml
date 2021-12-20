@@ -16,3 +16,4 @@ strum = "0.19"
 strum_macros = "0.19"
 
 formats = { path = "../formats" }
+creature = { path = "../creature" }

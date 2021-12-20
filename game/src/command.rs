@@ -1,7 +1,7 @@
 use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
 use super::gridpos::{GridPos, AttackDirection};
-use crate::pathfinding::unit_position_for_attack;
+use crate::pathfinding;
 
 #[allow(unused)]
 #[derive(Clone, Copy, Debug)]
@@ -111,17 +111,16 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
     let current_stack = state.get_current_stack();
     let current_side = state.get_current_side();
 
-    let is_position_available =
-        current_stack
-            .creature
-            .get_occupied_cells_for(current_side, destination)
-            .map(|cells| {
-                cells
-                    .into_iter()
-                    .map(|cell| state.find_unit_for_cell(cell))
-                    .all(|option| option.is_none())
-            })
-            .unwrap_or(false);
+    let is_position_available = pathfinding::get_occupied_cells_for(
+        current_stack.creature, current_side, destination
+    )
+        .map(|cells| {
+            cells
+                .into_iter()
+                .map(|cell| state.find_unit_for_cell(cell))
+                .all(|option| option.is_none())
+        })
+        .unwrap_or(false);
 
     is_position_available && state.reachable_cells.contains(&destination)
 }
@@ -153,7 +152,7 @@ fn is_applicable_attack(state: &BattleState, attack_position: GridPos, attack_di
     let current_side = state.get_current_side();
     let is_wide = current_stack.creature.is_wide();
 
-    let potential_pos = unit_position_for_attack(
+    let potential_pos = pathfinding::unit_position_for_attack(
         attack_position, attack_direction, current_side, is_wide
     );
 
@@ -174,7 +173,7 @@ fn apply_attack(state: &mut BattleState, attack_position: GridPos, attack_direct
     let current_side = state.get_current_side();
     let is_wide = current_stack.creature.is_wide();
 
-    let position = unit_position_for_attack(
+    let position = pathfinding::unit_position_for_attack(
         attack_position, attack_direction, current_side, is_wide
     ).unwrap();
 

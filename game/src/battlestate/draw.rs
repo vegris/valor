@@ -59,10 +59,8 @@ impl<'a> BattleState<'a> {
                     );
 
                     if let Some(pos) = potential_position {
-                        let occupied_cells =
-                            current_stack
-                                .creature
-                                .get_occupied_cells_for(current_side, pos);
+                        let occupied_cells = pathfinding::get_occupied_cells_for(
+                            current_stack.creature, current_side, pos);
 
                         if let Some(cells) = occupied_cells {
                             highlighted_cells.extend(cells)
@@ -81,10 +79,8 @@ impl<'a> BattleState<'a> {
                     let current_side = self.get_current_side();
                     let current_stack = self.get_current_stack();
 
-                    let occupied_cells =
-                        current_stack
-                            .creature
-                            .get_occupied_cells_for(current_side, destination);
+                    let occupied_cells = pathfinding::get_occupied_cells_for(
+                        current_stack.creature, current_side, destination);
                     
                     if let Some(cells) = occupied_cells {
                         highlighted_cells.extend(cells);

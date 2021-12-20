@@ -6,7 +6,7 @@ use sdl2::rect::{Point, Rect};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use super::creature::Creature;
+use creature::Creature;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AttackDirection {

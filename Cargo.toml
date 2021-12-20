@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "game",
-    "formats"
+    "formats",
+    "creature"
 ]
 
 [profile.dev]

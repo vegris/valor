@@ -1,7 +1,6 @@
 #[allow(unused)]
 use std::error::Error;
 
-mod creature;
 mod creature_stack;
 mod battlestate;
 mod command;
@@ -13,10 +12,12 @@ mod graphics;
 
 extern crate sdl2;
 
-use battlestate::BattleState;
 use creature::Creature;
+
+use battlestate::BattleState;
 use registry::ResourceRegistry;
 use battlefields::Battlefield;
+
 
 fn main() -> Result<(), Box<dyn Error>> {
     let sdl_context = sdl2::init()?; 

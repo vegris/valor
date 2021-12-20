@@ -8,12 +8,14 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::ttf::Font;
 
+use creature::{Creature, CreatureStats};
+
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
-use super::creature::{Creature, CreatureStats};
 use super::gridpos::GridPos;
 use super::battlestate::{BattleState, Side};
+use super::pathfinding;
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -88,14 +90,12 @@ impl CreatureStack {
     }
 
     pub fn tail(&self, side: Side) -> GridPos {
-        self.creature
-            .tail_for(side, self.head)
+        pathfinding::tail_for(self.creature, side, self.head)
             .unwrap()
     }
     
     pub fn get_occupied_cells(&self, side: Side) -> Vec<GridPos> {
-        self.creature
-            .get_occupied_cells_for(side, self.head)
+        pathfinding::get_occupied_cells_for(self.creature, side, self.head)
             .unwrap()
     }
 
