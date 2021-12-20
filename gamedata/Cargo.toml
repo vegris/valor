@@ -1,5 +1,5 @@
 [package]
-name = "creature"
+name = "gamedata"
 version = "0.1.0"
 authors = ["cheaterok <1cheaterok1@gmail.com>"]
 edition = "2021"

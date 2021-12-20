@@ -1,4 +1,4 @@
-use creature::Creature;
+use gamedata::Creature;
 use gridpos::GridPos;
 
 use crate::creature_stack::CreatureStack;

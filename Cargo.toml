@@ -2,7 +2,8 @@
 members = [
     "game",
     "formats",
-    "creature"
+    "gamedata",
+    "gridpos"
 ]
 
 [profile.dev]

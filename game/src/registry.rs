@@ -4,10 +4,10 @@ use std::error::Error;
 extern crate sdl2;
 use sdl2::surface::Surface;
 
-use crate::graphics::creature::CreatureSpritesheet;
-
 use formats::{LodIndex, PcxImage, DefContainer};
-use creature::Creature;
+use gamedata::Creature;
+
+use crate::graphics::creature::CreatureSpritesheet;
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";

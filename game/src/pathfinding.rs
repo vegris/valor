@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use creature::Creature;
+use gamedata::Creature;
 use gridpos::{GridPos, AttackDirection};
 
 use crate::battlestate::{BattleState, Side};

@@ -6,17 +6,14 @@ mod battlestate;
 mod command;
 mod pathfinding;
 mod registry;
-mod battlefields;
 mod graphics;
 
 extern crate sdl2;
 
-use creature::Creature;
+use gamedata::{Creature, Battlefield};
 
 use battlestate::BattleState;
 use registry::ResourceRegistry;
-use battlefields::Battlefield;
-
 
 fn main() -> Result<(), Box<dyn Error>> {
     let sdl_context = sdl2::init()?; 

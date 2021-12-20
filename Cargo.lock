@@ -36,10 +36,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "creature"
-version = "0.1.0"
-
-[[package]]
 name = "flate2"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -63,8 +59,8 @@ dependencies = [
 name = "game"
 version = "0.1.0"
 dependencies = [
- "creature",
  "formats",
+ "gamedata",
  "gridpos",
  "sdl2",
  "strum",
@@ -72,10 +68,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gamedata"
+version = "0.1.0"
+
+[[package]]
 name = "gridpos"
 version = "0.1.0"
 dependencies = [
- "creature",
+ "gamedata",
  "sdl2",
  "strum",
  "strum_macros",

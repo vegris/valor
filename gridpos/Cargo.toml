@@ -10,4 +10,4 @@ sdl2 = "0.35"
 strum = "0.19"
 strum_macros = "0.19"
 
-creature = { path = "../creature" }
+gamedata = { path = "../gamedata" }

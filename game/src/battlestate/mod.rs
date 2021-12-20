@@ -4,7 +4,7 @@ extern crate sdl2;
 use sdl2::render::{TextureCreator, Texture};
 use sdl2::video::WindowContext;
 
-use creature::Creature;
+use gamedata::Creature;
 use gridpos::GridPos;
 
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};

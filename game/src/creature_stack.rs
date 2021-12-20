@@ -8,7 +8,7 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::ttf::Font;
 
-use creature::{Creature, CreatureStats};
+use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
 use crate::registry::ResourceRegistry;

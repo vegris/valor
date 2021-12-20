@@ -3,7 +3,7 @@ use std::ops::RangeInclusive;
 extern crate sdl2;
 use sdl2::rect::{Point, Rect};
 
-use creature::Creature;
+use gamedata::Creature;
 
 use super::attack_direction::AttackDirection;
 use super::hexagon_part::HexagonPart;
