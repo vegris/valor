@@ -217,6 +217,45 @@ impl GridPos {
     }
 }
 
+impl GridPos {
+    pub fn get_successors_positional(self) -> [Option<Self>; 6] {
+        let Self { x, y } = self;
+
+        // набор соседних клеток отличается в зависимости от чётности ряда
+        if self.is_even_row() {
+            [
+                (x - 1, y), // начинаем слева и по часовой стрелке
+                (x - 1, y - 1),
+                (x, y - 1),
+                (x + 1, y),
+                (x, y + 1),
+                (x - 1, y + 1)
+            ]
+        } else {
+            [
+                (x - 1, y),
+                (x, y - 1),
+                (x + 1, y - 1),
+                (x + 1, y),
+                (x + 1, y + 1),
+                (x, y + 1)
+            ]
+        }.iter()
+         .map(|&(x, y)| Self::try_new(x, y))
+         .collect::<Vec<Option<Self>>>()
+         .try_into()
+         .unwrap()
+    }
+
+    pub fn get_successors(self) -> Vec<Self> {
+        self.get_successors_positional()
+            .iter()
+            .filter_map(|&x| x)
+            .collect()
+    }
+}
+
+
 use std::fmt;
 impl fmt::Display for GridPos {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

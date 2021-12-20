@@ -1,6 +1,7 @@
+use gridpos::{GridPos, AttackDirection};
+
 use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
-use super::gridpos::{GridPos, AttackDirection};
 use crate::pathfinding;
 
 #[allow(unused)]

@@ -1,20 +1,13 @@
 [package]
-name = "game"
+name = "gridpos"
 version = "0.1.0"
-authors = ["cheaterok <1cheaterok1@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies.sdl2]
-version = "0.35"
-default-features = false
-features = ["ttf"]
-
 [dependencies]
+sdl2 = "0.35"
 strum = "0.19"
 strum_macros = "0.19"
 
-formats = { path = "../formats" }
 creature = { path = "../creature" }
-gridpos = { path = "../gridpos" }

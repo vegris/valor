@@ -6,8 +6,9 @@ use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
 use sdl2::ttf::Font;
 
+use gridpos::GridPos;
+
 use crate::registry::ResourceRegistry;
-use crate::gridpos::GridPos;
 use crate::graphics::cursors::Cursor;
 use crate::command::Command;
 use crate::pathfinding;

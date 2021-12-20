@@ -5,9 +5,9 @@ use sdl2::render::{TextureCreator, Texture};
 use sdl2::video::WindowContext;
 
 use creature::Creature;
+use gridpos::GridPos;
 
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
-use crate::gridpos::GridPos;
 use crate::pathfinding::NavigationArray;
 use crate::Battlefield;
 use crate::registry::ResourceRegistry;

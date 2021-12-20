@@ -1,10 +1,9 @@
 use std::collections::VecDeque;
-use std::convert::TryInto;
-
-use crate::gridpos::{GridPos, AttackDirection};
-use crate::battlestate::{BattleState, Side};
 
 use creature::Creature;
+use gridpos::{GridPos, AttackDirection};
+
+use crate::battlestate::{BattleState, Side};
 
 // Структуры для алгоритма Дейкстры
 #[derive(Clone, Copy, Debug)]
@@ -118,44 +117,6 @@ impl NavigationArray {
             cost_to_here: cost_to_here
         };
         self.0[Self::cell_to_index(cell)] = Some(visited_cell);
-    }
-}
-
-impl GridPos {
-    pub fn get_successors_positional(self) -> [Option<Self>; 6] {
-        let Self { x, y } = self;
-
-        // набор соседних клеток отличается в зависимости от чётности ряда
-        if self.is_even_row() {
-            [
-                (x - 1, y), // начинаем слева и по часовой стрелке
-                (x - 1, y - 1),
-                (x, y - 1),
-                (x + 1, y),
-                (x, y + 1),
-                (x - 1, y + 1)
-            ]
-        } else {
-            [
-                (x - 1, y),
-                (x, y - 1),
-                (x + 1, y - 1),
-                (x + 1, y),
-                (x + 1, y + 1),
-                (x, y + 1)
-            ]
-        }.iter()
-         .map(|&(x, y)| Self::try_new(x, y))
-         .collect::<Vec<Option<Self>>>()
-         .try_into()
-         .unwrap()
-    }
-
-    pub fn get_successors(self) -> Vec<Self> {
-        self.get_successors_positional()
-            .iter()
-            .filter_map(|&x| x)
-            .collect()
     }
 }
 

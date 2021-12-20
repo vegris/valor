@@ -9,11 +9,11 @@ use sdl2::rect::Rect;
 use sdl2::ttf::Font;
 
 use creature::{Creature, CreatureStats};
+use gridpos::GridPos;
 
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
-use super::gridpos::GridPos;
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
 

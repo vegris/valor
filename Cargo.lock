@@ -65,6 +65,17 @@ version = "0.1.0"
 dependencies = [
  "creature",
  "formats",
+ "gridpos",
+ "sdl2",
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
+name = "gridpos"
+version = "0.1.0"
+dependencies = [
+ "creature",
  "sdl2",
  "strum",
  "strum_macros",
