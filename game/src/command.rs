@@ -108,10 +108,9 @@ fn apply_wait(state: &mut BattleState) {
 
 fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
     let current_stack = state.get_current_stack();
-    let current_side = state.get_current_side();
 
     let is_position_available = pathfinding::get_occupied_cells_for(
-        current_stack.creature, current_side, destination
+        current_stack.creature, current_stack.side, destination
     )
         .map(|cells| {
             cells
@@ -130,9 +129,9 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
 
 fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
     let current_stack = state.get_current_stack();
-    let current_side = state.get_current_side();
+    let target_stack = state.get_stack(target);
 
-    let is_enemy = current_side != target.side;
+    let is_enemy = current_stack.side != target_stack.side;
     let is_alive = state.get_stack(target).is_alive();
     let can_shoot = current_stack.can_shoot(state);
 
@@ -148,7 +147,7 @@ fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
 
 fn is_applicable_attack(state: &BattleState, attack_position: GridPos, attack_direction: AttackDirection) -> bool {
     let current_stack = state.get_current_stack();
-    let current_side = state.get_current_side();
+    let current_side = current_stack.side;
     let is_wide = current_stack.creature.is_wide();
 
     let potential_pos = pathfinding::unit_position_for_attack(
@@ -161,7 +160,8 @@ fn is_applicable_attack(state: &BattleState, attack_position: GridPos, attack_di
     // 3. атакующий может дойти до позиции атаки и поместиться там
     state
         .find_unit_for_cell(attack_position)
-        .filter(|handle| handle.side != current_side)
+        .map(|handle| state.get_stack(handle))
+        .filter(|stack| stack.side != current_side)
         .and(potential_pos)
         .filter(|&creature_pos| is_applicable_move(state, creature_pos))
         .is_some()
@@ -169,11 +169,10 @@ fn is_applicable_attack(state: &BattleState, attack_position: GridPos, attack_di
 
 fn apply_attack(state: &mut BattleState, attack_position: GridPos, attack_direction: AttackDirection) {
     let current_stack = state.get_current_stack();
-    let current_side = state.get_current_side();
     let is_wide = current_stack.creature.is_wide();
 
     let position = pathfinding::unit_position_for_attack(
-        attack_position, attack_direction, current_side, is_wide
+        attack_position, attack_direction, current_stack.side, is_wide
     ).unwrap();
 
     apply_move(state, position);

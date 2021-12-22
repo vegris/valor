@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::collections::HashMap;
 
 extern crate sdl2;
 use sdl2::render::{TextureCreator, Texture};
@@ -39,16 +40,13 @@ pub enum Winner {
     Tie
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct CreatureStackHandle {
-    pub side: Side,
-    pub index: u8
-}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct CreatureStackHandle(u32);
 
 pub struct BattleState<'a> {
     // Логика
 
-    pub sides: [Vec<CreatureStack>; 2],
+    pub stacks: HashMap<CreatureStackHandle, CreatureStack>,
     pub phase_iter: turns::PhaseIterator,
     pub current_phase: CTS,
     pub last_turn_side: Side,
@@ -82,12 +80,22 @@ impl<'a> BattleState<'a> {
         let attacker_army = army::form_units(&attacker_units, Side::Attacker);
         let defender_army = army::form_units(&defender_units, Side::Defender);
 
+        let stacks = [attacker_army, defender_army]
+            .concat()
+            .into_iter()
+            .enumerate()
+            .map(|(i, v)| {
+                let handle = CreatureStackHandle(i as u32);
+                (handle, v)
+            })
+            .collect();
+
         let mut state = Self {
-            sides: [attacker_army, defender_army],
+            stacks,
             phase_iter: turns::new_phase_iter(),
             current_phase: CTS::HasTurn,
             last_turn_side: Side::Defender,
-            current_stack: CreatureStackHandle { side: Side::Attacker, index: 0 },
+            current_stack: CreatureStackHandle(0),
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
 
@@ -104,10 +112,10 @@ impl<'a> BattleState<'a> {
     }
 
     pub fn get_stack(&self, handle: CreatureStackHandle) -> &CreatureStack {
-        &self.sides[handle.side as usize][handle.index as usize]
+        &self.stacks[&handle]
     }
     pub fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut CreatureStack {
-        &mut self.sides[handle.side as usize][handle.index as usize]
+        self.stacks.get_mut(&handle).unwrap()
     }
 
     pub fn get_current_stack(&self) -> &CreatureStack {
@@ -118,20 +126,8 @@ impl<'a> BattleState<'a> {
         self.get_stack_mut(self.current_stack)
     }
 
-    pub fn get_current_side(&self) -> Side {
-        self.current_stack.side
-    }
-
     pub fn units(&self) -> Vec<CreatureStackHandle> {
-        let total_units = self.sides.iter().map(|side| side.len()).sum();
-        let mut units = Vec::with_capacity(total_units);
-        for side in vec![Side::Attacker, Side::Defender].into_iter() {
-            for index in 0..self.sides[side as usize].len() {
-                let handle = CreatureStackHandle { side, index: index as u8};
-                units.push(handle);
-            }
-        }
-        units
+        self.stacks.keys().copied().collect()
     }
 
     pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
@@ -151,7 +147,10 @@ impl<'a> BattleState<'a> {
             [Side::Attacker, Side::Defender]
                 .into_iter()
                 .filter(|&side| {
-                    self.sides[side as usize].iter().any(|creature| creature.is_alive())
+                    self.stacks
+                        .values()
+                        .filter(|stack| stack.side == side)
+                        .any(|stack| stack.is_alive())
                 })
                 .collect::<Vec<Side>>();
         

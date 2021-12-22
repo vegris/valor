@@ -52,8 +52,8 @@ impl<'a> BattleState<'a> {
             match command {
                 // Выделяем потенциальную позицию атакующего стека в случае атаки
                 Command::Attack { attack_position, attack_direction } => {
-                    let current_side = self.get_current_side();
                     let current_stack = self.get_current_stack();
+                    let current_side = current_stack.side;
 
                     let potential_position = pathfinding::unit_position_for_attack(
                         attack_position, attack_direction, current_side, current_stack.creature.is_wide()
@@ -77,11 +77,10 @@ impl<'a> BattleState<'a> {
                 },
                 // Выделяем потенциальную позицию после перемещения (объединить в функцию с верхней)
                 Command::Move { destination } => {
-                    let current_side = self.get_current_side();
                     let current_stack = self.get_current_stack();
 
                     let occupied_cells = pathfinding::get_occupied_cells_for(
-                        current_stack.creature, current_side, destination);
+                        current_stack.creature, current_stack.side, destination);
                     
                     if let Some(cells) = occupied_cells {
                         highlighted_cells.extend(cells);

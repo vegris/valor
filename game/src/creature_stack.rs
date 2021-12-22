@@ -68,7 +68,7 @@ impl CreatureStack {
             self.get_adjacent_cells()
                 .iter()
                 .filter_map(|&cell| state.find_unit_for_cell(cell))
-                .find(|stack| stack.side != self.side) 
+                .find(|&handle| state.get_stack(handle).side != self.side) 
                 .is_some();
         has_ammo && !has_enemies_around
     }

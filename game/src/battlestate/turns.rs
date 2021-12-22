@@ -1,7 +1,7 @@
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use crate::pathfinding::NavigationArray;
 
-use super::{BattleState, Side, CreatureStackHandle};
+use super::{BattleState, CreatureStackHandle};
 
 
 pub type PhaseIterator = std::vec::IntoIter<CTS>;
@@ -16,7 +16,7 @@ impl<'a> BattleState<'a> {
 
             let mut stack = self.get_current_stack_mut();
             stack.defending = false;
-            println!("Current stack is {}, {:?}", stack, handle.side);
+            println!("Current stack is {}", stack);
 
             let stack_head = stack.head;
             let is_flying = stack.creature.is_flying();
@@ -44,31 +44,28 @@ impl<'a> BattleState<'a> {
 
     pub fn new_turn(&mut self) {
         self.phase_iter = new_phase_iter();
-        self.sides
-            .iter_mut()
-            .flatten()
-            .for_each(|creature| creature.turn_state = CTS::HasTurn);
+        self.stacks
+            .values_mut()
+            .for_each(|stack| stack.turn_state = CTS::HasTurn);
         self.last_turn_side = self.last_turn_side.other();
         println!("New turn!");
     }
 
     fn find_current_creature(&self) -> Option<CreatureStackHandle> {
         // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
-        match self.last_turn_side {
-            Side::Attacker => vec![Side::Defender, Side::Attacker],
-            Side::Defender => vec![Side::Attacker, Side::Defender]
-        }
+        let current_active_side = self.last_turn_side.other();
+
+        let mut handles: Box<[CreatureStackHandle]> = self.stacks.keys().copied().collect();
+        handles.sort_unstable_by_key(|&handle| self.get_stack(handle).side == current_active_side);
+        
+        handles
         .into_iter()
-        .flat_map(|side| Iterator::zip(
-            std::iter::repeat(side),
-            self.sides[side as usize].iter().enumerate()
-        ))
-        .map(|(side, (index, stack))| (side, index, stack)) // чтоб не утонуть в скобках
-        .filter(|(_side, _index, stack)| stack.is_alive())
-        .filter(|(_side, _index, stack)| stack.turn_state == self.current_phase)
+        .map(|&handle| (handle, self.get_stack(handle)))
+        .filter(|(_handle, stack)| stack.is_alive())
+        .filter(|(_handle, stack)| stack.turn_state == self.current_phase)
         .fold(None, |acc, current| {
             // Без max_first тяжко
-            fn key((_, _, stack): (Side, usize, &CreatureStack)) -> u8 {
+            fn key((_, stack): (CreatureStackHandle, &CreatureStack)) -> u8 {
                 stack.speed()
             }
             match acc {
@@ -77,6 +74,6 @@ impl<'a> BattleState<'a> {
                 _ => acc
             }
         })
-        .map(|(side, index, _stack)| CreatureStackHandle { side, index: index as u8 })
+        .map(|(handle, _stack)| handle)
     }
 }
