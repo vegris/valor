@@ -1,0 +1,23 @@
+Config(
+    battlefield: LAVA,
+    armies: (
+        (
+            Some((Archangel, 8)),
+            None,
+            None, 
+            Some((Griffin, 35)),
+            None,
+            None,
+            None
+        ),
+        (
+            Some((ArchDevil, 10)),
+            None,
+            None,
+            Some((HornedDemon, 40)),
+            None,
+            Some((ChaosHydra, 3)),
+            None
+        )
+    )
+)

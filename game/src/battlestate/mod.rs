@@ -5,14 +5,13 @@ extern crate sdl2;
 use sdl2::render::{TextureCreator, Texture};
 use sdl2::video::WindowContext;
 
-use gamedata::Creature;
 use gridpos::GridPos;
 
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use crate::pathfinding::NavigationArray;
-use crate::Battlefield;
 use crate::registry::ResourceRegistry;
 use crate::graphics::cursors::Cursors;
+use crate::config::Config;
 
 mod army;
 mod turns;
@@ -71,14 +70,13 @@ pub struct BattleState<'a> {
 
 impl<'a> BattleState<'a> {
     pub fn new(
-        attacker_units: [Option<(Creature, u32)>; 7],
-        defender_units: [Option<(Creature, u32)>; 7],
+        config: Config,
         rr: &mut ResourceRegistry,
-        tc: &'a TextureCreator<WindowContext>,
-        battlefield: Battlefield
+        tc: &'a TextureCreator<WindowContext>
     ) -> Result<Self, Box<dyn Error>> {
-        let attacker_army = army::form_units(&attacker_units, Side::Attacker);
-        let defender_army = army::form_units(&defender_units, Side::Defender);
+
+        let attacker_army = army::form_units(&config.armies[0], Side::Attacker);
+        let defender_army = army::form_units(&config.armies[1], Side::Defender);
 
         let stacks = [attacker_army, defender_army]
             .concat()
@@ -99,7 +97,7 @@ impl<'a> BattleState<'a> {
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
 
-            battlefield: rr.load_pcx(battlefield.filename())?.as_texture(&tc)?,
+            battlefield: rr.load_pcx(config.battlefield.filename())?.as_texture(&tc)?,
             grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
             grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
             stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(&tc)?,

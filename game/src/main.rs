@@ -6,13 +6,13 @@ mod command;
 mod pathfinding;
 mod registry;
 mod graphics;
+mod config;
 
 extern crate sdl2;
 
-use gamedata::{Creature, Battlefield};
-
 use battlestate::BattleState;
 use registry::ResourceRegistry;
+use config::Config;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let sdl_context = sdl2::init()?; 
@@ -37,31 +37,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
 
-    // Создание начального игрового состояния
-    let attacker_units = [
-            Some((Creature::Archer, 55)),
-            Some((Creature::Archangel, 8)),
-            None,
-            Some((Creature::RoyalGriffin, 30)),
-            None,
-            None,
-            None
-        ];
+    let config = Config::load_config()?;
 
-    let defender_units = [
-            None,
-            None,
-            Some((Creature::Devil, 10)),
-            Some((Creature::Angel, 20)),
-            Some((Creature::GoldDragon, 1)),
-            Some((Creature::HornedDemon, 25)),
-            None
-        ];
-
-    let mut current_state = BattleState::new(
-        attacker_units, defender_units,
-        &mut resource_registry, &texture_creator, Battlefield::GRMT
-    )?;
+    let mut current_state = BattleState::new(config, &mut resource_registry, &texture_creator)?;
 
     // let mut last_time = Instant::now();
     loop {

@@ -1,5 +1,8 @@
+extern crate serde;
+use serde::Deserialize;
+
 // Придумать человеские имена
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Deserialize)]
 pub enum Battlefield {
 	BCH,
 	DES,

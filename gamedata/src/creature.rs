@@ -1,4 +1,7 @@
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
+extern crate serde;
+use serde::Deserialize;
+
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize)]
 pub enum Creature {
     // Castle
     Pikeman,
