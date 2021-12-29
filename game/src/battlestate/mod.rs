@@ -56,15 +56,36 @@ pub struct BattleState<'a> {
     pub reachable_cells: Vec<GridPos>,
 
     // Графика
-
+    graphics: Graphics<'a>
     // Постоянно используемые текстуры,
     // которые нет смысла прокачивать сквозь кэш
+}
+
+struct Graphics<'a> {
     battlefield: Texture<'a>,
     grid_cell: Texture<'a>,
     grid_cell_shadow: Texture<'a>,
     stack_count_bg: Texture<'a>,
 
     cursors: Cursors
+}
+
+impl<'a> Graphics<'a> {
+    fn init(
+        config: &Config,
+        rr: &mut ResourceRegistry,
+        tc: &'a TextureCreator<WindowContext>
+    ) -> Result<Self, Box<dyn Error>> {
+        let graphics = Graphics {
+            battlefield: rr.load_pcx(config.battlefield.filename())?.as_texture(&tc)?,
+            grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
+            grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
+            stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(&tc)?,
+
+            cursors: Cursors::load(rr)
+        };
+        Ok(graphics)
+    }
 }
 
 
@@ -87,7 +108,7 @@ impl<'a> BattleState<'a> {
                 (handle, v)
             })
             .collect();
-
+        
         let mut state = Self {
             stacks,
             phase_iter: turns::new_phase_iter(),
@@ -97,12 +118,7 @@ impl<'a> BattleState<'a> {
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
 
-            battlefield: rr.load_pcx(config.battlefield.filename())?.as_texture(&tc)?,
-            grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(&tc)?,
-            grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(&tc)?,
-            stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(&tc)?,
-
-            cursors: Cursors::load(rr)
+            graphics: Graphics::init(&config, rr, tc)?
         };
 
         state.update_current_stack();

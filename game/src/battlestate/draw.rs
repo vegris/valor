@@ -26,14 +26,16 @@ impl<'a> BattleState<'a> {
         font: &Font
     ) -> Result<(), Box<dyn Error>> {
 
+        let graphics = &self.graphics;
+
         // Рисуем поле боя
-        canvas.copy(&self.battlefield, None, Rect::new(0, 0, 800, 556))?;
+        canvas.copy(&graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
 
         // Рисуем клетки на поле
         for x in GridPos::X_RANGE {
             for y in GridPos::Y_RANGE {
                 let draw_rect = GridPos::new(x, y).bounding_rect();
-                canvas.copy(&self.grid_cell, None, draw_rect)?;
+                canvas.copy(&graphics.grid_cell, None, draw_rect)?;
             }
         }
 
@@ -46,7 +48,7 @@ impl<'a> BattleState<'a> {
 
         // Выставляем курсор под ситуацию
         let cursor = choose_cursor(self, &frame_data);
-        self.cursors.set(cursor);
+        graphics.cursors.set(cursor);
 
         if let Some(command) = frame_data.potential_lmb_command {
             match command {
@@ -91,13 +93,13 @@ impl<'a> BattleState<'a> {
         }
 
         for cell in &self.reachable_cells {
-            canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
+            canvas.copy(&graphics.grid_cell_shadow, None, cell.bounding_rect())?;
         }
 
         highlighted_cells.sort();
         highlighted_cells.dedup();
         for cell in highlighted_cells {
-            canvas.copy(&self.grid_cell_shadow, None, cell.bounding_rect())?;
+            canvas.copy(&graphics.grid_cell_shadow, None, cell.bounding_rect())?;
         }
 
         // Рисуем существ
@@ -107,7 +109,7 @@ impl<'a> BattleState<'a> {
         for handle in units {
             let is_current = handle == self.current_stack;
             let stack = self.get_stack(handle);
-            stack.draw(canvas, rr, tc, is_current, &self.stack_count_bg, &font)?;
+            stack.draw(canvas, rr, tc, is_current, &graphics.stack_count_bg, &font)?;
         }
 
         Ok(())
