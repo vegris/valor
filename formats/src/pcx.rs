@@ -15,7 +15,7 @@ pub enum PcxImage {
 }
 
 impl PcxImage {
-    pub fn from_bytes(mut bytes: Box<[u8]>) -> Result<Self, Box<dyn Error>> {
+    pub fn from_bytes(bytes: &mut [u8]) -> Result<Self, Box<dyn Error>> {
         let (header, data) = bytes.split_at_mut(12); 
         let [size, width, height]: [u32; 3] = header
             .chunks_exact(4)
@@ -40,7 +40,7 @@ impl PcxImage {
                     .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
                     .collect::<Box<[Color]>>();
                 
-                let surface = Surface::from_data(pixel_data, width, height, width * 1, PixelFormatEnum::Index8)?;
+                let surface = Surface::from_data(pixel_data, width, height, width, PixelFormatEnum::Index8)?;
                 let static_surface = surface.convert_format(surface.pixel_format_enum())?;
                 Self::Index8PCX {surface: static_surface, colors}
             }

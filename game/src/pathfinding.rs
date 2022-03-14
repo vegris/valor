@@ -85,7 +85,7 @@ impl NavigationArray {
             }
         }
 
-        return None
+        None
     }
 
     pub fn get_reachable_cells(&self, speed: u32) -> Vec<GridPos> {
@@ -114,7 +114,7 @@ impl NavigationArray {
     fn put_cell(&mut self, cell: GridPos, previous_cell: GridPos, cost_to_here: u32) {
         let visited_cell = VisitedCell {
             came_from: previous_cell,
-            cost_to_here: cost_to_here
+            cost_to_here
         };
         self.0[Self::cell_to_index(cell)] = Some(visited_cell);
     }

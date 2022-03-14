@@ -34,13 +34,13 @@ impl ResourceRegistry {
     }
     
     pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
-        let bytes = self.pcx_archive.read_file(filename);
-        let pcx = PcxImage::from_bytes(bytes)?;
+        let mut bytes = self.pcx_archive.read_file(filename);
+        let pcx = PcxImage::from_bytes(&mut bytes)?;
         pcx.to_surface()
     }
     pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
-        let bytes = self.pcx_archive.read_file(filename);
-        let mut pcx = PcxImage::from_bytes(bytes)?;
+        let mut bytes = self.pcx_archive.read_file(filename);
+        let mut pcx = PcxImage::from_bytes(&mut bytes)?;
         pcx.apply_transparency();
         pcx.to_surface()
     }

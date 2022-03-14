@@ -59,7 +59,7 @@ impl<'a> BattleState<'a> {
         handles.sort_unstable_by_key(|&handle| self.get_stack(handle).side == current_active_side);
         
         handles
-        .into_iter()
+        .iter()
         .map(|&handle| (handle, self.get_stack(handle)))
         .filter(|(_handle, stack)| stack.is_alive())
         .filter(|(_handle, stack)| stack.turn_state == self.current_phase)

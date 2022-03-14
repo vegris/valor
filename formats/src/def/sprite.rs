@@ -57,7 +57,7 @@ impl Sprite {
 fn create_surface(header: Header, mut pixel_data: Box<[u8]>) -> Surface<'static> {
     let Header{ width, height, .. } = header;
 
-    let surface = Surface::from_data(&mut pixel_data, width, height, width * 1, PixelFormatEnum::Index8).unwrap();
+    let surface = Surface::from_data(&mut pixel_data, width, height, width, PixelFormatEnum::Index8).unwrap();
     let static_surface = surface.convert_format(surface.pixel_format_enum()).unwrap();
 
     static_surface

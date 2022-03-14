@@ -109,7 +109,7 @@ impl<'a> BattleState<'a> {
         for handle in units {
             let is_current = handle == self.current_stack;
             let stack = self.get_stack(handle);
-            stack.draw(canvas, rr, tc, is_current, &graphics.stack_count_bg, &font)?;
+            stack.draw(canvas, rr, tc, is_current, &graphics.stack_count_bg, font)?;
         }
 
         Ok(())

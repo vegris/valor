@@ -83,10 +83,7 @@ impl Command {
     }
 
     fn spends_turn(&self) -> bool {
-        match self {
-            Self::Wait => false,
-            _ => true
-        }
+        !matches!(self, Self::Wait)
     }
 }
 

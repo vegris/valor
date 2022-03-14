@@ -27,7 +27,7 @@ pub fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> V
         Side::Defender => GridPos::X_RANGE.end()
     };
     starting_army
-        .into_iter()
+        .iter()
         .filter_map(|c| *c)
         .zip(formation.into_iter())
         .map(|((creature, count), y_pos)| {

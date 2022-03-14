@@ -104,7 +104,7 @@ impl<'a> BattleState<'a> {
         if frame_input.key_d { return Some(Command::Defend) }
         if frame_input.key_w { return Some(Command::Wait) }
         if frame_input.btn_lmb { return potential_lmb_command }
-        return None
+        None
     }
 
     fn construct_potential_lmb_command(

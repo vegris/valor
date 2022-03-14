@@ -68,8 +68,7 @@ impl CreatureStack {
             self.get_adjacent_cells()
                 .iter()
                 .filter_map(|&cell| state.find_unit_for_cell(cell))
-                .find(|&handle| state.get_stack(handle).side != self.side) 
-                .is_some();
+                .any(|handle| state.get_stack(handle).side != self.side);
         has_ammo && !has_enemies_around
     }
     
@@ -90,8 +89,7 @@ impl CreatureStack {
     pub fn get_adjacent_cells(&self) -> Vec<GridPos> {
         self.get_occupied_cells()
             .iter()
-            .map(|cell| cell.get_successors())
-            .flatten()
+            .flat_map(|cell| cell.get_successors())
             .collect::<HashSet<GridPos>>() // Оставляем уникальные
             .drain()
             .collect::<Vec<GridPos>>()
@@ -138,7 +136,7 @@ impl CreatureStack {
             canvas.copy(stack_count_bg, None, Rect::from_center(draw_center, 30, 11))?;
 
             let font_surface = font.render(&self.count.to_string()).solid(Color::BLUE)?;
-            let font_texture = font_surface.as_texture(&tc)?;
+            let font_texture = font_surface.as_texture(tc)?;
 
             let mut font_rect = font_surface.rect();
             font_rect.center_on(draw_center);
