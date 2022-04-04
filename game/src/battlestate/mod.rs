@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::collections::HashMap;
+use std::time::Instant;
 
 extern crate sdl2;
 use sdl2::render::{TextureCreator, Texture};
@@ -7,10 +8,12 @@ use sdl2::video::WindowContext;
 
 use gridpos::GridPos;
 
+use crate::animations::Animation;
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
 use crate::pathfinding::NavigationArray;
 use crate::registry::ResourceRegistry;
 use crate::graphics::cursors::Cursors;
+use crate::graphics::creature::AnimationType;
 use crate::config::Config;
 
 mod army;
@@ -121,8 +124,23 @@ impl<'a> BattleState<'a> {
             graphics: Graphics::init(&config, rr, tc)?
         };
 
+        let animation = Animation {
+            type_: AnimationType::MouseOver,
+            start: std::time::Instant::now()
+        };
+
+        for stack in state.stacks.values_mut() {
+            stack.animation = Some(animation);
+        }
+
         state.update_current_stack();
         Ok(state)
+    }
+
+    pub fn update(&mut self, now: Instant) {
+        for stack in self.stacks.values_mut() {
+            stack.update(now);
+        }
     }
 
     pub fn get_stack(&self, handle: CreatureStackHandle) -> &CreatureStack {

@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, time::Instant};
 
 mod creature_stack;
 mod battlestate;
@@ -7,6 +7,7 @@ mod pathfinding;
 mod registry;
 mod graphics;
 mod config;
+mod animations;
 
 extern crate sdl2;
 
@@ -48,12 +49,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         let frame_input = current_state.gather_input(&mut event_pump);
         let frame_data = current_state.process_input(frame_input);
 
+        let now = Instant::now();
+
         // Обновление игрового состояния
-        // current_state.update(current_time - last_time, &mut resource_registry);
+        current_state.update(now);
         
         // Отображение игрового состояния
         canvas.clear();
-        current_state.draw(frame_data, &mut canvas, &mut resource_registry, &texture_creator, &font)?;
+        current_state.draw(frame_data, &mut canvas, &mut resource_registry, &texture_creator, &font, now)?;
         canvas.present();
 
         // last_time = current_time;

@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::error::Error;
+use std::time::Instant;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
@@ -11,11 +12,13 @@ use sdl2::ttf::Font;
 use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
+use crate::animations::AnimationState;
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
+use super::animations::Animation;
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -25,7 +28,7 @@ pub enum CreatureTurnState {
     NoTurn
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CreatureStack {
     pub creature: Creature,
     pub count: u32,
@@ -37,7 +40,9 @@ pub struct CreatureStack {
     pub side: Side,
 
     pub turn_state: CreatureTurnState,
-    pub defending: bool
+    pub defending: bool,
+
+    pub animation: Option<Animation>
 }
 
 impl CreatureStack {
@@ -50,7 +55,8 @@ impl CreatureStack {
             head,
             side,
             turn_state: CreatureTurnState::HasTurn,
-            defending: false
+            defending: false,
+            animation: None
         }
     }
 
@@ -95,6 +101,29 @@ impl CreatureStack {
             .collect::<Vec<GridPos>>()
     }
 
+    pub fn update(&mut self, now: Instant) {
+        if let Some(animation) = &mut self.animation {
+            if matches!(animation.state(now), AnimationState::Finished) {
+                animation.start = now;
+            }
+        }
+    }
+
+    fn animation_index(&self, now: Instant, animation_len: usize) -> usize {
+        self.animation
+            .map(|animation| animation.state(now))
+            .and_then(|state| {
+                if let AnimationState::Running(progress) = state {
+                    Some(progress)
+                } else {
+                    None
+                }
+            })
+            .map(|progress| (animation_len as f32 * progress).round() as usize)
+            .map(|animation_index| std::cmp::min(animation_index, animation_len - 1))
+            .unwrap_or(animation_len - 1)
+    }
+
     pub fn draw(
         &self,
         canvas: &mut WindowCanvas,
@@ -102,19 +131,24 @@ impl CreatureStack {
         tc: &TextureCreator<WindowContext>,
         is_selected: bool,
         stack_count_bg: &Texture,
-        font: &Font
+        font: &Font,
+        now: Instant
     ) -> Result<(), Box<dyn Error>> {
         let spritesheet = rr.get_creature_container(self.creature);
 
         let animation_type =
-            if self.is_alive() {
+            if let Some(animation) = self.animation {
+                animation.type_
+            } else if self.is_alive() {
                 AnimationType::Standing
             } else {
                 AnimationType::Death
             };
 
         let animation_block = spritesheet.animation_block(animation_type);
-        let sprite_index = animation_block[animation_block.len() - 1];
+        
+        let animation_index = self.animation_index(now, animation_block.len());
+        let sprite_index = animation_block[animation_index];
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 

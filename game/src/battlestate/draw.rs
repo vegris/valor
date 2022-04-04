@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::time::Instant;
 
 extern crate sdl2;
 use sdl2::render::{WindowCanvas, TextureCreator};
@@ -23,7 +24,8 @@ impl<'a> BattleState<'a> {
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
-        font: &Font
+        font: &Font,
+        now: Instant
     ) -> Result<(), Box<dyn Error>> {
 
         let graphics = &self.graphics;
@@ -109,7 +111,7 @@ impl<'a> BattleState<'a> {
         for handle in units {
             let is_current = handle == self.current_stack;
             let stack = self.get_stack(handle);
-            stack.draw(canvas, rr, tc, is_current, &graphics.stack_count_bg, font)?;
+            stack.draw(canvas, rr, tc, is_current, &graphics.stack_count_bg, font, now)?;
         }
 
         Ok(())
