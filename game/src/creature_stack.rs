@@ -102,9 +102,9 @@ impl CreatureStack {
     }
 
     pub fn update(&mut self, now: Instant) {
-        if let Some(animation) = &mut self.animation {
+        if let Some(animation) = self.animation {
             if matches!(animation.state(now), AnimationState::Finished) {
-                animation.start = now;
+                self.animation = Some(Animation{type_: AnimationType::Standing, start: now});
             }
         }
     }

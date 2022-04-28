@@ -59,9 +59,9 @@ pub struct BattleState<'a> {
     pub reachable_cells: Vec<GridPos>,
 
     // Графика
-    graphics: Graphics<'a>
-    // Постоянно используемые текстуры,
-    // которые нет смысла прокачивать сквозь кэш
+    graphics: Graphics<'a>,
+
+    previous_mouseover_stack: Option<CreatureStackHandle>
 }
 
 struct Graphics<'a> {
@@ -121,11 +121,13 @@ impl<'a> BattleState<'a> {
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
 
-            graphics: Graphics::init(&config, rr, tc)?
+            graphics: Graphics::init(&config, rr, tc)?,
+
+            previous_mouseover_stack: None
         };
 
         let animation = Animation {
-            type_: AnimationType::MouseOver,
+            type_: AnimationType::Standing,
             start: std::time::Instant::now()
         };
 

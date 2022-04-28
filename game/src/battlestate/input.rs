@@ -1,4 +1,6 @@
 extern crate sdl2;
+use std::time::Instant;
+
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -6,7 +8,7 @@ use sdl2::mouse::MouseButton;
 
 use gridpos::{GridPos, AttackDirection};
 
-use crate::command::Command;
+use crate::{command::Command, animations::Animation, graphics::creature::AnimationType};
 
 use super::BattleState;
 
@@ -71,6 +73,19 @@ impl<'a> BattleState<'a> {
 
         let cursor_pos = frame_input.cursor_position;
         let current_hover = GridPos::find_pointer_position(cursor_pos.into());
+
+        if let Some(cell) = current_hover {
+            let current_mouseover_stack = self.find_unit_for_cell(cell);
+        
+            if current_mouseover_stack != self.previous_mouseover_stack {
+                current_mouseover_stack
+                    .map(|handle| self.get_stack_mut(handle))
+                    .filter(|stack| !matches!(stack.animation, Some(Animation{type_: AnimationType::MouseOver, ..})))
+                    .map(|stack| stack.animation = Some(Animation{type_: AnimationType::MouseOver, start: Instant::now()}));
+                
+                self.previous_mouseover_stack = current_mouseover_stack;
+            }
+        }
 
         let current_stack = self.get_current_stack();
         let attack_direction = current_hover.map(|cell| cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature));
