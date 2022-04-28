@@ -12,13 +12,13 @@ use sdl2::ttf::Font;
 use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
-use crate::animations::AnimationState;
+use crate::animations::{AnimationState, TweeningState};
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
-use super::animations::Animation;
+use super::animations::{Animation, Tweening};
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -42,7 +42,8 @@ pub struct CreatureStack {
     pub turn_state: CreatureTurnState,
     pub defending: bool,
 
-    pub animation: Option<Animation>
+    pub animation: Option<Animation>,
+    pub tweening: Option<Tweening>
 }
 
 impl CreatureStack {
@@ -56,7 +57,8 @@ impl CreatureStack {
             side,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
-            animation: None
+            animation: None,
+            tweening: None
         }
     }
 
@@ -152,7 +154,20 @@ impl CreatureStack {
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let draw_rect = sprite.draw_rect(self.tail().center(), self.side);
+        let draw_position =
+            self.tweening
+                .as_ref()
+                .map(|tweening| tweening.state(now))
+                .and_then(|state| {
+                    if let TweeningState::Running(point) = state {
+                        Some(point)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or(self.tail().center());
+
+        let draw_rect = sprite.draw_rect(draw_position, self.side);
         let texture = sprite.surface().as_texture(tc)?;
 
         match self.side {
