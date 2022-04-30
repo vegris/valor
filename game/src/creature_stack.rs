@@ -1,24 +1,24 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 use std::error::Error;
-use std::time::Instant;
+use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::video::WindowContext;
 use sdl2::render::{WindowCanvas, TextureCreator, Texture};
 use sdl2::pixels::Color;
-use sdl2::rect::Rect;
+use sdl2::rect::{Rect, Point};
 use sdl2::ttf::Font;
 
 use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
-use crate::animations::{AnimationState, TweeningState};
+use crate::animations::{AnimationState, Tweening};
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
-use super::animations::{Animation, Tweening};
+use super::animations::Animation;
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -42,8 +42,7 @@ pub struct CreatureStack {
     pub turn_state: CreatureTurnState,
     pub defending: bool,
 
-    pub animation: Option<Animation>,
-    pub tweening: Option<Tweening>
+    pub animation_queue: VecDeque<Animation>
 }
 
 impl CreatureStack {
@@ -57,8 +56,7 @@ impl CreatureStack {
             side,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
-            animation: None,
-            tweening: None
+            animation_queue: VecDeque::new()
         }
     }
 
@@ -103,17 +101,42 @@ impl CreatureStack {
             .collect::<Vec<GridPos>>()
     }
 
-    pub fn update(&mut self, now: Instant) {
-        if let Some(animation) = self.animation {
-            if matches!(animation.state(now), AnimationState::Finished) {
-                self.animation = Some(Animation{type_: AnimationType::Standing, start: now});
+    pub fn update(&mut self, dt: Duration) {
+        if let Some(animation) = self.animation_mut() {
+            animation.update(dt);
+            
+            if matches!(animation.state(), AnimationState::Finished) {
+                self.animation_queue.pop_front();
             }
+        }
+
+        if self.animation_queue.is_empty() {
+            self.add_animation(Animation::new(AnimationType::Standing));
         }
     }
 
-    fn animation_index(&self, now: Instant, animation_len: usize) -> usize {
-        self.animation
-            .map(|animation| animation.state(now))
+    pub fn animation(&self) -> Option<Animation> {
+        self.animation_queue.front().copied()
+    }
+
+    pub fn animation_mut(&mut self) -> Option<&mut Animation> {
+        self.animation_queue.front_mut()
+    }
+
+    pub fn add_animation(&mut self, animation: Animation) {
+        if let Some(animation) = self.animation() {
+            if [AnimationType::Standing, AnimationType::MouseOver].contains(&animation.type_) {
+                self.animation_queue.pop_front();
+            }
+        }
+
+        self.animation_queue.push_back(animation);
+    }
+
+    fn animation_index(&self, animation_len: usize) -> usize {
+        self.animation_queue
+            .front()
+            .map(|animation| animation.state())
             .and_then(|state| {
                 if let AnimationState::Running(progress) = state {
                     Some(progress)
@@ -133,13 +156,12 @@ impl CreatureStack {
         tc: &TextureCreator<WindowContext>,
         is_selected: bool,
         stack_count_bg: &Texture,
-        font: &Font,
-        now: Instant
+        font: &Font
     ) -> Result<(), Box<dyn Error>> {
         let spritesheet = rr.get_creature_container(self.creature);
 
         let animation_type =
-            if let Some(animation) = self.animation {
+            if let Some(animation) = self.animation_queue.front() {
                 animation.type_
             } else if self.is_alive() {
                 AnimationType::Standing
@@ -149,24 +171,25 @@ impl CreatureStack {
 
         let animation_block = spritesheet.animation_block(animation_type);
         
-        let animation_index = self.animation_index(now, animation_block.len());
+        let animation_index = self.animation_index(animation_block.len());
         let sprite_index = animation_block[animation_index];
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let draw_position =
-            self.tweening
-                .as_ref()
-                .map(|tweening| tweening.state(now))
-                .and_then(|state| {
-                    if let TweeningState::Running(point) = state {
-                        Some(point)
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or(self.tail().center());
+        let mut draw_position = self.tail().center();
 
+        if let Some(animation) = self.animation_queue.front() {
+            if let Some(Tweening{from, to}) = animation.tween {
+                if let AnimationState::Running(progress) = animation.state() {
+                    let from_c = from.center();
+                    let to_c = to.center();
+                    let x = from_c.x + ((to_c.x - from_c.x) as f32 * progress).round() as i32;
+                    let y = from_c.y + ((to_c.y - from_c.y) as f32 * progress).round() as i32;
+                    draw_position = Point::new(x, y);
+                }
+            }
+        }
+        
         let draw_rect = sprite.draw_rect(draw_position, self.side);
         let texture = sprite.surface().as_texture(tc)?;
 

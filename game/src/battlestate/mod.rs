@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::collections::HashMap;
-use std::time::Instant;
+use std::time::Duration;
 
 extern crate sdl2;
 use sdl2::render::{TextureCreator, Texture};
@@ -126,22 +126,18 @@ impl<'a> BattleState<'a> {
             previous_mouseover_stack: None
         };
 
-        let animation = Animation {
-            type_: AnimationType::Standing,
-            start: std::time::Instant::now()
-        };
-
+        let animation = Animation::new(AnimationType::Standing);
         for stack in state.stacks.values_mut() {
-            stack.animation = Some(animation);
+            stack.add_animation(animation);
         }
 
         state.update_current_stack();
         Ok(state)
     }
 
-    pub fn update(&mut self, now: Instant) {
+    pub fn update(&mut self, dt: Duration) {
         for stack in self.stacks.values_mut() {
-            stack.update(now);
+            stack.update(dt);
         }
     }
 

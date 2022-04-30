@@ -1,5 +1,4 @@
 extern crate sdl2;
-use std::time::Instant;
 
 use sdl2::EventPump;
 use sdl2::event::Event;
@@ -80,8 +79,8 @@ impl<'a> BattleState<'a> {
             if current_mouseover_stack != self.previous_mouseover_stack {
                 current_mouseover_stack
                     .map(|handle| self.get_stack_mut(handle))
-                    .filter(|stack| !matches!(stack.animation, Some(Animation{type_: AnimationType::MouseOver, ..})))
-                    .map(|stack| stack.animation = Some(Animation{type_: AnimationType::MouseOver, start: Instant::now()}));
+                    .filter(|stack| !matches!(stack.animation(), Some(Animation{type_: AnimationType::MouseOver, ..})))
+                    .map(|stack| stack.add_animation(Animation::new(AnimationType::MouseOver)));
                 
                 self.previous_mouseover_stack = current_mouseover_stack;
             }
@@ -93,7 +92,6 @@ impl<'a> BattleState<'a> {
         let mut potential_lmb_command = self.construct_potential_lmb_command(current_hover, attack_direction);
 
         if let Some(command) = self.construct_command(frame_input, potential_lmb_command) {
-            dbg!(command);
             if command.is_applicable(self) {
                 println!("Command applied!");
                 command.apply(self);

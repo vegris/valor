@@ -2,7 +2,7 @@ Config(
     battlefield: LAVA,
     armies: (
         (
-            Some((Archangel, 8)),
+            Some((ArchDevil, 1)),
             None,
             None, 
             Some((Griffin, 35)),
@@ -11,7 +11,7 @@ Config(
             None
         ),
         (
-            Some((ArchDevil, 10)),
+            Some((Devil, 10)),
             None,
             None,
             Some((HornedDemon, 40)),

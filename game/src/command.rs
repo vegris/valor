@@ -1,10 +1,9 @@
-use std::time::Instant;
-
 use gridpos::{GridPos, AttackDirection};
 
 use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
-use crate::animations::Tweening;
+use crate::animations::Animation;
+use crate::graphics::creature::AnimationType;
 use crate::pathfinding;
 
 #[derive(Clone, Copy, Debug)]
@@ -125,19 +124,14 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
 fn apply_move(state: &mut BattleState, destination: GridPos) {
     let path = state.navigation_array.get_shortest_path(destination).unwrap();
 
-    let mut tweening = Tweening {
-        start: Instant::now(),
-        path: path
-    };
-
     let current_stack = state.get_current_stack_mut();
-
     current_stack.head = destination;
 
-    if current_stack.creature.is_wide() {
-        tweening.path.pop();
+    let iterator = Iterator::zip(path.iter(), path.iter().skip(1));
+    for (&from, &to) in iterator {
+        let animation = Animation::new_with_tween(AnimationType::Moving, from, to);
+        current_stack.add_animation(animation);
     }
-    current_stack.tweening = Some(tweening);
 }
 
 fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {

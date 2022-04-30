@@ -42,23 +42,21 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut current_state = BattleState::new(config, &mut resource_registry, &texture_creator)?;
 
-    // let mut last_time = Instant::now();
+    let mut last_time = Instant::now();
     loop {
-        // let current_time = Instant::now();
+        let current_time = Instant::now();
         // Обработка ввода
         let frame_input = current_state.gather_input(&mut event_pump);
         let frame_data = current_state.process_input(frame_input);
 
-        let now = Instant::now();
-
         // Обновление игрового состояния
-        current_state.update(now);
+        current_state.update(current_time - last_time);
         
         // Отображение игрового состояния
         canvas.clear();
-        current_state.draw(frame_data, &mut canvas, &mut resource_registry, &texture_creator, &font, now)?;
+        current_state.draw(frame_data, &mut canvas, &mut resource_registry, &texture_creator, &font)?;
         canvas.present();
 
-        // last_time = current_time;
+        last_time = current_time;
     }
 }

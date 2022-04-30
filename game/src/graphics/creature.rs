@@ -14,7 +14,7 @@ use formats::{DefSprite, DefContainer};
 use crate::battlestate::Side;
 
 // Номера повторяют номера в реальном Def файле
-#[derive(Debug, Clone, Copy, EnumCountMacro, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, EnumCountMacro, EnumIter)]
 #[allow(non_camel_case_types)]
 pub enum AnimationType {
     Moving = 0,
