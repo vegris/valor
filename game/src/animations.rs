@@ -50,4 +50,8 @@ impl Animation {
             AnimationState::Finished
         }
     }
+
+    pub fn is_blocking(&self) -> bool {
+        ![AnimationType::Standing, AnimationType::MouseOver].contains(&self.type_)
+    }
 }

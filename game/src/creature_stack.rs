@@ -125,7 +125,7 @@ impl CreatureStack {
 
     pub fn add_animation(&mut self, animation: Animation) {
         if let Some(animation) = self.animation() {
-            if [AnimationType::Standing, AnimationType::MouseOver].contains(&animation.type_) {
+            if !animation.is_blocking() {
                 self.animation_queue.pop_front();
             }
         }

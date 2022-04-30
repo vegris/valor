@@ -70,47 +70,51 @@ impl<'a> BattleState<'a> {
             std::process::exit(0);
         }
 
-        let cursor_pos = frame_input.cursor_position;
-        let current_hover = GridPos::find_pointer_position(cursor_pos.into());
+        if !self.is_animating() {
+            let cursor_pos = frame_input.cursor_position;
+            let current_hover = GridPos::find_pointer_position(cursor_pos.into());
 
-        if let Some(cell) = current_hover {
-            let current_mouseover_stack = self.find_unit_for_cell(cell);
-        
-            if current_mouseover_stack != self.previous_mouseover_stack {
-                current_mouseover_stack
-                    .map(|handle| self.get_stack_mut(handle))
-                    .filter(|stack| !matches!(stack.animation(), Some(Animation{type_: AnimationType::MouseOver, ..})))
-                    .map(|stack| stack.add_animation(Animation::new(AnimationType::MouseOver)));
-                
-                self.previous_mouseover_stack = current_mouseover_stack;
-            }
-        }
-
-        let current_stack = self.get_current_stack();
-        let attack_direction = current_hover.map(|cell| cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature));
-
-        let mut potential_lmb_command = self.construct_potential_lmb_command(current_hover, attack_direction);
-
-        if let Some(command) = self.construct_command(frame_input, potential_lmb_command) {
-            if command.is_applicable(self) {
-                println!("Command applied!");
-                command.apply(self);
-                if let Some(winner) = self.find_winner() {
-                    println!("{:?} wins!", winner);
-                    std::process::exit(0);
+            if let Some(cell) = current_hover {
+                let current_mouseover_stack = self.find_unit_for_cell(cell);
+            
+                if current_mouseover_stack != self.previous_mouseover_stack {
+                    current_mouseover_stack
+                        .map(|handle| self.get_stack_mut(handle))
+                        .filter(|stack| !matches!(stack.animation(), Some(Animation{type_: AnimationType::MouseOver, ..})))
+                        .map(|stack| stack.add_animation(Animation::new(AnimationType::MouseOver)));
+                    
+                    self.previous_mouseover_stack = current_mouseover_stack;
                 }
-
-                // Если команда поменяла игровое состояние,
-                // то есть шанс, что в potentail_lmb_command
-                // стала содержаться устаревшая инфа
-                // Лучше сбросить от греха
-                potential_lmb_command = None;
-            } else {
-                println!("Command is not applicable!");
             }
-        }
 
-        FrameData { current_hover, potential_lmb_command }
+            let current_stack = self.get_current_stack();
+            let attack_direction = current_hover.map(|cell| cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature));
+
+            let mut potential_lmb_command = self.construct_potential_lmb_command(current_hover, attack_direction);
+
+            if let Some(command) = self.construct_command(frame_input, potential_lmb_command) {
+                if command.is_applicable(self) {
+                    println!("Command applied!");
+                    command.apply(self);
+                    if let Some(winner) = self.find_winner() {
+                        println!("{:?} wins!", winner);
+                        std::process::exit(0);
+                    }
+
+                    // Если команда поменяла игровое состояние,
+                    // то есть шанс, что в potentail_lmb_command
+                    // стала содержаться устаревшая инфа
+                    // Лучше сбросить от греха
+                    potential_lmb_command = None;
+                } else {
+                    println!("Command is not applicable!");
+                }
+            }
+
+            FrameData { current_hover, potential_lmb_command }
+        } else {
+            FrameData { current_hover: None, potential_lmb_command: None }
+        }
     }
 
     fn construct_command(&self, frame_input: FrameInput, potential_lmb_command: Option<Command>) -> Option<Command> {
@@ -142,5 +146,15 @@ impl<'a> BattleState<'a> {
                 None
             };
         command.filter(|c| c.is_applicable(self))
+    }
+
+    fn is_animating(&self) -> bool {
+        self.units()
+            .into_iter()
+            .any(|handle| {
+                self.get_stack(handle)
+                    .animation()
+                    .map_or(false, |animation| animation.is_blocking())
+            })
     }
 }
