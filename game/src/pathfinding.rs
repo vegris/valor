@@ -76,7 +76,6 @@ impl NavigationArray {
             // зациклена сама на себя
             // Значит, мы дошли до начала
             if current_cell == visited_cell.came_from {
-                path.pop();
                 path.reverse();
                 return Some(path);
             } else {

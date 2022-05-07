@@ -125,13 +125,14 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     let path = state.navigation_array.get_shortest_path(destination).unwrap();
 
     let current_stack = state.get_current_stack_mut();
-    current_stack.head = destination;
 
     let iterator = Iterator::zip(path.iter(), path.iter().skip(1));
     for (&from, &to) in iterator {
         let animation = Animation::new_with_tween(AnimationType::Moving, from, to);
         current_stack.animation_queue.add(animation);
     }
+
+    current_stack.head = destination;
 }
 
 fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
