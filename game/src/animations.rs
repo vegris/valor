@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{time::Duration, collections::VecDeque};
 
 use gridpos::GridPos;
 
@@ -51,7 +51,57 @@ impl Animation {
         }
     }
 
+    pub fn is_finished(&self) -> bool {
+        matches!(self.state(), AnimationState::Finished)
+    }
+
     pub fn is_blocking(&self) -> bool {
         ![AnimationType::Standing, AnimationType::MouseOver].contains(&self.type_)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct AnimationQueue(VecDeque<Animation>);
+
+impl AnimationQueue {
+    pub fn new() -> Self {
+        Self(VecDeque::new())
+    }
+
+    pub fn update(&mut self, dt: Duration) {
+        if let Some(animation) = self.0.front_mut() {
+            animation.update(dt);
+        }
+    }
+
+    pub fn remove_finished(&mut self) {
+        if let Some(animation) = self.0.front_mut() {
+            if animation.is_finished() {
+                self.0.pop_front();
+            }
+        }
+    }
+
+    pub fn remove_non_blocking(&mut self) {
+        if let Some(animation) = self.current() {
+            if !animation.is_blocking() {
+                self.0.pop_front();
+            }
+        }
+    }
+
+    pub fn add_standing(&mut self) {
+        if self.0.is_empty() {
+            self.0.push_back(Animation::new(AnimationType::Standing));
+        }
+    }
+
+    pub fn add(&mut self, animation: Animation) {
+        self.remove_non_blocking();
+        self.0.push_back(animation);
+    }
+
+    pub fn current(&self) -> Option<Animation> {
+        self.0.front().copied()
     }
 }

@@ -79,9 +79,11 @@ impl<'a> BattleState<'a> {
             
                 if current_mouseover_stack != self.previous_mouseover_stack {
                     current_mouseover_stack
-                        .map(|handle| self.get_stack_mut(handle))
-                        .filter(|stack| !matches!(stack.animation(), Some(Animation{type_: AnimationType::MouseOver, ..})))
-                        .map(|stack| stack.add_animation(Animation::new(AnimationType::MouseOver)));
+                        .map(|handle| &mut self.get_stack_mut(handle).animation_queue)
+                        .filter(|animation_queue| {
+                            !matches!(animation_queue.current(), Some(Animation{type_: AnimationType::MouseOver, ..}))
+                        })
+                        .map(|animation_queue| animation_queue.add(Animation::new(AnimationType::MouseOver)));
                     
                     self.previous_mouseover_stack = current_mouseover_stack;
                 }
@@ -152,8 +154,7 @@ impl<'a> BattleState<'a> {
         self.units()
             .into_iter()
             .any(|handle| {
-                self.get_stack(handle)
-                    .animation()
+                self.get_stack(handle).animation_queue.current()
                     .map_or(false, |animation| animation.is_blocking())
             })
     }

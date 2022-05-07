@@ -128,7 +128,7 @@ impl<'a> BattleState<'a> {
 
         let animation = Animation::new(AnimationType::Standing);
         for stack in state.stacks.values_mut() {
-            stack.add_animation(animation);
+            stack.animation_queue.add(animation);
         }
 
         state.update_current_stack();

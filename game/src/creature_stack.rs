@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 use std::error::Error;
 use std::time::Duration;
 
@@ -12,13 +12,12 @@ use sdl2::ttf::Font;
 use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
-use crate::animations::{AnimationState, Tweening};
+use crate::animations::{AnimationState, Tweening, AnimationQueue};
 use crate::registry::ResourceRegistry;
 use crate::graphics::creature::AnimationType;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
-use super::animations::Animation;
 
 /// Существо в течение раунда может принимать одно из этих состояний
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -42,7 +41,7 @@ pub struct CreatureStack {
     pub turn_state: CreatureTurnState,
     pub defending: bool,
 
-    pub animation_queue: VecDeque<Animation>
+    pub animation_queue: AnimationQueue
 }
 
 impl CreatureStack {
@@ -56,7 +55,7 @@ impl CreatureStack {
             side,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
-            animation_queue: VecDeque::new()
+            animation_queue: AnimationQueue::new()
         }
     }
 
@@ -102,40 +101,14 @@ impl CreatureStack {
     }
 
     pub fn update(&mut self, dt: Duration) {
-        if let Some(animation) = self.animation_mut() {
-            animation.update(dt);
-            
-            if matches!(animation.state(), AnimationState::Finished) {
-                self.animation_queue.pop_front();
-            }
-        }
-
-        if self.animation_queue.is_empty() {
-            self.add_animation(Animation::new(AnimationType::Standing));
-        }
-    }
-
-    pub fn animation(&self) -> Option<Animation> {
-        self.animation_queue.front().copied()
-    }
-
-    pub fn animation_mut(&mut self) -> Option<&mut Animation> {
-        self.animation_queue.front_mut()
-    }
-
-    pub fn add_animation(&mut self, animation: Animation) {
-        if let Some(animation) = self.animation() {
-            if !animation.is_blocking() {
-                self.animation_queue.pop_front();
-            }
-        }
-
-        self.animation_queue.push_back(animation);
+        self.animation_queue.update(dt);
+        self.animation_queue.remove_finished();
+        self.animation_queue.add_standing();
     }
 
     fn animation_index(&self, animation_len: usize) -> usize {
         self.animation_queue
-            .front()
+            .current()
             .map(|animation| animation.state())
             .and_then(|state| {
                 if let AnimationState::Running(progress) = state {
@@ -161,7 +134,7 @@ impl CreatureStack {
         let spritesheet = rr.get_creature_container(self.creature);
 
         let animation_type =
-            if let Some(animation) = self.animation_queue.front() {
+            if let Some(animation) = self.animation_queue.current() {
                 animation.type_
             } else if self.is_alive() {
                 AnimationType::Standing
@@ -178,7 +151,7 @@ impl CreatureStack {
 
         let mut draw_position = self.tail().center();
 
-        if let Some(animation) = self.animation_queue.front() {
+        if let Some(animation) = self.animation_queue.current() {
             if let Some(Tweening{from, to}) = animation.tween {
                 if let AnimationState::Running(progress) = animation.state() {
                     let from_c = from.center();

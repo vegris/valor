@@ -130,7 +130,7 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     let iterator = Iterator::zip(path.iter(), path.iter().skip(1));
     for (&from, &to) in iterator {
         let animation = Animation::new_with_tween(AnimationType::Moving, from, to);
-        current_stack.add_animation(animation);
+        current_stack.animation_queue.add(animation);
     }
 }
 
@@ -146,7 +146,7 @@ fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool
 }
 fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
     let mut attack_stack = state.get_current_stack_mut();
-    attack_stack.add_animation(Animation::new(AnimationType::ShootStraight));
+    attack_stack.animation_queue.add(Animation::new(AnimationType::ShootStraight));
     attack_stack.current_ammo -= 1;
 
     let mut defend_stack = state.get_stack_mut(target);
@@ -186,7 +186,7 @@ fn apply_attack(state: &mut BattleState, attack_position: GridPos, attack_direct
     apply_move(state, position);
 
     let current_stack = state.get_current_stack_mut();
-    current_stack.add_animation(Animation::new(AnimationType::AttackStraight));
+    current_stack.animation_queue.add(Animation::new(AnimationType::AttackStraight));
 
     let defending_unit_handle = state.find_unit_for_cell(attack_position).unwrap();
     let mut defending_unit = state.get_stack_mut(defending_unit_handle);
