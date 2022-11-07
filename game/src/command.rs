@@ -125,9 +125,11 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     let path = state.navigation_array.get_shortest_path(destination).unwrap();
 
     let current_stack = state.get_current_stack_mut();
+    
+    let creature_positions = path.into_iter().map(|gridpos| pathfinding::tail_for(current_stack.creature, current_stack.side, gridpos).unwrap());
 
-    let iterator = Iterator::zip(path.iter(), path.iter().skip(1));
-    for (&from, &to) in iterator {
+    let iterator = Iterator::zip(creature_positions.clone(), creature_positions.skip(1));
+    for (from, to) in iterator {
         let animation = Animation::new_with_tween(AnimationType::Moving, from, to);
         current_stack.animation_queue.add(animation);
     }
