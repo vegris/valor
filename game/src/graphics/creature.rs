@@ -145,7 +145,7 @@ impl CreatureSpritesheet {
         Self { colors, sprites, blocks }
     }
 
-    pub fn animation_block(&self, animation: AnimationType) -> &AnimationBlock {
-        self.blocks[animation as usize].as_ref().unwrap()
+    pub fn animation_block(&self, animation: AnimationType) -> Option<&AnimationBlock> {
+        self.blocks[animation as usize].as_ref()
     }
 }

@@ -1,6 +1,7 @@
 use std::error::Error;
 
 extern crate sdl2;
+use sdl2::pixels::Color;
 use sdl2::render::{WindowCanvas, TextureCreator};
 use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
@@ -110,7 +111,11 @@ impl<'a> BattleState<'a> {
             let is_current = handle == self.current_stack;
             let stack = self.get_stack(handle);
             stack.draw(canvas, rr, tc, is_current, &graphics.stack_count_bg, font)?;
+            canvas.set_draw_color(Color::RED);
+            canvas.draw_rect(stack.head.bounding_rect())?;
         }
+
+        canvas.set_draw_color(Color::BLACK);
 
         Ok(())
     }

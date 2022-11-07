@@ -41,6 +41,7 @@ pub struct CreatureStack {
     pub turn_state: CreatureTurnState,
     pub defending: bool,
 
+    pub draw_pos: Point,
     pub animation_queue: AnimationQueue
 }
 
@@ -55,6 +56,7 @@ impl CreatureStack {
             side,
             turn_state: CreatureTurnState::HasTurn,
             defending: false,
+            draw_pos: pathfinding::tail_for(creature, side, head).unwrap().center(),
             animation_queue: AnimationQueue::new()
         }
     }
@@ -100,9 +102,24 @@ impl CreatureStack {
             .collect::<Vec<GridPos>>()
     }
 
-    pub fn update(&mut self, dt: Duration) {
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         self.animation_queue.update(dt);
         self.animation_queue.remove_finished();
+
+        self.animation_queue.remove_non_existent(self.creature, rr);
+
+        if let Some(animation) = self.animation_queue.current() {
+            if let Some(Tweening{from, to}) = animation.tween {
+                if let AnimationState::Running(progress) = animation.state() {
+                    let from_c = from.center();
+                    let to_c = to.center();
+                    let x = from_c.x + ((to_c.x - from_c.x) as f32 * progress).round() as i32;
+                    let y = from_c.y + ((to_c.y - from_c.y) as f32 * progress).round() as i32;
+                    self.draw_pos = Point::new(x, y);
+                }
+            }
+        }
+
         self.animation_queue.add_standing();
     }
 
@@ -142,28 +159,14 @@ impl CreatureStack {
                 AnimationType::Death
             };
 
-        let animation_block = spritesheet.animation_block(animation_type);
+        let animation_block = spritesheet.animation_block(animation_type).unwrap();
         
         let animation_index = self.animation_index(animation_block.len());
         let sprite_index = animation_block[animation_index];
         let sprite = &mut spritesheet.sprites[sprite_index];
         if is_selected { sprite.turn_selection(&mut spritesheet.colors, true) };
 
-        let mut draw_position = self.tail().center();
-
-        if let Some(animation) = self.animation_queue.current() {
-            if let Some(Tweening{from, to}) = animation.tween {
-                if let AnimationState::Running(progress) = animation.state() {
-                    let from_c = from.center();
-                    let to_c = to.center();
-                    let x = from_c.x + ((to_c.x - from_c.x) as f32 * progress).round() as i32;
-                    let y = from_c.y + ((to_c.y - from_c.y) as f32 * progress).round() as i32;
-                    draw_position = Point::new(x, y);
-                }
-            }
-        }
-        
-        let draw_rect = sprite.draw_rect(draw_position, self.side);
+        let draw_rect = sprite.draw_rect(self.draw_pos, self.side);
         let texture = sprite.surface().as_texture(tc)?;
 
         match self.side {

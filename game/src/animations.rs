@@ -1,8 +1,9 @@
 use std::{time::Duration, collections::VecDeque};
 
+use gamedata::Creature;
 use gridpos::GridPos;
 
-use crate::graphics::creature::AnimationType;
+use crate::{graphics::creature::AnimationType, registry::ResourceRegistry};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Tweening {
@@ -24,7 +25,7 @@ pub enum AnimationState {
 
 
 impl Animation {
-    const DURATION: Duration = Duration::from_millis(500);
+    const BASE_DURATION: Duration = Duration::from_millis(500);
     // const DURATION: Duration = Duration::from_secs(5);
 
     pub fn new(type_: AnimationType) -> Self {
@@ -40,11 +41,11 @@ impl Animation {
     }
 
     fn calculate_progress(&self) -> f32 {
-        self.duration.as_secs_f32() / Self::DURATION.as_secs_f32()
+        self.duration.as_secs_f32() / self.duration().as_secs_f32()
     }
 
     pub fn state(&self) -> AnimationState {
-        if self.duration <= Self::DURATION {
+        if self.duration <= self.duration() {
             AnimationState::Running(self.calculate_progress())
         } else {
             AnimationState::Finished
@@ -57,6 +58,16 @@ impl Animation {
 
     pub fn is_blocking(&self) -> bool {
         ![AnimationType::Standing, AnimationType::MouseOver].contains(&self.type_)
+    }
+
+    fn duration(&self) -> Duration {
+        let duration_modifier =
+            match self.type_ {
+                AnimationType::StartMoving | AnimationType::StopMoving => 4,
+                _ => 1
+            };
+        
+        Self::BASE_DURATION / duration_modifier
     }
 }
 
@@ -86,6 +97,16 @@ impl AnimationQueue {
         if let Some(animation) = self.current() {
             if !animation.is_blocking() {
                 self.0.pop_front();
+            }
+        }
+    }
+
+    pub fn remove_non_existent(&mut self, creature: Creature, rr: &mut ResourceRegistry) {
+        while let Some(animation) = self.0.front() {
+            if rr.get_creature_container(creature).animation_block(animation.type_).is_none() {
+                self.0.pop_front();
+            } else {
+                return;
             }
         }
     }

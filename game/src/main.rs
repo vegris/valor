@@ -8,6 +8,7 @@ mod registry;
 mod graphics;
 mod config;
 mod animations;
+mod animator;
 
 extern crate sdl2;
 
@@ -50,7 +51,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let frame_data = current_state.process_input(frame_input);
 
         // Обновление игрового состояния
-        current_state.update(current_time - last_time);
+        current_state.update(current_time - last_time, &mut resource_registry);
         
         // Отображение игрового состояния
         canvas.clear();

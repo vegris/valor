@@ -135,9 +135,9 @@ impl<'a> BattleState<'a> {
         Ok(state)
     }
 
-    pub fn update(&mut self, dt: Duration) {
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         for stack in self.stacks.values_mut() {
-            stack.update(dt);
+            stack.update(dt, rr);
         }
     }
 

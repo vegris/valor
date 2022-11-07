@@ -4,7 +4,7 @@ use super::creature_stack::CreatureTurnState as CTS;
 use super::battlestate::{BattleState, CreatureStackHandle};
 use crate::animations::Animation;
 use crate::graphics::creature::AnimationType;
-use crate::pathfinding;
+use crate::{pathfinding, animator};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Command {
@@ -125,16 +125,10 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     let path = state.navigation_array.get_shortest_path(destination).unwrap();
 
     let current_stack = state.get_current_stack_mut();
-    
-    let creature_positions = path.into_iter().map(|gridpos| pathfinding::tail_for(current_stack.creature, current_stack.side, gridpos).unwrap());
-
-    let iterator = Iterator::zip(creature_positions.clone(), creature_positions.skip(1));
-    for (from, to) in iterator {
-        let animation = Animation::new_with_tween(AnimationType::Moving, from, to);
-        current_stack.animation_queue.add(animation);
-    }
 
     current_stack.head = destination;
+
+    animator::animate_moving(current_stack, path);
 }
 
 fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
