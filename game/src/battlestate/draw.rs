@@ -2,20 +2,20 @@ use std::error::Error;
 
 extern crate sdl2;
 use sdl2::pixels::Color;
-use sdl2::render::{WindowCanvas, TextureCreator};
-use sdl2::video::WindowContext;
 use sdl2::rect::Rect;
+use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::ttf::Font;
+use sdl2::video::WindowContext;
 
 use gridpos::GridPos;
 
-use crate::registry::ResourceRegistry;
-use crate::graphics::cursors::Cursor;
 use crate::command::Command;
+use crate::graphics::cursors::Cursor;
 use crate::pathfinding;
+use crate::registry::ResourceRegistry;
 
-use super::BattleState;
 use super::input::FrameData;
+use super::BattleState;
 
 impl<'a> BattleState<'a> {
     pub fn draw(
@@ -24,9 +24,8 @@ impl<'a> BattleState<'a> {
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
-        font: &Font
+        font: &Font,
     ) -> Result<(), Box<dyn Error>> {
-
         let graphics = &self.graphics;
 
         // Рисуем поле боя
@@ -54,17 +53,26 @@ impl<'a> BattleState<'a> {
         if let Some(command) = frame_data.potential_lmb_command {
             match command {
                 // Выделяем потенциальную позицию атакующего стека в случае атаки
-                Command::Attack { attack_position, attack_direction } => {
+                Command::Attack {
+                    attack_position,
+                    attack_direction,
+                } => {
                     let current_stack = self.get_current_stack();
                     let current_side = current_stack.side;
 
                     let potential_position = pathfinding::unit_position_for_attack(
-                        attack_position, attack_direction, current_side, current_stack.creature.is_wide()
+                        attack_position,
+                        attack_direction,
+                        current_side,
+                        current_stack.creature.is_wide(),
                     );
 
                     if let Some(pos) = potential_position {
                         let occupied_cells = pathfinding::get_occupied_cells_for(
-                            current_stack.creature, current_side, pos);
+                            current_stack.creature,
+                            current_side,
+                            pos,
+                        );
 
                         if let Some(cells) = occupied_cells {
                             highlighted_cells.extend(cells)
@@ -77,14 +85,17 @@ impl<'a> BattleState<'a> {
                             highlighted_cells.push(cell);
                         }
                     }
-                },
+                }
                 // Выделяем потенциальную позицию после перемещения (объединить в функцию с верхней)
                 Command::Move { destination } => {
                     let current_stack = self.get_current_stack();
 
                     let occupied_cells = pathfinding::get_occupied_cells_for(
-                        current_stack.creature, current_stack.side, destination);
-                    
+                        current_stack.creature,
+                        current_stack.side,
+                        destination,
+                    );
+
                     if let Some(cells) = occupied_cells {
                         highlighted_cells.extend(cells);
                     }
@@ -132,12 +143,12 @@ fn choose_cursor(state: &BattleState, frame_data: &FrameData) -> Cursor {
                 } else {
                     Cursor::Run
                 }
-            },
-            Command::Attack { attack_direction, .. } => {
-                Cursor::from_attack_direction(attack_direction)
-            },
+            }
+            Command::Attack {
+                attack_direction, ..
+            } => Cursor::from_attack_direction(attack_direction),
             Command::Shoot { .. } => Cursor::Arrow,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     } else {
         Cursor::Pointer

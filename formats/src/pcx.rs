@@ -1,14 +1,14 @@
-use std::error::Error;
 use std::convert::TryInto;
+use std::error::Error;
 use std::ops::Deref;
 
-use sdl2::surface::Surface;
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
+use sdl2::surface::Surface;
 
 struct ImageInfo {
     size: u32,
     width: u32,
-    height: u32
+    height: u32,
 }
 
 pub struct RGB24(Surface<'static>);
@@ -19,16 +19,22 @@ impl RGB24 {
     }
 
     fn from_bytes(data: &mut [u8], info: ImageInfo) -> Result<Self, Box<dyn Error>> {
-        let surface = Surface::from_data(data, info.width, info.height, info.width * 3, PixelFormatEnum::BGR24)?;
+        let surface = Surface::from_data(
+            data,
+            info.width,
+            info.height,
+            info.width * 3,
+            PixelFormatEnum::BGR24,
+        )?;
         let static_surface = surface.convert_format(surface.pixel_format_enum())?;
-        
+
         Ok(Self(static_surface))
     }
 }
 
 pub struct Index8 {
     surface: Surface<'static>,
-    colors: Box<[Color]>
+    colors: Box<[Color]>,
 }
 
 impl Index8 {
@@ -57,17 +63,26 @@ impl Index8 {
             .chunks_exact(3)
             .map(|slice| Color::RGB(slice[0], slice[1], slice[2]))
             .collect::<Box<[Color]>>();
-        
-        let surface = Surface::from_data(pixel_data, info.width, info.height, info.width, PixelFormatEnum::Index8)?;
+
+        let surface = Surface::from_data(
+            pixel_data,
+            info.width,
+            info.height,
+            info.width,
+            PixelFormatEnum::Index8,
+        )?;
 
         let static_surface = surface.convert_format(surface.pixel_format_enum())?;
 
-        Ok(Self{surface: static_surface, colors})
+        Ok(Self {
+            surface: static_surface,
+            colors,
+        })
     }
 }
 
 pub fn from_bytes(bytes: &mut [u8]) -> Result<either::Either<RGB24, Index8>, Box<dyn Error>> {
-    let (header, data) = bytes.split_at_mut(12); 
+    let (header, data) = bytes.split_at_mut(12);
     let [size, width, height]: [u32; 3] = header
         .chunks_exact(4)
         .map(|chunk| chunk.try_into().unwrap())
@@ -76,12 +91,16 @@ pub fn from_bytes(bytes: &mut [u8]) -> Result<either::Either<RGB24, Index8>, Box
         .deref()
         .try_into()?;
 
-    let info = ImageInfo{size, width, height};
-    
+    let info = ImageInfo {
+        size,
+        width,
+        height,
+    };
+
     let image = match size {
         size if size == width * height * 3 => either::Left(RGB24::from_bytes(data, info)?),
         size if size == width * height => either::Right(Index8::from_bytes(data, info)?),
-        _ => return Err("Unknown pcx format!".into())
+        _ => return Err("Unknown pcx format!".into()),
     };
 
     Ok(image)

@@ -11,7 +11,7 @@ pub struct Container {
     pub type_: u32,
     pub colors: Box<[Color]>,
     pub names2sprites: HashMap<String, Sprite>,
-    pub blocks2names: HashMap<u32, Box<[String]>>
+    pub blocks2names: HashMap<u32, Box<[String]>>,
 }
 
 impl Container {
@@ -26,9 +26,10 @@ impl Container {
             .chunks_exact(3)
             .map(|chunk| Color::RGB(chunk[0], chunk[1], chunk[2]))
             .collect::<Box<[Color]>>();
-        
+
         let mut names2sprites: HashMap<String, Sprite> = HashMap::new();
-        let mut blocks2names: HashMap<u32, Box<[String]>> = HashMap::with_capacity(n_blocks as usize);
+        let mut blocks2names: HashMap<u32, Box<[String]>> =
+            HashMap::with_capacity(n_blocks as usize);
         (0..n_blocks).fold(pixel_data, |cur_data, _| {
             let (block_header, rest_data) = cur_data.split_at(16);
             let block_id = u32::from_ne_bytes(block_header[..4].try_into().unwrap());
@@ -38,22 +39,27 @@ impl Container {
             let (names_buf, offsets_buf) = block_data.split_at(13 * n_entries);
 
             let names = names_buf
-                        .chunks_exact(13)
-                        .map(|chunk| chunk.split(|chr| *chr == 0).next().unwrap())
-                        .map(|cut_bytes| String::from_utf8(cut_bytes.to_vec()).unwrap());
+                .chunks_exact(13)
+                .map(|chunk| chunk.split(|chr| *chr == 0).next().unwrap())
+                .map(|cut_bytes| String::from_utf8(cut_bytes.to_vec()).unwrap());
             let sprites = offsets_buf
-                        .chunks_exact(4)
-                        .map(|chunk| u32::from_ne_bytes(chunk.try_into().unwrap()))
-                        .map(|offset| Sprite::from_bytes(bytes.deref(), offset));
+                .chunks_exact(4)
+                .map(|chunk| u32::from_ne_bytes(chunk.try_into().unwrap()))
+                .map(|offset| Sprite::from_bytes(bytes.deref(), offset));
 
             let block = names.clone().collect::<Box<[String]>>();
             blocks2names.insert(block_id, block);
 
             names2sprites.extend(Iterator::zip(names, sprites));
-            
-            rest_data
-            });
 
-        Self {type_, colors, names2sprites, blocks2names}
+            rest_data
+        });
+
+        Self {
+            type_,
+            colors,
+            names2sprites,
+            blocks2names,
+        }
     }
 }

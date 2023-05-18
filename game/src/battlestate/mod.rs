@@ -1,37 +1,37 @@
-use std::error::Error;
 use std::collections::HashMap;
+use std::error::Error;
 use std::time::Duration;
 
 extern crate sdl2;
-use sdl2::render::{TextureCreator, Texture};
+use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
 
 use gridpos::GridPos;
 
 use crate::animations::Animation;
+use crate::config::Config;
 use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
+use crate::graphics::creature::AnimationType;
+use crate::graphics::cursors::Cursors;
 use crate::pathfinding::NavigationArray;
 use crate::registry::ResourceRegistry;
-use crate::graphics::cursors::Cursors;
-use crate::graphics::creature::AnimationType;
-use crate::config::Config;
 
 mod army;
-mod turns;
-mod input;
 mod draw;
+mod input;
+mod turns;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Side {
     Attacker,
-    Defender
+    Defender,
 }
 
 impl Side {
     pub fn other(self) -> Self {
         match self {
             Self::Attacker => Self::Defender,
-            Self::Defender => Self::Attacker
+            Self::Defender => Self::Attacker,
         }
     }
 }
@@ -39,7 +39,7 @@ impl Side {
 #[derive(Debug)]
 pub enum Winner {
     Side(Side),
-    Tie
+    Tie,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -47,7 +47,6 @@ pub struct CreatureStackHandle(u32);
 
 pub struct BattleState<'a> {
     // Логика
-
     pub stacks: HashMap<CreatureStackHandle, CreatureStack>,
     pub phase_iter: turns::PhaseIterator,
     pub current_phase: CTS,
@@ -61,7 +60,7 @@ pub struct BattleState<'a> {
     // Графика
     graphics: Graphics<'a>,
 
-    previous_mouseover_stack: Option<CreatureStackHandle>
+    previous_mouseover_stack: Option<CreatureStackHandle>,
 }
 
 struct Graphics<'a> {
@@ -70,35 +69,37 @@ struct Graphics<'a> {
     grid_cell_shadow: Texture<'a>,
     stack_count_bg: Texture<'a>,
 
-    cursors: Cursors
+    cursors: Cursors,
 }
 
 impl<'a> Graphics<'a> {
     fn init(
         config: &Config,
         rr: &mut ResourceRegistry,
-        tc: &'a TextureCreator<WindowContext>
+        tc: &'a TextureCreator<WindowContext>,
     ) -> Result<Self, Box<dyn Error>> {
         let graphics = Graphics {
             battlefield: rr.load_pcx(config.battlefield.filename())?.as_texture(tc)?,
-            grid_cell: rr.load_pcx_with_transparency("CCellGrd.pcx")?.as_texture(tc)?,
-            grid_cell_shadow: rr.load_pcx_with_transparency("CCellShd.pcx")?.as_texture(tc)?,
+            grid_cell: rr
+                .load_pcx_with_transparency("CCellGrd.pcx")?
+                .as_texture(tc)?,
+            grid_cell_shadow: rr
+                .load_pcx_with_transparency("CCellShd.pcx")?
+                .as_texture(tc)?,
             stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(tc)?,
 
-            cursors: Cursors::load(rr)
+            cursors: Cursors::load(rr),
         };
         Ok(graphics)
     }
 }
 
-
 impl<'a> BattleState<'a> {
     pub fn new(
         config: Config,
         rr: &mut ResourceRegistry,
-        tc: &'a TextureCreator<WindowContext>
+        tc: &'a TextureCreator<WindowContext>,
     ) -> Result<Self, Box<dyn Error>> {
-
         let attacker_army = army::form_units(&config.armies[0], Side::Attacker);
         let defender_army = army::form_units(&config.armies[1], Side::Defender);
 
@@ -111,7 +112,7 @@ impl<'a> BattleState<'a> {
                 (handle, v)
             })
             .collect();
-        
+
         let mut state = Self {
             stacks,
             phase_iter: turns::new_phase_iter(),
@@ -123,7 +124,7 @@ impl<'a> BattleState<'a> {
 
             graphics: Graphics::init(&config, rr, tc)?,
 
-            previous_mouseover_stack: None
+            previous_mouseover_stack: None,
         };
 
         let animation = Animation::new(AnimationType::Standing);
@@ -164,31 +165,25 @@ impl<'a> BattleState<'a> {
         self.units()
             .into_iter()
             .filter(|&handle| self.get_stack(handle).is_alive())
-            .find(|&handle| {
-                self.get_stack(handle)
-                    .get_occupied_cells()
-                    .contains(&cell)
-            })
+            .find(|&handle| self.get_stack(handle).get_occupied_cells().contains(&cell))
     }
 
-
     pub fn find_winner(&self) -> Option<Winner> {
-        let alive_sides = 
-            [Side::Attacker, Side::Defender]
-                .into_iter()
-                .filter(|&side| {
-                    self.stacks
-                        .values()
-                        .filter(|stack| stack.side == side)
-                        .any(|stack| stack.is_alive())
-                })
-                .collect::<Vec<Side>>();
-        
+        let alive_sides = [Side::Attacker, Side::Defender]
+            .into_iter()
+            .filter(|&side| {
+                self.stacks
+                    .values()
+                    .filter(|stack| stack.side == side)
+                    .any(|stack| stack.is_alive())
+            })
+            .collect::<Vec<Side>>();
+
         match alive_sides.len() {
             0 => Some(Winner::Tie),
             1 => Some(Winner::Side(alive_sides[0])),
             2 => None,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }

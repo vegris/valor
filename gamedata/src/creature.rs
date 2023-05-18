@@ -1783,7 +1783,7 @@ impl Creature {
             Self::Ballista => "smbal.def",
             Self::FirstAidTent => "SMtent.def",
             Self::Catapult => "SMCata.def",
-            Self::AmmoCart => "SMCart.def"
+            Self::AmmoCart => "SMCart.def",
         }
     }
 }

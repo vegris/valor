@@ -1,10 +1,10 @@
-use std::path::Path;
 use std::error::Error;
+use std::path::Path;
 
 extern crate sdl2;
 use sdl2::surface::Surface;
 
-use formats::{pcx, LodIndex, DefContainer};
+use formats::{pcx, DefContainer, LodIndex};
 use gamedata::Creature;
 
 use crate::graphics::creature::CreatureSpritesheet;
@@ -12,11 +12,10 @@ use crate::graphics::creature::CreatureSpritesheet;
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
 
-
 pub struct ResourceRegistry {
     pcx_archive: LodIndex,
     def_archive: LodIndex,
-    cache: CreaturesCache
+    cache: CreaturesCache,
 }
 
 impl ResourceRegistry {
@@ -25,24 +24,29 @@ impl ResourceRegistry {
         let def_archive = LodIndex::open(Path::new(DEF_ARCHIVE));
 
         let cache = CreaturesCache::new();
-        
+
         ResourceRegistry {
             pcx_archive,
             def_archive,
-            cache
+            cache,
         }
     }
-    
+
     pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
         let mut bytes = self.pcx_archive.read_file(filename);
         let pcx = pcx::from_bytes(&mut bytes)?;
         either::for_both!(pcx, img => img.to_surface())
     }
-    pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
+    pub fn load_pcx_with_transparency(
+        &mut self,
+        filename: &str,
+    ) -> Result<Surface<'static>, Box<dyn Error>> {
         let mut bytes = self.pcx_archive.read_file(filename);
         let pcx = pcx::from_bytes(&mut bytes)?;
-        
-        let mut image8 = pcx.right().ok_or::<String>("Unexpected image type!".into())?;
+
+        let mut image8 = pcx
+            .right()
+            .ok_or::<String>("Unexpected image type!".into())?;
 
         image8.apply_transparency()?;
         image8.to_surface()
@@ -63,7 +67,6 @@ impl ResourceRegistry {
     }
 }
 
-
 type CachedValue = CreatureSpritesheet;
 
 pub struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
@@ -73,7 +76,7 @@ impl CreaturesCache {
         const NONE: Option<CachedValue> = None;
         Self([NONE; Creature::COUNT])
     }
-    
+
     pub fn get(&mut self, creature: Creature) -> Option<&mut CachedValue> {
         self.0[creature as usize].as_mut()
     }

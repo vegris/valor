@@ -1,4 +1,4 @@
-use std::{time::Duration, collections::VecDeque};
+use std::{collections::VecDeque, time::Duration};
 
 use gamedata::Creature;
 use gridpos::GridPos;
@@ -8,32 +8,39 @@ use crate::{graphics::creature::AnimationType, registry::ResourceRegistry};
 #[derive(Clone, Copy, Debug)]
 pub struct Tweening {
     pub from: GridPos,
-    pub to: GridPos
+    pub to: GridPos,
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct Animation {
     pub type_: AnimationType,
     pub duration: Duration,
-    pub tween: Option<Tweening>
+    pub tween: Option<Tweening>,
 }
 
 pub enum AnimationState {
     Running(f32),
-    Finished
+    Finished,
 }
-
 
 impl Animation {
     const BASE_DURATION: Duration = Duration::from_millis(500);
     // const DURATION: Duration = Duration::from_secs(5);
 
     pub fn new(type_: AnimationType) -> Self {
-        Self { type_, duration: Duration::ZERO, tween: None }
+        Self {
+            type_,
+            duration: Duration::ZERO,
+            tween: None,
+        }
     }
 
     pub fn new_with_tween(type_: AnimationType, from: GridPos, to: GridPos) -> Self {
-        Self { type_, duration: Duration::ZERO, tween: Some(Tweening { from, to }) }
+        Self {
+            type_,
+            duration: Duration::ZERO,
+            tween: Some(Tweening { from, to }),
+        }
     }
 
     pub fn update(&mut self, dt: Duration) {
@@ -61,12 +68,11 @@ impl Animation {
     }
 
     fn duration(&self) -> Duration {
-        let duration_modifier =
-            match self.type_ {
-                AnimationType::StartMoving | AnimationType::StopMoving => 4,
-                _ => 1
-            };
-        
+        let duration_modifier = match self.type_ {
+            AnimationType::StartMoving | AnimationType::StopMoving => 4,
+            _ => 1,
+        };
+
         Self::BASE_DURATION / duration_modifier
     }
 }
@@ -103,7 +109,11 @@ impl AnimationQueue {
 
     pub fn remove_non_existent(&mut self, creature: Creature, rr: &mut ResourceRegistry) {
         while let Some(animation) = self.0.front() {
-            if rr.get_creature_container(creature).animation_block(animation.type_).is_none() {
+            if rr
+                .get_creature_container(creature)
+                .animation_block(animation.type_)
+                .is_none()
+            {
                 self.0.pop_front();
             } else {
                 return;

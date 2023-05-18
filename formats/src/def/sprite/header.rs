@@ -11,7 +11,7 @@ pub struct Header {
     pub width: u32,
     pub height: u32,
     pub left_margin: u32,
-    pub top_margin: u32
+    pub top_margin: u32,
 }
 
 impl Header {
@@ -24,7 +24,9 @@ impl Header {
             .map(Result::unwrap)
             .map(u32::from_le_bytes)
             .collect::<Box<[u32]>>()
-            .deref().try_into().unwrap();
+            .deref()
+            .try_into()
+            .unwrap();
 
         Self {
             full_size: size,
@@ -34,7 +36,7 @@ impl Header {
             width: w,
             height: h,
             left_margin: lm,
-            top_margin: tm
+            top_margin: tm,
         }
     }
 }

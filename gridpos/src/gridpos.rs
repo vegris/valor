@@ -11,7 +11,7 @@ use super::hexagon_part::HexagonPart;
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct GridPos {
     pub x: i32,
-    pub y: i32
+    pub y: i32,
 }
 
 impl GridPos {
@@ -31,7 +31,7 @@ impl GridPos {
 
     pub fn new(x: i32, y: i32) -> Self {
         assert!(Self::is_point_valid(x, y));
-        Self {x, y}
+        Self { x, y }
     }
 
     pub fn relative(&self, x_modif: i8, y_modif: i8) -> Self {
@@ -61,13 +61,12 @@ impl GridPos {
         let x_offset = x * (Self::CELL_WIDTH - 1);
         let y_offset = y / 2 * (Self::CELL_HEIGHT + Self::CELL_VERTICAL);
 
-        let start_point = 
-            if self.is_even_row() {
-                Self::EVEN_START_POINT
-            } else {
-                Self::ODD_START_POINT
-            };
-        
+        let start_point = if self.is_even_row() {
+            Self::EVEN_START_POINT
+        } else {
+            Self::ODD_START_POINT
+        };
+
         Point::from(start_point).offset(x_offset as i32, y_offset as i32)
     }
 
@@ -81,7 +80,8 @@ impl GridPos {
         let odd_x_rect = odd_x_relative / (Self::CELL_WIDTH - 1) as i32 + 1;
         let odd_y_rect = odd_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) as i32 + 1;
 
-        let even_x_relative = point.x() - (Self::EVEN_START_POINT.0 - (Self::CELL_WIDTH / 2) as i32);
+        let even_x_relative =
+            point.x() - (Self::EVEN_START_POINT.0 - (Self::CELL_WIDTH / 2) as i32);
         let even_y_relative = point.y() - (Self::EVEN_START_POINT.1 - Self::CELL_HEIGHT as i32);
         let even_x_rect = even_x_relative / (Self::CELL_WIDTH - 1) as i32 + 1;
         let even_y_rect = even_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) as i32 + 1;
@@ -101,12 +101,11 @@ impl GridPos {
                     (true, false) => Some(cell_1),
                     (false, true) => Some(cell_2),
                     (true, true) => {
-                        let cell =
-                            if cell_1.contains_point_precise(point) {
-                                cell_1
-                            } else {
-                                cell_2
-                            };
+                        let cell = if cell_1.contains_point_precise(point) {
+                            cell_1
+                        } else {
+                            cell_2
+                        };
                         Some(cell)
                     }
                 }
@@ -114,7 +113,11 @@ impl GridPos {
         }
     }
 
-    pub fn calculate_attack_direction(&self, point: Point, attacking_creature: Creature) -> AttackDirection {
+    pub fn calculate_attack_direction(
+        &self,
+        point: Point,
+        attacking_creature: Creature,
+    ) -> AttackDirection {
         let grid_center = self.center();
         let point = point - grid_center;
         let x = point.x() as f32;
@@ -122,7 +125,7 @@ impl GridPos {
         let angle = f32::atan2(y, x);
         let hexagon_part = HexagonPart::find_part_for_angle(angle);
 
-        AttackDirection::from_hexagon_part(hexagon_part, attacking_creature) 
+        AttackDirection::from_hexagon_part(hexagon_part, attacking_creature)
     }
 
     pub fn contains_point(&self, point: Point) -> bool {
@@ -153,7 +156,7 @@ impl GridPos {
                 (x, y - 1),
                 (x + 1, y),
                 (x, y + 1),
-                (x - 1, y + 1)
+                (x - 1, y + 1),
             ]
         } else {
             [
@@ -162,13 +165,14 @@ impl GridPos {
                 (x + 1, y - 1),
                 (x + 1, y),
                 (x + 1, y + 1),
-                (x, y + 1)
+                (x, y + 1),
             ]
-        }.iter()
-         .map(|&(x, y)| Self::try_new(x, y))
-         .collect::<Vec<Option<Self>>>()
-         .try_into()
-         .unwrap()
+        }
+        .iter()
+        .map(|&(x, y)| Self::try_new(x, y))
+        .collect::<Vec<Option<Self>>>()
+        .try_into()
+        .unwrap()
     }
 
     pub fn get_successors(self) -> Vec<Self> {
@@ -178,7 +182,6 @@ impl GridPos {
             .collect()
     }
 }
-
 
 use std::fmt;
 impl fmt::Display for GridPos {

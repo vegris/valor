@@ -15,7 +15,7 @@ pub fn initial_placement(units_count: u8) -> Vec<i32> {
         5 => vec![1, 3, 6, 9, 11],
         6 => vec![1, 3, 5, 7, 9, 11],
         7 => vec![1, 3, 5, 6, 7, 9, 11],
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -24,7 +24,7 @@ pub fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> V
     let formation = initial_placement(units_count as u8);
     let starting_x = *match side {
         Side::Attacker => GridPos::X_RANGE.start(),
-        Side::Defender => GridPos::X_RANGE.end()
+        Side::Defender => GridPos::X_RANGE.end(),
     };
     starting_army
         .iter()

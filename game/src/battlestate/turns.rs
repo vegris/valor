@@ -3,7 +3,6 @@ use crate::pathfinding::NavigationArray;
 
 use super::{BattleState, CreatureStackHandle};
 
-
 pub type PhaseIterator = std::vec::IntoIter<CTS>;
 pub fn new_phase_iter() -> PhaseIterator {
     vec![CTS::HasTurn, CTS::Waited].into_iter()
@@ -57,23 +56,23 @@ impl<'a> BattleState<'a> {
 
         let mut handles: Box<[CreatureStackHandle]> = self.stacks.keys().copied().collect();
         handles.sort_unstable_by_key(|&handle| self.get_stack(handle).side == current_active_side);
-        
+
         handles
-        .iter()
-        .map(|&handle| (handle, self.get_stack(handle)))
-        .filter(|(_handle, stack)| stack.is_alive())
-        .filter(|(_handle, stack)| stack.turn_state == self.current_phase)
-        .fold(None, |acc, current| {
-            // Без max_first тяжко
-            fn key((_, stack): (CreatureStackHandle, &CreatureStack)) -> u8 {
-                stack.speed()
-            }
-            match acc {
-                None => Some(current),
-                Some(acc) if key(current) > key(acc) => Some(current),
-                _ => acc
-            }
-        })
-        .map(|(handle, _stack)| handle)
+            .iter()
+            .map(|&handle| (handle, self.get_stack(handle)))
+            .filter(|(_handle, stack)| stack.is_alive())
+            .filter(|(_handle, stack)| stack.turn_state == self.current_phase)
+            .fold(None, |acc, current| {
+                // Без max_first тяжко
+                fn key((_, stack): (CreatureStackHandle, &CreatureStack)) -> u8 {
+                    stack.speed()
+                }
+                match acc {
+                    None => Some(current),
+                    Some(acc) if key(current) > key(acc) => Some(current),
+                    _ => acc,
+                }
+            })
+            .map(|(handle, _stack)| handle)
     }
 }

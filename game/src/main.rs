@@ -1,32 +1,31 @@
 use std::{error::Error, time::Instant};
 
-mod creature_stack;
-mod battlestate;
-mod command;
-mod pathfinding;
-mod registry;
-mod graphics;
-mod config;
 mod animations;
 mod animator;
+mod battlestate;
+mod command;
+mod config;
+mod creature_stack;
+mod graphics;
+mod pathfinding;
+mod registry;
 
 extern crate sdl2;
 
 use battlestate::BattleState;
-use registry::ResourceRegistry;
 use config::Config;
+use registry::ResourceRegistry;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let sdl_context = sdl2::init()?; 
+    let sdl_context = sdl2::init()?;
 
     // Инициализация видео подсистемы
     let video_subsystem = sdl_context.video()?;
-    let window = video_subsystem.window("Rust", 800, 600)
+    let window = video_subsystem
+        .window("Rust", 800, 600)
         .position_centered()
         .build()?;
-    let mut canvas = window.into_canvas()
-        .present_vsync()
-        .build()?;
+    let mut canvas = window.into_canvas().present_vsync().build()?;
     let texture_creator = canvas.texture_creator();
 
     // Инициализация системы рендера шрифтов
@@ -52,10 +51,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Обновление игрового состояния
         current_state.update(current_time - last_time, &mut resource_registry);
-        
+
         // Отображение игрового состояния
         canvas.clear();
-        current_state.draw(frame_data, &mut canvas, &mut resource_registry, &texture_creator, &font)?;
+        current_state.draw(
+            frame_data,
+            &mut canvas,
+            &mut resource_registry,
+            &texture_creator,
+            &font,
+        )?;
         canvas.present();
 
         last_time = current_time;

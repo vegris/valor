@@ -1,24 +1,23 @@
 use std::collections::HashMap;
-use std::io::{Read, Seek, SeekFrom};
 use std::fs::File;
-use std::path::Path;
+use std::io::{Read, Seek, SeekFrom};
 use std::ops::Deref;
+use std::path::Path;
 
 extern crate flate2;
 use flate2::read::ZlibDecoder;
-
 
 const FILE_INFO_SIZE: usize = 32;
 
 struct LodFileInfo {
     offset: u32,
     size: u32,
-    compressed: bool
+    compressed: bool,
 }
 
 pub struct LodIndex {
     handle: File,
-    registry: HashMap<String, LodFileInfo>
+    registry: HashMap<String, LodFileInfo>,
 }
 
 impl LodIndex {
@@ -43,20 +42,25 @@ impl LodIndex {
             .map(parse_file_info)
             .collect();
 
-        LodIndex {handle: f, registry }
+        LodIndex {
+            handle: f,
+            registry,
+        }
     }
 
     pub fn read_file(&mut self, filename: &str) -> Box<[u8]> {
-        let LodFileInfo { offset, size, compressed } = *self.registry.get(filename).unwrap();
+        let LodFileInfo {
+            offset,
+            size,
+            compressed,
+        } = *self.registry.get(filename).unwrap();
         self.handle.seek(SeekFrom::Start(offset as u64)).unwrap();
 
-        let reader: Box<dyn Read> = 
-            if compressed {
-                Box::new(ZlibDecoder::new(&mut self.handle))
-            }
-            else {
-                Box::new(&self.handle)
-            };
+        let reader: Box<dyn Read> = if compressed {
+            Box::new(ZlibDecoder::new(&mut self.handle))
+        } else {
+            Box::new(&self.handle)
+        };
         reader
             .bytes()
             .take(size as usize)
@@ -77,9 +81,18 @@ fn parse_file_info(data: [u8; 32]) -> (String, LodFileInfo) {
         .map(Result::unwrap)
         .map(u32::from_le_bytes)
         .collect::<Box<[u32]>>()
-        .deref().try_into().unwrap();
+        .deref()
+        .try_into()
+        .unwrap();
 
     let compressed = compressed_size != 0;
 
-    (filename, LodFileInfo { offset, size, compressed })
+    (
+        filename,
+        LodFileInfo {
+            offset,
+            size,
+            compressed,
+        },
+    )
 }

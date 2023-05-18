@@ -12,7 +12,7 @@ pub enum HexagonPart {
     BotRight,
     BotHalfRight,
     BotHalfLeft,
-    BotLeft
+    BotLeft,
 }
 
 impl HexagonPart {
@@ -24,16 +24,16 @@ impl HexagonPart {
         // Ноль - середина левой стороны
         // Идём по часовой стрелке
         match self {
-            Self::Left         => -(PI - FRAC_2_PI),
-            Self::TopLeft      => -(FRAC_PI_2 + FRAC_2_PI),
-            Self::TopHalfLeft  => -FRAC_PI_2,
+            Self::Left => -(PI - FRAC_2_PI),
+            Self::TopLeft => -(FRAC_PI_2 + FRAC_2_PI),
+            Self::TopHalfLeft => -FRAC_PI_2,
             Self::TopHalfRight => -(FRAC_PI_2 - FRAC_2_PI),
-            Self::TopRight     => -FRAC_2_PI,
-            Self::Right        =>  FRAC_2_PI,
-            Self::BotRight     =>  FRAC_PI_2 - FRAC_2_PI,
-            Self::BotHalfRight =>  FRAC_PI_2,
-            Self::BotHalfLeft  =>  FRAC_PI_2 + FRAC_2_PI,
-            Self::BotLeft      =>  (PI - FRAC_2_PI)
+            Self::TopRight => -FRAC_2_PI,
+            Self::Right => FRAC_2_PI,
+            Self::BotRight => FRAC_PI_2 - FRAC_2_PI,
+            Self::BotHalfRight => FRAC_PI_2,
+            Self::BotHalfLeft => FRAC_PI_2 + FRAC_2_PI,
+            Self::BotLeft => (PI - FRAC_2_PI),
         }
     }
 

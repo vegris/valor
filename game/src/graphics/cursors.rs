@@ -1,6 +1,6 @@
 extern crate sdl2;
-use sdl2::pixels::{Color, Palette};
 use sdl2::mouse::Cursor as SDLCursor;
+use sdl2::pixels::{Color, Palette};
 
 extern crate strum_macros;
 use strum::IntoEnumIterator;
@@ -32,34 +32,34 @@ pub enum Cursor {
     Catapult = 16,
     Heal = 17,
     Sacrifice = 18,
-    Teleport = 19
+    Teleport = 19,
 }
 
 impl Cursor {
     const fn pointer_offset(self) -> (i32, i32) {
         match self {
             Self::Forbidden => (12, 12),
-            Self::Run       => (8, 8),
-            Self::Fly       => (12, 10),
-            Self::Arrow     => (12, 10),
-            Self::Hero      => (10, 10),
-            Self::Question  => (8, 10),
-            Self::Pointer   => (1, 2),
-            Self::Catapult  => (12, 10),
-            Self::Heal      => (12, 10),
+            Self::Run => (8, 8),
+            Self::Fly => (12, 10),
+            Self::Arrow => (12, 10),
+            Self::Hero => (10, 10),
+            Self::Question => (8, 10),
+            Self::Pointer => (1, 2),
+            Self::Catapult => (12, 10),
+            Self::Heal => (12, 10),
             Self::Sacrifice => (12, 10),
-            Self::Teleport  => (12, 12),
+            Self::Teleport => (12, 12),
 
-            Self::AttackDownLeft  => (21, 0),
-            Self::AttackLeft      => (31, 6),
-            Self::AttackUpLeft    => (21, 21),
-            Self::AttackUpRight   => (0, 21),
-            Self::AttackRight     => (0, 6),
+            Self::AttackDownLeft => (21, 0),
+            Self::AttackLeft => (31, 6),
+            Self::AttackUpLeft => (21, 21),
+            Self::AttackUpRight => (0, 21),
+            Self::AttackRight => (0, 6),
             Self::AttackDownRight => (0, 0),
-            Self::AttackDown      => (6, 0),
-            Self::AttackUp        => (6, 16),
+            Self::AttackDown => (6, 0),
+            Self::AttackUp => (6, 16),
 
-            _ => (0, 0)
+            _ => (0, 0),
         }
     }
 
@@ -72,7 +72,7 @@ impl Cursor {
             AttackDirection::Right => Self::AttackRight,
             AttackDirection::BottomRight => Self::AttackDownRight,
             AttackDirection::Bottom => Self::AttackDown,
-            AttackDirection::BottomLeft => Self::AttackDownLeft
+            AttackDirection::BottomLeft => Self::AttackDownLeft,
         }
     }
 }
@@ -85,7 +85,12 @@ impl Cursors {
     pub fn load(rr: &mut ResourceRegistry) -> Self {
         let def_container = rr.load_def(CONTAINTER_FILENAME);
 
-        let DefContainer { mut names2sprites, blocks2names, mut colors, ..} = def_container;
+        let DefContainer {
+            mut names2sprites,
+            blocks2names,
+            mut colors,
+            ..
+        } = def_container;
 
         // Применяем прозрачность
         colors[0] = Color::RGBA(0, 0, 0, 0);
@@ -103,7 +108,7 @@ impl Cursors {
                 SDLCursor::from_surface(surface, off_x, off_y).unwrap()
             })
             .collect::<Box<[SDLCursor]>>();
-        
+
         Self(cursors)
     }
 

@@ -1,13 +1,13 @@
-mod header;
 mod format;
+mod header;
 mod parser;
 
 use header::Header;
 use parser::parse_pixel_data;
 
 extern crate sdl2;
-use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
+use sdl2::surface::Surface;
 
 pub struct Sprite {
     pub full_size: u32,
@@ -17,7 +17,7 @@ pub struct Sprite {
     pub height: u32,
     pub left_margin: u32,
     pub top_margin: u32,
-    pub surface: Surface<'static>
+    pub surface: Surface<'static>,
 }
 
 impl Sprite {
@@ -35,10 +35,14 @@ impl Sprite {
 
     fn new(header: Header, surface: Surface<'static>) -> Self {
         let Header {
-            full_size, format: _,
-            full_width, full_height,
-            width, height,
-            left_margin, top_margin,
+            full_size,
+            format: _,
+            full_width,
+            full_height,
+            width,
+            height,
+            left_margin,
+            top_margin,
         } = header;
 
         Self {
@@ -49,15 +53,22 @@ impl Sprite {
             height,
             left_margin,
             top_margin,
-            surface
+            surface,
         }
     }
 }
 
 fn create_surface(header: Header, mut pixel_data: Box<[u8]>) -> Surface<'static> {
-    let Header{ width, height, .. } = header;
+    let Header { width, height, .. } = header;
 
-    let surface = Surface::from_data(&mut pixel_data, width, height, width, PixelFormatEnum::Index8).unwrap();
+    let surface = Surface::from_data(
+        &mut pixel_data,
+        width,
+        height,
+        width,
+        PixelFormatEnum::Index8,
+    )
+    .unwrap();
     let static_surface = surface.convert_format(surface.pixel_format_enum()).unwrap();
 
     static_surface

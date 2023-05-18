@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use gamedata::Creature;
-use gridpos::{GridPos, AttackDirection};
+use gridpos::{AttackDirection, GridPos};
 
 use crate::battlestate::{BattleState, Side};
 
@@ -9,7 +9,7 @@ use crate::battlestate::{BattleState, Side};
 #[derive(Clone, Copy, Debug)]
 struct VisitedCell {
     came_from: GridPos,
-    cost_to_here: u32
+    cost_to_here: u32,
 }
 
 const X_MAX: usize = *GridPos::X_RANGE.end() as usize;
@@ -34,31 +34,30 @@ impl NavigationArray {
 
             let successors = cell.get_successors();
 
-            let successors =
-                if is_flying {
-                    successors
-                } else {
-                    successors
-                        .into_iter()
-                        .filter(|x| state.find_unit_for_cell(*x).is_none())
-                        .collect()
-                };
+            let successors = if is_flying {
+                successors
+            } else {
+                successors
+                    .into_iter()
+                    .filter(|x| state.find_unit_for_cell(*x).is_none())
+                    .collect()
+            };
 
             for successor in successors {
                 match map.get_cell(successor) {
                     // Уже видели вариант лучше
                     Some(seen_cell) if seen_cell.cost_to_here <= new_cost => {
                         continue;
-                    },
+                    }
                     // Этот вариант лучше
-                    Some(_seen_cell) => {},
+                    Some(_seen_cell) => {}
                     // Встретили клетку впервые
                     None => {
                         to_see.push_back((successor, new_cost));
                     }
                 }
 
-                // Если пришли в клетку дешевле чем раньше (или впервые) - 
+                // Если пришли в клетку дешевле чем раньше (или впервые) -
                 // записываем откуда пришли
                 map.put_cell(successor, cell, new_cost);
             }
@@ -113,7 +112,7 @@ impl NavigationArray {
     fn put_cell(&mut self, cell: GridPos, previous_cell: GridPos, cost_to_here: u32) {
         let visited_cell = VisitedCell {
             came_from: previous_cell,
-            cost_to_here
+            cost_to_here,
         };
         self.0[Self::cell_to_index(cell)] = Some(visited_cell);
     }
@@ -123,70 +122,65 @@ pub fn unit_position_for_attack(
     attack_position: GridPos,
     attack_direction: AttackDirection,
     creature_side: Side,
-    is_wide: bool
+    is_wide: bool,
 ) -> Option<GridPos> {
-    let position_index =
-        match attack_direction {
-            AttackDirection::Left => 0,
-            AttackDirection::TopLeft => 1,
-            AttackDirection::TopRight => 2,
-            AttackDirection::Right => 3,
-            AttackDirection::BottomRight => 4,
-            AttackDirection::BottomLeft => 5,
-            // Только для широких существ
-            AttackDirection::Top => 1,
-            AttackDirection::Bottom => 4
-        };
-    let position =
-        attack_position.get_successors_positional()[position_index];
-    
+    let position_index = match attack_direction {
+        AttackDirection::Left => 0,
+        AttackDirection::TopLeft => 1,
+        AttackDirection::TopRight => 2,
+        AttackDirection::Right => 3,
+        AttackDirection::BottomRight => 4,
+        AttackDirection::BottomLeft => 5,
+        // Только для широких существ
+        AttackDirection::Top => 1,
+        AttackDirection::Bottom => 4,
+    };
+    let position = attack_position.get_successors_positional()[position_index];
+
     if is_wide {
         // Широкое существо для определённых направлений атаки
         // по умолчанию встаёт на клетку мимо
         // в таких случаях его нужно немного подвинуть
-        let (directions, potential_adjustment) =
-            match creature_side {
-                Side::Attacker => {
-                    let directions = [
-                        AttackDirection::Top,
-                        AttackDirection::TopRight,
-                        AttackDirection::Right,
-                        AttackDirection::BottomRight
-                    ];
-                    let adjustment = 1;
-                    (directions, adjustment)
-                },
-                Side::Defender => {
-                    let directions = [
-                        AttackDirection::TopLeft,
-                        AttackDirection::Left,
-                        AttackDirection::BottomLeft,
-                        AttackDirection::Bottom
-                    ];
-                    let adjustment = -1;
-                    (directions, adjustment)
-                }
-            };
+        let (directions, potential_adjustment) = match creature_side {
+            Side::Attacker => {
+                let directions = [
+                    AttackDirection::Top,
+                    AttackDirection::TopRight,
+                    AttackDirection::Right,
+                    AttackDirection::BottomRight,
+                ];
+                let adjustment = 1;
+                (directions, adjustment)
+            }
+            Side::Defender => {
+                let directions = [
+                    AttackDirection::TopLeft,
+                    AttackDirection::Left,
+                    AttackDirection::BottomLeft,
+                    AttackDirection::Bottom,
+                ];
+                let adjustment = -1;
+                (directions, adjustment)
+            }
+        };
 
-        let adjustment =
-            if directions.contains(&attack_direction) {
-                potential_adjustment
-            } else {
-                0
-            };
-        
+        let adjustment = if directions.contains(&attack_direction) {
+            potential_adjustment
+        } else {
+            0
+        };
+
         position.and_then(|x| x.try_relative(adjustment, 0))
     } else {
         position
     }
 }
 
-
 pub fn tail_for(creature: Creature, side: Side, head: GridPos) -> Option<GridPos> {
     if creature.is_wide() {
         match side {
             Side::Attacker => head.try_relative(-1, 0),
-            Side::Defender => head.try_relative(1, 0)
+            Side::Defender => head.try_relative(1, 0),
         }
     } else {
         Some(head)
@@ -204,7 +198,11 @@ pub fn head_from_tail(creature: Creature, side: Side, tail: GridPos) -> GridPos 
     }
 }
 
-pub fn get_occupied_cells_for(creature: Creature, side: Side, head: GridPos) -> Option<Vec<GridPos>> {
+pub fn get_occupied_cells_for(
+    creature: Creature,
+    side: Side,
+    head: GridPos,
+) -> Option<Vec<GridPos>> {
     if creature.is_wide() {
         tail_for(creature, side, head).map(|tail| vec![head, tail])
     } else {

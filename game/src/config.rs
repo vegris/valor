@@ -12,7 +12,7 @@ type Army = [Option<(Creature, u32)>; 7];
 #[derive(Deserialize)]
 pub struct Config {
     pub battlefield: Battlefield,
-    pub armies: [Army; 2]
+    pub armies: [Army; 2],
 }
 
 impl Config {
@@ -28,7 +28,7 @@ impl Config {
                 Some((Creature::RoyalGriffin, 30)),
                 None,
                 None,
-                None
+                None,
             ],
             [
                 None,
@@ -37,9 +37,9 @@ impl Config {
                 Some((Creature::Angel, 20)),
                 Some((Creature::GoldDragon, 1)),
                 Some((Creature::HornedDemon, 25)),
-                None
-            ]
-        ]
+                None,
+            ],
+        ],
     };
 
     pub fn load_config() -> Result<Config, ron::Error> {
