@@ -4,7 +4,7 @@ use std::error::Error;
 extern crate sdl2;
 use sdl2::surface::Surface;
 
-use formats::{LodIndex, PcxImage, DefContainer};
+use formats::{pcx, LodIndex, DefContainer};
 use gamedata::Creature;
 
 use crate::graphics::creature::CreatureSpritesheet;
@@ -35,14 +35,17 @@ impl ResourceRegistry {
     
     pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
         let mut bytes = self.pcx_archive.read_file(filename);
-        let pcx = PcxImage::from_bytes(&mut bytes)?;
-        pcx.to_surface()
+        let pcx = pcx::from_bytes(&mut bytes)?;
+        either::for_both!(pcx, img => img.to_surface())
     }
     pub fn load_pcx_with_transparency(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
         let mut bytes = self.pcx_archive.read_file(filename);
-        let mut pcx = PcxImage::from_bytes(&mut bytes)?;
-        pcx.apply_transparency();
-        pcx.to_surface()
+        let pcx = pcx::from_bytes(&mut bytes)?;
+        
+        let mut image8 = pcx.right().ok_or::<String>("Unexpected image type!".into())?;
+
+        image8.apply_transparency()?;
+        image8.to_surface()
     }
 
     pub fn load_def(&mut self, filename: &str) -> DefContainer {

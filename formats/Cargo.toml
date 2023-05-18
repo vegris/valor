@@ -9,3 +9,4 @@ edition = "2021"
 [dependencies]
 flate2 = "1.0"
 sdl2 = "0.35"
+either = "1.8.1"

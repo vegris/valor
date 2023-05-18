@@ -1,8 +1,7 @@
 mod lod;
 pub use lod::LodIndex;
 
-mod pcx;
-pub use pcx::PcxImage;
+pub mod pcx;
 
 mod def;
 pub use def::{DefContainer, DefSprite};

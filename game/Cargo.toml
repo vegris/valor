@@ -16,6 +16,7 @@ strum = "0.19"
 strum_macros = "0.19"
 ron = "0.7"
 serde = { version = "1", features = ["derive"] }
+either = "1.8.1"
 
 formats = { path = "../formats" }
 gamedata = { path = "../gamedata" }
