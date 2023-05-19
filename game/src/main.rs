@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Инициализация системы рендера шрифтов
     let ttf_context = sdl2::ttf::init()?;
-    let font = ttf_context.load_font("/usr/share/fonts/liberation/LiberationMono-Bold.ttf", 16)?;
+    let font = ttf_context.load_font("/usr/share/fonts/TTF/OpenSans-Bold.ttf", 16)?;
 
     // Открытие файлов с ресурсами
     let mut resource_registry = ResourceRegistry::init();
