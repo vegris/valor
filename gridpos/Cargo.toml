@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 sdl2 = "0.35"
-strum = "0.19"
-strum_macros = "0.19"
+strum = "0.24"
+strum_macros = "0.24"
 
 gamedata = { path = "../gamedata" }

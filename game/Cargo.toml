@@ -12,8 +12,8 @@ default-features = false
 features = ["ttf"]
 
 [dependencies]
-strum = "0.19"
-strum_macros = "0.19"
+strum = "0.24"
+strum_macros = "0.24"
 ron = "0.7"
 serde = { version = "1", features = ["derive"] }
 either = "1.8.1"
