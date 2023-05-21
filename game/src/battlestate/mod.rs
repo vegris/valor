@@ -10,7 +10,7 @@ use gridpos::GridPos;
 
 use crate::animations::Animation;
 use crate::config::Config;
-use crate::creature_stack::{CreatureStack, CreatureTurnState as CTS};
+use crate::creature_stack::CreatureStack;
 use crate::graphics::creature::AnimationType;
 use crate::graphics::cursors::Cursors;
 use crate::pathfinding::NavigationArray;
@@ -19,7 +19,7 @@ use crate::registry::ResourceRegistry;
 mod army;
 mod draw;
 mod input;
-mod turns;
+pub mod turns;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Side {
@@ -48,9 +48,7 @@ pub struct CreatureStackHandle(u32);
 pub struct BattleState {
     // Логика
     pub stacks: HashMap<CreatureStackHandle, CreatureStack>,
-    pub phase_iter: turns::PhaseIterator,
-    pub current_phase: CTS,
-    pub last_turn_side: Side,
+    pub turn: turns::Turn,
     pub current_stack: CreatureStackHandle,
 
     // Поиск пути
@@ -108,9 +106,7 @@ impl BattleState {
 
         let mut state = Self {
             stacks,
-            phase_iter: turns::new_phase_iter(),
-            current_phase: CTS::HasTurn,
-            last_turn_side: Side::Defender,
+            turn: turns::Turn::new(),
             current_stack: CreatureStackHandle(0),
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
@@ -130,6 +126,34 @@ impl BattleState {
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         for stack in self.stacks.values_mut() {
             stack.update(dt, rr);
+        }
+    }
+
+    pub fn update_current_stack(&mut self) {
+        if let Some(handle) = turns::find_active_stack(self) {
+            self.current_stack = handle;
+
+            let mut stack = self.get_current_stack_mut();
+            stack.defending = false;
+            println!("Current stack is {}", stack);
+
+            let stack_head = stack.head;
+            let is_flying = stack.creature.is_flying();
+            let stack_speed = stack.speed().into();
+
+            let navigation_array = NavigationArray::new(stack_head, self, is_flying);
+            let reachable_cells = navigation_array.get_reachable_cells(stack_speed);
+            self.navigation_array = navigation_array;
+            self.reachable_cells = reachable_cells;
+        } else {
+            if !self.turn.try_advance_phase() {
+                self.turn = self.turn.next();
+
+                for stack in self.stacks.values_mut() {
+                    stack.turn_state = Some(turns::Phase::Fresh)
+                }
+            }
+            self.update_current_stack();
         }
     }
 

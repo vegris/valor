@@ -1,7 +1,7 @@
 use gridpos::{AttackDirection, GridPos};
 
+use super::battlestate::turns;
 use super::battlestate::{BattleState, CreatureStackHandle};
-use super::creature_stack::CreatureTurnState as CTS;
 use crate::animations::Animation;
 use crate::graphics::creature::AnimationType;
 use crate::{animator, pathfinding};
@@ -58,7 +58,7 @@ impl Command {
 
         if self.spends_turn() {
             let cur_stack = state.get_current_stack_mut();
-            cur_stack.turn_state = CTS::NoTurn;
+            cur_stack.turn_state = None;
         }
 
         if self.requires_current_stack_update() {
@@ -102,11 +102,14 @@ fn apply_defend(state: &mut BattleState) {
 }
 
 fn is_applicable_wait(state: &BattleState) -> bool {
-    state.get_current_stack().turn_state == CTS::HasTurn
+    state
+        .get_current_stack()
+        .turn_state
+        .map_or(false, |phase| phase == turns::Phase::Fresh)
 }
 fn apply_wait(state: &mut BattleState) {
     let current_stack = state.get_current_stack_mut();
-    current_stack.turn_state = CTS::Waited;
+    current_stack.turn_state = Some(turns::Phase::Wait);
 }
 
 fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {

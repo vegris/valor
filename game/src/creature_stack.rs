@@ -13,19 +13,12 @@ use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
 use crate::animations::{AnimationQueue, AnimationState, Tweening};
+use crate::battlestate::turns;
 use crate::graphics::creature::AnimationType;
 use crate::registry::ResourceRegistry;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
-
-/// Существо в течение раунда может принимать одно из этих состояний
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum CreatureTurnState {
-    HasTurn,
-    Waited,
-    NoTurn,
-}
 
 #[derive(Clone, Debug)]
 pub struct CreatureStack {
@@ -38,7 +31,7 @@ pub struct CreatureStack {
     pub head: GridPos,
     pub side: Side,
 
-    pub turn_state: CreatureTurnState,
+    pub turn_state: Option<turns::Phase>,
     pub defending: bool,
 
     pub draw_pos: Point,
@@ -54,7 +47,7 @@ impl CreatureStack {
             current_ammo: creature.base_stats().ammo_capacity,
             head,
             side,
-            turn_state: CreatureTurnState::HasTurn,
+            turn_state: Some(turns::Phase::Fresh),
             defending: false,
             draw_pos: pathfinding::tail_for(creature, side, head)
                 .unwrap()
