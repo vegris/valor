@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
 
-    let config = Config::load_config()?;
+    let config = Config::load()?;
 
     let mut current_state = BattleState::new(config, &mut resource_registry, &texture_creator)?;
 

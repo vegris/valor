@@ -42,7 +42,7 @@ impl Config {
         ],
     };
 
-    pub fn load_config() -> Result<Config, ron::Error> {
+    pub fn load() -> Result<Config, ron::Error> {
         if let Ok(f) = File::open(Self::CONFIG_FILE) {
             ron::de::from_reader(f)
         } else {
