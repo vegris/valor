@@ -12,7 +12,7 @@ mod registry;
 
 extern crate sdl2;
 
-use battlestate::BattleState;
+use battlestate::{BattleState, Graphics};
 use config::Config;
 use registry::ResourceRegistry;
 
@@ -40,7 +40,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let config = Config::load()?;
 
-    let mut current_state = BattleState::new(config, &mut resource_registry, &texture_creator)?;
+    let mut current_state = BattleState::new(&config)?;
+    let graphics = Graphics::init(&config, &mut resource_registry, &texture_creator)?;
 
     let mut last_time = Instant::now();
     loop {
@@ -56,6 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         canvas.clear();
         current_state.draw(
             frame_data,
+            &graphics,
             &mut canvas,
             &mut resource_registry,
             &texture_creator,

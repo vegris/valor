@@ -45,7 +45,7 @@ pub enum Winner {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct CreatureStackHandle(u32);
 
-pub struct BattleState<'a> {
+pub struct BattleState {
     // Логика
     pub stacks: HashMap<CreatureStackHandle, CreatureStack>,
     pub phase_iter: turns::PhaseIterator,
@@ -57,13 +57,10 @@ pub struct BattleState<'a> {
     pub navigation_array: NavigationArray,
     pub reachable_cells: Vec<GridPos>,
 
-    // Графика
-    graphics: Graphics<'a>,
-
     previous_mouseover_stack: Option<CreatureStackHandle>,
 }
 
-struct Graphics<'a> {
+pub struct Graphics<'a> {
     battlefield: Texture<'a>,
     grid_cell: Texture<'a>,
     grid_cell_shadow: Texture<'a>,
@@ -73,7 +70,7 @@ struct Graphics<'a> {
 }
 
 impl<'a> Graphics<'a> {
-    fn init(
+    pub fn init(
         config: &Config,
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
@@ -94,12 +91,8 @@ impl<'a> Graphics<'a> {
     }
 }
 
-impl<'a> BattleState<'a> {
-    pub fn new(
-        config: Config,
-        rr: &mut ResourceRegistry,
-        tc: &'a TextureCreator<WindowContext>,
-    ) -> Result<Self, Box<dyn Error>> {
+impl BattleState {
+    pub fn new(config: &Config) -> Result<Self, Box<dyn Error>> {
         let attacker_army = army::form_units(&config.armies[0], Side::Attacker);
         let defender_army = army::form_units(&config.armies[1], Side::Defender);
 
@@ -121,8 +114,6 @@ impl<'a> BattleState<'a> {
             current_stack: CreatureStackHandle(0),
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
-
-            graphics: Graphics::init(&config, rr, tc)?,
 
             previous_mouseover_stack: None,
         };

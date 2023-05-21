@@ -15,19 +15,18 @@ use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
 use super::input::FrameData;
-use super::BattleState;
+use super::{BattleState, Graphics};
 
-impl<'a> BattleState<'a> {
+impl BattleState {
     pub fn draw(
         &self,
         frame_data: FrameData,
+        graphics: &Graphics,
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
         font: &Font,
     ) -> Result<(), Box<dyn Error>> {
-        let graphics = &self.graphics;
-
         // Рисуем поле боя
         canvas.copy(&graphics.battlefield, None, Rect::new(0, 0, 800, 556))?;
 

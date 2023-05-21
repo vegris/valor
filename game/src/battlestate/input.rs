@@ -31,7 +31,7 @@ fn get_mouse_position(event_pump: &mut EventPump) -> (i32, i32) {
     (mouse_state.x(), mouse_state.y())
 }
 
-impl<'a> BattleState<'a> {
+impl BattleState {
     pub fn gather_input(&self, event_pump: &mut EventPump) -> FrameInput {
         event_pump.pump_events();
 

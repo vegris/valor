@@ -8,7 +8,7 @@ pub fn new_phase_iter() -> PhaseIterator {
     vec![CTS::HasTurn, CTS::Waited].into_iter()
 }
 
-impl<'a> BattleState<'a> {
+impl BattleState {
     pub fn update_current_stack(&mut self) {
         if let Some(handle) = self.find_current_creature() {
             self.current_stack = handle;
