@@ -12,8 +12,7 @@ use crate::pathfinding::NavigationArray;
 use crate::registry::ResourceRegistry;
 
 mod army;
-mod draw;
-mod input;
+pub mod input;
 pub mod turns;
 
 #[derive(Clone, Copy, PartialEq, Debug)]

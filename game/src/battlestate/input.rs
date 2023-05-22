@@ -1,69 +1,15 @@
-extern crate sdl2;
-
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::mouse::MouseButton;
-use sdl2::EventPump;
-
 use gridpos::{AttackDirection, GridPos};
 
-use crate::{animations::Animation, command::Command, graphics::creature::AnimationType};
+use crate::{
+    animations::Animation,
+    command::Command,
+    graphics::creature::AnimationType,
+    input::{FrameData, FrameInput},
+};
 
 use super::BattleState;
 
-#[derive(Default)]
-pub struct FrameInput {
-    cursor_position: (i32, i32),
-    btn_lmb: bool,
-    btn_rmb: bool,
-    key_d: bool,
-    key_w: bool,
-    quit: bool,
-}
-
-pub struct FrameData {
-    pub current_hover: Option<GridPos>,
-    pub potential_lmb_command: Option<Command>,
-}
-
-fn get_mouse_position(event_pump: &mut EventPump) -> (i32, i32) {
-    let mouse_state = event_pump.mouse_state();
-    (mouse_state.x(), mouse_state.y())
-}
-
 impl BattleState {
-    pub fn gather_input(&self, event_pump: &mut EventPump) -> FrameInput {
-        event_pump.pump_events();
-
-        let mut frame_input = FrameInput {
-            cursor_position: get_mouse_position(event_pump),
-            ..Default::default()
-        };
-
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::MouseButtonDown { mouse_btn, .. } => match mouse_btn {
-                    MouseButton::Left => frame_input.btn_lmb = true,
-                    MouseButton::Right => frame_input.btn_rmb = true,
-                    _ => {}
-                },
-                Event::KeyDown {
-                    keycode: Some(keycode),
-                    ..
-                } => match keycode {
-                    Keycode::D => frame_input.key_d = true,
-                    Keycode::W => frame_input.key_w = true,
-                    Keycode::Escape => frame_input.quit = true,
-                    _ => {}
-                },
-                Event::Quit { .. } => frame_input.quit = true,
-                _ => {}
-            }
-        }
-
-        frame_input
-    }
-
     pub fn process_input(&mut self, frame_input: FrameInput) -> FrameData {
         if frame_input.quit {
             std::process::exit(0);

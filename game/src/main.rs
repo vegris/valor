@@ -7,6 +7,7 @@ mod command;
 mod config;
 mod creature_stack;
 mod graphics;
+mod input;
 mod pathfinding;
 mod registry;
 
@@ -48,7 +49,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         let current_time = Instant::now();
         // Обработка ввода
-        let frame_input = current_state.gather_input(&mut event_pump);
+        let frame_input = input::gather_input(&mut event_pump);
         let frame_data = current_state.process_input(frame_input);
 
         // Обновление игрового состояния
@@ -56,9 +57,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Отображение игрового состояния
         canvas.clear();
-        current_state.draw(
+        graphics.draw(
+            &current_state,
             frame_data,
-            &graphics,
             &mut canvas,
             &mut resource_registry,
             &texture_creator,
