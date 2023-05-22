@@ -26,15 +26,34 @@ impl<'a> Graphics<'a> {
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
     ) -> Result<Self, Box<dyn Error>> {
+        let [battlefield, grid_cell, grid_cell_shadow, stack_count_bg]: [Texture; 4] = [
+            (config.battlefield.filename(), false),
+            ("CCellGrd.pcx", true),
+            ("CCellShd.pcx", true),
+            ("CmNumWin.pcx", false),
+        ]
+        .into_iter()
+        .map(|(filename, with_transparency)| {
+            let surface = if with_transparency {
+                rr.load_pcx_with_transparency(filename)
+            } else {
+                rr.load_pcx(filename)
+            }?;
+
+            let texture = surface.as_texture(tc)?;
+
+            Ok(texture)
+        })
+        .collect::<Result<Vec<Texture>, Box<dyn Error>>>()?
+        .try_into()
+        .ok()
+        .unwrap();
+
         let graphics = Graphics {
-            battlefield: rr.load_pcx(config.battlefield.filename())?.as_texture(tc)?,
-            grid_cell: rr
-                .load_pcx_with_transparency("CCellGrd.pcx")?
-                .as_texture(tc)?,
-            grid_cell_shadow: rr
-                .load_pcx_with_transparency("CCellShd.pcx")?
-                .as_texture(tc)?,
-            stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(tc)?,
+            battlefield,
+            grid_cell,
+            grid_cell_shadow,
+            stack_count_bg,
 
             cursors: Cursors::load(rr),
         };
