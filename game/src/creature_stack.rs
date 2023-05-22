@@ -78,10 +78,6 @@ impl CreatureStack {
         self.count > 0
     }
 
-    pub fn tail(&self) -> GridPos {
-        pathfinding::tail_for(self.creature, self.side, self.head).unwrap()
-    }
-
     pub fn get_occupied_cells(&self) -> Vec<GridPos> {
         pathfinding::get_occupied_cells_for(self.creature, self.side, self.head).unwrap()
     }

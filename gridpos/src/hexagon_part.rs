@@ -33,7 +33,7 @@ impl HexagonPart {
             Self::BotRight => FRAC_PI_2 - FRAC_2_PI,
             Self::BotHalfRight => FRAC_PI_2,
             Self::BotHalfLeft => FRAC_PI_2 + FRAC_2_PI,
-            Self::BotLeft => (PI - FRAC_2_PI),
+            Self::BotLeft => PI - FRAC_2_PI,
         }
     }
 

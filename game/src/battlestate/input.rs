@@ -77,20 +77,18 @@ impl BattleState {
                 let current_mouseover_stack = self.find_unit_for_cell(cell);
 
                 if current_mouseover_stack != self.previous_mouseover_stack {
-                    current_mouseover_stack
-                        .map(|handle| &mut self.get_stack_mut(handle).animation_queue)
-                        .filter(|animation_queue| {
-                            !matches!(
-                                animation_queue.current(),
-                                Some(Animation {
-                                    type_: AnimationType::MouseOver,
-                                    ..
-                                })
-                            )
-                        })
-                        .map(|animation_queue| {
-                            animation_queue.add(Animation::new(AnimationType::MouseOver))
-                        });
+                    if let Some(handle) = current_mouseover_stack {
+                        let animation_queue = &mut self.get_stack_mut(handle).animation_queue;
+
+                        let mouse_over = AnimationType::MouseOver;
+
+                        let needs_mouse_over = animation_queue
+                            .current()
+                            .map_or(false, |animation| animation.type_ != mouse_over);
+                        if needs_mouse_over {
+                            animation_queue.add(Animation::new(mouse_over));
+                        }
+                    }
 
                     self.previous_mouseover_stack = current_mouseover_stack;
                 }

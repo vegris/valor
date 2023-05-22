@@ -139,7 +139,7 @@ impl GridPos {
         // -2 выбрано подбором
         let v = Self::CELL_VERTICAL as i32 / 2 - 2;
         let h = Self::CELL_HEIGHT as i32 / 2;
-        let res = 2 * v * h - v * abs_x - h as i32 * abs_y;
+        let res = 2 * v * h - v * abs_x - h * abs_y;
         res > 0
     }
 }
