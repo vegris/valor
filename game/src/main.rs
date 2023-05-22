@@ -12,8 +12,9 @@ mod registry;
 
 extern crate sdl2;
 
-use battlestate::{BattleState, Graphics};
+use battlestate::BattleState;
 use config::Config;
+use graphics::Graphics;
 use registry::ResourceRegistry;
 
 fn main() -> Result<(), Box<dyn Error>> {

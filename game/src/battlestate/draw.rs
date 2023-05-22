@@ -11,11 +11,12 @@ use gridpos::GridPos;
 
 use crate::command::Command;
 use crate::graphics::cursors::Cursor;
+use crate::graphics::Graphics;
 use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
 use super::input::FrameData;
-use super::{BattleState, Graphics};
+use super::BattleState;
 
 impl BattleState {
     pub fn draw(

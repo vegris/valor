@@ -2,17 +2,12 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::time::Duration;
 
-extern crate sdl2;
-use sdl2::render::{Texture, TextureCreator};
-use sdl2::video::WindowContext;
-
 use gridpos::GridPos;
 
 use crate::animations::Animation;
 use crate::config::Config;
 use crate::creature_stack::CreatureStack;
 use crate::graphics::creature::AnimationType;
-use crate::graphics::cursors::Cursors;
 use crate::pathfinding::NavigationArray;
 use crate::registry::ResourceRegistry;
 
@@ -56,37 +51,6 @@ pub struct BattleState {
     pub reachable_cells: Vec<GridPos>,
 
     previous_mouseover_stack: Option<CreatureStackHandle>,
-}
-
-pub struct Graphics<'a> {
-    battlefield: Texture<'a>,
-    grid_cell: Texture<'a>,
-    grid_cell_shadow: Texture<'a>,
-    stack_count_bg: Texture<'a>,
-
-    cursors: Cursors,
-}
-
-impl<'a> Graphics<'a> {
-    pub fn init(
-        config: &Config,
-        rr: &mut ResourceRegistry,
-        tc: &'a TextureCreator<WindowContext>,
-    ) -> Result<Self, Box<dyn Error>> {
-        let graphics = Graphics {
-            battlefield: rr.load_pcx(config.battlefield.filename())?.as_texture(tc)?,
-            grid_cell: rr
-                .load_pcx_with_transparency("CCellGrd.pcx")?
-                .as_texture(tc)?,
-            grid_cell_shadow: rr
-                .load_pcx_with_transparency("CCellShd.pcx")?
-                .as_texture(tc)?,
-            stack_count_bg: rr.load_pcx("CmNumWin.pcx")?.as_texture(tc)?,
-
-            cursors: Cursors::load(rr),
-        };
-        Ok(graphics)
-    }
 }
 
 impl BattleState {
