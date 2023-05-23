@@ -9,11 +9,11 @@ pub fn animate_moving(creature_stack: &mut CreatureStack, path: Vec<GridPos>) {
     let CreatureStack {
         creature,
         side,
-        ref mut animation_queue,
+        ref mut graphics,
         ..
     } = creature_stack;
 
-    animation_queue.add(Animation::new(AnimationType::StartMoving));
+    graphics.animation_queue.add(Animation::new(AnimationType::StartMoving));
 
     let creature_positions = path
         .into_iter()
@@ -22,8 +22,8 @@ pub fn animate_moving(creature_stack: &mut CreatureStack, path: Vec<GridPos>) {
     let iterator = Iterator::zip(creature_positions.clone(), creature_positions.skip(1));
     for (from, to) in iterator {
         let animation = Animation::new_with_tween(AnimationType::Moving, from, to);
-        animation_queue.add(animation);
+        graphics.animation_queue.add(animation);
     }
 
-    animation_queue.add(Animation::new(AnimationType::StopMoving));
+    graphics.animation_queue.add(Animation::new(AnimationType::StopMoving));
 }

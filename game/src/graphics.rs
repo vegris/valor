@@ -14,6 +14,7 @@ use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
 pub mod creature;
+pub mod creature_stack;
 mod cursors;
 
 use cursors::{Cursor, Cursors};
@@ -173,7 +174,15 @@ impl<'a> Graphics<'a> {
         for handle in units {
             let is_current = handle == state.current_stack;
             let stack = state.get_stack(handle);
-            stack.draw(canvas, rr, tc, is_current, &self.stack_count_bg, font)?;
+            stack.graphics.draw(
+                stack,
+                canvas,
+                rr,
+                tc,
+                is_current,
+                &self.stack_count_bg,
+                font,
+            )?;
             canvas.set_draw_color(Color::RED);
             canvas.draw_rect(stack.head.bounding_rect())?;
         }

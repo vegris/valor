@@ -156,6 +156,7 @@ fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool
 fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
     let mut attack_stack = state.get_current_stack_mut();
     attack_stack
+        .graphics
         .animation_queue
         .add(Animation::new(AnimationType::ShootStraight));
     attack_stack.current_ammo -= 1;
@@ -213,6 +214,7 @@ fn apply_attack(
 
     let current_stack = state.get_current_stack_mut();
     current_stack
+        .graphics
         .animation_queue
         .add(Animation::new(AnimationType::AttackStraight));
 

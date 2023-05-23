@@ -24,7 +24,7 @@ impl BattleState {
 
                 if current_mouseover_stack != self.previous_mouseover_stack {
                     if let Some(handle) = current_mouseover_stack {
-                        let animation_queue = &mut self.get_stack_mut(handle).animation_queue;
+                        let animation_queue = &mut self.get_stack_mut(handle).graphics.animation_queue;
 
                         let mouse_over = AnimationType::MouseOver;
 
@@ -127,6 +127,7 @@ impl BattleState {
     fn is_animating(&self) -> bool {
         self.units().into_iter().any(|handle| {
             self.get_stack(handle)
+                .graphics
                 .animation_queue
                 .current()
                 .map_or(false, |animation| animation.is_blocking())

@@ -1,21 +1,10 @@
 use std::collections::HashSet;
-use std::error::Error;
-use std::time::Duration;
-
-extern crate sdl2;
-use sdl2::pixels::Color;
-use sdl2::rect::{Point, Rect};
-use sdl2::render::{Texture, TextureCreator, WindowCanvas};
-use sdl2::ttf::Font;
-use sdl2::video::WindowContext;
 
 use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
-use crate::animations::{AnimationQueue, AnimationState, Tweening};
 use crate::battlestate::turns;
-use crate::graphics::creature::AnimationType;
-use crate::registry::ResourceRegistry;
+use crate::graphics;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
@@ -34,12 +23,15 @@ pub struct CreatureStack {
     pub turn_state: Option<turns::Phase>,
     pub defending: bool,
 
-    pub draw_pos: Point,
-    pub animation_queue: AnimationQueue,
+    pub graphics: graphics::creature_stack::CreatureStack,
 }
 
 impl CreatureStack {
     pub fn new(creature: Creature, count: u32, head: GridPos, side: Side) -> Self {
+        let draw_pos = pathfinding::tail_for(creature, side, head)
+            .unwrap()
+            .center();
+
         CreatureStack {
             creature,
             count,
@@ -49,10 +41,7 @@ impl CreatureStack {
             side,
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
-            draw_pos: pathfinding::tail_for(creature, side, head)
-                .unwrap()
-                .center(),
-            animation_queue: AnimationQueue::new(),
+            graphics: graphics::creature_stack::CreatureStack::new(draw_pos),
         }
     }
 
@@ -89,100 +78,6 @@ impl CreatureStack {
             .collect::<HashSet<GridPos>>() // Оставляем уникальные
             .drain()
             .collect::<Vec<GridPos>>()
-    }
-
-    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        self.animation_queue.update(dt);
-        self.animation_queue.remove_finished();
-
-        self.animation_queue.remove_non_existent(self.creature, rr);
-
-        if let Some(animation) = self.animation_queue.current() {
-            if let Some(Tweening { from, to }) = animation.tween {
-                if let AnimationState::Running(progress) = animation.state() {
-                    let from_c = from.center();
-                    let to_c = to.center();
-                    let x = from_c.x + ((to_c.x - from_c.x) as f32 * progress).round() as i32;
-                    let y = from_c.y + ((to_c.y - from_c.y) as f32 * progress).round() as i32;
-                    self.draw_pos = Point::new(x, y);
-                }
-            }
-        }
-
-        self.animation_queue.add_standing();
-    }
-
-    fn animation_index(&self, animation_len: usize) -> usize {
-        self.animation_queue
-            .current()
-            .map(|animation| animation.state())
-            .and_then(|state| {
-                if let AnimationState::Running(progress) = state {
-                    Some(progress)
-                } else {
-                    None
-                }
-            })
-            .map(|progress| (animation_len as f32 * progress).round() as usize)
-            .map(|animation_index| std::cmp::min(animation_index, animation_len - 1))
-            .unwrap_or(animation_len - 1)
-    }
-
-    pub fn draw(
-        &self,
-        canvas: &mut WindowCanvas,
-        rr: &mut ResourceRegistry,
-        tc: &TextureCreator<WindowContext>,
-        is_selected: bool,
-        stack_count_bg: &Texture,
-        font: &Font,
-    ) -> Result<(), Box<dyn Error>> {
-        let spritesheet = rr.get_creature_container(self.creature);
-
-        let animation_type = if let Some(animation) = self.animation_queue.current() {
-            animation.type_
-        } else if self.is_alive() {
-            AnimationType::Standing
-        } else {
-            AnimationType::Death
-        };
-
-        let animation_block = spritesheet.animation_block(animation_type).unwrap();
-
-        let animation_index = self.animation_index(animation_block.len());
-        let sprite_index = animation_block[animation_index];
-        let sprite = &mut spritesheet.sprites[sprite_index];
-        if is_selected {
-            sprite.turn_selection(&mut spritesheet.colors, true)
-        };
-
-        let draw_rect = sprite.draw_rect(self.draw_pos, self.side);
-        let texture = sprite.surface().as_texture(tc)?;
-
-        match self.side {
-            Side::Attacker => canvas.copy(&texture, None, draw_rect)?,
-            Side::Defender => canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?,
-        };
-
-        if is_selected {
-            sprite.turn_selection(&mut spritesheet.colors, false)
-        };
-
-        if self.is_alive() {
-            let cell_center = self.head.bounding_rect().center();
-            let draw_center = cell_center.offset(0, 10);
-            canvas.copy(stack_count_bg, None, Rect::from_center(draw_center, 30, 11))?;
-
-            let font_surface = font.render(&self.count.to_string()).solid(Color::BLUE)?;
-            let font_texture = font_surface.as_texture(tc)?;
-
-            let mut font_rect = font_surface.rect();
-            font_rect.center_on(draw_center);
-
-            canvas.copy(&font_texture, None, font_rect)?;
-        }
-
-        Ok(())
     }
 }
 

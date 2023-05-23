@@ -79,7 +79,7 @@ impl BattleState {
 
         let animation = Animation::new(AnimationType::Standing);
         for stack in state.stacks.values_mut() {
-            stack.animation_queue.add(animation);
+            stack.graphics.animation_queue.add(animation);
         }
 
         state.update_current_stack();
@@ -88,7 +88,7 @@ impl BattleState {
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         for stack in self.stacks.values_mut() {
-            stack.update(dt, rr);
+            stack.graphics.update(stack.creature, dt, rr);
         }
     }
 
