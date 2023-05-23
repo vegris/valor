@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 use std::error::Error;
 
-use gridpos::GridPos;
-
 use crate::config::Config;
 use crate::creature_stack::CreatureStack;
+use crate::grid::GridPos;
 
 use crate::pathfinding::NavigationArray;
 

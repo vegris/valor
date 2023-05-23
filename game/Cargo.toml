@@ -20,4 +20,3 @@ either = "1.8.1"
 
 formats = { path = "../formats" }
 gamedata = { path = "../gamedata" }
-gridpos = { path = "../gridpos" }

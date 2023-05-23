@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use gridpos::GridPos;
 use sdl2::pixels::Color;
 use sdl2::render::{Texture, TextureCreator, WindowCanvas};
 use sdl2::ttf::Font;
@@ -9,6 +8,7 @@ use sdl2::video::WindowContext;
 use crate::battlestate::BattleState;
 use crate::command::Command;
 use crate::config::Config;
+use crate::grid::GridPos;
 use crate::input::FrameData;
 use crate::pathfinding;
 use crate::registry::ResourceRegistry;

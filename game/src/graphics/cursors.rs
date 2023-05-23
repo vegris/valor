@@ -7,8 +7,8 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use formats::DefContainer;
-use gridpos::AttackDirection;
 
+use crate::grid::AttackDirection;
 use crate::registry::ResourceRegistry;
 
 #[derive(Clone, Copy, EnumIter, Debug)]

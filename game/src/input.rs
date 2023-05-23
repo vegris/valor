@@ -1,8 +1,7 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
 use crate::command::Command;
-
-use gridpos::GridPos;
+use crate::grid::GridPos;
 
 #[derive(Default)]
 pub struct FrameInput {

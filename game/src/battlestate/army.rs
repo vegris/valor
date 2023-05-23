@@ -1,7 +1,7 @@
 use gamedata::Creature;
-use gridpos::GridPos;
 
 use crate::creature_stack::CreatureStack;
+use crate::grid::GridPos;
 use crate::pathfinding::head_from_tail;
 
 use super::Side;

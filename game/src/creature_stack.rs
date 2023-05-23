@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
 use gamedata::{Creature, CreatureStats};
-use gridpos::GridPos;
 
 use crate::battlestate::turns;
+use crate::grid::GridPos;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;

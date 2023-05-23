@@ -1,7 +1,6 @@
-use gridpos::{AttackDirection, GridPos};
-
 use crate::{
     command::Command,
+    grid::{AttackDirection, GridPos},
     input::{FrameData, FrameInput},
 };
 
@@ -70,22 +69,20 @@ impl BattleState {
         current_hover: Option<GridPos>,
         attack_direction: Option<AttackDirection>,
     ) -> Option<Command> {
-        let command = if let Some(gridpos) = current_hover {
+        let command = if let Some(grid) = current_hover {
             let current_stack = self.get_current_stack();
 
-            if let Some(target) = self.find_unit_for_cell(gridpos) {
+            if let Some(target) = self.find_unit_for_cell(grid) {
                 if current_stack.can_shoot(self) {
                     Some(Command::Shoot { target })
                 } else {
                     Some(Command::Attack {
-                        attack_position: gridpos,
+                        attack_position: grid,
                         attack_direction: attack_direction.unwrap(),
                     })
                 }
             } else {
-                Some(Command::Move {
-                    destination: gridpos,
-                })
+                Some(Command::Move { destination: grid })
             }
         } else {
             None

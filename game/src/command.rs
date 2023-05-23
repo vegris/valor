@@ -1,7 +1,6 @@
-use gridpos::{AttackDirection, GridPos};
-
 use super::battlestate::turns;
 use super::battlestate::{BattleState, CreatureStackHandle};
+use crate::grid::{AttackDirection, GridPos};
 use crate::pathfinding;
 
 #[derive(Clone, Copy, Debug)]

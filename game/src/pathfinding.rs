@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
 
 use gamedata::Creature;
-use gridpos::{AttackDirection, GridPos};
 
 use crate::battlestate::{BattleState, Side};
+use crate::grid::{AttackDirection, GridPos};
 
 // Структуры для алгоритма Дейкстры
 #[derive(Clone, Copy, Debug)]

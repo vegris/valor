@@ -1,9 +1,8 @@
 [workspace]
 members = [
-    "game",
     "formats",
     "gamedata",
-    "gridpos"
+    "game",
 ]
 
 [profile.dev]

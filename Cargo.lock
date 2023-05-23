@@ -67,7 +67,6 @@ dependencies = [
  "either",
  "formats",
  "gamedata",
- "gridpos",
  "ron",
  "sdl2",
  "serde",
@@ -80,16 +79,6 @@ name = "gamedata"
 version = "0.1.0"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "gridpos"
-version = "0.1.0"
-dependencies = [
- "gamedata",
- "sdl2",
- "strum",
- "strum_macros",
 ]
 
 [[package]]

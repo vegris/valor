@@ -5,6 +5,7 @@ mod command;
 mod config;
 mod creature_stack;
 mod graphics;
+mod grid;
 mod input;
 mod pathfinding;
 mod registry;
