@@ -14,8 +14,8 @@ use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
 pub mod creature;
-pub mod creature_stack;
 mod cursors;
+pub mod stack;
 
 use cursors::{Cursor, Cursors};
 
@@ -174,7 +174,7 @@ impl<'a> Graphics<'a> {
         for handle in units {
             let is_current = handle == state.current_stack;
             let stack = state.get_stack(handle);
-            creature_stack::draw(
+            stack::draw(
                 stack,
                 canvas,
                 rr,

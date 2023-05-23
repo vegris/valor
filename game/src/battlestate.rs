@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::error::Error;
 
 use crate::config::Config;
-use crate::creature_stack::CreatureStack;
 use crate::grid::GridPos;
+use crate::stack::Stack;
 
 use crate::pathfinding::NavigationArray;
 
@@ -37,7 +37,7 @@ pub struct CreatureStackHandle(u32);
 
 pub struct BattleState {
     // Логика
-    pub stacks: HashMap<CreatureStackHandle, CreatureStack>,
+    pub stacks: HashMap<CreatureStackHandle, Stack>,
     pub turn: turns::Turn,
     pub current_stack: CreatureStackHandle,
 
@@ -101,18 +101,18 @@ impl BattleState {
         }
     }
 
-    pub fn get_stack(&self, handle: CreatureStackHandle) -> &CreatureStack {
+    pub fn get_stack(&self, handle: CreatureStackHandle) -> &Stack {
         &self.stacks[&handle]
     }
-    pub fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut CreatureStack {
+    pub fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut Stack {
         self.stacks.get_mut(&handle).unwrap()
     }
 
-    pub fn get_current_stack(&self) -> &CreatureStack {
+    pub fn get_current_stack(&self) -> &Stack {
         self.get_stack(self.current_stack)
     }
 
-    pub fn get_current_stack_mut(&mut self) -> &mut CreatureStack {
+    pub fn get_current_stack_mut(&mut self) -> &mut Stack {
         self.get_stack_mut(self.current_stack)
     }
 

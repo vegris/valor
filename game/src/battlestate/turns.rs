@@ -1,5 +1,5 @@
 use super::{BattleState, CreatureStackHandle, Side};
-use crate::creature_stack::CreatureStack;
+use crate::stack::Stack;
 
 pub fn find_active_stack(state: &BattleState) -> Option<CreatureStackHandle> {
     let mut handles: Box<[CreatureStackHandle]> = state.stacks.keys().copied().collect();
@@ -18,7 +18,7 @@ pub fn find_active_stack(state: &BattleState) -> Option<CreatureStackHandle> {
         })
         .fold(None, |acc, current| {
             // Без max_first тяжко
-            fn key((_, stack): (CreatureStackHandle, &CreatureStack)) -> u8 {
+            fn key((_, stack): (CreatureStackHandle, &Stack)) -> u8 {
                 stack.speed()
             }
             match acc {

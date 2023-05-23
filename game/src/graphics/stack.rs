@@ -12,7 +12,7 @@ use crate::graphics::creature::AnimationType;
 use crate::{pathfinding, ResourceRegistry};
 
 pub fn draw(
-    logic: &crate::creature_stack::CreatureStack,
+    logic: &crate::stack::Stack,
     canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,

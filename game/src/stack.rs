@@ -9,7 +9,7 @@ use super::battlestate::{BattleState, Side};
 use super::pathfinding;
 
 #[derive(Clone, Debug)]
-pub struct CreatureStack {
+pub struct Stack {
     pub creature: Creature,
     pub count: u32,
 
@@ -23,9 +23,9 @@ pub struct CreatureStack {
     pub defending: bool,
 }
 
-impl CreatureStack {
+impl Stack {
     pub fn new(creature: Creature, count: u32, head: GridPos, side: Side) -> Self {
-        CreatureStack {
+        Stack {
             creature,
             count,
             current_health: creature.base_stats().health,
@@ -74,7 +74,7 @@ impl CreatureStack {
 }
 
 use std::fmt;
-impl fmt::Display for CreatureStack {
+impl fmt::Display for Stack {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}:{}", self.creature, self.count)
     }
