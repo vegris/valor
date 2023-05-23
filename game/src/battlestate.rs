@@ -1,15 +1,12 @@
 use std::collections::HashMap;
 use std::error::Error;
-use std::time::Duration;
 
 use gridpos::GridPos;
 
-use crate::animations::Animation;
 use crate::config::Config;
 use crate::creature_stack::CreatureStack;
-use crate::graphics::creature::AnimationType;
+
 use crate::pathfinding::NavigationArray;
-use crate::registry::ResourceRegistry;
 
 mod army;
 pub mod input;
@@ -48,8 +45,6 @@ pub struct BattleState {
     // Поиск пути
     pub navigation_array: NavigationArray,
     pub reachable_cells: Vec<GridPos>,
-
-    previous_mouseover_stack: Option<CreatureStackHandle>,
 }
 
 impl BattleState {
@@ -73,23 +68,10 @@ impl BattleState {
             current_stack: CreatureStackHandle(0),
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
-
-            previous_mouseover_stack: None,
         };
-
-        let animation = Animation::new(AnimationType::Standing);
-        for stack in state.stacks.values_mut() {
-            stack.graphics.animation_queue.add(animation);
-        }
 
         state.update_current_stack();
         Ok(state)
-    }
-
-    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        for stack in self.stacks.values_mut() {
-            stack.graphics.update(stack.creature, dt, rr);
-        }
     }
 
     pub fn update_current_stack(&mut self) {

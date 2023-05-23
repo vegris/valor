@@ -2,9 +2,7 @@ use gridpos::{AttackDirection, GridPos};
 
 use super::battlestate::turns;
 use super::battlestate::{BattleState, CreatureStackHandle};
-use crate::animations::Animation;
-use crate::graphics::creature::AnimationType;
-use crate::{animator, pathfinding};
+use crate::pathfinding;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Command {
@@ -131,7 +129,7 @@ fn is_applicable_move(state: &BattleState, destination: GridPos) -> bool {
     is_position_available && state.reachable_cells.contains(&destination)
 }
 fn apply_move(state: &mut BattleState, destination: GridPos) {
-    let path = state
+    let _path = state
         .navigation_array
         .get_shortest_path(destination)
         .unwrap();
@@ -139,8 +137,6 @@ fn apply_move(state: &mut BattleState, destination: GridPos) {
     let current_stack = state.get_current_stack_mut();
 
     current_stack.head = destination;
-
-    animator::animate_moving(current_stack, path);
 }
 
 fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool {
@@ -155,10 +151,6 @@ fn is_applicable_shoot(state: &BattleState, target: CreatureStackHandle) -> bool
 }
 fn apply_shoot(state: &mut BattleState, target: CreatureStackHandle) {
     let mut attack_stack = state.get_current_stack_mut();
-    attack_stack
-        .graphics
-        .animation_queue
-        .add(Animation::new(AnimationType::ShootStraight));
     attack_stack.current_ammo -= 1;
 
     let mut defend_stack = state.get_stack_mut(target);
@@ -212,11 +204,7 @@ fn apply_attack(
 
     apply_move(state, position);
 
-    let current_stack = state.get_current_stack_mut();
-    current_stack
-        .graphics
-        .animation_queue
-        .add(Animation::new(AnimationType::AttackStraight));
+    let _current_stack = state.get_current_stack_mut();
 
     let defending_unit_handle = state.find_unit_for_cell(attack_position).unwrap();
     let mut defending_unit = state.get_stack_mut(defending_unit_handle);

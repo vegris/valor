@@ -4,7 +4,6 @@ use gamedata::{Creature, CreatureStats};
 use gridpos::GridPos;
 
 use crate::battlestate::turns;
-use crate::graphics;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
@@ -22,16 +21,10 @@ pub struct CreatureStack {
 
     pub turn_state: Option<turns::Phase>,
     pub defending: bool,
-
-    pub graphics: graphics::creature_stack::CreatureStack,
 }
 
 impl CreatureStack {
     pub fn new(creature: Creature, count: u32, head: GridPos, side: Side) -> Self {
-        let draw_pos = pathfinding::tail_for(creature, side, head)
-            .unwrap()
-            .center();
-
         CreatureStack {
             creature,
             count,
@@ -41,7 +34,6 @@ impl CreatureStack {
             side,
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
-            graphics: graphics::creature_stack::CreatureStack::new(draw_pos),
         }
     }
 

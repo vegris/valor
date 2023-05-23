@@ -1,7 +1,5 @@
-use std::{error::Error, time::Instant};
+use std::error::Error;
 
-mod animations;
-mod animator;
 mod battlestate;
 mod command;
 mod config;
@@ -45,15 +43,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut current_state = BattleState::new(&config)?;
     let graphics = Graphics::init(&config, &mut resource_registry, &texture_creator)?;
 
-    let mut last_time = Instant::now();
     loop {
-        let current_time = Instant::now();
         // Обработка ввода
         let frame_input = input::gather_input(&mut event_pump);
         let frame_data = current_state.process_input(frame_input);
-
-        // Обновление игрового состояния
-        current_state.update(current_time - last_time, &mut resource_registry);
 
         // Отображение игрового состояния
         canvas.clear();
@@ -66,7 +59,5 @@ fn main() -> Result<(), Box<dyn Error>> {
             &font,
         )?;
         canvas.present();
-
-        last_time = current_time;
     }
 }
