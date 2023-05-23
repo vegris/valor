@@ -8,6 +8,7 @@ mod grid;
 mod input;
 mod pathfinding;
 mod registry;
+mod sdl;
 mod stack;
 
 extern crate sdl2;
@@ -18,20 +19,14 @@ use graphics::Graphics;
 use registry::ResourceRegistry;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let sdl_context = sdl2::init()?;
+    let sdl_context = sdl::Context::init()?;
 
     // Инициализация видео подсистемы
-    let video_subsystem = sdl_context.video()?;
-    let window = video_subsystem
-        .window("Rust", 800, 600)
-        .position_centered()
-        .build()?;
-    let mut canvas = window.into_canvas().present_vsync().build()?;
+    let mut canvas = sdl_context.canvas()?;
     let texture_creator = canvas.texture_creator();
 
     // Инициализация системы рендера шрифтов
-    let ttf_context = sdl2::ttf::init()?;
-    let font = ttf_context.load_font("/usr/share/fonts/TTF/OpenSans-Bold.ttf", 16)?;
+    let font = sdl_context.load_font("/usr/share/fonts/TTF/OpenSans-Bold.ttf", 16)?;
 
     // Открытие файлов с ресурсами
     let mut resource_registry = ResourceRegistry::init();
