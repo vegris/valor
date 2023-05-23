@@ -30,7 +30,13 @@ pub fn draw(
 
     let animation_block = spritesheet.animation_block(animation_type).unwrap();
 
-    let sprite_index = animation_block[0];
+    let animation_index = if animation_type == AnimationType::Death {
+        animation_block.len() - 1
+    } else {
+        0
+    };
+
+    let sprite_index = animation_block[animation_index];
     let sprite = &mut spritesheet.sprites[sprite_index];
     if is_selected {
         sprite.turn_selection(&mut spritesheet.colors, true)
