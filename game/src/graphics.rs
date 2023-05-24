@@ -19,6 +19,8 @@ pub mod statics;
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
+use self::statics::StaticTexture;
+
 pub fn draw(
     state: &BattleState,
     frame_data: FrameData,
@@ -29,7 +31,7 @@ pub fn draw(
 ) -> Result<(), Box<dyn Error>> {
     // Рисуем поле боя
     canvas.copy(
-        &statics.battlefield,
+        statics.textures.get(StaticTexture::Battlefield),
         None,
         sdl2::rect::Rect::new(0, 0, 800, 556),
     )?;
@@ -38,7 +40,11 @@ pub fn draw(
     for x in GridPos::X_RANGE {
         for y in GridPos::Y_RANGE {
             let draw_rect = GridPos::new(x, y).bounding_rect();
-            canvas.copy(&statics.grid_cell, None, draw_rect)?;
+            canvas.copy(
+                statics.textures.get(StaticTexture::GridCell),
+                None,
+                draw_rect,
+            )?;
         }
     }
 
@@ -106,13 +112,21 @@ pub fn draw(
     }
 
     for cell in &state.reachable_cells {
-        canvas.copy(&statics.grid_cell_shadow, None, cell.bounding_rect())?;
+        canvas.copy(
+            statics.textures.get(StaticTexture::GridCellShadow),
+            None,
+            cell.bounding_rect(),
+        )?;
     }
 
     highlighted_cells.sort();
     highlighted_cells.dedup();
     for cell in highlighted_cells {
-        canvas.copy(&statics.grid_cell_shadow, None, cell.bounding_rect())?;
+        canvas.copy(
+            statics.textures.get(StaticTexture::GridCellShadow),
+            None,
+            cell.bounding_rect(),
+        )?;
     }
 
     // Рисуем существ
@@ -128,7 +142,7 @@ pub fn draw(
             rr,
             tc,
             is_current,
-            &statics.stack_count_bg,
+            statics.textures.get(StaticTexture::StackCountBackground),
             &statics.font,
         )?;
         canvas.set_draw_color(Color::RED);

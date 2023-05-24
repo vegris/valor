@@ -10,14 +10,9 @@ use crate::{Config, ResourceRegistry};
 use super::cursors::Cursors;
 
 pub struct Statics<'a> {
-    pub(super) battlefield: Texture<'a>,
-    pub(super) grid_cell: Texture<'a>,
-    pub(super) grid_cell_shadow: Texture<'a>,
-    pub(super) stack_count_bg: Texture<'a>,
-
     pub(super) cursors: Cursors,
-
     pub(super) font: Font<'a, 'static>,
+    pub(super) textures: Textures<'a>,
 }
 
 impl<'a> Statics<'a> {
@@ -27,11 +22,38 @@ impl<'a> Statics<'a> {
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
     ) -> Result<Self, Box<dyn Error>> {
-        let [battlefield, grid_cell, grid_cell_shadow, stack_count_bg]: [Texture; 4] = [
+        let font_path = "/usr/share/fonts/TTF/OpenSans-Bold.ttf";
+        let font_size = 16;
+
+        Ok(Self {
+            cursors: Cursors::load(rr),
+            font: sdl_context.load_font(font_path, font_size)?,
+            textures: Textures::load(config, rr, tc)?,
+        })
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum StaticTexture {
+    Battlefield = 0,
+    StackCountBackground = 1,
+    GridCell = 2,
+    GridCellShadow = 3,
+}
+
+pub struct Textures<'a>([Texture<'a>; 4]);
+
+impl<'a> Textures<'a> {
+    fn load(
+        config: &Config,
+        rr: &mut ResourceRegistry,
+        tc: &'a TextureCreator<WindowContext>,
+    ) -> Result<Self, Box<dyn Error>> {
+        let textures: Vec<Texture> = [
             (config.battlefield.filename(), false),
+            ("CmNumWin.pcx", false),
             ("CCellGrd.pcx", true),
             ("CCellShd.pcx", true),
-            ("CmNumWin.pcx", false),
         ]
         .into_iter()
         .map(|(filename, with_transparency)| {
@@ -45,23 +67,14 @@ impl<'a> Statics<'a> {
 
             Ok(texture)
         })
-        .collect::<Result<Vec<Texture>, Box<dyn Error>>>()?
-        .try_into()
-        .ok()
-        .unwrap();
+        .collect::<Result<_, Box<dyn Error>>>()?;
 
-        let font = sdl_context.load_font("/usr/share/fonts/TTF/OpenSans-Bold.ttf", 16)?;
+        let textures: [Texture; 4] = textures.try_into().ok().unwrap();
 
-        let graphics = Self {
-            battlefield,
-            grid_cell,
-            grid_cell_shadow,
-            stack_count_bg,
+        Ok(Self(textures))
+    }
 
-            cursors: Cursors::load(rr),
-
-            font,
-        };
-        Ok(graphics)
+    pub fn get(&self, texture: StaticTexture) -> &Texture {
+        &self.0[texture as usize]
     }
 }
