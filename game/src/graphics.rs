@@ -16,7 +16,7 @@ mod cursors;
 pub mod stack;
 pub mod statics;
 
-use cursors::Cursor;
+use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
 pub fn draw(
@@ -49,9 +49,7 @@ pub fn draw(
         highlighted_cells.push(cell);
     }
 
-    // Выставляем курсор под ситуацию
-    let cursor = choose_cursor(state, &frame_data);
-    statics.cursors.set(cursor);
+    set_cursor(&statics.cursors, state, &frame_data);
 
     if let Some(command) = frame_data.potential_lmb_command {
         match command {
@@ -142,10 +140,10 @@ pub fn draw(
     Ok(())
 }
 
-fn choose_cursor(state: &BattleState, frame_data: &FrameData) -> Cursor {
+fn set_cursor(cursors: &Cursors, state: &BattleState, frame_data: &FrameData) {
     let current_stack = state.get_current_stack();
 
-    if let Some(command) = frame_data.potential_lmb_command {
+    let cursor = if let Some(command) = frame_data.potential_lmb_command {
         match command {
             Command::Move { .. } => {
                 if current_stack.creature.is_flying() {
@@ -162,5 +160,8 @@ fn choose_cursor(state: &BattleState, frame_data: &FrameData) -> Cursor {
         }
     } else {
         Cursor::Pointer
-    }
+    };
+
+    let sdl_cursor = cursors.get(cursor);
+    sdl_cursor.set();
 }

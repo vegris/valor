@@ -112,7 +112,7 @@ impl Cursors {
         Self(cursors)
     }
 
-    pub fn set(&self, cursor: Cursor) {
-        self.0[cursor as usize].set();
+    pub fn get(&self, cursor: Cursor) -> &SDLCursor {
+        &self.0[cursor as usize]
     }
 }
