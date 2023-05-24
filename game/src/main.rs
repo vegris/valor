@@ -15,7 +15,7 @@ extern crate sdl2;
 
 use battlestate::BattleState;
 use config::Config;
-use graphics::Graphics;
+use graphics::Statics;
 use registry::ResourceRegistry;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut current_state = BattleState::new(&config)?;
 
-    let graphics = Graphics::init(
+    let statics = Statics::init(
         &config,
         &sdl_context,
         &mut resource_registry,
@@ -49,12 +49,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Отображение игрового состояния
         canvas.clear();
-        graphics.draw(
+        graphics::draw(
             &current_state,
             frame_data,
             &mut canvas,
             &mut resource_registry,
             &texture_creator,
+            &statics,
         )?;
         canvas.present();
     }
