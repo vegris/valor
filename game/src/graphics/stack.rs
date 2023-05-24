@@ -38,8 +38,11 @@ pub fn draw(
 
     let sprite_index = animation_block[animation_index];
     let sprite = &mut spritesheet.sprites[sprite_index];
-    if is_selected {
-        sprite.turn_selection(&mut spritesheet.colors, true)
+
+    let texture = if is_selected {
+        sprite.with_selection(&spritesheet.colors).as_texture(tc)?
+    } else {
+        sprite.surface().as_texture(tc)?
     };
 
     let draw_pos = pathfinding::tail_for(logic.creature, logic.side, logic.head)
@@ -47,15 +50,10 @@ pub fn draw(
         .center();
 
     let draw_rect = sprite.draw_rect(draw_pos, logic.side);
-    let texture = sprite.surface().as_texture(tc)?;
 
     match logic.side {
         Side::Attacker => canvas.copy(&texture, None, draw_rect)?,
         Side::Defender => canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false)?,
-    };
-
-    if is_selected {
-        sprite.turn_selection(&mut spritesheet.colors, false)
     };
 
     if logic.is_alive() {

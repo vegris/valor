@@ -76,14 +76,16 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
-    pub fn turn_selection(&mut self, colors: &mut Box<[Color]>, on: bool) {
-        colors[5] = if on {
-            Color::YELLOW
-        } else {
-            Color::RGBA(0, 0, 0, 0)
-        };
-        let palette = Palette::with_colors(colors).unwrap();
-        self.apply_palette(&palette);
+    pub fn with_selection(&self, colors: &[Color]) -> Surface<'static> {
+        let mut surface = self.surface.convert(&self.surface.pixel_format()).unwrap();
+
+        let mut colors = colors.to_vec();
+        colors[5] = Color::YELLOW;
+        let palette = Palette::with_colors(&colors).unwrap();
+
+        surface.set_palette(&palette).unwrap();
+
+        surface
     }
 
     pub fn draw_rect(&self, center: Point, side: Side) -> Rect {
