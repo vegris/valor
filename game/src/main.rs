@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut current_state = BattleState::new(&config)?;
+    let mut game_state = BattleState::new(&config)?;
 
     let statics = Statics::init(
         &config,
@@ -51,12 +51,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         // Обработка ввода
         let frame_input = input::gather_input(&mut event_pump);
-        let frame_data = current_state.process_input(frame_input);
+        let frame_data = game_state.process_input(frame_input);
 
         // Отображение игрового состояния
         canvas.clear();
         graphics::draw(
-            &current_state,
+            &game_state,
             frame_data,
             &mut canvas,
             &mut resource_registry,
