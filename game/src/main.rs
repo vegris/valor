@@ -8,10 +8,7 @@ mod grid;
 mod input;
 mod pathfinding;
 mod registry;
-mod sdl;
 mod stack;
-
-extern crate sdl2;
 
 use battlestate::BattleState;
 use config::Config;
@@ -21,10 +18,19 @@ use registry::ResourceRegistry;
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::load()?;
 
-    let sdl_context = sdl::Context::init()?;
+    // Инициализация SDL
+    let sdl_context = sdl2::init()?;
+    let ttf_context = sdl2::ttf::init()?;
 
     // Инициализация видео подсистемы
-    let mut canvas = sdl_context.canvas()?;
+    let video_subsystem = sdl_context.video()?;
+
+    let window = video_subsystem
+        .window("Rust", 800, 600)
+        .position_centered()
+        .build()?;
+
+    let mut canvas = window.into_canvas().present_vsync().build()?;
     let texture_creator = canvas.texture_creator();
 
     // Открытие файлов с ресурсами
@@ -37,9 +43,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let statics = Statics::init(
         &config,
-        &sdl_context,
         &mut resource_registry,
         &texture_creator,
+        &ttf_context,
     )?;
 
     loop {

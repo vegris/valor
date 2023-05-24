@@ -4,7 +4,6 @@ use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
-use crate::sdl::Context;
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
@@ -18,16 +17,16 @@ pub struct Statics<'a> {
 impl<'a> Statics<'a> {
     pub fn init(
         config: &Config,
-        sdl_context: &'a Context,
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
+        ttf_context: &'a sdl2::ttf::Sdl2TtfContext,
     ) -> Result<Self, Box<dyn Error>> {
         let font_path = "/usr/share/fonts/TTF/OpenSans-Bold.ttf";
         let font_size = 16;
 
         Ok(Self {
             cursors: Cursors::load(rr),
-            font: sdl_context.load_font(font_path, font_size)?,
+            font: ttf_context.load_font(font_path, font_size)?,
             textures: Textures::load(config, rr, tc)?,
         })
     }
