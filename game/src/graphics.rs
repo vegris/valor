@@ -26,11 +26,14 @@ pub struct Graphics<'a> {
     stack_count_bg: Texture<'a>,
 
     cursors: Cursors,
+
+    font: Font<'a, 'static>,
 }
 
 impl<'a> Graphics<'a> {
     pub fn init(
         config: &Config,
+        sdl_context: &'a crate::sdl::Context,
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
     ) -> Result<Self, Box<dyn Error>> {
@@ -57,6 +60,8 @@ impl<'a> Graphics<'a> {
         .ok()
         .unwrap();
 
+        let font = sdl_context.load_font("/usr/share/fonts/TTF/OpenSans-Bold.ttf", 16)?;
+
         let graphics = Graphics {
             battlefield,
             grid_cell,
@@ -64,6 +69,8 @@ impl<'a> Graphics<'a> {
             stack_count_bg,
 
             cursors: Cursors::load(rr),
+
+            font,
         };
         Ok(graphics)
     }
@@ -75,7 +82,6 @@ impl<'a> Graphics<'a> {
         canvas: &mut WindowCanvas,
         rr: &mut ResourceRegistry,
         tc: &TextureCreator<WindowContext>,
-        font: &Font,
     ) -> Result<(), Box<dyn Error>> {
         // Рисуем поле боя
         canvas.copy(
@@ -181,7 +187,7 @@ impl<'a> Graphics<'a> {
                 tc,
                 is_current,
                 &self.stack_count_bg,
-                font,
+                &self.font,
             )?;
             canvas.set_draw_color(Color::RED);
             canvas.draw_rect(stack.head.bounding_rect())?;

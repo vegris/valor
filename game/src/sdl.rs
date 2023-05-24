@@ -31,7 +31,11 @@ impl Context {
         Ok(event_pump)
     }
 
-    pub fn load_font<'a>(&'a self, path: &str, size: u16) -> Result<sdl2::ttf::Font<'a, 'static>, Box<dyn Error>> {
+    pub fn load_font<'a>(
+        &'a self,
+        path: &str,
+        size: u16,
+    ) -> Result<sdl2::ttf::Font<'a, 'static>, Box<dyn Error>> {
         let font = self.ttf.load_font(path, size)?;
         Ok(font)
     }

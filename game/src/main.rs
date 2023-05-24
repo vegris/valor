@@ -19,14 +19,13 @@ use graphics::Graphics;
 use registry::ResourceRegistry;
 
 fn main() -> Result<(), Box<dyn Error>> {
+    let config = Config::load()?;
+
     let sdl_context = sdl::Context::init()?;
 
     // Инициализация видео подсистемы
     let mut canvas = sdl_context.canvas()?;
     let texture_creator = canvas.texture_creator();
-
-    // Инициализация системы рендера шрифтов
-    let font = sdl_context.load_font("/usr/share/fonts/TTF/OpenSans-Bold.ttf", 16)?;
 
     // Открытие файлов с ресурсами
     let mut resource_registry = ResourceRegistry::init();
@@ -34,10 +33,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
 
-    let config = Config::load()?;
-
     let mut current_state = BattleState::new(&config)?;
-    let graphics = Graphics::init(&config, &mut resource_registry, &texture_creator)?;
+
+    let graphics = Graphics::init(
+        &config,
+        &sdl_context,
+        &mut resource_registry,
+        &texture_creator,
+    )?;
 
     loop {
         // Обработка ввода
@@ -52,7 +55,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             &mut canvas,
             &mut resource_registry,
             &texture_creator,
-            &font,
         )?;
         canvas.present();
     }
