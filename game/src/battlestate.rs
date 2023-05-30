@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error;
 
+use crate::command::Command;
 use crate::config::Config;
 use crate::grid::GridPos;
 use crate::stack::Stack;
@@ -8,7 +9,6 @@ use crate::stack::Stack;
 use crate::pathfinding::NavigationArray;
 
 mod army;
-pub mod input;
 pub mod turns;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -71,6 +71,21 @@ impl BattleState {
 
         state.update_current_stack();
         Ok(state)
+    }
+
+    pub fn process_command(&mut self, command: Command) {
+        if !command.is_applicable(self) {
+            println!("Command is not applicable!");
+            return;
+        }
+
+        println!("Command applied!");
+        command.apply(self);
+
+        if let Some(winner) = self.find_winner() {
+            println!("{:?} wins!", winner);
+            std::process::exit(0);
+        }
     }
 
     pub fn update_current_stack(&mut self) {

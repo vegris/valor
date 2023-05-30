@@ -1,7 +1,8 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
+use crate::battlestate::BattleState;
 use crate::command::Command;
-use crate::grid::GridPos;
+use crate::grid::{AttackDirection, GridPos};
 
 #[derive(Default)]
 pub struct FrameInput {
@@ -16,6 +17,7 @@ pub struct FrameInput {
 pub struct FrameData {
     pub current_hover: Option<GridPos>,
     pub potential_lmb_command: Option<Command>,
+    pub command: Option<Command>,
 }
 
 pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
@@ -53,4 +55,69 @@ pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
 fn get_mouse_position(event_pump: &mut EventPump) -> (i32, i32) {
     let mouse_state = event_pump.mouse_state();
     (mouse_state.x(), mouse_state.y())
+}
+
+pub fn process_input(state: &BattleState, frame_input: FrameInput) -> FrameData {
+    if frame_input.quit {
+        std::process::exit(0);
+    }
+
+    let cursor_pos = frame_input.cursor_position;
+    let current_hover = GridPos::find_pointer_position(cursor_pos.into());
+
+    let current_stack = state.get_current_stack();
+    let attack_direction = current_hover
+        .map(|cell| cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature));
+
+    let potential_lmb_command =
+        construct_potential_lmb_command(state, current_hover, attack_direction);
+
+    let command = construct_command(frame_input, potential_lmb_command);
+
+    FrameData {
+        current_hover,
+        potential_lmb_command,
+        command,
+    }
+}
+fn construct_command(
+    frame_input: FrameInput,
+    potential_lmb_command: Option<Command>,
+) -> Option<Command> {
+    if frame_input.key_d {
+        return Some(Command::Defend);
+    }
+    if frame_input.key_w {
+        return Some(Command::Wait);
+    }
+    if frame_input.btn_lmb {
+        return potential_lmb_command;
+    }
+    None
+}
+
+fn construct_potential_lmb_command(
+    state: &BattleState,
+    current_hover: Option<GridPos>,
+    attack_direction: Option<AttackDirection>,
+) -> Option<Command> {
+    let command = if let Some(grid) = current_hover {
+        let current_stack = state.get_current_stack();
+
+        if let Some(target) = state.find_unit_for_cell(grid) {
+            if current_stack.can_shoot(state) {
+                Some(Command::Shoot { target })
+            } else {
+                Some(Command::Attack {
+                    attack_position: grid,
+                    attack_direction: attack_direction.unwrap(),
+                })
+            }
+        } else {
+            Some(Command::Move { destination: grid })
+        }
+    } else {
+        None
+    };
+    command.filter(|c| c.is_applicable(state))
 }

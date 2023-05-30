@@ -51,7 +51,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         // Обработка ввода
         let frame_input = input::gather_input(&mut event_pump);
-        let frame_data = game_state.process_input(frame_input);
+        let frame_data = input::process_input(&game_state, frame_input);
+
+        if let Some(command) = frame_data.command {
+            game_state.process_command(command);
+        }
 
         // Отображение игрового состояния
         canvas.clear();
