@@ -23,7 +23,7 @@ use self::statics::StaticTexture;
 
 pub fn draw(
     state: &BattleState,
-    frame_data: FrameData,
+    frame_data: &FrameData,
     canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
@@ -55,7 +55,7 @@ pub fn draw(
         highlighted_cells.push(cell);
     }
 
-    set_cursor(&statics.cursors, state, &frame_data);
+    set_cursor(&statics.cursors, state, frame_data);
 
     if let Some(command) = frame_data.potential_lmb_command {
         match command {

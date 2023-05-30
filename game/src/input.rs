@@ -5,13 +5,13 @@ use crate::command::Command;
 use crate::grid::{AttackDirection, GridPos};
 
 #[derive(Default)]
-pub struct FrameInput {
-    pub cursor_position: (i32, i32),
-    pub btn_lmb: bool,
-    pub btn_rmb: bool,
-    pub key_d: bool,
-    pub key_w: bool,
-    pub quit: bool,
+struct FrameInput {
+    cursor_position: (i32, i32),
+    btn_lmb: bool,
+    btn_rmb: bool,
+    key_d: bool,
+    key_w: bool,
+    quit: bool,
 }
 
 pub struct FrameData {
@@ -20,7 +20,11 @@ pub struct FrameData {
     pub command: Option<Command>,
 }
 
-pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
+pub fn process(state: &BattleState, event_pump: &mut EventPump) -> FrameData {
+    process_input(state, gather_input(event_pump))
+}
+
+fn gather_input(event_pump: &mut EventPump) -> FrameInput {
     event_pump.pump_events();
 
     let mut frame_input = FrameInput {
@@ -57,7 +61,7 @@ fn get_mouse_position(event_pump: &mut EventPump) -> (i32, i32) {
     (mouse_state.x(), mouse_state.y())
 }
 
-pub fn process_input(state: &BattleState, frame_input: FrameInput) -> FrameData {
+fn process_input(state: &BattleState, frame_input: FrameInput) -> FrameData {
     if frame_input.quit {
         std::process::exit(0);
     }

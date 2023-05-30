@@ -49,24 +49,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
 
     loop {
-        // Обработка ввода
-        let frame_input = input::gather_input(&mut event_pump);
-        let frame_data = input::process_input(&game_state, frame_input);
+        let frame_data = input::process(&game_state, &mut event_pump);
 
-        if let Some(command) = frame_data.command {
-            game_state.process_command(command);
-        }
-
-        // Отображение игрового состояния
         canvas.clear();
         graphics::draw(
             &game_state,
-            frame_data,
+            &frame_data,
             &mut canvas,
             &mut resource_registry,
             &texture_creator,
             &statics,
         )?;
         canvas.present();
+
+        if let Some(command) = frame_data.command {
+            game_state.process_command(command);
+        }
     }
 }
