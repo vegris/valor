@@ -18,7 +18,7 @@ pub enum Command {
 }
 
 #[derive(Clone, Copy, PartialEq)]
-pub enum CommandFieldless {
+enum CommandFieldless {
     Move,
     Wait,
     Defend,
@@ -27,17 +27,6 @@ pub enum CommandFieldless {
 }
 
 impl Command {
-    // TODO: заменить эту каку макросом
-    pub fn fieldless(&self) -> CommandFieldless {
-        match self {
-            Self::Defend { .. } => CommandFieldless::Defend,
-            Self::Move { .. } => CommandFieldless::Move,
-            Self::Shoot { .. } => CommandFieldless::Shoot,
-            Self::Wait { .. } => CommandFieldless::Wait,
-            Self::Attack { .. } => CommandFieldless::Attack,
-        }
-    }
-
     pub fn requires_current_stack_update(&self) -> bool {
         [
             CommandFieldless::Defend,
@@ -51,5 +40,15 @@ impl Command {
 
     pub fn spends_turn(&self) -> bool {
         !matches!(self, Self::Wait)
+    }
+
+    fn fieldless(&self) -> CommandFieldless {
+        match self {
+            Self::Defend { .. } => CommandFieldless::Defend,
+            Self::Move { .. } => CommandFieldless::Move,
+            Self::Shoot { .. } => CommandFieldless::Shoot,
+            Self::Wait { .. } => CommandFieldless::Wait,
+            Self::Attack { .. } => CommandFieldless::Attack,
+        }
     }
 }
