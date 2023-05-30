@@ -123,5 +123,5 @@ fn construct_potential_lmb_command(
     } else {
         None
     };
-    command.filter(|c| c.is_applicable(state))
+    command.filter(|c| state.is_command_applicable(*c))
 }

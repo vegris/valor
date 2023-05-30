@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         canvas.present();
 
         if let Some(command) = frame_data.command {
-            game_state.process_command(command);
+            game_state.apply_command(command);
         }
     }
 }

@@ -9,6 +9,7 @@ use crate::stack::Stack;
 use crate::pathfinding::NavigationArray;
 
 mod army;
+mod commands;
 pub mod turns;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -73,14 +74,23 @@ impl BattleState {
         Ok(state)
     }
 
-    pub fn process_command(&mut self, command: Command) {
-        if !command.is_applicable(self) {
-            println!("Command is not applicable!");
-            return;
+    pub fn is_command_applicable(&self, command: Command) -> bool {
+        commands::is_applicable(self, command)
+    }
+
+    pub fn apply_command(&mut self, command: Command) {
+        assert!(commands::is_applicable(self, command));
+        commands::apply(self, command);
+        println!("Command applied!");
+
+        if command.spends_turn() {
+            let cur_stack = self.get_current_stack_mut();
+            cur_stack.turn_state = None;
         }
 
-        println!("Command applied!");
-        command.apply(self);
+        if command.requires_current_stack_update() {
+            self.update_current_stack();
+        }
 
         if let Some(winner) = self.find_winner() {
             println!("{:?} wins!", winner);
