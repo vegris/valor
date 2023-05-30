@@ -28,7 +28,7 @@ impl Side {
 }
 
 #[derive(Debug)]
-pub enum Winner {
+enum Winner {
     Side(Side),
     Tie,
 }
@@ -38,13 +38,13 @@ pub struct CreatureStackHandle(u32);
 
 pub struct BattleState {
     // Логика
-    pub stacks: HashMap<CreatureStackHandle, Stack>,
-    pub turn: turns::Turn,
-    pub current_stack: CreatureStackHandle,
+    stacks: HashMap<CreatureStackHandle, Stack>,
+    turn: turns::Turn,
+    current_stack: CreatureStackHandle,
 
     // Поиск пути
-    pub navigation_array: NavigationArray,
-    pub reachable_cells: Vec<GridPos>,
+    navigation_array: NavigationArray,
+    reachable_cells: Vec<GridPos>,
 }
 
 impl BattleState {
@@ -98,7 +98,42 @@ impl BattleState {
         }
     }
 
-    pub fn update_current_stack(&mut self) {
+    pub fn get_stack(&self, handle: CreatureStackHandle) -> &Stack {
+        &self.stacks[&handle]
+    }
+
+    fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut Stack {
+        self.stacks.get_mut(&handle).unwrap()
+    }
+
+    pub fn is_current(&self, handle: CreatureStackHandle) -> bool {
+        self.current_stack == handle
+    }
+
+    pub fn get_current_stack(&self) -> &Stack {
+        self.get_stack(self.current_stack)
+    }
+
+    fn get_current_stack_mut(&mut self) -> &mut Stack {
+        self.get_stack_mut(self.current_stack)
+    }
+
+    pub fn units(&self) -> Vec<CreatureStackHandle> {
+        self.stacks.keys().copied().collect()
+    }
+
+    pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
+        self.units()
+            .into_iter()
+            .filter(|&handle| self.get_stack(handle).is_alive())
+            .find(|&handle| self.get_stack(handle).get_occupied_cells().contains(&cell))
+    }
+
+    pub fn reachable_cells(&self) -> &Vec<GridPos> {
+        &self.reachable_cells
+    }
+
+    fn update_current_stack(&mut self) {
         if let Some(handle) = turns::find_active_stack(self) {
             self.current_stack = handle;
 
@@ -126,33 +161,7 @@ impl BattleState {
         }
     }
 
-    pub fn get_stack(&self, handle: CreatureStackHandle) -> &Stack {
-        &self.stacks[&handle]
-    }
-    pub fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut Stack {
-        self.stacks.get_mut(&handle).unwrap()
-    }
-
-    pub fn get_current_stack(&self) -> &Stack {
-        self.get_stack(self.current_stack)
-    }
-
-    pub fn get_current_stack_mut(&mut self) -> &mut Stack {
-        self.get_stack_mut(self.current_stack)
-    }
-
-    pub fn units(&self) -> Vec<CreatureStackHandle> {
-        self.stacks.keys().copied().collect()
-    }
-
-    pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
-        self.units()
-            .into_iter()
-            .filter(|&handle| self.get_stack(handle).is_alive())
-            .find(|&handle| self.get_stack(handle).get_occupied_cells().contains(&cell))
-    }
-
-    pub fn find_winner(&self) -> Option<Winner> {
+    fn find_winner(&self) -> Option<Winner> {
         let alive_sides = [Side::Attacker, Side::Defender]
             .into_iter()
             .filter(|&side| {

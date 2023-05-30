@@ -111,7 +111,7 @@ pub fn draw(
         }
     }
 
-    for cell in &state.reachable_cells {
+    for cell in state.reachable_cells() {
         canvas.copy(
             statics.textures.get(StaticTexture::GridCellShadow),
             None,
@@ -134,7 +134,7 @@ pub fn draw(
     units.sort_unstable_by_key(|&handle| state.get_stack(handle).head.y);
 
     for handle in units {
-        let is_current = handle == state.current_stack;
+        let is_current = state.is_current(handle);
         let stack = state.get_stack(handle);
         stack::draw(
             stack,
