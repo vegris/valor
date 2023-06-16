@@ -1,3 +1,5 @@
+use gamedata::Ability;
+
 use crate::battlestate::BattleState;
 
 use super::CommandT;
@@ -19,5 +21,20 @@ impl CommandT for crate::command::Shoot {
 
         let mut defend_stack = state.get_stack_mut(self.target);
         defend_stack.count -= 1;
+
+        if !defend_stack.is_alive() {
+            return;
+        }
+
+        let attack_stack = state.get_current_stack();
+        if attack_stack.creature.has_ability(Ability::DoubleShot) && attack_stack.can_shoot(state) {
+            println!("Using double shot!");
+
+            let mut attack_stack = state.get_current_stack_mut();
+            attack_stack.current_ammo -= 1;
+
+            let mut defend_stack = state.get_stack_mut(self.target);
+            defend_stack.count -= 1;
+        }
     }
 }

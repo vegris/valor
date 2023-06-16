@@ -3,7 +3,7 @@ Config(
     armies: (
         (
             Some((ArchDevil, 1)),
-            None,
+            Some((Marksman, 30)),
             None, 
             Some((Griffin, 35)),
             None,

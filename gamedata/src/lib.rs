@@ -1,5 +1,5 @@
 mod creature;
-pub use creature::{Creature, CreatureStats};
+pub use creature::{Ability, Creature, CreatureStats};
 
 mod battlefield;
 pub use battlefield::Battlefield;

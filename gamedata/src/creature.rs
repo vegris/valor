@@ -1,6 +1,9 @@
 extern crate serde;
 use serde::Deserialize;
 
+mod abilities;
+pub use abilities::Ability;
+
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize)]
 pub enum Creature {
     // Castle
@@ -1495,6 +1498,55 @@ impl Creature {
                 speed: 0,
                 ammo_capacity: 0,
             },
+        }
+    }
+
+    pub fn has_ability(self, ability: Ability) -> bool {
+        self.abilities()
+            .into_iter()
+            .find(|a| std::mem::discriminant(&ability) == std::mem::discriminant(a))
+            .is_some()
+    }
+
+    fn abilities(self) -> Vec<Ability> {
+        let angels = [Creature::Angel, Creature::Archangel];
+        let devils = [Creature::Devil, Creature::ArchDevil];
+        let genies = [Creature::Genie, Creature::MasterGenie];
+        let efreets = [Creature::Efreeti, Creature::EfreetSultan];
+
+        match self {
+            Self::Marksman => vec![Ability::DoubleShot],
+            Self::Angel => vec![Ability::Hatred {
+                to: Box::new(devils),
+            }],
+            Self::Archangel => vec![Ability::Hatred {
+                to: Box::new(devils),
+            }],
+
+            Self::Genie => vec![Ability::Hatred {
+                to: Box::new(efreets),
+            }],
+            Self::MasterGenie => vec![Ability::Hatred {
+                to: Box::new(efreets),
+            }],
+            Self::Titan => vec![Ability::Hatred {
+                to: Box::new([Creature::BlackDragon]),
+            }],
+
+            Self::Efreeti => vec![Ability::Hatred {
+                to: Box::new(genies),
+            }],
+            Self::EfreetSultan => vec![Ability::Hatred {
+                to: Box::new(genies),
+            }],
+            Self::Devil => vec![Ability::Hatred {
+                to: Box::new(angels),
+            }],
+            Self::ArchDevil => vec![Ability::Hatred {
+                to: Box::new(angels),
+            }],
+
+            _ => vec![],
         }
     }
 
