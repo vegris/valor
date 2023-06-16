@@ -60,16 +60,13 @@ pub fn draw(
     if let Some(command) = frame_data.potential_lmb_command {
         match command {
             // Выделяем потенциальную позицию атакующего стека в случае атаки
-            Command::Attack {
-                attack_position,
-                attack_direction,
-            } => {
+            Command::Attack(command) => {
                 let current_stack = state.get_current_stack();
                 let current_side = current_stack.side;
 
                 let potential_position = pathfinding::unit_position_for_attack(
-                    attack_position,
-                    attack_direction,
+                    command.attack_position,
+                    command.attack_direction,
                     current_side,
                     current_stack.creature.is_wide(),
                 );
@@ -85,7 +82,7 @@ pub fn draw(
                         highlighted_cells.extend(cells)
                     }
 
-                    let handle = state.find_unit_for_cell(attack_position).unwrap();
+                    let handle = state.find_unit_for_cell(command.attack_position).unwrap();
                     let target_creature = state.get_stack(handle);
 
                     for cell in target_creature.get_occupied_cells() {
@@ -94,13 +91,13 @@ pub fn draw(
                 }
             }
             // Выделяем потенциальную позицию после перемещения (объединить в функцию с верхней)
-            Command::Move { destination } => {
+            Command::Move(command) => {
                 let current_stack = state.get_current_stack();
 
                 let occupied_cells = pathfinding::get_occupied_cells_for(
                     current_stack.creature,
                     current_stack.side,
-                    destination,
+                    command.destination,
                 );
 
                 if let Some(cells) = occupied_cells {
@@ -166,9 +163,7 @@ fn set_cursor(cursors: &Cursors, state: &BattleState, frame_data: &FrameData) {
                     Cursor::Run
                 }
             }
-            Command::Attack {
-                attack_direction, ..
-            } => Cursor::from_attack_direction(attack_direction),
+            Command::Attack(command) => Cursor::from_attack_direction(command.attack_direction),
             Command::Shoot { .. } => Cursor::Arrow,
             _ => unreachable!(),
         }

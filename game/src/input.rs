@@ -1,6 +1,7 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
 use crate::battlestate::BattleState;
+use crate::command;
 use crate::command::Command;
 use crate::grid::{AttackDirection, GridPos};
 
@@ -89,10 +90,10 @@ fn construct_command(
     potential_lmb_command: Option<Command>,
 ) -> Option<Command> {
     if frame_input.key_d {
-        return Some(Command::Defend);
+        return Some(Command::Defend(command::Defend));
     }
     if frame_input.key_w {
-        return Some(Command::Wait);
+        return Some(Command::Wait(command::Wait));
     }
     if frame_input.btn_lmb {
         return potential_lmb_command;
@@ -105,23 +106,22 @@ fn construct_potential_lmb_command(
     current_hover: Option<GridPos>,
     attack_direction: Option<AttackDirection>,
 ) -> Option<Command> {
-    let command = if let Some(grid) = current_hover {
-        let current_stack = state.get_current_stack();
+    let current_stack = state.get_current_stack();
 
-        if let Some(target) = state.find_unit_for_cell(grid) {
-            if current_stack.can_shoot(state) {
-                Some(Command::Shoot { target })
+    current_hover
+        .map(|grid| {
+            if let Some(target) = state.find_unit_for_cell(grid) {
+                if current_stack.can_shoot(state) {
+                    Command::Shoot(command::Shoot { target: target })
+                } else {
+                    Command::Attack(command::Attack {
+                        attack_position: grid,
+                        attack_direction: attack_direction.unwrap(),
+                    })
+                }
             } else {
-                Some(Command::Attack {
-                    attack_position: grid,
-                    attack_direction: attack_direction.unwrap(),
-                })
+                Command::Move(command::Move { destination: grid })
             }
-        } else {
-            Some(Command::Move { destination: grid })
-        }
-    } else {
-        None
-    };
-    command.filter(|c| state.is_command_applicable(*c))
+        })
+        .filter(|c| state.is_command_applicable(*c))
 }

@@ -3,18 +3,11 @@ use crate::grid::{AttackDirection, GridPos};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Command {
-    Move {
-        destination: GridPos,
-    },
-    Wait,
-    Defend,
-    Attack {
-        attack_position: GridPos,
-        attack_direction: AttackDirection,
-    },
-    Shoot {
-        target: CreatureStackHandle,
-    },
+    Move(Move),
+    Wait(Wait),
+    Defend(Defend),
+    Attack(Attack),
+    Shoot(Shoot),
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -39,7 +32,7 @@ impl Command {
     }
 
     pub fn spends_turn(&self) -> bool {
-        !matches!(self, Self::Wait)
+        self.fieldless() != CommandFieldless::Wait
     }
 
     fn fieldless(&self) -> CommandFieldless {
@@ -51,4 +44,26 @@ impl Command {
             Self::Attack { .. } => CommandFieldless::Attack,
         }
     }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Move {
+    pub destination: GridPos,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Wait;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Defend;
+
+#[derive(Clone, Copy, Debug)]
+pub struct Attack {
+    pub attack_position: GridPos,
+    pub attack_direction: AttackDirection,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Shoot {
+    pub target: CreatureStackHandle,
 }
