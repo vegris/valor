@@ -5,7 +5,7 @@ use crate::battlestate::BattleState;
 use super::CommandT;
 
 impl CommandT for crate::command::Shoot {
-    fn is_applicable(self, state: &BattleState) -> bool {
+    fn is_applicable(&self, state: &BattleState) -> bool {
         let current_stack = state.get_current_stack();
         let target_stack = state.get_stack(self.target);
 

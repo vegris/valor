@@ -4,7 +4,7 @@ use crate::battlestate::BattleState;
 use super::CommandT;
 
 impl CommandT for crate::command::Wait {
-    fn is_applicable(self, state: &BattleState) -> bool {
+    fn is_applicable(&self, state: &BattleState) -> bool {
         state
             .get_current_stack()
             .turn_state

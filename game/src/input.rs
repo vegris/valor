@@ -112,7 +112,7 @@ fn construct_potential_lmb_command(
         .map(|grid| {
             if let Some(target) = state.find_unit_for_cell(grid) {
                 if current_stack.can_shoot(state) {
-                    Command::Shoot(command::Shoot { target: target })
+                    Command::Shoot(command::Shoot { target })
                 } else {
                     Command::Attack(command::Attack {
                         attack_position: grid,

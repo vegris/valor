@@ -9,7 +9,7 @@ mod shoot;
 mod wait;
 
 pub trait CommandT {
-    fn is_applicable(self, state: &BattleState) -> bool;
+    fn is_applicable(&self, state: &BattleState) -> bool;
     fn apply(self, state: &mut BattleState);
 }
 

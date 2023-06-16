@@ -3,7 +3,7 @@ use crate::{battlestate::BattleState, pathfinding};
 use super::{r#move, CommandT};
 
 impl CommandT for crate::command::Attack {
-    fn is_applicable(self, state: &BattleState) -> bool {
+    fn is_applicable(&self, state: &BattleState) -> bool {
         let current_stack = state.get_current_stack();
         let current_side = current_stack.side;
         let is_wide = current_stack.creature.is_wide();

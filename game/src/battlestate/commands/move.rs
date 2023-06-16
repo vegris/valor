@@ -3,7 +3,7 @@ use crate::{battlestate::BattleState, grid::GridPos};
 use super::CommandT;
 
 impl CommandT for crate::command::Move {
-    fn is_applicable(self, state: &BattleState) -> bool {
+    fn is_applicable(&self, state: &BattleState) -> bool {
         is_applicable(state, self.destination)
     }
     fn apply(self, state: &mut BattleState) {
