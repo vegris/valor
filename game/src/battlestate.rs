@@ -155,7 +155,7 @@ impl BattleState {
 
                 for stack in self.stacks.values_mut() {
                     stack.turn_state = Some(turns::Phase::Fresh);
-                    stack.counterattacked = false;
+                    stack.retaliation_count = stack.creature.retaliation_count();
                     stack.defending = false;
                 }
             }

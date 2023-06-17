@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use gamedata::{Creature, CreatureStats};
+use gamedata::{Creature, CreatureStats, RetaliationCount};
 
 use crate::battlestate::turns;
 use crate::grid::GridPos;
@@ -21,7 +21,8 @@ pub struct Stack {
 
     pub turn_state: Option<turns::Phase>,
     pub defending: bool,
-    pub counterattacked: bool,
+
+    pub retaliation_count: RetaliationCount,
 }
 
 impl Stack {
@@ -35,7 +36,7 @@ impl Stack {
             side,
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
-            counterattacked: false,
+            retaliation_count: creature.retaliation_count(),
         }
     }
 

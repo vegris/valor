@@ -2,7 +2,7 @@ extern crate serde;
 use serde::Deserialize;
 
 mod abilities;
-pub use abilities::Ability;
+pub use abilities::{Ability, RetaliationCount};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize)]
 pub enum Creature {
@@ -1507,7 +1507,7 @@ impl Creature {
             .any(|a| std::mem::discriminant(&ability) == std::mem::discriminant(&a))
     }
 
-    fn abilities(self) -> Vec<Ability> {
+    pub fn abilities(self) -> Vec<Ability> {
         let angels = [Creature::Angel, Creature::Archangel];
         let devils = [Creature::Devil, Creature::ArchDevil];
         let genies = [Creature::Genie, Creature::MasterGenie];
@@ -1515,6 +1515,12 @@ impl Creature {
 
         match self {
             Self::Marksman => vec![Ability::DoubleShot],
+            Self::Griffin => vec![Ability::ExtraRetaliations {
+                count: abilities::RetaliationCount::Finite(1),
+            }],
+            Self::RoyalGriffin => vec![Ability::ExtraRetaliations {
+                count: abilities::RetaliationCount::Infinite,
+            }],
             Self::Angel => vec![Ability::Hatred {
                 to: Box::new(devils),
             }],
@@ -1547,6 +1553,23 @@ impl Creature {
 
             _ => vec![],
         }
+    }
+
+    pub fn retaliation_count(self) -> RetaliationCount {
+        self.abilities()
+            .into_iter()
+            .find_map(|ability| {
+                if let Ability::ExtraRetaliations { count } = ability {
+                    let count = match count {
+                        RetaliationCount::Finite(n) => RetaliationCount::Finite(n + 1),
+                        RetaliationCount::Infinite => RetaliationCount::Infinite,
+                    };
+                    Some(count)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(RetaliationCount::Finite(1))
     }
 
     pub fn is_wide(&self) -> bool {
