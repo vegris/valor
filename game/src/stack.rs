@@ -21,6 +21,7 @@ pub struct Stack {
 
     pub turn_state: Option<turns::Phase>,
     pub defending: bool,
+    pub counterattacked: bool,
 }
 
 impl Stack {
@@ -34,6 +35,7 @@ impl Stack {
             side,
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
+            counterattacked: false,
         }
     }
 

@@ -154,7 +154,9 @@ impl BattleState {
                 self.turn = self.turn.next();
 
                 for stack in self.stacks.values_mut() {
-                    stack.turn_state = Some(turns::Phase::Fresh)
+                    stack.turn_state = Some(turns::Phase::Fresh);
+                    stack.counterattacked = false;
+                    stack.defending = false;
                 }
             }
             self.update_current_stack();

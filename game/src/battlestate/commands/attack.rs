@@ -48,7 +48,8 @@ impl CommandT for crate::command::Attack {
         let mut defending_unit = state.get_stack_mut(defending_unit_handle);
         defending_unit.count -= 1;
 
-        if defending_unit.is_alive() {
+        if defending_unit.is_alive() && !defending_unit.counterattacked {
+            defending_unit.counterattacked = true;
             let mut current_stack = state.get_current_stack_mut();
             current_stack.count -= 1;
         }
