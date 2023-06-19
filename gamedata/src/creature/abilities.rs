@@ -20,6 +20,7 @@ impl RetaliationCount {
 }
 
 pub enum Ability {
+    DoubleStrike,
     DoubleShot,
     Hatred { to: Box<[Creature]> },
     ExtraRetaliations { count: RetaliationCount },

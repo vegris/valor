@@ -54,5 +54,15 @@ impl CommandT for crate::command::Attack {
             defender.retaliation_count.decrement();
             attacker.count -= 1;
         }
+
+        if defender.is_alive()
+            && attacker.is_alive()
+            && attacker
+                .creature
+                .has_ability(gamedata::Ability::DoubleStrike)
+        {
+            println!("Using double strike!");
+            defender.count -= 1;
+        }
     }
 }

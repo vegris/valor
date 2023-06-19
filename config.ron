@@ -4,7 +4,7 @@ Config(
         (
             Some((ArchDevil, 1)),
             Some((Marksman, 30)),
-            None, 
+            Some((Crusader, 5)),
             Some((Griffin, 35)),
             None,
             None,

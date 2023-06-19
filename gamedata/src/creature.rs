@@ -1521,6 +1521,7 @@ impl Creature {
             Self::RoyalGriffin => vec![Ability::ExtraRetaliations {
                 count: abilities::RetaliationCount::Infinite,
             }],
+            Self::Crusader => vec![Ability::DoubleStrike],
             Self::Angel => vec![Ability::Hatred {
                 to: Box::new(devils),
             }],
@@ -1550,6 +1551,8 @@ impl Creature {
             Self::ArchDevil => vec![Ability::Hatred {
                 to: Box::new(angels),
             }],
+
+            Self::WolfRaider => vec![Ability::DoubleStrike],
 
             _ => vec![],
         }
