@@ -16,25 +16,22 @@ impl CommandT for crate::command::Shoot {
         is_enemy && is_alive && can_shoot
     }
     fn apply(self, state: &mut BattleState) {
-        let mut attack_stack = state.get_current_stack_mut();
-        attack_stack.current_ammo -= 1;
+        let [attacker, defender] = state
+            .get_stacks_mut([state.current_stack, self.target])
+            .unwrap();
 
-        let mut defend_stack = state.get_stack_mut(self.target);
-        defend_stack.count -= 1;
+        attacker.current_ammo -= 1;
+        defender.count -= 1;
 
-        if !defend_stack.is_alive() {
+        if !defender.is_alive() {
             return;
         }
 
-        let attack_stack = state.get_current_stack();
-        if attack_stack.creature.has_ability(Ability::DoubleShot) && attack_stack.can_shoot(state) {
+        if attacker.creature.has_ability(Ability::DoubleShot) {
             println!("Using double shot!");
 
-            let mut attack_stack = state.get_current_stack_mut();
-            attack_stack.current_ammo -= 1;
-
-            let mut defend_stack = state.get_stack_mut(self.target);
-            defend_stack.count -= 1;
+            attacker.current_ammo -= 1;
+            defender.count -= 1;
         }
     }
 }

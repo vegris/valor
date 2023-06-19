@@ -106,6 +106,35 @@ impl BattleState {
         self.stacks.get_mut(&handle).unwrap()
     }
 
+    fn get_stacks_mut<const N: usize>(
+        &mut self,
+        handles: [CreatureStackHandle; N],
+    ) -> Option<[&mut Stack; N]> {
+        use std::mem::MaybeUninit;
+
+        for index in 1..N {
+            if handles[index] == handles[index - 1] {
+                return None;
+            }
+        }
+
+        let mut arr: MaybeUninit<[&mut Stack; N]> = MaybeUninit::uninit();
+        let arr_ptr = arr.as_mut_ptr();
+
+        // SAFETY: We expect `handles` to contain disjunct values that are in bounds of `self`.
+        unsafe {
+            for (i, handle) in handles.iter().enumerate() {
+                if let Some(stack) = self.stacks.get_mut(handle) {
+                    *(*arr_ptr).get_unchecked_mut(i) = &mut *(stack as *mut _);
+                } else {
+                    return None;
+                }
+            }
+
+            Some(arr.assume_init())
+        }
+    }
+
     pub fn is_current(&self, handle: CreatureStackHandle) -> bool {
         self.current_stack == handle
     }

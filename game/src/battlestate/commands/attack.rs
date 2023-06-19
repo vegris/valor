@@ -42,16 +42,17 @@ impl CommandT for crate::command::Attack {
 
         r#move::apply(state, position);
 
-        let _current_stack = state.get_current_stack_mut();
+        let defender_handle = state.find_unit_for_cell(self.attack_position).unwrap();
 
-        let defending_unit_handle = state.find_unit_for_cell(self.attack_position).unwrap();
-        let mut defending_unit = state.get_stack_mut(defending_unit_handle);
-        defending_unit.count -= 1;
+        let [attacker, defender] = state
+            .get_stacks_mut([state.current_stack, defender_handle])
+            .unwrap();
 
-        if defending_unit.is_alive() && defending_unit.retaliation_count.has_retaliation() {
-            defending_unit.retaliation_count.decrement();
-            let mut current_stack = state.get_current_stack_mut();
-            current_stack.count -= 1;
+        defender.count -= 1;
+
+        if defender.is_alive() && defender.retaliation_count.has_retaliation() {
+            defender.retaliation_count.decrement();
+            attacker.count -= 1;
         }
     }
 }
