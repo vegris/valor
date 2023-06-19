@@ -1,5 +1,8 @@
-mod creature;
-pub use creature::{Ability, Creature, CreatureStats, RetaliationCount};
+mod creatures;
+pub use creatures::{Ability, Creature, CreatureStats, RetaliationCount};
 
-mod battlefield;
-pub use battlefield::Battlefield;
+mod battlefields;
+pub use battlefields::Battlefield;
+
+mod heroes;
+mod towns;
