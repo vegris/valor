@@ -1535,24 +1535,46 @@ impl Creature {
             Self::MasterGenie => vec![Ability::Hatred {
                 to: Box::new(efreets),
             }],
+            Self::Naga => vec![Ability::NoRetaliation],
+            Self::NagaQueen => vec![Ability::NoRetaliation],
             Self::Titan => vec![Ability::Hatred {
                 to: Box::new([Creature::BlackDragon]),
             }],
 
+            Self::Harpy => vec![Ability::NoRetaliation],
+            Self::HarpyHag => vec![Ability::NoRetaliation, Ability::ReturnAfterStrike],
+
+            Self::Cerberus => vec![Ability::NoRetaliation],
             Self::Efreeti => vec![Ability::Hatred {
                 to: Box::new(genies),
             }],
             Self::EfreetSultan => vec![Ability::Hatred {
                 to: Box::new(genies),
             }],
-            Self::Devil => vec![Ability::Hatred {
-                to: Box::new(angels),
-            }],
-            Self::ArchDevil => vec![Ability::Hatred {
-                to: Box::new(angels),
-            }],
+            Self::Devil => vec![
+                Ability::NoRetaliation,
+                Ability::Hatred {
+                    to: Box::new(angels),
+                },
+            ],
+            Self::ArchDevil => vec![
+                Ability::NoRetaliation,
+                Ability::Hatred {
+                    to: Box::new(angels),
+                },
+            ],
+
+            Self::Vampire => vec![Ability::NoRetaliation],
+            Self::VampireLord => vec![Ability::NoRetaliation],
 
             Self::WolfRaider => vec![Ability::DoubleStrike],
+
+            Self::Hydra => vec![Ability::NoRetaliation],
+            Self::ChaosHydra => vec![Ability::NoRetaliation],
+
+            Self::Sprite => vec![Ability::NoRetaliation],
+            Self::PsychicElemental => vec![Ability::NoRetaliation],
+            Self::MagicElemental => vec![Ability::NoRetaliation],
 
             _ => vec![],
         }

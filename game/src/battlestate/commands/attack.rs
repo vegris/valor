@@ -1,3 +1,5 @@
+use gamedata::Ability;
+
 use crate::{battlestate::BattleState, pathfinding};
 
 use super::{r#move, CommandT};
@@ -32,6 +34,8 @@ impl CommandT for crate::command::Attack {
         let current_stack = state.get_current_stack();
         let is_wide = current_stack.creature.is_wide();
 
+        let initial_position = current_stack.head;
+
         let position = pathfinding::unit_position_for_attack(
             self.attack_position,
             self.attack_direction,
@@ -50,19 +54,24 @@ impl CommandT for crate::command::Attack {
 
         defender.count -= 1;
 
-        if defender.is_alive() && defender.retaliation_count.has_retaliation() {
+        if defender.is_alive()
+            && defender.retaliation_count.has_retaliation()
+            && !attacker.creature.has_ability(Ability::NoRetaliation)
+        {
             defender.retaliation_count.decrement();
             attacker.count -= 1;
         }
 
         if defender.is_alive()
             && attacker.is_alive()
-            && attacker
-                .creature
-                .has_ability(gamedata::Ability::DoubleStrike)
+            && attacker.creature.has_ability(Ability::DoubleStrike)
         {
             println!("Using double strike!");
             defender.count -= 1;
+        }
+
+        if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
+            r#move::apply(state, initial_position);
         }
     }
 }
