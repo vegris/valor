@@ -15,7 +15,6 @@ use crate::battlestate::Side;
 
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy, PartialEq, EnumCountMacro, EnumIter)]
-#[allow(non_camel_case_types)]
 pub enum AnimationType {
     Moving = 0,
     MouseOver = 1,
@@ -27,8 +26,8 @@ pub enum AnimationType {
     TurnLeft = 7,
     TurnRight = 8,
     // Дублируются
-    TurnLeft_DBL = 9,
-    TurnRight_DBL = 10,
+    // TurnLeft_DBL = 9,
+    // TurnRight_DBL = 10,
     AttackUp = 11,
     AttackStraight = 12,
     AttackDown = 13,
