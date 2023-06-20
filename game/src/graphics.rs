@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use sdl2::pixels::Color;
+use sdl2::rect::Point;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 
@@ -13,6 +14,7 @@ use crate::registry::ResourceRegistry;
 
 pub mod creature;
 mod cursors;
+pub mod hero;
 pub mod stack;
 pub mod statics;
 
@@ -34,6 +36,23 @@ pub fn draw(
         statics.textures.get(StaticTexture::Battlefield),
         None,
         sdl2::rect::Rect::new(0, 0, 800, 556),
+    )?;
+
+    let sprite = statics
+        .hero
+        .get_sprite(hero::AnimationType::Casting, 0.7)
+        .unwrap();
+    let texture = sprite.surface().as_texture(tc)?;
+
+    canvas.copy(&texture, None, sprite.draw_rect(Point::new(50, 75)))?;
+    canvas.copy_ex(
+        &texture,
+        None,
+        sprite.draw_rect(Point::new(785, 75)),
+        0.0,
+        None,
+        true,
+        false,
     )?;
 
     // Рисуем клетки на поле

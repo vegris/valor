@@ -1,6 +1,6 @@
 use super::towns::Town;
 
-enum Hero {
+pub enum Hero {
     Christian,
     Edric,
     Orrin,
@@ -159,7 +159,7 @@ enum Hero {
     Luna,
 }
 
-enum Class {
+pub enum Class {
     Knight,
     Cleric,
     Ranger,
