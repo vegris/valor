@@ -14,11 +14,21 @@ use formats::{DefContainer, DefSprite};
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy, PartialEq, EnumCountMacro, EnumIter)]
 pub enum AnimationType {
-    Still = 0,
-    Idle = 1,
-    Facepalm = 2,
-    Happy = 3,
-    Casting = 4,
+    Idle,
+    Facepalm,
+    Happy,
+    Casting,
+}
+
+impl AnimationType {
+    const fn def_container_index(self) -> u32 {
+        match self {
+            AnimationType::Idle => 1,
+            AnimationType::Facepalm => 2,
+            AnimationType::Happy => 3,
+            AnimationType::Casting => 4,
+        }
+    }
 }
 
 pub struct Sprite {
@@ -142,13 +152,13 @@ impl Spritesheet {
         const NONE: Option<AnimationBlock> = None;
         let mut blocks = [NONE; AnimationType::COUNT];
 
-        for (block_index, _) in AnimationType::iter().enumerate() {
-            if let Some(block) = blocks2names.get(&(block_index as u32)) {
+        for animation_type in AnimationType::iter() {
+            if let Some(block) = blocks2names.get(&animation_type.def_container_index()) {
                 let block = block
                     .iter()
                     .map(|sprite_name| names2indexes[sprite_name])
                     .collect::<AnimationBlock>();
-                blocks[block_index] = Some(block);
+                blocks[animation_type as usize] = Some(block);
             }
         }
 

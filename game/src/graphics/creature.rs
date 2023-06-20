@@ -16,29 +16,56 @@ use crate::battlestate::Side;
 // Номера повторяют номера в реальном Def файле
 #[derive(Debug, Clone, Copy, PartialEq, EnumCountMacro, EnumIter)]
 pub enum AnimationType {
-    Moving = 0,
-    MouseOver = 1,
-    Standing = 2,
-    GettingHit = 3,
-    Defend = 4,
-    Death = 5,
-    UnusedDeath = 6,
-    TurnLeft = 7,
-    TurnRight = 8,
-    // Дублируются
-    // TurnLeft_DBL = 9,
-    // TurnRight_DBL = 10,
-    AttackUp = 11,
-    AttackStraight = 12,
-    AttackDown = 13,
-    ShootUp = 14,
-    ShootStraight = 15,
-    ShootDown = 16,
-    TwoHexAttackUp = 17,
-    TwoHexAttackStraight = 18,
-    TwoHexAttackDown = 19,
-    StartMoving = 20,
-    StopMoving = 21,
+    Moving,
+    MouseOver,
+    Standing,
+    GettingHit,
+    Defend,
+    Death,
+    UnusedDeath,
+    TurnLeft,
+    TurnRight,
+    AttackUp,
+    AttackStraight,
+    AttackDown,
+    ShootUp,
+    ShootStraight,
+    ShootDown,
+    TwoHexAttackUp,
+    TwoHexAttackStraight,
+    TwoHexAttackDown,
+    StartMoving,
+    StopMoving,
+}
+
+impl AnimationType {
+    const fn def_container_index(self) -> u32 {
+        match self {
+            AnimationType::Moving => 0,
+            AnimationType::MouseOver => 1,
+            AnimationType::Standing => 2,
+            AnimationType::GettingHit => 3,
+            AnimationType::Defend => 4,
+            AnimationType::Death => 5,
+            AnimationType::UnusedDeath => 6,
+            AnimationType::TurnLeft => 7,
+            AnimationType::TurnRight => 8,
+            // Дублируются
+            // TurnLeft_DBL = 9,
+            // TurnRight_DBL = 10,
+            AnimationType::AttackUp => 11,
+            AnimationType::AttackStraight => 12,
+            AnimationType::AttackDown => 13,
+            AnimationType::ShootUp => 14,
+            AnimationType::ShootStraight => 15,
+            AnimationType::ShootDown => 16,
+            AnimationType::TwoHexAttackUp => 17,
+            AnimationType::TwoHexAttackStraight => 18,
+            AnimationType::TwoHexAttackDown => 19,
+            AnimationType::StartMoving => 20,
+            AnimationType::StopMoving => 21,
+        }
+    }
 }
 
 pub struct Sprite {
@@ -172,13 +199,13 @@ impl Spritesheet {
         const NONE: Option<AnimationBlock> = None;
         let mut blocks = [NONE; AnimationType::COUNT];
 
-        for (block_index, _) in AnimationType::iter().enumerate() {
-            if let Some(block) = blocks2names.get(&(block_index as u32)) {
+        for animation_type in AnimationType::iter() {
+            if let Some(block) = blocks2names.get(&animation_type.def_container_index()) {
                 let block = block
                     .iter()
                     .map(|sprite_name| names2indexes[sprite_name])
                     .collect::<AnimationBlock>();
-                blocks[block_index] = Some(block);
+                blocks[animation_type as usize] = Some(block);
             }
         }
 
