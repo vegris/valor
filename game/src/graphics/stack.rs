@@ -28,22 +28,20 @@ pub fn draw(
         AnimationType::Death
     };
 
-    let animation_block = spritesheet.animation_block(animation_type).unwrap();
-
-    let animation_index = if animation_type == AnimationType::Death {
-        animation_block.len() - 1
+    let animation_progress = if animation_type == AnimationType::Death {
+        1.0
     } else {
-        0
+        0.0
     };
 
-    let sprite_index = animation_block[animation_index];
-    let sprite = &mut spritesheet.sprites[sprite_index];
-
+    let sprite = spritesheet
+        .get_sprite(animation_type, animation_progress)
+        .unwrap();
     let texture = if is_selected {
-        sprite.with_selection(&spritesheet.colors).as_texture(tc)?
+        sprite.with_selection(spritesheet).as_texture(tc)
     } else {
-        sprite.surface().as_texture(tc)?
-    };
+        sprite.surface().as_texture(tc)
+    }?;
 
     let draw_pos = pathfinding::tail_for(logic.creature, logic.side, logic.head)
         .unwrap()

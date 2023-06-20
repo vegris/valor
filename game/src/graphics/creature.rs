@@ -41,7 +41,7 @@ pub enum AnimationType {
     StopMoving = 21,
 }
 
-pub struct CreatureSprite {
+pub struct Sprite {
     width: u32,
     height: u32,
     left_margin: u32,
@@ -49,7 +49,7 @@ pub struct CreatureSprite {
     surface: Surface<'static>,
 }
 
-impl CreatureSprite {
+impl Sprite {
     fn from_def_sprite(def_sprite: DefSprite) -> Self {
         let DefSprite {
             width,
@@ -75,10 +75,10 @@ impl CreatureSprite {
         self.surface.set_palette(palette).unwrap();
     }
 
-    pub fn with_selection(&self, colors: &[Color]) -> Surface<'static> {
+    pub fn with_selection(&self, spritesheet: &Spritesheet) -> Surface<'static> {
         let mut surface = self.surface.convert(&self.surface.pixel_format()).unwrap();
 
-        let mut colors = colors.to_vec();
+        let mut colors = spritesheet.colors.to_vec();
         colors[5] = Color::YELLOW;
         let palette = Palette::with_colors(&colors).unwrap();
 
@@ -123,13 +123,13 @@ impl CreatureSprite {
 
 type AnimationBlock = Box<[usize]>;
 
-pub struct CreatureSpritesheet {
-    pub colors: Box<[Color]>,
-    pub sprites: Box<[CreatureSprite]>,
-    pub blocks: [Option<AnimationBlock>; AnimationType::COUNT],
+pub struct Spritesheet {
+    colors: Box<[Color]>,
+    sprites: Box<[Sprite]>,
+    blocks: [Option<AnimationBlock>; AnimationType::COUNT],
 }
 
-impl CreatureSpritesheet {
+impl Spritesheet {
     const CREATURE_DEF_TYPE: u32 = 66;
 
     pub fn from_def_container(def_container: DefContainer) -> Self {
@@ -162,8 +162,8 @@ impl CreatureSpritesheet {
             .collect::<HashMap<String, usize>>();
         let mut sprites = def_sprites
             .into_iter()
-            .map(CreatureSprite::from_def_sprite)
-            .collect::<Box<[CreatureSprite]>>();
+            .map(Sprite::from_def_sprite)
+            .collect::<Box<[Sprite]>>();
         sprites
             .iter_mut()
             .for_each(|sprite| sprite.apply_palette(&palette));
@@ -189,7 +189,14 @@ impl CreatureSpritesheet {
         }
     }
 
-    pub fn animation_block(&self, animation: AnimationType) -> Option<&AnimationBlock> {
-        self.blocks[animation as usize].as_ref()
+    pub fn get_sprite(&self, animation: AnimationType, progress: f32) -> Option<&Sprite> {
+        assert!((0.0..=1.0).contains(&progress));
+        self.blocks[animation as usize]
+            .as_ref()
+            .map(|block| &self.sprites[sprite_index(block, progress)])
     }
+}
+
+fn sprite_index(block: &AnimationBlock, progress: f32) -> usize {
+    block[(block.len() as f32 * progress) as usize]
 }
