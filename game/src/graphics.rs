@@ -12,15 +12,16 @@ use crate::input::FrameData;
 use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
-pub mod creature;
 mod cursors;
-pub mod hero;
+pub mod spritesheet;
 pub mod stack;
 pub mod statics;
 
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
+use self::spritesheet::hero;
+use self::spritesheet::Spritesheet;
 use self::statics::StaticTexture;
 
 pub fn draw(
@@ -44,11 +45,11 @@ pub fn draw(
         .unwrap();
     let texture = sprite.surface().as_texture(tc)?;
 
-    canvas.copy(&texture, None, sprite.draw_rect(Point::new(50, 75)))?;
+    canvas.copy(&texture, None, hero::draw_rect(sprite, Point::new(50, 75)))?;
     canvas.copy_ex(
         &texture,
         None,
-        sprite.draw_rect(Point::new(785, 75)),
+        hero::draw_rect(sprite, Point::new(785, 75)),
         0.0,
         None,
         true,

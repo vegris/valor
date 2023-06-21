@@ -7,7 +7,8 @@ use sdl2::surface::Surface;
 use formats::{pcx, DefContainer, LodIndex};
 use gamedata::Creature;
 
-use crate::graphics::creature;
+use crate::graphics::spritesheet::creature;
+use crate::graphics::spritesheet::Spritesheet;
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -60,7 +61,7 @@ impl ResourceRegistry {
     pub fn get_creature_container(&mut self, creature: Creature) -> &mut creature::Spritesheet {
         if self.cache.get(creature).is_none() {
             let def = self.load_def(creature.spritesheet_filename());
-            let spritesheet = creature::Spritesheet::from_def_container(def);
+            let spritesheet = creature::Spritesheet::from_container(def);
             self.cache.put(creature, spritesheet);
         }
         self.cache.get(creature).unwrap()

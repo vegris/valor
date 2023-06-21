@@ -9,13 +9,14 @@ use gamedata::heroes;
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
-use super::hero;
+use super::spritesheet::hero::HeroSpritesheet;
+use super::spritesheet::Spritesheet;
 
 pub struct Statics<'a> {
     pub(super) cursors: Cursors,
     pub(super) font: Font<'a, 'static>,
     pub(super) textures: Textures<'a>,
-    pub(super) hero: hero::Spritesheet,
+    pub(super) hero: HeroSpritesheet,
 }
 
 impl<'a> Statics<'a> {
@@ -29,7 +30,7 @@ impl<'a> Statics<'a> {
         let font_size = 16;
 
         let hero_def = rr.load_def(heroes::Hero::SirMullich.class().battle_spritesheet());
-        let hero = hero::Spritesheet::from_def_container(hero_def);
+        let hero = HeroSpritesheet::from_container(hero_def);
 
         Ok(Self {
             cursors: Cursors::load(rr),

@@ -8,8 +8,11 @@ use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
 use crate::battlestate::Side;
-use crate::graphics::creature::AnimationType;
+use crate::graphics::spritesheet::creature::AnimationType;
+use crate::graphics::spritesheet::Spritesheet;
 use crate::{pathfinding, ResourceRegistry};
+
+use super::spritesheet::creature;
 
 pub fn draw(
     logic: &crate::stack::Stack,
@@ -38,7 +41,7 @@ pub fn draw(
         .get_sprite(animation_type, animation_progress)
         .unwrap();
     let texture = if is_selected {
-        sprite.with_selection(spritesheet).as_texture(tc)
+        creature::with_selection(sprite, spritesheet).as_texture(tc)
     } else {
         sprite.surface().as_texture(tc)
     }?;
@@ -47,7 +50,7 @@ pub fn draw(
         .unwrap()
         .center();
 
-    let draw_rect = sprite.draw_rect(draw_pos, logic.side);
+    let draw_rect = creature::draw_rect(sprite, draw_pos, logic.side);
 
     match logic.side {
         Side::Attacker => canvas.copy(&texture, None, draw_rect)?,
