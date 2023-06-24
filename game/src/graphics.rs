@@ -20,9 +20,8 @@ pub mod statics;
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
-use self::spritesheet::hero;
-use self::spritesheet::Spritesheet;
 use self::statics::StaticTexture;
+use spritesheet::hero;
 
 pub fn draw(
     state: &BattleState,
@@ -43,7 +42,7 @@ pub fn draw(
         .hero
         .get_sprite(hero::AnimationType::Casting, 0.7)
         .unwrap();
-    let texture = sprite.surface().as_texture(tc)?;
+    let texture = sprite.surface.as_texture(tc)?;
 
     canvas.copy(&texture, None, hero::draw_rect(sprite, Point::new(50, 75)))?;
     canvas.copy_ex(

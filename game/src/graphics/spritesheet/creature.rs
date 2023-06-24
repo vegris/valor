@@ -1,13 +1,15 @@
+use formats::DefContainer;
+use sdl2::pixels::{Color, Palette};
+use sdl2::rect::{Point, Rect};
 use sdl2::surface::Surface;
 use strum_macros::{EnumCount, EnumIter};
 
-use sdl2::pixels::{Color, Palette};
-use sdl2::rect::{Point, Rect};
-
-use super::{AnimationT, Container, Sprite};
 use crate::battlestate::Side;
 
-#[derive(Debug, Clone, Copy, PartialEq, EnumCount, EnumIter)]
+use super::sprite::Sprite;
+use super::Container;
+
+#[derive(Clone, Copy, EnumCount, EnumIter, PartialEq)]
 pub enum AnimationType {
     Moving,
     MouseOver,
@@ -31,7 +33,7 @@ pub enum AnimationType {
     StopMoving,
 }
 
-impl AnimationT for AnimationType {
+impl super::AnimationType for AnimationType {
     const DEF_TYPE: u32 = 66;
 
     fn index(&self) -> u32 {
@@ -61,30 +63,21 @@ impl AnimationT for AnimationType {
             Self::StopMoving => 21,
         }
     }
+}
 
-    fn value(&self) -> usize {
-        *self as usize
+pub struct Creature(Container);
+
+impl Creature {
+    pub fn from_def(def: DefContainer) -> Self {
+        Self(super::Container::from_def::<AnimationType>(def))
+    }
+
+    pub fn get_sprite(&self, animation_type: AnimationType, progress: f32) -> Option<&Sprite> {
+        self.0.get_sprite(animation_type as usize, progress)
     }
 }
 
-pub struct Spritesheet(Container);
-
-impl super::Spritesheet for Spritesheet {
-    type A = AnimationType;
-
-    fn to_self(container: Container) -> Self
-    where
-        Self: Sized,
-    {
-        Self(container)
-    }
-
-    fn container(&self) -> &Container {
-        &self.0
-    }
-}
-
-pub fn with_selection(sprite: &Sprite, spritesheet: &Spritesheet) -> Surface<'static> {
+pub fn with_selection(sprite: &Sprite, spritesheet: &Creature) -> Surface<'static> {
     let mut surface = sprite
         .surface
         .convert(&sprite.surface.pixel_format())

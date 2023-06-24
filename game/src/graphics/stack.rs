@@ -8,11 +8,10 @@ use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
 use crate::battlestate::Side;
-use crate::graphics::spritesheet::creature::AnimationType;
-use crate::graphics::spritesheet::Spritesheet;
 use crate::{pathfinding, ResourceRegistry};
 
-use super::spritesheet::creature;
+use crate::graphics::spritesheet::creature;
+use crate::graphics::spritesheet::creature::AnimationType;
 
 pub fn draw(
     logic: &crate::stack::Stack,
@@ -43,7 +42,7 @@ pub fn draw(
     let texture = if is_selected {
         creature::with_selection(sprite, spritesheet).as_texture(tc)
     } else {
-        sprite.surface().as_texture(tc)
+        sprite.surface.as_texture(tc)
     }?;
 
     let draw_pos = pathfinding::tail_for(logic.creature, logic.side, logic.head)

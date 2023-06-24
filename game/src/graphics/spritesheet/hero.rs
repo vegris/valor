@@ -1,9 +1,11 @@
+use formats::DefContainer;
 use sdl2::rect::{Point, Rect};
 use strum_macros::{EnumCount, EnumIter};
 
-use super::{AnimationT, Container, Sprite, Spritesheet};
+use super::sprite::Sprite;
+use super::Container;
 
-#[derive(Debug, Clone, Copy, EnumCount, EnumIter)]
+#[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum AnimationType {
     Idle,
     Facepalm,
@@ -11,7 +13,7 @@ pub enum AnimationType {
     Casting,
 }
 
-impl AnimationT for AnimationType {
+impl super::AnimationType for AnimationType {
     const DEF_TYPE: u32 = 73;
 
     fn index(&self) -> u32 {
@@ -22,26 +24,17 @@ impl AnimationT for AnimationType {
             AnimationType::Casting => 4,
         }
     }
-
-    fn value(&self) -> usize {
-        *self as usize
-    }
 }
 
-pub struct HeroSpritesheet(Container);
+pub struct Hero(Container);
 
-impl Spritesheet for HeroSpritesheet {
-    type A = AnimationType;
-
-    fn to_self(container: Container) -> Self
-    where
-        Self: Sized,
-    {
-        Self(container)
+impl Hero {
+    pub fn from_def(def: DefContainer) -> Self {
+        Self(super::Container::from_def::<AnimationType>(def))
     }
 
-    fn container(&self) -> &Container {
-        &self.0
+    pub fn get_sprite(&self, animation_type: AnimationType, progress: f32) -> Option<&Sprite> {
+        self.0.get_sprite(animation_type as usize, progress)
     }
 }
 
