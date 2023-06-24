@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::error::Error;
 
+use strum_macros::EnumIter;
+
 use crate::command::Command;
 use crate::config::Config;
 use crate::grid::GridPos;
@@ -12,7 +14,7 @@ mod army;
 mod commands;
 pub mod turns;
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, EnumIter)]
 pub enum Side {
     Attacker,
     Defender,

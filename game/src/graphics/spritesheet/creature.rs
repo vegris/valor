@@ -1,7 +1,9 @@
 use formats::DefContainer;
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
+use sdl2::render::{Canvas, TextureCreator};
 use sdl2::surface::Surface;
+use sdl2::video::{Window, WindowContext};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::battlestate::Side;
@@ -72,12 +74,40 @@ impl Creature {
         Self(super::Container::from_def::<AnimationType>(def))
     }
 
-    pub fn get_sprite(&self, animation_type: AnimationType, progress: f32) -> Option<&Sprite> {
-        self.0.get_sprite(animation_type as usize, progress)
+    #[allow(clippy::too_many_arguments)]
+    pub fn draw(
+        &self,
+        canvas: &mut Canvas<Window>,
+        tc: &TextureCreator<WindowContext>,
+        draw_pos: Point,
+        side: Side,
+        is_selected: bool,
+        animation_type: AnimationType,
+        progress: f32,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let sprite = self
+            .0
+            .get_sprite(animation_type as usize, progress)
+            .unwrap();
+
+        let draw_rect = draw_rect(sprite, draw_pos, side);
+
+        let texture = if is_selected {
+            with_selection(sprite, self).as_texture(tc)
+        } else {
+            sprite.surface.as_texture(tc)
+        }?;
+
+        match side {
+            Side::Attacker => canvas.copy(&texture, None, draw_rect),
+            Side::Defender => canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false),
+        }?;
+
+        Ok(())
     }
 }
 
-pub fn with_selection(sprite: &Sprite, spritesheet: &Creature) -> Surface<'static> {
+fn with_selection(sprite: &Sprite, spritesheet: &Creature) -> Surface<'static> {
     let mut surface = sprite
         .surface
         .convert(&sprite.surface.pixel_format())
@@ -92,7 +122,7 @@ pub fn with_selection(sprite: &Sprite, spritesheet: &Creature) -> Surface<'stati
     surface
 }
 
-pub fn draw_rect(sprite: &Sprite, center: Point, side: Side) -> Rect {
+fn draw_rect(sprite: &Sprite, center: Point, side: Side) -> Rect {
     const FULL_WIDTH: u32 = 450;
     const FULL_HEIGHT: u32 = 400;
 

@@ -1,6 +1,10 @@
 use formats::DefContainer;
 use sdl2::rect::{Point, Rect};
+use sdl2::render::{Canvas, TextureCreator};
+use sdl2::video::{Window, WindowContext};
 use strum_macros::{EnumCount, EnumIter};
+
+use crate::battlestate::Side;
 
 use super::sprite::Sprite;
 use super::Container;
@@ -33,14 +37,42 @@ impl Hero {
         Self(super::Container::from_def::<AnimationType>(def))
     }
 
-    pub fn get_sprite(&self, animation_type: AnimationType, progress: f32) -> Option<&Sprite> {
-        self.0.get_sprite(animation_type as usize, progress)
+    pub fn draw(
+        &self,
+        canvas: &mut Canvas<Window>,
+        tc: &TextureCreator<WindowContext>,
+        side: Side,
+        animation_type: AnimationType,
+        progress: f32,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let sprite = self
+            .0
+            .get_sprite(animation_type as usize, progress)
+            .unwrap();
+        let draw_rect = draw_rect(sprite, side);
+        let texture = sprite.surface.as_texture(tc)?;
+
+        match side {
+            Side::Attacker => canvas.copy(&texture, None, draw_rect),
+            Side::Defender => canvas.copy_ex(&texture, None, draw_rect, 0.0, None, true, false),
+        }?;
+
+        Ok(())
     }
 }
 
-pub fn draw_rect(sprite: &Sprite, center: Point) -> Rect {
+fn draw_rect(sprite: &Sprite, side: Side) -> Rect {
     const FULL_WIDTH: u32 = 150;
     const FULL_HEIGHT: u32 = 175;
+
+    const Y: i32 = 75;
+
+    let x = match side {
+        Side::Attacker => 50,
+        Side::Defender => 785,
+    };
+
+    let center = Point::new(x, Y);
 
     let Sprite {
         left_margin,

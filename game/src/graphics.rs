@@ -1,11 +1,12 @@
 use std::error::Error;
 
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 
-use crate::battlestate::BattleState;
+use strum::IntoEnumIterator;
+
+use crate::battlestate::{BattleState, Side};
 use crate::command::Command;
 use crate::grid::GridPos;
 use crate::input::FrameData;
@@ -38,22 +39,11 @@ pub fn draw(
         sdl2::rect::Rect::new(0, 0, 800, 556),
     )?;
 
-    let sprite = statics
-        .hero
-        .get_sprite(hero::AnimationType::Casting, 0.7)
-        .unwrap();
-    let texture = sprite.surface.as_texture(tc)?;
-
-    canvas.copy(&texture, None, hero::draw_rect(sprite, Point::new(50, 75)))?;
-    canvas.copy_ex(
-        &texture,
-        None,
-        hero::draw_rect(sprite, Point::new(785, 75)),
-        0.0,
-        None,
-        true,
-        false,
-    )?;
+    for side in Side::iter() {
+        statics
+            .hero
+            .draw(canvas, tc, side, hero::AnimationType::Casting, 0.7)?;
+    }
 
     // Рисуем клетки на поле
     for x in GridPos::X_RANGE {
@@ -152,15 +142,7 @@ pub fn draw(
     for handle in units {
         let is_current = state.is_current(handle);
         let stack = state.get_stack(handle);
-        stack::draw(
-            stack,
-            canvas,
-            rr,
-            tc,
-            is_current,
-            statics.textures.get(StaticTexture::StackCountBackground),
-            &statics.font,
-        )?;
+        stack::draw(stack, canvas, rr, tc, is_current, statics)?;
         canvas.set_draw_color(Color::RED);
         canvas.draw_rect(stack.head.bounding_rect())?;
     }
