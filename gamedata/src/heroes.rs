@@ -1,3 +1,5 @@
+mod abilities;
+
 use super::towns::Town;
 
 pub enum Hero {
