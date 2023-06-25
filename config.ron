@@ -1,23 +1,29 @@
 Config(
     battlefield: LAVA,
     armies: (
-        (
-            None,
-            Some((Marksman, 30)),
-            Some((Crusader, 5)),
-            Some((Griffin, 35)),
-            Some((HarpyHag, 40)),
-            None,
-            None
+        Army(
+            hero: Some(SirMullich),
+            stacks: (
+                None,
+                Some((Marksman, 30)),
+                Some((Crusader, 5)),
+                Some((Griffin, 35)),
+                Some((HarpyHag, 40)),
+                None,
+                None
+            )
         ),
-        (
-            Some((Devil, 10)),
-            None,
-            None,
-            Some((HornedDemon, 40)),
-            None,
-            Some((ChaosHydra, 3)),
-            None
+        Army(
+            hero: Some(Calh),
+            stacks: (
+                Some((Devil, 10)),
+                None,
+                None,
+                Some((HornedDemon, 40)),
+                None,
+                Some((ChaosHydra, 3)),
+                None
+            )
         )
     )
 )

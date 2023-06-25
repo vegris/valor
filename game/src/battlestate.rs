@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::ops::Deref;
 
 use strum_macros::EnumIter;
 
@@ -12,7 +13,10 @@ use crate::pathfinding::NavigationArray;
 
 mod army;
 mod commands;
+mod hero;
 pub mod turns;
+
+use hero::Hero;
 
 #[derive(Clone, Copy, PartialEq, Debug, EnumIter)]
 pub enum Side {
@@ -40,6 +44,7 @@ pub struct CreatureStackHandle(u32);
 
 pub struct BattleState {
     // Логика
+    heroes: [Option<Hero>; 2],
     stacks: HashMap<CreatureStackHandle, Stack>,
     turn: turns::Turn,
     current_stack: CreatureStackHandle,
@@ -51,8 +56,12 @@ pub struct BattleState {
 
 impl BattleState {
     pub fn new(config: &Config) -> Result<Self, Box<dyn Error>> {
-        let attacker_army = army::form_units(&config.armies[0], Side::Attacker);
-        let defender_army = army::form_units(&config.armies[1], Side::Defender);
+        let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
+        let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);
+
+        let heroes = config
+            .armies
+            .map(|army| army.hero.map(|hero| Hero::build(hero)));
 
         let stacks = [attacker_army, defender_army]
             .concat()
@@ -65,6 +74,7 @@ impl BattleState {
             .collect();
 
         let mut state = Self {
+            heroes,
             stacks,
             turn: turns::Turn::new(),
             current_stack: CreatureStackHandle(0),

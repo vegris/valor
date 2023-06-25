@@ -1,7 +1,10 @@
-mod abilities;
+pub mod abilities;
+
+use serde::Deserialize;
 
 use super::towns::Town;
 
+#[derive(Clone, Copy, Deserialize)]
 pub enum Hero {
     Christian,
     Edric,

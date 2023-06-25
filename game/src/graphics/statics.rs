@@ -4,8 +4,6 @@ use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
-use gamedata::heroes;
-
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
@@ -15,7 +13,7 @@ pub struct Statics<'a> {
     pub(super) cursors: Cursors,
     pub(super) font: Font<'a, 'static>,
     pub(super) textures: Textures<'a>,
-    pub(super) hero: spritesheet::Hero,
+    pub(super) heroes: [Option<spritesheet::Hero>; 2],
 }
 
 impl<'a> Statics<'a> {
@@ -28,14 +26,19 @@ impl<'a> Statics<'a> {
         let font_path = "/usr/share/fonts/TTF/OpenSans-Bold.ttf";
         let font_size = 16;
 
-        let hero_def = rr.load_def(heroes::Hero::SirMullich.class().battle_spritesheet());
-        let hero = spritesheet::Hero::from_def(hero_def);
+        let heroes = config.armies.map(|army| {
+            army.hero.map(|h| {
+                let hero_def = rr.load_def(h.class().battle_spritesheet());
+                let spritesheet = spritesheet::Hero::from_def(hero_def);
+                spritesheet
+            })
+        });
 
         Ok(Self {
             cursors: Cursors::load(rr),
             font: ttf_context.load_font(font_path, font_size)?,
             textures: Textures::load(config, rr, tc)?,
-            hero,
+            heroes,
         })
     }
 }
