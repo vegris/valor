@@ -13,6 +13,8 @@ impl CommandT for crate::command::Attack {
         let current_side = current_stack.side;
         let is_wide = current_stack.creature.is_wide();
 
+        let occupied_cells = pathfinding::get_occupied_cells_for(current_stack.creature, current_side, current_stack.head).unwrap();
+
         let potential_pos = pathfinding::unit_position_for_attack(
             self.attack_position,
             self.attack_direction,
@@ -29,7 +31,9 @@ impl CommandT for crate::command::Attack {
             .map(|handle| state.get_stack(handle))
             .filter(|stack| stack.side != current_side)
             .and(potential_pos)
-            .filter(|&creature_pos| r#move::is_applicable(state, creature_pos))
+            .filter(|creature_pos| {
+                occupied_cells.contains(creature_pos) || r#move::is_applicable(state, *creature_pos)}
+            )
             .is_some()
     }
 
