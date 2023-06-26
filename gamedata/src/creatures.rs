@@ -1568,6 +1568,8 @@ impl Creature {
             Self::VampireLord => vec![Ability::NoRetaliation],
 
             Self::WolfRaider => vec![Ability::DoubleStrike],
+            Self::Behemoth => vec![Ability::IgnoreDefence { percent: 0.4 }],
+            Self::AncientBehemoth => vec![Ability::IgnoreDefence { percent: 0.8 }],
 
             Self::Hydra => vec![Ability::NoRetaliation],
             Self::ChaosHydra => vec![Ability::NoRetaliation],
@@ -1578,23 +1580,6 @@ impl Creature {
 
             _ => vec![],
         }
-    }
-
-    pub fn retaliation_count(self) -> RetaliationCount {
-        self.abilities()
-            .into_iter()
-            .find_map(|ability| {
-                if let Ability::ExtraRetaliations { count } = ability {
-                    let count = match count {
-                        RetaliationCount::Finite(n) => RetaliationCount::Finite(n + 1),
-                        RetaliationCount::Infinite => RetaliationCount::Infinite,
-                    };
-                    Some(count)
-                } else {
-                    None
-                }
-            })
-            .unwrap_or(RetaliationCount::Finite(1))
     }
 
     pub fn is_wide(&self) -> bool {

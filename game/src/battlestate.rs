@@ -58,9 +58,7 @@ impl BattleState {
         let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
         let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);
 
-        let heroes = config
-            .armies
-            .map(|army| army.hero.map(Hero::build));
+        let heroes = config.armies.map(|army| army.hero.map(Hero::build));
 
         let stacks = [attacker_army, defender_army]
             .concat()

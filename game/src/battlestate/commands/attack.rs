@@ -86,12 +86,14 @@ impl CommandT for crate::command::Attack {
             deal_damage(state, &attacker, &mut defender);
         }
 
+        state.stacks.insert(state.current_stack, attacker);
+        state.stacks.insert(defender_handle, defender);
+
+        let attacker = state.get_current_stack();
+
         if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
             r#move::apply(state, initial_position);
         }
-
-        state.stacks.insert(state.current_stack, attacker);
-        state.stacks.insert(defender_handle, defender);
     }
 }
 
@@ -141,8 +143,17 @@ fn primary_damage_modifiers(
     defender: &Stack,
 ) -> (f32, f32) {
     let attack = attacker.base_stats().attack as i32 + attacker_hero.map_or(0, |h| h.stats.attack);
+    let attack = attack as f32;
+
     let defence =
         defender.base_stats().defence as i32 + defender_hero.map_or(0, |h| h.stats.defence);
+    let defence = defence as f32;
+
+    let defence = if let Some(reduction_percent) = attacker.creature.ignore_defence() {
+        (defence * (1.0 - reduction_percent)).ceil() - 1.0
+    } else {
+        defence
+    };
 
     let md1 = if attack > defence {
         0.05 * (attack - defence) as f32
