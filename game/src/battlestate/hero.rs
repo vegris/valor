@@ -1,8 +1,9 @@
 use gamedata::heroes::abilities::{Ability, HeroAbility, Level};
-use gamedata::heroes::Hero as GDHero;
+use gamedata::heroes::{Hero as GDHero, Stats};
 
 pub struct Hero {
     hero: GDHero,
+    stats: Stats,
     abilities: [Option<HeroAbility>; 7],
 }
 
@@ -15,7 +16,11 @@ impl Hero {
             abilities[i] = item;
         }
 
-        Self { hero, abilities }
+        Self {
+            hero,
+            stats: hero.class().starting_stats(),
+            abilities,
+        }
     }
 
     pub fn get_ability_level(&self, ability: Ability) -> Option<Level> {

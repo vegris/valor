@@ -185,6 +185,13 @@ pub enum Class {
     Elementalist,
 }
 
+pub struct Stats {
+    pub attack: i32,
+    pub defence: i32,
+    pub power: i32,
+    pub knowledge: i32,
+}
+
 impl Hero {
     pub const fn class(self) -> Class {
         match self {
@@ -400,6 +407,119 @@ impl Class {
             Class::Witch => "CH015.def",
             Class::Planeswalker => "CH016.def",
             Class::Elementalist => "CH017.def",
+        }
+    }
+
+    pub const fn starting_stats(self) -> Stats {
+        match self {
+            Class::Knight => Stats {
+                attack: 2,
+                defence: 2,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Cleric => Stats {
+                attack: 1,
+                defence: 0,
+                power: 2,
+                knowledge: 2,
+            },
+            Class::Ranger => Stats {
+                attack: 1,
+                defence: 3,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Druid => Stats {
+                attack: 0,
+                defence: 2,
+                power: 1,
+                knowledge: 2,
+            },
+            Class::Alchemist => Stats {
+                attack: 1,
+                defence: 1,
+                power: 2,
+                knowledge: 2,
+            },
+            Class::Wizard => Stats {
+                attack: 0,
+                defence: 0,
+                power: 2,
+                knowledge: 3,
+            },
+            Class::Demoniac => Stats {
+                attack: 2,
+                defence: 2,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Heretic => Stats {
+                attack: 1,
+                defence: 1,
+                power: 2,
+                knowledge: 1,
+            },
+            Class::DeathKnight => Stats {
+                attack: 1,
+                defence: 2,
+                power: 2,
+                knowledge: 1,
+            },
+            Class::Necromancer => Stats {
+                attack: 1,
+                defence: 0,
+                power: 2,
+                knowledge: 2,
+            },
+            Class::Overlord => Stats {
+                attack: 2,
+                defence: 2,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Warlock => Stats {
+                attack: 0,
+                defence: 0,
+                power: 3,
+                knowledge: 2,
+            },
+            Class::Barbarian => Stats {
+                attack: 4,
+                defence: 0,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::BattleMage => Stats {
+                attack: 2,
+                defence: 1,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Beastmaster => Stats {
+                attack: 0,
+                defence: 4,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Witch => Stats {
+                attack: 0,
+                defence: 1,
+                power: 2,
+                knowledge: 2,
+            },
+            Class::Planeswalker => Stats {
+                attack: 3,
+                defence: 1,
+                power: 1,
+                knowledge: 1,
+            },
+            Class::Elementalist => Stats {
+                attack: 0,
+                defence: 0,
+                power: 3,
+                knowledge: 3,
+            },
         }
     }
 }
