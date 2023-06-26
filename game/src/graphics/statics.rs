@@ -29,8 +29,8 @@ impl<'a> Statics<'a> {
         let heroes = config.armies.map(|army| {
             army.hero.map(|h| {
                 let hero_def = rr.load_def(h.class().battle_spritesheet());
-                let spritesheet = spritesheet::Hero::from_def(hero_def);
-                spritesheet
+                
+                spritesheet::Hero::from_def(hero_def)
             })
         });
 

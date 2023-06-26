@@ -2,9 +2,9 @@ use gamedata::heroes::abilities::{Ability, HeroAbility, Level};
 use gamedata::heroes::{Hero as GDHero, Stats};
 
 pub struct Hero {
-    hero: GDHero,
-    stats: Stats,
-    abilities: [Option<HeroAbility>; 7],
+    pub hero: GDHero,
+    pub stats: Stats,
+    pub abilities: [Option<HeroAbility>; 7],
 }
 
 impl Hero {

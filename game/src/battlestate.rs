@@ -60,7 +60,7 @@ impl BattleState {
 
         let heroes = config
             .armies
-            .map(|army| army.hero.map(|hero| Hero::build(hero)));
+            .map(|army| army.hero.map(Hero::build));
 
         let stacks = [attacker_army, defender_army]
             .concat()
