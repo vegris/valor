@@ -12,6 +12,7 @@ use crate::pathfinding::NavigationArray;
 
 mod army;
 mod commands;
+mod damage;
 mod hero;
 pub mod turns;
 

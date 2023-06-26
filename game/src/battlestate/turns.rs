@@ -1,4 +1,4 @@
-use super::{BattleState, StackHandle, Side};
+use super::{BattleState, Side, StackHandle};
 use crate::stack::Stack;
 
 pub fn find_active_stack(state: &BattleState) -> Option<StackHandle> {
