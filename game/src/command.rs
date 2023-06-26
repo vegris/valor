@@ -1,4 +1,4 @@
-use super::battlestate::CreatureStackHandle;
+use super::battlestate::StackHandle;
 use crate::grid::{AttackDirection, GridPos};
 
 #[derive(Clone, Copy, Debug)]
@@ -65,5 +65,5 @@ pub struct Attack {
 
 #[derive(Clone, Copy, Debug)]
 pub struct Shoot {
-    pub target: CreatureStackHandle,
+    pub target: StackHandle,
 }

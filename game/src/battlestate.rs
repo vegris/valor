@@ -39,14 +39,14 @@ enum Winner {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct CreatureStackHandle(u32);
+pub struct StackHandle(u32);
 
-pub struct Stacks(HashMap<CreatureStackHandle, Stack>);
+pub struct Stacks(HashMap<StackHandle, Stack>);
 
 impl Stacks {
     fn get_many_mut<const N: usize>(
         &mut self,
-        handles: [CreatureStackHandle; N],
+        handles: [StackHandle; N],
     ) -> Option<[&mut Stack; N]> {
         use std::mem::MaybeUninit;
 
@@ -79,7 +79,7 @@ pub struct BattleState {
     heroes: [Option<Hero>; 2],
     stacks: Stacks,
     turn: turns::Turn,
-    current_stack: CreatureStackHandle,
+    current_stack: StackHandle,
 
     // Поиск пути
     navigation_array: NavigationArray,
@@ -98,7 +98,7 @@ impl BattleState {
             .into_iter()
             .enumerate()
             .map(|(i, v)| {
-                let handle = CreatureStackHandle(i as u32);
+                let handle = StackHandle(i as u32);
                 (handle, v)
             })
             .collect();
@@ -107,7 +107,7 @@ impl BattleState {
             heroes,
             stacks: Stacks(stacks),
             turn: turns::Turn::new(),
-            current_stack: CreatureStackHandle(0),
+            current_stack: StackHandle(0),
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
         };
@@ -140,15 +140,15 @@ impl BattleState {
         }
     }
 
-    pub fn get_stack(&self, handle: CreatureStackHandle) -> &Stack {
+    pub fn get_stack(&self, handle: StackHandle) -> &Stack {
         &self.stacks.0[&handle]
     }
 
-    fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut Stack {
+    fn get_stack_mut(&mut self, handle: StackHandle) -> &mut Stack {
         self.stacks.0.get_mut(&handle).unwrap()
     }
 
-    pub fn is_current(&self, handle: CreatureStackHandle) -> bool {
+    pub fn is_current(&self, handle: StackHandle) -> bool {
         self.current_stack == handle
     }
 
@@ -160,11 +160,11 @@ impl BattleState {
         self.get_stack_mut(self.current_stack)
     }
 
-    pub fn units(&self) -> Vec<CreatureStackHandle> {
+    pub fn units(&self) -> Vec<StackHandle> {
         self.stacks.0.keys().copied().collect()
     }
 
-    pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
+    pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<StackHandle> {
         self.units()
             .into_iter()
             .filter(|&handle| self.get_stack(handle).is_alive())

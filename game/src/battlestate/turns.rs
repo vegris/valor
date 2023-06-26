@@ -1,8 +1,8 @@
-use super::{BattleState, CreatureStackHandle, Side};
+use super::{BattleState, StackHandle, Side};
 use crate::stack::Stack;
 
-pub fn find_active_stack(state: &BattleState) -> Option<CreatureStackHandle> {
-    let mut handles: Box<[CreatureStackHandle]> = state.stacks.0.keys().copied().collect();
+pub fn find_active_stack(state: &BattleState) -> Option<StackHandle> {
+    let mut handles: Box<[StackHandle]> = state.stacks.0.keys().copied().collect();
     // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
     handles
         .sort_unstable_by_key(|&handle| state.get_stack(handle).side == state.turn.priority_side);
@@ -18,7 +18,7 @@ pub fn find_active_stack(state: &BattleState) -> Option<CreatureStackHandle> {
         })
         .fold(None, |acc, current| {
             // Без max_first тяжко
-            fn key((_, stack): (CreatureStackHandle, &Stack)) -> u8 {
+            fn key((_, stack): (StackHandle, &Stack)) -> u8 {
                 stack.speed()
             }
             match acc {
