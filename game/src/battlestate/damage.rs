@@ -7,12 +7,27 @@ use crate::stack::Stack;
 
 use super::hero::Hero;
 
-pub fn deal_damage(heroes: &[Option<Hero>; 2], attacker: &Stack, defender: &mut Stack) {
-    let damage = calculate_damage(heroes, attacker, defender);
+pub enum AttackType {
+    Melee,
+    Shoot,
+}
+
+pub fn deal_damage(
+    heroes: &[Option<Hero>; 2],
+    attacker: &Stack,
+    defender: &mut Stack,
+    attack_type: AttackType,
+) {
+    let damage = calculate_damage(heroes, attacker, defender, attack_type);
     defender.receive_damage(damage);
 }
 
-fn calculate_damage(heroes: &[Option<Hero>; 2], attacker: &Stack, defender: &Stack) -> i32 {
+fn calculate_damage(
+    heroes: &[Option<Hero>; 2],
+    attacker: &Stack,
+    defender: &Stack,
+    attack_type: AttackType,
+) -> i32 {
     let attacker_hero = heroes[attacker.side as usize].as_ref();
     let defender_hero = heroes[defender.side as usize].as_ref();
 
@@ -20,7 +35,7 @@ fn calculate_damage(heroes: &[Option<Hero>; 2], attacker: &Stack, defender: &Sta
 
     let (md1, md2) = primary_damage_modifiers(attacker_hero, attacker, defender_hero, defender);
 
-    let offence_md = offence_modifier(attacker_hero);
+    let offence_md = offence_modifier(attacker_hero, attack_type);
     let armor_md = armorer_modifier(defender_hero);
 
     let damage = base * (1.0 + md1 + offence_md) * md2 * armor_md;
@@ -82,14 +97,32 @@ fn primary_damage_modifiers(
     (md1, md2)
 }
 
-fn offence_modifier(attacker_hero: Option<&Hero>) -> f32 {
-    attacker_hero
-        .and_then(|h| h.get_ability_level(Ability::Offense))
-        .map_or(0.0, |l| match l {
+fn offence_modifier(attacker_hero: Option<&Hero>, attack_type: AttackType) -> f32 {
+    fn offence(level: Level) -> f32 {
+        match level {
             Level::Basic => 0.1,
             Level::Advanced => 0.2,
             Level::Expert => 0.3,
-        })
+        }
+    }
+
+    fn archery(level: Level) -> f32 {
+        match level {
+            Level::Basic => 0.1,
+            Level::Advanced => 0.25,
+            Level::Expert => 0.5,
+        }
+    }
+
+    type ModifierFN = fn(Level) -> f32;
+    let (ability, modifier_fun): (Ability, ModifierFN) = match attack_type {
+        AttackType::Melee => (Ability::Offense, offence),
+        AttackType::Shoot => (Ability::Archery, archery),
+    };
+
+    attacker_hero
+        .and_then(|h| h.get_ability_level(ability))
+        .map_or(0.0, modifier_fun)
 }
 
 fn armorer_modifier(defender_hero: Option<&Hero>) -> f32 {

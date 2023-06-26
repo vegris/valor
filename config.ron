@@ -16,7 +16,7 @@ Config(
         Army(
             hero: Some(Calh),
             stacks: (
-                Some((Devil, 10)),
+                Some((Devil, 3)),
                 None,
                 None,
                 Some((HornedDemon, 40)),

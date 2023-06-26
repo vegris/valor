@@ -3,9 +3,11 @@ use gamedata::Ability;
 use crate::battlestate::BattleState;
 use crate::pathfinding;
 
-use crate::battlestate::damage::deal_damage;
+use crate::battlestate::damage::{deal_damage, AttackType};
 
 use super::{r#move, CommandT};
+
+const ATTACK_TYPE: AttackType = AttackType::Melee;
 
 impl CommandT for crate::command::Attack {
     fn is_applicable(&self, state: &BattleState) -> bool {
@@ -65,14 +67,14 @@ impl CommandT for crate::command::Attack {
             .get_many_mut([state.current_stack, defender_handle])
             .unwrap();
 
-        deal_damage(&state.heroes, attacker, defender);
+        deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
 
         if defender.is_alive()
             && defender.retaliation_count.has_retaliation()
             && !attacker.creature.has_ability(Ability::NoRetaliation)
         {
             defender.retaliation_count.decrement();
-            deal_damage(&state.heroes, defender, attacker);
+            deal_damage(&state.heroes, defender, attacker, ATTACK_TYPE);
         }
 
         if defender.is_alive()
@@ -80,7 +82,7 @@ impl CommandT for crate::command::Attack {
             && attacker.creature.has_ability(Ability::DoubleStrike)
         {
             println!("Using double strike!");
-            deal_damage(&state.heroes, attacker, defender);
+            deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
         }
 
         if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
