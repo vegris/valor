@@ -41,10 +41,43 @@ enum Winner {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct CreatureStackHandle(u32);
 
+pub struct Stacks(HashMap<CreatureStackHandle, Stack>);
+
+impl Stacks {
+    fn get_many_mut<const N: usize>(
+        &mut self,
+        handles: [CreatureStackHandle; N],
+    ) -> Option<[&mut Stack; N]> {
+        use std::mem::MaybeUninit;
+
+        for index in 1..N {
+            if handles[index] == handles[index - 1] {
+                return None;
+            }
+        }
+
+        let mut arr: MaybeUninit<[&mut Stack; N]> = MaybeUninit::uninit();
+        let arr_ptr = arr.as_mut_ptr();
+
+        // SAFETY: We expect `handles` to contain disjunct values that are in bounds of `self`.
+        unsafe {
+            for (i, handle) in handles.iter().enumerate() {
+                if let Some(stack) = self.0.get_mut(handle) {
+                    *(*arr_ptr).get_unchecked_mut(i) = &mut *(stack as *mut _);
+                } else {
+                    return None;
+                }
+            }
+
+            Some(arr.assume_init())
+        }
+    }
+}
+
 pub struct BattleState {
     // Логика
     heroes: [Option<Hero>; 2],
-    stacks: HashMap<CreatureStackHandle, Stack>,
+    stacks: Stacks,
     turn: turns::Turn,
     current_stack: CreatureStackHandle,
 
@@ -72,7 +105,7 @@ impl BattleState {
 
         let mut state = Self {
             heroes,
-            stacks,
+            stacks: Stacks(stacks),
             turn: turns::Turn::new(),
             current_stack: CreatureStackHandle(0),
             navigation_array: NavigationArray::empty(),
@@ -108,40 +141,11 @@ impl BattleState {
     }
 
     pub fn get_stack(&self, handle: CreatureStackHandle) -> &Stack {
-        &self.stacks[&handle]
+        &self.stacks.0[&handle]
     }
 
     fn get_stack_mut(&mut self, handle: CreatureStackHandle) -> &mut Stack {
-        self.stacks.get_mut(&handle).unwrap()
-    }
-
-    fn get_stacks_mut<const N: usize>(
-        &mut self,
-        handles: [CreatureStackHandle; N],
-    ) -> Option<[&mut Stack; N]> {
-        use std::mem::MaybeUninit;
-
-        for index in 1..N {
-            if handles[index] == handles[index - 1] {
-                return None;
-            }
-        }
-
-        let mut arr: MaybeUninit<[&mut Stack; N]> = MaybeUninit::uninit();
-        let arr_ptr = arr.as_mut_ptr();
-
-        // SAFETY: We expect `handles` to contain disjunct values that are in bounds of `self`.
-        unsafe {
-            for (i, handle) in handles.iter().enumerate() {
-                if let Some(stack) = self.stacks.get_mut(handle) {
-                    *(*arr_ptr).get_unchecked_mut(i) = &mut *(stack as *mut _);
-                } else {
-                    return None;
-                }
-            }
-
-            Some(arr.assume_init())
-        }
+        self.stacks.0.get_mut(&handle).unwrap()
     }
 
     pub fn is_current(&self, handle: CreatureStackHandle) -> bool {
@@ -157,7 +161,7 @@ impl BattleState {
     }
 
     pub fn units(&self) -> Vec<CreatureStackHandle> {
-        self.stacks.keys().copied().collect()
+        self.stacks.0.keys().copied().collect()
     }
 
     pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<CreatureStackHandle> {
@@ -191,7 +195,7 @@ impl BattleState {
             if !self.turn.try_advance_phase() {
                 self.turn = self.turn.next();
 
-                for stack in self.stacks.values_mut() {
+                for stack in self.stacks.0.values_mut() {
                     stack.turn_state = Some(turns::Phase::Fresh);
                     stack.retaliation_count = stack.creature.retaliation_count();
                     stack.defending = false;
@@ -206,6 +210,7 @@ impl BattleState {
             .into_iter()
             .filter(|&side| {
                 self.stacks
+                    .0
                     .values()
                     .filter(|stack| stack.side == side)
                     .any(|stack| stack.is_alive())

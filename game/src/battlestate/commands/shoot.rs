@@ -17,7 +17,8 @@ impl CommandT for crate::command::Shoot {
     }
     fn apply(self, state: &mut BattleState) {
         let [attacker, defender] = state
-            .get_stacks_mut([state.current_stack, self.target])
+            .stacks
+            .get_many_mut([state.current_stack, self.target])
             .unwrap();
 
         attacker.current_ammo -= 1;

@@ -65,17 +65,19 @@ impl CommandT for crate::command::Attack {
 
         let defender_handle = state.find_unit_for_cell(self.attack_position).unwrap();
 
-        let mut attacker = state.stacks.remove(&state.current_stack).unwrap();
-        let mut defender = state.stacks.remove(&defender_handle).unwrap();
+        let [attacker, defender] = state
+            .stacks
+            .get_many_mut([state.current_stack, defender_handle])
+            .unwrap();
 
-        deal_damage(state, &attacker, &mut defender);
+        deal_damage(&state.heroes, attacker, defender);
 
         if defender.is_alive()
             && defender.retaliation_count.has_retaliation()
             && !attacker.creature.has_ability(Ability::NoRetaliation)
         {
             defender.retaliation_count.decrement();
-            deal_damage(state, &defender, &mut attacker);
+            deal_damage(&state.heroes, defender, attacker);
         }
 
         if defender.is_alive()
@@ -83,13 +85,8 @@ impl CommandT for crate::command::Attack {
             && attacker.creature.has_ability(Ability::DoubleStrike)
         {
             println!("Using double strike!");
-            deal_damage(state, &attacker, &mut defender);
+            deal_damage(&state.heroes, attacker, defender);
         }
-
-        state.stacks.insert(state.current_stack, attacker);
-        state.stacks.insert(defender_handle, defender);
-
-        let attacker = state.get_current_stack();
 
         if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
             r#move::apply(state, initial_position);
@@ -97,14 +94,14 @@ impl CommandT for crate::command::Attack {
     }
 }
 
-fn deal_damage(state: &mut BattleState, attacker: &Stack, defender: &mut Stack) {
-    let damage = calculate_damage(state, attacker, defender);
+fn deal_damage(heroes: &[Option<Hero>; 2], attacker: &Stack, defender: &mut Stack) {
+    let damage = calculate_damage(heroes, attacker, defender);
     defender.receive_damage(damage);
 }
 
-fn calculate_damage(state: &BattleState, attacker: &Stack, defender: &Stack) -> i32 {
-    let attacker_hero = state.heroes[attacker.side as usize].as_ref();
-    let defender_hero = state.heroes[defender.side as usize].as_ref();
+fn calculate_damage(heroes: &[Option<Hero>; 2], attacker: &Stack, defender: &Stack) -> i32 {
+    let attacker_hero = heroes[attacker.side as usize].as_ref();
+    let defender_hero = heroes[defender.side as usize].as_ref();
 
     let base = base_damage(attacker) as f32;
 
@@ -156,14 +153,14 @@ fn primary_damage_modifiers(
     };
 
     let md1 = if attack > defence {
-        0.05 * (attack - defence) as f32
+        0.05 * (attack - defence)
     } else {
         0.0
     };
     let md1 = f32::min(md1, 3.0);
 
     let md2 = if defence > attack {
-        1.0 - 0.025 * (defence - attack) as f32
+        1.0 - 0.025 * (defence - attack)
     } else {
         1.0
     };
