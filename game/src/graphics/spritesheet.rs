@@ -99,5 +99,5 @@ impl Container {
 }
 
 fn sprite_index(block: &AnimationBlock, progress: f32) -> usize {
-    block[(block.len() as f32 * progress) as usize]
+    block[((block.len() - 1) as f32 * progress).round() as usize]
 }

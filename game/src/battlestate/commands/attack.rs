@@ -1,6 +1,9 @@
 use gamedata::Ability;
 
-use crate::{battlestate::BattleState, pathfinding};
+use rand::distributions::Uniform;
+use rand::prelude::Distribution;
+
+use crate::{battlestate::BattleState, pathfinding, stack::Stack};
 
 use super::{r#move, CommandT};
 
@@ -52,14 +55,16 @@ impl CommandT for crate::command::Attack {
             .get_stacks_mut([state.current_stack, defender_handle])
             .unwrap();
 
-        defender.count -= 1;
+        let damage = calculate_damage(attacker, defender);
+        defender.receive_damage(damage);
 
         if defender.is_alive()
             && defender.retaliation_count.has_retaliation()
             && !attacker.creature.has_ability(Ability::NoRetaliation)
         {
             defender.retaliation_count.decrement();
-            attacker.count -= 1;
+            let damage = calculate_damage(defender, attacker);
+            attacker.receive_damage(damage);
         }
 
         if defender.is_alive()
@@ -67,11 +72,34 @@ impl CommandT for crate::command::Attack {
             && attacker.creature.has_ability(Ability::DoubleStrike)
         {
             println!("Using double strike!");
-            defender.count -= 1;
+            let damage = calculate_damage(attacker, defender);
+            defender.receive_damage(damage);
         }
 
         if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
             r#move::apply(state, initial_position);
         }
+    }
+}
+
+fn calculate_damage(attacker: &Stack, defender: &Stack) -> i32 {
+    base_damage(attacker)
+}
+
+fn base_damage(stack: &Stack) -> i32 {
+    let random_count = i32::min(stack.count, 10) as usize;
+
+    let (damage_low, damage_high) = stack.creature.base_stats().damage;
+    let between = Uniform::try_from(damage_low..damage_high).unwrap();
+
+    let sum: i32 = between
+        .sample_iter(rand::thread_rng())
+        .take(random_count)
+        .sum();
+
+    if stack.count <= 10 {
+        sum
+    } else {
+        (0.1 * stack.count as f32 * sum as f32).ceil() as i32
     }
 }

@@ -11,9 +11,9 @@ use super::pathfinding;
 #[derive(Clone, Debug)]
 pub struct Stack {
     pub creature: Creature,
-    pub count: u32,
+    pub count: i32,
 
-    pub current_health: u16,
+    pub current_health: i32,
     pub current_ammo: u8,
 
     pub head: GridPos,
@@ -26,11 +26,11 @@ pub struct Stack {
 }
 
 impl Stack {
-    pub fn new(creature: Creature, count: u32, head: GridPos, side: Side) -> Self {
+    pub fn new(creature: Creature, count: i32, head: GridPos, side: Side) -> Self {
         Stack {
             creature,
             count,
-            current_health: creature.base_stats().health,
+            current_health: creature.base_stats().health as i32,
             current_ammo: creature.base_stats().ammo_capacity,
             head,
             side,
@@ -73,6 +73,35 @@ impl Stack {
             .collect::<HashSet<GridPos>>() // Оставляем уникальные
             .drain()
             .collect::<Vec<GridPos>>()
+    }
+
+    pub fn receive_damage(&mut self, damage: i32) {
+        dbg!(damage);
+
+        dbg!(self.count);
+        dbg!(self.current_health);
+        let creature_health = self.creature.base_stats().health as i32;
+
+        let total_health = (self.count - 1) * creature_health + self.current_health - damage;
+
+        if total_health <= 0 {
+            self.current_health = 0;
+            self.count = 0;
+            return;
+        }
+
+        let div = total_health / creature_health;
+        let rem = total_health % creature_health;
+        if rem == 0 {
+            self.count = div;
+            self.current_health = creature_health;
+        } else {
+            self.count = div + 1;
+            self.current_health = rem;
+        }
+
+        dbg!(self.count);
+        dbg!(self.current_health);
     }
 }
 

@@ -168,7 +168,7 @@ pub struct CreatureStats {
     pub level: u8,
     pub attack: u8,
     pub defence: u8,
-    pub damage: (u8, u8),
+    pub damage: (i32, i32),
     pub health: u16,
     pub speed: u8,
     pub ammo_capacity: u8,

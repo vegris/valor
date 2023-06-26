@@ -11,6 +11,10 @@ version = "0.35"
 default-features = false
 features = ["ttf"]
 
+[dependencies.rand]
+version = "0.8.5"
+features = ["small_rng"]
+
 [dependencies]
 strum = "0.24"
 strum_macros = "0.24"

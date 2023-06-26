@@ -10,7 +10,7 @@ use gamedata::{heroes::Hero, Battlefield, Creature};
 #[derive(Clone, Copy, Deserialize)]
 pub struct Army {
     pub hero: Option<Hero>,
-    pub stacks: [Option<(Creature, u32)>; 7],
+    pub stacks: [Option<(Creature, i32)>; 7],
 }
 
 #[derive(Deserialize)]

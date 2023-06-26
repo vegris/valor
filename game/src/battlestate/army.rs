@@ -19,7 +19,7 @@ pub fn initial_placement(units_count: u8) -> Vec<i32> {
     }
 }
 
-pub fn form_units(starting_army: &[Option<(Creature, u32)>; 7], side: Side) -> Vec<Stack> {
+pub fn form_units(starting_army: &[Option<(Creature, i32)>; 7], side: Side) -> Vec<Stack> {
     let units_count = starting_army.iter().filter(|c| c.is_some()).count();
     let formation = initial_placement(units_count as u8);
     let starting_x = *match side {
