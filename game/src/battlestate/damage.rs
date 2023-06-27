@@ -44,14 +44,16 @@ fn calculate_damage(
 }
 
 fn base_damage(stack: &Stack) -> i32 {
-    let random_count = i32::min(stack.count, 10) as usize;
-
     let (damage_low, damage_high) = stack.creature.base_stats().damage;
-    let between = Uniform::try_from(damage_low..damage_high).unwrap();
 
-    let sum: i32 = between
+    if damage_low == damage_high {
+        return damage_low * stack.count;
+    }
+
+    let sum: i32 = Uniform::try_from(damage_low..damage_high)
+        .unwrap()
         .sample_iter(rand::thread_rng())
-        .take(random_count)
+        .take(i32::min(stack.count, 10) as usize)
         .sum();
 
     if stack.count <= 10 {
