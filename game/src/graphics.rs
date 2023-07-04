@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use sdl2::pixels::Color;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 
@@ -143,11 +142,7 @@ pub fn draw(
         let is_current = state.is_current(handle);
         let stack = state.get_stack(handle);
         stack::draw(stack, canvas, rr, tc, is_current, statics)?;
-        canvas.set_draw_color(Color::RED);
-        canvas.draw_rect(stack.head.bounding_rect())?;
     }
-
-    canvas.set_draw_color(Color::BLACK);
 
     Ok(())
 }
