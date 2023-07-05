@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, time::Instant};
 
 mod battlestate;
 mod command;
@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut game_state = BattleState::new(&config)?;
+    let mut game_state = BattleState::new(&config, &mut resource_registry)?;
 
     let statics = Statics::init(
         &config,
@@ -48,8 +48,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         &ttf_context,
     )?;
 
+    let mut frame_start = Instant::now();
+
     loop {
+        let now = Instant::now();
+        let dt = now - frame_start;
+        frame_start = now;
+
         let frame_data = input::process(&game_state, &mut event_pump);
+
+        game_state.update(dt, &mut resource_registry);
 
         canvas.clear();
         graphics::draw(

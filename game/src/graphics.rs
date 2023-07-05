@@ -12,6 +12,7 @@ use crate::input::FrameData;
 use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
+pub mod animation;
 mod cursors;
 pub mod spritesheet;
 pub mod stack;

@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use std::error::Error;
+use std::time::Duration;
 
 use strum_macros::EnumIter;
 
 use crate::command::Command;
 use crate::config::Config;
 use crate::grid::GridPos;
+use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
 use crate::pathfinding::NavigationArray;
@@ -88,9 +90,9 @@ pub struct BattleState {
 }
 
 impl BattleState {
-    pub fn new(config: &Config) -> Result<Self, Box<dyn Error>> {
-        let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
-        let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);
+    pub fn new(config: &Config, rr: &mut ResourceRegistry) -> Result<Self, Box<dyn Error>> {
+        let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker, rr);
+        let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender, rr);
 
         let heroes = config.armies.map(|army| army.hero.map(Hero::build));
 
@@ -115,6 +117,12 @@ impl BattleState {
 
         state.update_current_stack();
         Ok(state)
+    }
+
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        for stack in self.stacks.0.values_mut() {
+            stack.update(dt, rr);
+        }
     }
 
     pub fn is_command_applicable(&self, command: Command) -> bool {

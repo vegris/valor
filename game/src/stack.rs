@@ -1,9 +1,13 @@
 use std::collections::HashSet;
+use std::time::Duration;
 
 use gamedata::{Creature, CreatureStats, RetaliationCount};
 
 use crate::battlestate::turns;
+use crate::graphics::animation::{Anim, self};
+use crate::graphics::spritesheet::creature::AnimationType;
 use crate::grid::GridPos;
+use crate::registry::ResourceRegistry;
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
@@ -23,10 +27,18 @@ pub struct Stack {
     pub defending: bool,
 
     pub retaliation_count: RetaliationCount,
+
+    pub animation: Anim,
 }
 
 impl Stack {
-    pub fn new(creature: Creature, count: i32, head: GridPos, side: Side) -> Self {
+    pub fn new(
+        creature: Creature,
+        count: i32,
+        head: GridPos,
+        side: Side,
+        rr: &mut ResourceRegistry,
+    ) -> Self {
         Stack {
             creature,
             count,
@@ -37,6 +49,16 @@ impl Stack {
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
             retaliation_count: creature.retaliation_count(),
+            animation: Anim::new(AnimationType::Standing, rr.get_creature_container(creature)),
+        }
+    }
+
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        self.animation.update(dt);
+
+        if let animation::Status::Finished = self.animation.status() {
+            let spritesheet = rr.get_creature_container(self.creature);
+            self.animation = animation::Anim::new(AnimationType::Standing, spritesheet);
         }
     }
 

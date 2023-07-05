@@ -15,18 +15,24 @@ use crate::graphics::spritesheet::creature::AnimationType;
 use super::Statics;
 
 pub fn draw(
-    logic: &Stack,
+    stack: &Stack,
     canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
     is_selected: bool,
     statics: &Statics,
 ) -> Result<(), Box<dyn Error>> {
-    let spritesheet = rr.get_creature_container(logic.creature);
+    let spritesheet = rr.get_creature_container(stack.creature);
 
-    let (animation_type, animation_progress) = animation(logic);
+    let (animation_type, animation_progress) =
+    if stack.is_alive() {
+        (stack.animation.type_, stack.animation.status().progress())
+    } else {
+        (AnimationType::Death, 1.0)
+    };
+    // let (animation_type, animation_progress) = animation(stack);
 
-    let draw_pos = pathfinding::tail_for(logic.creature, logic.side, logic.head)
+    let draw_pos = pathfinding::tail_for(stack.creature, stack.side, stack.head)
         .unwrap()
         .center();
 
@@ -34,14 +40,14 @@ pub fn draw(
         canvas,
         tc,
         draw_pos,
-        logic.side,
+        stack.side,
         is_selected,
         animation_type,
         animation_progress,
     )?;
 
-    if logic.is_alive() {
-        draw_count(logic, canvas, tc, statics)?;
+    if stack.is_alive() {
+        draw_count(stack, canvas, tc, statics)?;
     }
 
     Ok(())

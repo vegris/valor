@@ -11,7 +11,7 @@ use crate::battlestate::Side;
 use super::sprite::Sprite;
 use super::Container;
 
-#[derive(Clone, Copy, EnumCount, EnumIter, PartialEq)]
+#[derive(Clone, Copy, Debug, EnumCount, EnumIter, PartialEq)]
 pub enum AnimationType {
     Moving,
     MouseOver,
@@ -104,6 +104,12 @@ impl Creature {
         }?;
 
         Ok(())
+    }
+
+    pub fn frames_count(&self, animation_type: AnimationType) -> Option<usize> {
+        self.0.blocks[animation_type as usize]
+            .as_ref()
+            .map(|block| block.len())
     }
 }
 
