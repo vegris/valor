@@ -249,18 +249,20 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 target,
                 lethal,
             } => {
-                let [mut attacker, mut defender] =
-                    state.stacks.get_many_mut([attacker, target]).unwrap();
+                let [attacker, defender] = state.stacks.get_many_mut([attacker, target]).unwrap();
 
                 let animation = Anim::new(AnimationType::AttackStraight, attacker.creature, rr);
                 attacker.animation_queue.push(animation);
+
+                let delay = attacker.animation_queue.total_duration() / 2;
 
                 let animation_type = if lethal {
                     AnimationType::Death
                 } else {
                     AnimationType::GettingHit
                 };
-                let animation = Anim::new(animation_type, defender.creature, rr);
+                let mut animation = Anim::new(animation_type, defender.creature, rr);
+                animation.add_delay(delay);
                 defender.animation_queue.push(animation);
             }
         }

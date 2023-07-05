@@ -39,7 +39,7 @@ impl Anim {
     ) -> Self {
         let spritesheet = rr.get_creature_container(creature);
         let frames = spritesheet.frames_count(animation_type).unwrap();
-        let duration = Duration::from_millis(150) * frames as u32;
+        let duration = Duration::from_millis(100) * frames as u32;
 
         Self {
             type_: animation_type,
@@ -47,6 +47,10 @@ impl Anim {
             delay: Duration::ZERO,
             spent: Duration::ZERO,
         }
+    }
+
+    pub fn add_delay(&mut self, delay: Duration) {
+        self.delay = delay;
     }
 
     pub fn update(&mut self, dt: Duration) {
@@ -69,6 +73,10 @@ impl Anim {
 
         let progress = self.spent.as_secs_f32() / self.duration.as_secs_f32();
         Status::Progress(progress)
+    }
+
+    fn duration(&self) -> Duration {
+        self.delay + self.duration - self.spent
     }
 }
 
@@ -131,5 +139,12 @@ impl AnimationQueue {
                 }
             })
             .unwrap_or((idle.type_, idle.status().progress()))
+    }
+
+    pub fn total_duration(&self) -> Duration {
+        self.queue
+            .iter()
+            .map(|animation| animation.duration())
+            .sum()
     }
 }
