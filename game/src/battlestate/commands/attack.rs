@@ -5,12 +5,12 @@ use crate::pathfinding;
 
 use crate::battlestate::damage::{deal_damage, AttackType};
 
-use super::{r#move, CommandT};
+use super::{r#move, CommandT, Event};
 
 const ATTACK_TYPE: AttackType = AttackType::Melee;
 
-impl CommandT for crate::command::Attack {
-    fn is_applicable(&self, state: &BattleState) -> bool {
+impl crate::command::Attack {
+    pub fn is_applicable(&self, state: &BattleState) -> bool {
         let current_stack = state.get_current_stack();
         let current_side = current_stack.side;
         let is_wide = current_stack.creature.is_wide();
@@ -44,7 +44,9 @@ impl CommandT for crate::command::Attack {
             .is_some()
     }
 
-    fn apply(self, state: &mut BattleState) {
+    pub fn apply(self, state: &mut BattleState) -> Vec<Event> {
+        let mut events = vec![];
+
         let current_stack = state.get_current_stack();
         let is_wide = current_stack.creature.is_wide();
 
@@ -68,6 +70,11 @@ impl CommandT for crate::command::Attack {
             .unwrap();
 
         deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
+        events.push(Event::Strike {
+            attacker: state.current_stack,
+            target: defender_handle,
+            lethal: !defender.is_alive(),
+        });
 
         if defender.is_alive()
             && defender.retaliation_count.has_retaliation()
@@ -75,6 +82,11 @@ impl CommandT for crate::command::Attack {
         {
             defender.retaliation_count.decrement();
             deal_damage(&state.heroes, defender, attacker, ATTACK_TYPE);
+            events.push(Event::Strike {
+                attacker: defender_handle,
+                target: state.current_stack,
+                lethal: !attacker.is_alive(),
+            });
         }
 
         if defender.is_alive()
@@ -83,10 +95,17 @@ impl CommandT for crate::command::Attack {
         {
             println!("Using double strike!");
             deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
+            events.push(Event::Strike {
+                attacker: state.current_stack,
+                target: defender_handle,
+                lethal: !defender.is_alive(),
+            });
         }
 
         if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
             r#move::apply(state, initial_position);
         }
+
+        events
     }
 }

@@ -4,8 +4,7 @@ use std::time::Duration;
 use gamedata::{Creature, CreatureStats, RetaliationCount};
 
 use crate::battlestate::turns;
-use crate::graphics::animation::{Anim, self};
-use crate::graphics::spritesheet::creature::AnimationType;
+use crate::graphics::animation::AnimationQueue;
 use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
 
@@ -28,7 +27,7 @@ pub struct Stack {
 
     pub retaliation_count: RetaliationCount,
 
-    pub animation: Anim,
+    pub animation_queue: AnimationQueue,
 }
 
 impl Stack {
@@ -49,17 +48,12 @@ impl Stack {
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
             retaliation_count: creature.retaliation_count(),
-            animation: Anim::new(AnimationType::Standing, rr.get_creature_container(creature)),
+            animation_queue: AnimationQueue::new(),
         }
     }
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        self.animation.update(dt);
-
-        if let animation::Status::Finished = self.animation.status() {
-            let spritesheet = rr.get_creature_container(self.creature);
-            self.animation = animation::Anim::new(AnimationType::Standing, spritesheet);
-        }
+        self.animation_queue.update(dt, self.creature, rr);
     }
 
     pub fn base_stats(&self) -> CreatureStats {

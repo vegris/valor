@@ -1,6 +1,6 @@
 use crate::command::Command;
 
-use super::BattleState;
+use super::{BattleState, StackHandle};
 
 mod attack;
 mod defend;
@@ -13,6 +13,15 @@ pub trait CommandT {
     fn apply(self, state: &mut BattleState);
 }
 
+#[derive(Debug)]
+pub enum Event {
+    Strike {
+        attacker: StackHandle,
+        target: StackHandle,
+        lethal: bool,
+    },
+}
+
 pub fn is_applicable(state: &BattleState, command: Command) -> bool {
     match command {
         Command::Defend(command) => command.is_applicable(state),
@@ -23,12 +32,16 @@ pub fn is_applicable(state: &BattleState, command: Command) -> bool {
     }
 }
 
-pub fn apply(state: &mut BattleState, command: Command) {
+pub fn apply(state: &mut BattleState, command: Command) -> Vec<Event> {
+    let mut events = vec![];
+
     match command {
         Command::Defend(command) => command.apply(state),
         Command::Wait(command) => command.apply(state),
         Command::Move(command) => command.apply(state),
-        Command::Attack(command) => command.apply(state),
+        Command::Attack(command) => events = command.apply(state),
         Command::Shoot(command) => command.apply(state),
     }
+
+    dbg!(events)
 }

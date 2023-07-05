@@ -6,6 +6,8 @@ use strum_macros::EnumIter;
 
 use crate::command::Command;
 use crate::config::Config;
+use crate::graphics::animation::Anim;
+use crate::graphics::spritesheet::creature::AnimationType;
 use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
@@ -19,6 +21,8 @@ mod hero;
 pub mod turns;
 
 use hero::Hero;
+
+use self::commands::Event;
 
 #[derive(Clone, Copy, PartialEq, Debug, EnumIter)]
 pub enum Side {
@@ -129,9 +133,9 @@ impl BattleState {
         commands::is_applicable(self, command)
     }
 
-    pub fn apply_command(&mut self, command: Command) {
+    pub fn apply_command(&mut self, command: Command, rr: &mut ResourceRegistry) {
         assert!(commands::is_applicable(self, command));
-        commands::apply(self, command);
+        let events = commands::apply(self, command);
         println!("Command applied!");
 
         if command.spends_turn() {
@@ -147,6 +151,8 @@ impl BattleState {
             println!("{:?} wins!", winner);
             std::process::exit(0);
         }
+
+        process_events(self, events, rr);
     }
 
     pub fn get_stack(&self, handle: StackHandle) -> &Stack {
@@ -231,6 +237,32 @@ impl BattleState {
             1 => Some(Winner::Side(alive_sides[0])),
             2 => None,
             _ => unreachable!(),
+        }
+    }
+}
+
+fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut ResourceRegistry) {
+    for event in events {
+        match event {
+            Event::Strike {
+                attacker,
+                target,
+                lethal,
+            } => {
+                let [mut attacker, mut defender] =
+                    state.stacks.get_many_mut([attacker, target]).unwrap();
+
+                let animation = Anim::new(AnimationType::AttackStraight, attacker.creature, rr);
+                attacker.animation_queue.push(animation);
+
+                let animation_type = if lethal {
+                    AnimationType::Death
+                } else {
+                    AnimationType::GettingHit
+                };
+                let animation = Anim::new(animation_type, defender.creature, rr);
+                defender.animation_queue.push(animation);
+            }
         }
     }
 }
