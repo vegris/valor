@@ -39,7 +39,7 @@ impl Anim {
     ) -> Self {
         let spritesheet = rr.get_creature_container(creature);
         let frames = spritesheet.frames_count(animation_type).unwrap();
-        let duration = Duration::from_millis(100) * frames as u32;
+        let duration = frame_duration(animation_type) * frames as u32;
 
         Self {
             type_: animation_type,
@@ -153,4 +153,13 @@ impl AnimationQueue {
             .iter()
             .any(|animation| animation.type_ != AnimationType::Standing)
     }
+}
+
+fn frame_duration(animation_type: AnimationType) -> Duration {
+    let ms = match animation_type {
+        AnimationType::Standing => 200,
+        _ => 100,
+    };
+
+    Duration::from_millis(ms)
 }
