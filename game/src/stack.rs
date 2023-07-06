@@ -31,13 +31,7 @@ pub struct Stack {
 }
 
 impl Stack {
-    pub fn new(
-        creature: Creature,
-        count: i32,
-        head: GridPos,
-        side: Side,
-        rr: &mut ResourceRegistry,
-    ) -> Self {
+    pub fn new(creature: Creature, count: i32, head: GridPos, side: Side) -> Self {
         Stack {
             creature,
             count,

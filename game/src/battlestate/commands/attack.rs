@@ -5,7 +5,7 @@ use crate::pathfinding;
 
 use crate::battlestate::damage::{deal_damage, AttackType};
 
-use super::{r#move, CommandT, Event};
+use super::{r#move, Event};
 
 const ATTACK_TYPE: AttackType = AttackType::Melee;
 

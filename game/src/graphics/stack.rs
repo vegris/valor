@@ -84,11 +84,3 @@ fn draw_count(
 
     Ok(())
 }
-
-fn animation(logic: &Stack) -> (AnimationType, f32) {
-    if logic.is_alive() {
-        (AnimationType::Standing, 0.0)
-    } else {
-        (AnimationType::Death, 1.0)
-    }
-}

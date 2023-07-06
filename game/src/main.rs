@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut game_state = BattleState::new(&config, &mut resource_registry)?;
+    let mut game_state = BattleState::new(&config)?;
 
     let statics = Statics::init(
         &config,

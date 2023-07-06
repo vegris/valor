@@ -94,9 +94,9 @@ pub struct BattleState {
 }
 
 impl BattleState {
-    pub fn new(config: &Config, rr: &mut ResourceRegistry) -> Result<Self, Box<dyn Error>> {
-        let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker, rr);
-        let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender, rr);
+    pub fn new(config: &Config) -> Result<Self, Box<dyn Error>> {
+        let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
+        let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);
 
         let heroes = config.armies.map(|army| army.hero.map(Hero::build));
 
