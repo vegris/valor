@@ -75,7 +75,7 @@ impl Anim {
         Status::Progress(progress)
     }
 
-    fn duration(&self) -> Duration {
+    pub fn duration(&self) -> Duration {
         self.delay + self.duration - self.spent
     }
 }
@@ -146,5 +146,11 @@ impl AnimationQueue {
             .iter()
             .map(|animation| animation.duration())
             .sum()
+    }
+
+    pub fn is_animating(&self) -> bool {
+        self.queue
+            .iter()
+            .any(|animation| animation.type_ != AnimationType::Standing)
     }
 }

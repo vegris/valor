@@ -24,12 +24,12 @@ pub fn draw(
 ) -> Result<(), Box<dyn Error>> {
     let spritesheet = rr.get_creature_container(stack.creature);
 
-    let (animation_type, animation_progress) = if stack.is_alive() {
-        stack.animation_queue.get_animation()
-    } else {
-        (AnimationType::Death, 1.0)
-    };
-    // let (animation_type, animation_progress) = animation(stack);
+    let (animation_type, animation_progress) =
+        if stack.is_alive() || stack.animation_queue.is_animating() {
+            stack.animation_queue.get_animation()
+        } else {
+            (AnimationType::Death, 1.0)
+        };
 
     let draw_pos = pathfinding::tail_for(stack.creature, stack.side, stack.head)
         .unwrap()
