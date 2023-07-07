@@ -45,6 +45,7 @@ impl Anim {
         rr: &mut ResourceRegistry,
     ) -> Self {
         let spritesheet = rr.get_creature_container(creature);
+
         let frames = spritesheet.frames_count(animation_type).unwrap();
         let duration = frame_duration(animation_type) * frames as u32;
 

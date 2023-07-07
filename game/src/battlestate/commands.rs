@@ -1,4 +1,4 @@
-use crate::command::Command;
+use crate::{command::Command, grid::GridPos};
 
 use super::{BattleState, StackHandle};
 
@@ -26,6 +26,10 @@ pub enum Event {
         defender: StackHandle,
         strikes: Vec<Strike>,
     },
+    Movement {
+        stack_handle: StackHandle,
+        path: Vec<GridPos>,
+    },
 }
 
 pub fn is_applicable(state: &BattleState, command: Command) -> bool {
@@ -44,7 +48,7 @@ pub fn apply(state: &mut BattleState, command: Command) -> Vec<Event> {
     match command {
         Command::Defend(command) => command.apply(state),
         Command::Wait(command) => command.apply(state),
-        Command::Move(command) => command.apply(state),
+        Command::Move(command) => events = command.apply(state),
         Command::Attack(command) => events = command.apply(state),
         Command::Shoot(command) => command.apply(state),
     }

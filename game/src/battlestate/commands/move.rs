@@ -1,13 +1,13 @@
 use crate::{battlestate::BattleState, grid::GridPos};
 
-use super::CommandT;
+use super::Event;
 
-impl CommandT for crate::command::Move {
-    fn is_applicable(&self, state: &BattleState) -> bool {
+impl crate::command::Move {
+    pub fn is_applicable(&self, state: &BattleState) -> bool {
         is_applicable(state, self.destination)
     }
-    fn apply(self, state: &mut BattleState) {
-        apply(state, self.destination);
+    pub fn apply(self, state: &mut BattleState) -> Vec<Event> {
+        apply(state, self.destination)
     }
 }
 
@@ -30,8 +30,8 @@ pub fn is_applicable(state: &BattleState, destination: GridPos) -> bool {
     is_position_available && state.reachable_cells.contains(&destination)
 }
 
-pub fn apply(state: &mut BattleState, destination: GridPos) {
-    let _path = state
+pub fn apply(state: &mut BattleState, destination: GridPos) -> Vec<Event> {
+    let path = state
         .navigation_array
         .get_shortest_path(destination)
         .unwrap();
@@ -39,4 +39,9 @@ pub fn apply(state: &mut BattleState, destination: GridPos) {
     let current_stack = state.get_current_stack_mut();
 
     current_stack.head = destination;
+
+    vec![Event::Movement {
+        stack_handle: state.current_stack,
+        path,
+    }]
 }
