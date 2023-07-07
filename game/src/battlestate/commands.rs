@@ -14,11 +14,17 @@ pub trait CommandT {
 }
 
 #[derive(Debug)]
+pub struct Strike {
+    pub retaliation: bool,
+    pub lethal: bool,
+}
+
+#[derive(Debug)]
 pub enum Event {
-    Strike {
+    Attack {
         attacker: StackHandle,
-        target: StackHandle,
-        lethal: bool,
+        defender: StackHandle,
+        strikes: Vec<Strike>,
     },
 }
 

@@ -5,7 +5,7 @@ use crate::pathfinding;
 
 use crate::battlestate::damage::{deal_damage, AttackType};
 
-use super::{r#move, Event};
+use super::{r#move, Event, Strike};
 
 const ATTACK_TYPE: AttackType = AttackType::Melee;
 
@@ -45,7 +45,7 @@ impl crate::command::Attack {
     }
 
     pub fn apply(self, state: &mut BattleState) -> Vec<Event> {
-        let mut events = vec![];
+        let mut strikes = vec![];
 
         let current_stack = state.get_current_stack();
         let is_wide = current_stack.creature.is_wide();
@@ -70,9 +70,8 @@ impl crate::command::Attack {
             .unwrap();
 
         deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
-        events.push(Event::Strike {
-            attacker: state.current_stack,
-            target: defender_handle,
+        strikes.push(Strike {
+            retaliation: false,
             lethal: !defender.is_alive(),
         });
 
@@ -82,9 +81,8 @@ impl crate::command::Attack {
         {
             defender.retaliation_count.decrement();
             deal_damage(&state.heroes, defender, attacker, ATTACK_TYPE);
-            events.push(Event::Strike {
-                attacker: defender_handle,
-                target: state.current_stack,
+            strikes.push(Strike {
+                retaliation: true,
                 lethal: !attacker.is_alive(),
             });
         }
@@ -95,10 +93,9 @@ impl crate::command::Attack {
         {
             println!("Using double strike!");
             deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
-            events.push(Event::Strike {
-                attacker: state.current_stack,
-                target: defender_handle,
-                lethal: !defender.is_alive(),
+            strikes.push(Strike {
+                retaliation: false,
+                lethal: !attacker.is_alive(),
             });
         }
 
@@ -106,6 +103,12 @@ impl crate::command::Attack {
             r#move::apply(state, initial_position);
         }
 
-        events
+        let attack = Event::Attack {
+            attacker: state.current_stack,
+            defender: defender_handle,
+            strikes,
+        };
+
+        vec![attack]
     }
 }

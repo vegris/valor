@@ -244,12 +244,12 @@ impl BattleState {
 fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut ResourceRegistry) {
     for event in events {
         match event {
-            Event::Strike {
+            Event::Attack {
                 attacker,
-                target,
-                lethal,
+                defender,
+                strikes,
             } => {
-                let [attacker, defender] = state.stacks.get_many_mut([attacker, target]).unwrap();
+                let [attacker, defender] = state.stacks.get_many_mut([attacker, defender]).unwrap();
 
                 let needs_turning = needs_turning(attacker, defender);
 
@@ -271,35 +271,26 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                     defender.animation_queue.push(anim);
                 }
 
-                let animation = Anim::new(AnimationType::AttackStraight, attacker.creature, rr);
-
-                let total_delay = attacker
-                    .animation_queue
-                    .total_duration()
-                    .checked_sub(defender.animation_queue.total_duration())
-                    .unwrap_or(Duration::ZERO)
-                    + animation.duration() / 2;
-                attacker.animation_queue.push(animation);
-
-                let animation_type = if lethal {
-                    AnimationType::Death
-                } else {
-                    AnimationType::GettingHit
-                };
-                let animation =
-                    Anim::new(animation_type, defender.creature, rr).add_delay(total_delay);
-                defender.animation_queue.push(animation);
+                for strike in strikes {
+                    if strike.retaliation {
+                        animate_strike(defender, attacker, strike.lethal, rr);
+                    } else {
+                        animate_strike(attacker, defender, strike.lethal, rr);
+                    }
+                }
 
                 if needs_turning {
-                    attacker.animation_queue.push(
-                        Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
-                            .set_at_end(AtEndEvent::InvertSide),
-                    );
+                    if attacker.is_alive() {
+                        attacker.animation_queue.push(
+                            Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
+                                .set_at_end(AtEndEvent::InvertSide),
+                        );
 
-                    let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
-                    attacker.animation_queue.push(anim);
+                        let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
+                        attacker.animation_queue.push(anim);
+                    }
 
-                    if !lethal {
+                    if defender.is_alive() {
                         defender.animation_queue.push(
                             Anim::new(AnimationType::TurnLeft, defender.creature, rr)
                                 .set_at_end(AtEndEvent::InvertSide),
@@ -319,4 +310,29 @@ fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
         Side::Attacker => attacker.head.x > defender.head.x,
         Side::Defender => attacker.head.x < defender.head.x,
     }
+}
+
+fn animate_strike(
+    attacker: &mut Stack,
+    defender: &mut Stack,
+    lethal: bool,
+    rr: &mut ResourceRegistry,
+) {
+    let animation = Anim::new(AnimationType::AttackStraight, attacker.creature, rr);
+
+    let total_delay = attacker
+        .animation_queue
+        .total_duration()
+        .checked_sub(defender.animation_queue.total_duration())
+        .unwrap_or(Duration::ZERO)
+        + animation.duration() / 2;
+    attacker.animation_queue.push(animation);
+
+    let animation_type = if lethal {
+        AnimationType::Death
+    } else {
+        AnimationType::GettingHit
+    };
+    let animation = Anim::new(animation_type, defender.creature, rr).add_delay(total_delay);
+    defender.animation_queue.push(animation);
 }
