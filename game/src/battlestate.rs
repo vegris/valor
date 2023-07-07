@@ -6,7 +6,7 @@ use strum_macros::EnumIter;
 
 use crate::command::Command;
 use crate::config::Config;
-use crate::graphics::animation::Anim;
+use crate::graphics::animation::{Anim, AtEndEvent};
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
@@ -251,10 +251,33 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
             } => {
                 let [attacker, defender] = state.stacks.get_many_mut([attacker, target]).unwrap();
 
+                let needs_turning = needs_turning(attacker, defender);
+
+                if needs_turning {
+                    attacker.animation_queue.push(
+                        Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
+                            .set_at_end(AtEndEvent::InvertSide),
+                    );
+
+                    let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
+                    attacker.animation_queue.push(anim);
+
+                    defender.animation_queue.push(
+                        Anim::new(AnimationType::TurnLeft, defender.creature, rr)
+                            .set_at_end(AtEndEvent::InvertSide),
+                    );
+
+                    let anim = Anim::new(AnimationType::TurnRight, defender.creature, rr);
+                    defender.animation_queue.push(anim);
+                }
+
                 let animation = Anim::new(AnimationType::AttackStraight, attacker.creature, rr);
 
-                let total_delay = attacker.animation_queue.total_duration()
-                    - defender.animation_queue.total_duration()
+                let total_delay = attacker
+                    .animation_queue
+                    .total_duration()
+                    .checked_sub(defender.animation_queue.total_duration())
+                    .unwrap_or(Duration::ZERO)
                     + animation.duration() / 2;
                 attacker.animation_queue.push(animation);
 
@@ -263,10 +286,37 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 } else {
                     AnimationType::GettingHit
                 };
-                let mut animation = Anim::new(animation_type, defender.creature, rr);
-                animation.add_delay(total_delay);
+                let animation =
+                    Anim::new(animation_type, defender.creature, rr).add_delay(total_delay);
                 defender.animation_queue.push(animation);
+
+                if needs_turning {
+                    attacker.animation_queue.push(
+                        Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
+                            .set_at_end(AtEndEvent::InvertSide),
+                    );
+
+                    let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
+                    attacker.animation_queue.push(anim);
+
+                    if !lethal {
+                        defender.animation_queue.push(
+                            Anim::new(AnimationType::TurnLeft, defender.creature, rr)
+                                .set_at_end(AtEndEvent::InvertSide),
+                        );
+
+                        let anim = Anim::new(AnimationType::TurnRight, defender.creature, rr);
+                        defender.animation_queue.push(anim);
+                    }
+                }
             }
         }
+    }
+}
+
+fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
+    match attacker.side {
+        Side::Attacker => attacker.head.x > defender.head.x,
+        Side::Defender => attacker.head.x < defender.head.x,
     }
 }

@@ -17,6 +17,12 @@ pub struct Anim {
     duration: Duration,
     delay: Duration,
     spent: Duration,
+    at_end: Option<AtEndEvent>,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum AtEndEvent {
+    InvertSide,
 }
 
 pub enum Status {
@@ -29,6 +35,7 @@ pub enum Status {
 pub struct AnimationQueue {
     queue: VecDeque<Anim>,
     idle: Option<Anim>,
+    invert_side: bool,
 }
 
 impl Anim {
@@ -46,11 +53,18 @@ impl Anim {
             duration,
             delay: Duration::ZERO,
             spent: Duration::ZERO,
+            at_end: None,
         }
     }
 
-    pub fn add_delay(&mut self, delay: Duration) {
+    pub fn add_delay(mut self, delay: Duration) -> Self {
         self.delay = delay;
+        self
+    }
+
+    pub fn set_at_end(mut self, at_end: AtEndEvent) -> Self {
+        self.at_end = Some(at_end);
+        self
     }
 
     pub fn update(&mut self, dt: Duration) {
@@ -95,6 +109,7 @@ impl AnimationQueue {
         Self {
             queue: VecDeque::new(),
             idle: None,
+            invert_side: false,
         }
     }
 
@@ -105,6 +120,11 @@ impl AnimationQueue {
     pub fn update(&mut self, dt: Duration, creature: Creature, rr: &mut ResourceRegistry) {
         if let Some(anim) = self.queue.front_mut() {
             if let Status::Finished = anim.status() {
+                if let Some(at_end) = anim.at_end {
+                    match at_end {
+                        AtEndEvent::InvertSide => self.invert_side = !self.invert_side,
+                    }
+                }
                 self.queue.pop_front();
             }
         }
@@ -125,7 +145,7 @@ impl AnimationQueue {
         }
     }
 
-    pub fn get_animation(&self) -> (AnimationType, f32) {
+    pub fn get_animation(&self) -> (AnimationType, f32, bool) {
         let idle = self.idle.unwrap();
 
         self.queue
@@ -135,10 +155,10 @@ impl AnimationQueue {
                 if let Status::Delayed = status {
                     None
                 } else {
-                    Some((anim.type_, status.progress()))
+                    Some((anim.type_, status.progress(), self.invert_side))
                 }
             })
-            .unwrap_or((idle.type_, idle.status().progress()))
+            .unwrap_or((idle.type_, idle.status().progress(), self.invert_side))
     }
 
     pub fn total_duration(&self) -> Duration {
@@ -158,6 +178,7 @@ impl AnimationQueue {
 fn frame_duration(animation_type: AnimationType) -> Duration {
     let ms = match animation_type {
         AnimationType::Standing => 200,
+        AnimationType::TurnLeft | AnimationType::TurnRight => 100,
         _ => 100,
     };
 
