@@ -24,16 +24,20 @@ pub fn draw(
 ) -> Result<(), Box<dyn Error>> {
     let spritesheet = rr.get_creature_container(stack.creature);
 
-    let (animation_type, animation_progress, invert_side) =
+    let (animation_type, animation_progress, invert_side, tween_pos) =
         if stack.is_alive() || stack.animation_queue.is_animating() {
             stack.animation_queue.get_animation()
         } else {
-            (AnimationType::Death, 1.0, false)
+            (AnimationType::Death, 1.0, false, None)
         };
 
-    let draw_pos = pathfinding::tail_for(stack.creature, stack.side, stack.head)
-        .unwrap()
-        .center();
+    let draw_pos = if let Some(draw_pos) = tween_pos {
+        draw_pos
+    } else {
+        pathfinding::tail_for(stack.creature, stack.side, stack.head)
+            .unwrap()
+            .center()
+    };
 
     let side = if invert_side {
         stack.side.other()

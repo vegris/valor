@@ -304,12 +304,19 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
             Event::Movement { stack_handle, path } => {
                 let stack = state.get_stack_mut(stack_handle);
 
-                let animation = Anim::new(AnimationType::StartMoving, stack.creature, rr);
+                let start = path[0].center();
+                let animation = Anim::new(AnimationType::StartMoving, stack.creature, rr)
+                    .add_tween(start, start);
                 stack.animation_queue.push(animation);
 
-                for _pos in path {
-                    let animation = Anim::new(AnimationType::Moving, stack.creature, rr);
+                let mut from = path[0].center();
+
+                for to in &path[1..] {
+                    let to = to.center();
+                    let animation =
+                        Anim::new(AnimationType::Moving, stack.creature, rr).add_tween(from, to);
                     stack.animation_queue.push(animation);
+                    from = to;
                 }
 
                 let animation = Anim::new(AnimationType::StopMoving, stack.creature, rr);

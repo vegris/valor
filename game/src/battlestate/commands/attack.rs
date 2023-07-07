@@ -45,6 +45,7 @@ impl crate::command::Attack {
     }
 
     pub fn apply(self, state: &mut BattleState) -> Vec<Event> {
+        let mut events = vec![];
         let mut strikes = vec![];
 
         let current_stack = state.get_current_stack();
@@ -60,7 +61,7 @@ impl crate::command::Attack {
         )
         .unwrap();
 
-        r#move::apply(state, position);
+        events.extend(r#move::apply(state, position));
 
         let defender_handle = state.find_unit_for_cell(self.attack_position).unwrap();
 
@@ -100,7 +101,7 @@ impl crate::command::Attack {
         }
 
         if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
-            r#move::apply(state, initial_position);
+            events.extend(r#move::apply(state, initial_position));
         }
 
         let attack = Event::Attack {
@@ -109,6 +110,7 @@ impl crate::command::Attack {
             strikes,
         };
 
-        vec![attack]
+        events.push(attack);
+        events
     }
 }

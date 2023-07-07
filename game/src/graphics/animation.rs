@@ -1,6 +1,7 @@
 use std::{collections::VecDeque, time::Duration};
 
 use gamedata::Creature;
+use sdl2::rect::Point;
 
 use crate::registry::ResourceRegistry;
 
@@ -12,12 +13,19 @@ use super::spritesheet::creature::AnimationType;
 // 1 frame per 100 ms
 
 #[derive(Clone, Copy, Debug)]
+struct Tween {
+    from: Point,
+    to: Point,
+}
+
+#[derive(Clone, Copy, Debug)]
 pub struct Anim {
     pub type_: AnimationType,
     duration: Duration,
     delay: Duration,
     spent: Duration,
     at_end: Option<AtEndEvent>,
+    tween: Option<Tween>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -55,6 +63,7 @@ impl Anim {
             delay: Duration::ZERO,
             spent: Duration::ZERO,
             at_end: None,
+            tween: None,
         }
     }
 
@@ -65,6 +74,11 @@ impl Anim {
 
     pub fn set_at_end(mut self, at_end: AtEndEvent) -> Self {
         self.at_end = Some(at_end);
+        self
+    }
+
+    pub fn add_tween(mut self, from: Point, to: Point) -> Self {
+        self.tween = Some(Tween { from, to });
         self
     }
 
@@ -92,6 +106,17 @@ impl Anim {
 
     pub fn duration(&self) -> Duration {
         self.delay + self.duration - self.spent
+    }
+
+    pub fn tween(&self) -> Option<Point> {
+        if let Some(tween) = self.tween {
+            let progress = self.status().progress();
+            let x = tween.from.x + ((tween.to.x - tween.from.x) as f32 * progress) as i32;
+            let y = tween.from.y + ((tween.to.y - tween.from.y) as f32 * progress) as i32;
+            Some(Point::new(x, y))
+        } else {
+            None
+        }
     }
 }
 
@@ -146,7 +171,7 @@ impl AnimationQueue {
         }
     }
 
-    pub fn get_animation(&self) -> (AnimationType, f32, bool) {
+    pub fn get_animation(&self) -> (AnimationType, f32, bool, Option<Point>) {
         let idle = self.idle.unwrap();
 
         self.queue
@@ -156,10 +181,15 @@ impl AnimationQueue {
                 if let Status::Delayed = status {
                     None
                 } else {
-                    Some((anim.type_, status.progress(), self.invert_side))
+                    Some((
+                        anim.type_,
+                        status.progress(),
+                        self.invert_side,
+                        anim.tween(),
+                    ))
                 }
             })
-            .unwrap_or((idle.type_, idle.status().progress(), self.invert_side))
+            .unwrap_or((idle.type_, idle.status().progress(), self.invert_side, None))
     }
 
     pub fn total_duration(&self) -> Duration {
