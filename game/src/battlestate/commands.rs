@@ -53,5 +53,5 @@ pub fn apply(state: &mut BattleState, command: Command) -> Vec<Event> {
         Command::Shoot(command) => command.apply(state),
     }
 
-    dbg!(events)
+    events
 }

@@ -41,7 +41,7 @@ pub fn apply(state: &mut BattleState, destination: GridPos) -> Vec<Event> {
     current_stack.head = destination;
 
     let mut events = vec![];
-    if path.len() > 0 {
+    if !path.is_empty() {
         events.push(Event::Movement {
             stack_handle: state.current_stack,
             path,

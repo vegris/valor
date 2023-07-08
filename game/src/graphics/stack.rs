@@ -31,18 +31,26 @@ pub fn draw(
             (AnimationType::Death, 1.0, false, None)
         };
 
+    let tail = pathfinding::tail_for(stack.creature, stack.side, stack.head)
+        .unwrap()
+        .center();
+
     let draw_pos = if let Some(draw_pos) = tween_pos {
         draw_pos
     } else {
-        pathfinding::tail_for(stack.creature, stack.side, stack.head)
-            .unwrap()
-            .center()
+        tail
     };
 
-    let side = if invert_side {
-        stack.side.other()
+    let (side, draw_pos) = if invert_side {
+        let head = stack.head.center();
+        let x = tail.x - head.x;
+        let y = tail.y - head.y;
+        if stack.creature == gamedata::Creature::Griffin {
+            dbg!((x, y));
+        }
+        (stack.side.other(), draw_pos.offset(-x, -y))
     } else {
-        stack.side
+        (stack.side, draw_pos)
     };
 
     spritesheet.draw(
