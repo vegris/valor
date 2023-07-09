@@ -210,6 +210,7 @@ fn frame_duration(animation_type: AnimationType) -> Duration {
     let ms = match animation_type {
         AnimationType::Standing => 200,
         AnimationType::TurnLeft | AnimationType::TurnRight => 100,
+        AnimationType::Moving => 50,
         _ => 100,
     };
 

@@ -45,9 +45,6 @@ pub fn draw(
         let head = stack.head.center();
         let x = tail.x - head.x;
         let y = tail.y - head.y;
-        if stack.creature == gamedata::Creature::Griffin {
-            dbg!((x, y));
-        }
         (stack.side.other(), draw_pos.offset(-x, -y))
     } else {
         (stack.side, draw_pos)
