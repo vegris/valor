@@ -368,13 +368,6 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
     }
 }
 
-fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
-    match attacker.side {
-        Side::Attacker => attacker.head.x > defender.head.x,
-        Side::Defender => attacker.head.x < defender.head.x,
-    }
-}
-
 fn animate_strike(
     attacker: &mut Stack,
     defender: &mut Stack,
@@ -398,4 +391,34 @@ fn animate_strike(
     };
     let animation = Anim::new(animation_type, defender.creature, rr).add_delay(total_delay);
     defender.animation_queue.push(animation);
+}
+
+fn facing_side(pos: GridPos, target: GridPos) -> Side {
+    assert!(pos != target);
+
+    if pos.y == target.y {
+        if pos.x > target.x {
+            Side::Defender
+        } else {
+            Side::Attacker
+        }
+    } else {
+        if pos.is_even_row() {
+            if pos.x <= target.x {
+                Side::Attacker
+            } else {
+                Side::Defender
+            }
+        } else {
+            if pos.x >= target.x {
+                Side::Defender
+            } else {
+                Side::Attacker
+            }
+        }
+    }
+}
+
+fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
+    facing_side(attacker.head, defender.head) != attacker.side
 }
