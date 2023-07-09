@@ -254,21 +254,41 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 let needs_turning = needs_turning(attacker, defender);
 
                 if needs_turning {
-                    attacker.animation_queue.push(
+                    let mut attacker_animations = vec![];
+                    let mut defender_animations = vec![];
+
+                    attacker_animations.push(
                         Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
                             .set_at_end(AtEndEvent::InvertSide),
                     );
 
                     let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
-                    attacker.animation_queue.push(anim);
+                    attacker_animations.push(anim);
 
-                    defender.animation_queue.push(
+                    defender_animations.push(
                         Anim::new(AnimationType::TurnLeft, defender.creature, rr)
                             .set_at_end(AtEndEvent::InvertSide),
                     );
 
                     let anim = Anim::new(AnimationType::TurnRight, defender.creature, rr);
-                    defender.animation_queue.push(anim);
+                    defender_animations.push(anim);
+
+                    let attacker_duration = attacker.animation_queue.total_duration();
+                    let defender_duration = defender.animation_queue.total_duration();
+                    if attacker_duration > defender_duration {
+                        defender_animations[0] =
+                            defender_animations[0].add_delay(attacker_duration - defender_duration);
+                    } else {
+                        attacker_animations[0] =
+                            attacker_animations[0].add_delay(defender_duration - attacker_duration);
+                    }
+
+                    for animation in attacker_animations {
+                        attacker.animation_queue.push(animation);
+                    }
+                    for animation in defender_animations {
+                        defender.animation_queue.push(animation);
+                    }
                 }
 
                 for strike in strikes {
@@ -280,28 +300,50 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 }
 
                 if needs_turning {
+                    let mut attacker_animations = vec![];
+                    let mut defender_animations = vec![];
+
                     if attacker.is_alive() {
-                        attacker.animation_queue.push(
-                            Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
-                                .set_at_end(AtEndEvent::InvertSide),
-                        );
+                        let anim = Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
+                            .set_at_end(AtEndEvent::InvertSide);
+                        attacker_animations.push(anim);
 
                         let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
-                        attacker.animation_queue.push(anim);
+                        attacker_animations.push(anim);
                     }
 
                     if defender.is_alive() {
-                        defender.animation_queue.push(
-                            Anim::new(AnimationType::TurnLeft, defender.creature, rr)
-                                .set_at_end(AtEndEvent::InvertSide),
-                        );
+                        let anim = Anim::new(AnimationType::TurnLeft, defender.creature, rr)
+                            .set_at_end(AtEndEvent::InvertSide);
+                        defender_animations.push(anim);
 
                         let anim = Anim::new(AnimationType::TurnRight, defender.creature, rr);
-                        defender.animation_queue.push(anim);
+                        defender_animations.push(anim);
+                    }
+
+                    let attacker_duration = attacker.animation_queue.total_duration();
+                    let defender_duration = defender.animation_queue.total_duration();
+                    if attacker_duration > defender_duration {
+                        defender_animations[0] =
+                            defender_animations[0].add_delay(attacker_duration - defender_duration);
+                    } else {
+                        attacker_animations[0] =
+                            attacker_animations[0].add_delay(defender_duration - attacker_duration);
+                    }
+
+                    for animation in attacker_animations {
+                        attacker.animation_queue.push(animation);
+                    }
+                    for animation in defender_animations {
+                        defender.animation_queue.push(animation);
                     }
                 }
             }
             Event::Movement { stack_handle, path } => {
+                if path.len() == 1 {
+                    continue;
+                }
+
                 let stack = state.get_stack_mut(stack_handle);
 
                 let start = path[0].center();
