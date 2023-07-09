@@ -346,23 +346,63 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
 
                 let stack = state.get_stack_mut(stack_handle);
 
+                let mut cur_side = stack.side;
+                let mut animations = vec![];
+
                 let start = path[0].center();
                 let animation = Anim::new(AnimationType::StartMoving, stack.creature, rr)
                     .add_tween(start, start);
-                stack.animation_queue.push(animation);
+                animations.push(animation);
 
-                let mut from = path[0].center();
+                let mut from = path[0];
 
-                for to in &path[1..] {
-                    let to = to.center();
-                    let animation =
-                        Anim::new(AnimationType::Moving, stack.creature, rr).add_tween(from, to);
-                    stack.animation_queue.push(animation);
-                    from = to;
+                if facing_side(path[0], path[1]) != stack.side {
+                    let anim = Anim::new(AnimationType::TurnLeft, stack.creature, rr)
+                        .set_at_end(AtEndEvent::InvertSide)
+                        .add_tween(from.center(), from.center());
+                    animations.push(anim);
+                    let anim = Anim::new(AnimationType::TurnRight, stack.creature, rr)
+                        .add_tween(from.center(), from.center());
+                    animations.push(anim);
+
+                    cur_side = cur_side.other();
+                }
+
+                let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
+                    .add_tween(from.center(), path[1].center());
+                animations.push(animation);
+
+                from = path[1];
+
+                for to in &path[2..] {
+                    let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
+                        .add_tween(from.center(), to.center());
+
+                    if facing_side(from, *to) != cur_side {
+                        if let Some(animation) = animations.last_mut() {
+                            *animation = animation.set_at_end(AtEndEvent::InvertSide);
+                        }
+                        cur_side = cur_side.other();
+                    }
+
+                    animations.push(animation);
+                    from = *to;
                 }
 
                 let animation = Anim::new(AnimationType::StopMoving, stack.creature, rr);
-                stack.animation_queue.push(animation);
+                animations.push(animation);
+
+                if cur_side != stack.side {
+                    let anim = Anim::new(AnimationType::TurnLeft, stack.creature, rr)
+                        .set_at_end(AtEndEvent::InvertSide);
+                    animations.push(anim);
+                    let anim = Anim::new(AnimationType::TurnRight, stack.creature, rr);
+                    animations.push(anim);
+                }
+
+                for animation in animations {
+                    stack.animation_queue.push(animation);
+                }
             }
         }
     }
@@ -402,20 +442,16 @@ fn facing_side(pos: GridPos, target: GridPos) -> Side {
         } else {
             Side::Attacker
         }
-    } else {
-        if pos.is_even_row() {
-            if pos.x <= target.x {
-                Side::Attacker
-            } else {
-                Side::Defender
-            }
+    } else if pos.is_even_row() {
+        if pos.x <= target.x {
+            Side::Attacker
         } else {
-            if pos.x >= target.x {
-                Side::Defender
-            } else {
-                Side::Attacker
-            }
+            Side::Defender
         }
+    } else if pos.x >= target.x {
+        Side::Defender
+    } else {
+        Side::Attacker
     }
 }
 
