@@ -368,25 +368,27 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                     cur_side = cur_side.other();
                 }
 
-                let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
-                    .add_tween(from.center(), path[1].center());
-                animations.push(animation);
-
-                from = path[1];
-
-                for to in &path[2..] {
+                if !stack.creature.is_teleporting() {
                     let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
-                        .add_tween(from.center(), to.center());
-
-                    if facing_side(from, *to) != cur_side {
-                        if let Some(animation) = animations.last_mut() {
-                            *animation = animation.set_at_end(AtEndEvent::InvertSide);
-                        }
-                        cur_side = cur_side.other();
-                    }
-
+                        .add_tween(from.center(), path[1].center());
                     animations.push(animation);
-                    from = *to;
+
+                    from = path[1];
+
+                    for to in &path[2..] {
+                        let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
+                            .add_tween(from.center(), to.center());
+
+                        if facing_side(from, *to) != cur_side {
+                            if let Some(animation) = animations.last_mut() {
+                                *animation = animation.set_at_end(AtEndEvent::InvertSide);
+                            }
+                            cur_side = cur_side.other();
+                        }
+
+                        animations.push(animation);
+                        from = *to;
+                    }
                 }
 
                 let animation = Anim::new(AnimationType::StopMoving, stack.creature, rr);

@@ -1710,6 +1710,11 @@ impl Creature {
         FLYING_CREATURES.contains(self)
     }
 
+    pub fn is_teleporting(&self) -> bool {
+        const TELEPORTING_CREATURES: [Creature; 2] = [Creature::Devil, Creature::ArchDevil];
+        TELEPORTING_CREATURES.contains(self)
+    }
+
     pub const fn spritesheet_filename(self) -> &'static str {
         match self {
             // Castle
