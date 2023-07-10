@@ -213,7 +213,6 @@ impl BattleState {
                 for stack in self.stacks.0.values_mut() {
                     stack.turn_state = Some(turns::Phase::Fresh);
                     stack.retaliation_count = stack.creature.retaliation_count();
-                    stack.defending = false;
                 }
             }
             self.update_current_stack();
@@ -428,6 +427,8 @@ fn animate_strike(
 
     let animation_type = if lethal {
         AnimationType::Death
+    } else if defender.defending {
+        AnimationType::Defend
     } else {
         AnimationType::GettingHit
     };
