@@ -41,7 +41,7 @@ pub fn draw(
 
     for side in Side::iter() {
         if let Some(hero) = &statics.heroes[side as usize] {
-            hero.draw(canvas, tc, side, hero::AnimationType::Casting, 0.7)?;
+            hero.draw(canvas, tc, side, hero::AnimationType::Idle, 0.0)?;
         }
     }
 
