@@ -405,6 +405,36 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                     stack.animation_queue.push(animation);
                 }
             }
+            Event::Shot {
+                attacker,
+                target,
+                lethal,
+            } => {
+                let [attacker, target] = state.stacks.get_many_mut([attacker, target]).unwrap();
+                let mut animation = Anim::new(AnimationType::ShootStraight, attacker.creature, rr);
+                let shoot_duration = animation.duration();
+
+                let attacker_duration = attacker.animation_queue.total_duration();
+                let target_duration = target.animation_queue.total_duration();
+
+                if target_duration > attacker_duration {
+                    let delay = target_duration - attacker_duration;
+                    animation = animation.add_delay(delay);
+                }
+                attacker.animation_queue.push(animation);
+
+                let animation_type = if lethal {
+                    AnimationType::Death
+                } else if target.defending {
+                    AnimationType::Defend
+                } else {
+                    AnimationType::GettingHit
+                };
+
+                let animation =
+                    Anim::new(animation_type, target.creature, rr).add_delay(shoot_duration);
+                target.animation_queue.push(animation);
+            }
         }
     }
 }

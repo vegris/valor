@@ -26,6 +26,11 @@ pub enum Event {
         defender: StackHandle,
         strikes: Vec<Strike>,
     },
+    Shot {
+        attacker: StackHandle,
+        target: StackHandle,
+        lethal: bool,
+    },
     Movement {
         stack_handle: StackHandle,
         path: Vec<GridPos>,
@@ -50,7 +55,7 @@ pub fn apply(state: &mut BattleState, command: Command) -> Vec<Event> {
         Command::Wait(command) => command.apply(state),
         Command::Move(command) => events = command.apply(state),
         Command::Attack(command) => events = command.apply(state),
-        Command::Shoot(command) => command.apply(state),
+        Command::Shoot(command) => events = command.apply(state),
     }
 
     events

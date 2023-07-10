@@ -3,12 +3,12 @@ use gamedata::Ability;
 use crate::battlestate::damage;
 use crate::battlestate::BattleState;
 
-use super::CommandT;
+use super::Event;
 
 const ATTACK_TYPE: damage::AttackType = damage::AttackType::Shoot;
 
-impl CommandT for crate::command::Shoot {
-    fn is_applicable(&self, state: &BattleState) -> bool {
+impl crate::command::Shoot {
+    pub fn is_applicable(&self, state: &BattleState) -> bool {
         let current_stack = state.get_current_stack();
         let target_stack = state.get_stack(self.target);
 
@@ -18,7 +18,9 @@ impl CommandT for crate::command::Shoot {
 
         is_enemy && is_alive && can_shoot
     }
-    fn apply(self, state: &mut BattleState) {
+    pub fn apply(self, state: &mut BattleState) -> Vec<Event> {
+        let mut events = vec![];
+
         let [attacker, defender] = state
             .stacks
             .get_many_mut([state.current_stack, self.target])
@@ -28,8 +30,14 @@ impl CommandT for crate::command::Shoot {
 
         damage::deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
 
+        events.push(Event::Shot {
+            attacker: state.current_stack,
+            target: self.target,
+            lethal: !defender.is_alive(),
+        });
+
         if !defender.is_alive() {
-            return;
+            return events;
         }
 
         if attacker.current_ammo > 0 && attacker.creature.has_ability(Ability::DoubleShot) {
@@ -37,6 +45,13 @@ impl CommandT for crate::command::Shoot {
 
             attacker.current_ammo -= 1;
             damage::deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
+            events.push(Event::Shot {
+                attacker: state.current_stack,
+                target: self.target,
+                lethal: !defender.is_alive(),
+            });
         }
+
+        events
     }
 }
