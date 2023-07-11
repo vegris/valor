@@ -7,13 +7,14 @@ use sdl2::video::WindowContext;
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
-use super::spritesheet;
+use super::spritesheet::hero::AnimationType;
+use super::spritesheet::Spritesheet;
 
 pub struct Statics<'a> {
     pub(super) cursors: Cursors,
     pub(super) font: Font<'a, 'static>,
     pub(super) textures: Textures<'a>,
-    pub(super) heroes: [Option<spritesheet::Hero>; 2],
+    pub(super) heroes: [Option<Spritesheet<AnimationType>>; 2],
 }
 
 impl<'a> Statics<'a> {
@@ -30,7 +31,7 @@ impl<'a> Statics<'a> {
             army.hero.map(|h| {
                 let hero_def = rr.load_def(h.class().battle_spritesheet());
 
-                spritesheet::Hero::from_def(hero_def)
+                Spritesheet::from_def(hero_def)
             })
         });
 

@@ -1,4 +1,3 @@
-use formats::DefContainer;
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
@@ -9,7 +8,7 @@ use strum_macros::{EnumCount, EnumIter};
 use crate::battlestate::Side;
 
 use super::sprite::Sprite;
-use super::Container;
+use super::Spritesheet;
 
 #[derive(Clone, Copy, Debug, EnumCount, EnumIter, PartialEq)]
 pub enum AnimationType {
@@ -67,13 +66,7 @@ impl super::AnimationType for AnimationType {
     }
 }
 
-pub struct Creature(Container);
-
-impl Creature {
-    pub fn from_def(def: DefContainer) -> Self {
-        Self(super::Container::from_def::<AnimationType>(def))
-    }
-
+impl Spritesheet<AnimationType> {
     #[allow(clippy::too_many_arguments)]
     pub fn draw(
         &self,
@@ -85,10 +78,7 @@ impl Creature {
         animation_type: AnimationType,
         progress: f32,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let sprite = self
-            .0
-            .get_sprite(animation_type as usize, progress)
-            .unwrap();
+        let sprite = self.get_sprite(animation_type as usize, progress).unwrap();
 
         let draw_rect = draw_rect(sprite, draw_pos, side);
 
@@ -107,19 +97,19 @@ impl Creature {
     }
 
     pub fn frames_count(&self, animation_type: AnimationType) -> Option<usize> {
-        self.0.blocks[animation_type as usize]
+        self.blocks[animation_type as usize]
             .as_ref()
             .map(|block| block.len())
     }
 }
 
-fn with_selection(sprite: &Sprite, spritesheet: &Creature) -> Surface<'static> {
+fn with_selection(sprite: &Sprite, spritesheet: &Spritesheet<AnimationType>) -> Surface<'static> {
     let mut surface = sprite
         .surface
         .convert(&sprite.surface.pixel_format())
         .unwrap();
 
-    let mut colors = spritesheet.0.colors.to_vec();
+    let mut colors = spritesheet.colors.to_vec();
     colors[5] = Color::YELLOW;
     let palette = Palette::with_colors(&colors).unwrap();
 

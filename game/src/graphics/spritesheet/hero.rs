@@ -1,4 +1,3 @@
-use formats::DefContainer;
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
 use sdl2::video::{Window, WindowContext};
@@ -7,7 +6,7 @@ use strum_macros::{EnumCount, EnumIter};
 use crate::battlestate::Side;
 
 use super::sprite::Sprite;
-use super::Container;
+use super::Spritesheet;
 
 #[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum AnimationType {
@@ -30,13 +29,7 @@ impl super::AnimationType for AnimationType {
     }
 }
 
-pub struct Hero(Container);
-
-impl Hero {
-    pub fn from_def(def: DefContainer) -> Self {
-        Self(super::Container::from_def::<AnimationType>(def))
-    }
-
+impl Spritesheet<AnimationType> {
     pub fn draw(
         &self,
         canvas: &mut Canvas<Window>,
@@ -45,10 +38,7 @@ impl Hero {
         animation_type: AnimationType,
         progress: f32,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let sprite = self
-            .0
-            .get_sprite(animation_type as usize, progress)
-            .unwrap();
+        let sprite = self.get_sprite(animation_type as usize, progress).unwrap();
         let draw_rect = draw_rect(sprite, side);
         let texture = sprite.surface.as_texture(tc)?;
 

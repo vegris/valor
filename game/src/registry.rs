@@ -7,7 +7,8 @@ use sdl2::surface::Surface;
 use formats::{pcx, DefContainer, LodIndex};
 use gamedata::Creature;
 
-use crate::graphics::spritesheet;
+use crate::graphics::spritesheet::creature::AnimationType;
+use crate::graphics::spritesheet::Spritesheet;
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -57,17 +58,20 @@ impl ResourceRegistry {
         DefContainer::from_bytes(&bytes)
     }
 
-    pub fn get_creature_container(&mut self, creature: Creature) -> &mut spritesheet::Creature {
+    pub fn get_creature_container(
+        &mut self,
+        creature: Creature,
+    ) -> &mut Spritesheet<AnimationType> {
         if self.cache.get(creature).is_none() {
             let def = self.load_def(creature.spritesheet_filename());
-            let spritesheet = spritesheet::Creature::from_def(def);
+            let spritesheet = Spritesheet::from_def(def);
             self.cache.put(creature, spritesheet);
         }
         self.cache.get(creature).unwrap()
     }
 }
 
-type CachedValue = spritesheet::Creature;
+type CachedValue = Spritesheet<AnimationType>;
 
 pub struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
 

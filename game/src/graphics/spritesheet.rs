@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, marker::PhantomData};
 
 use sdl2::pixels::{Color, Palette};
 use strum::{EnumCount, IntoEnumIterator};
@@ -6,31 +6,28 @@ use strum::{EnumCount, IntoEnumIterator};
 use formats::{DefContainer, DefSprite};
 
 pub mod creature;
-pub use creature::Creature;
-
 pub mod hero;
-pub use hero::Hero;
-
 mod sprite;
 
 use sprite::Sprite;
 
 type AnimationBlock = Box<[usize]>;
 
-struct Container {
+pub struct Spritesheet<A: AnimationType> {
     colors: Box<[Color]>,
     sprites: Box<[Sprite]>,
     blocks: Box<[Option<AnimationBlock>]>,
+    animation_type: PhantomData<A>,
 }
 
-trait AnimationType: EnumCount + IntoEnumIterator {
+pub trait AnimationType: EnumCount + IntoEnumIterator {
     const DEF_TYPE: u32;
 
     fn index(&self) -> u32;
 }
 
-impl Container {
-    fn from_def<A: AnimationType>(def_container: DefContainer) -> Self {
+impl<A: AnimationType> Spritesheet<A> {
+    pub fn from_def(def_container: DefContainer) -> Self {
         let DefContainer {
             type_,
             mut colors,
@@ -83,10 +80,11 @@ impl Container {
 
         let blocks = blocks.into_boxed_slice();
 
-        Container {
+        Spritesheet {
             colors,
             sprites,
             blocks,
+            animation_type: PhantomData,
         }
     }
 
