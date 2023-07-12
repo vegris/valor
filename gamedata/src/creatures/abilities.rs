@@ -1,4 +1,4 @@
-use crate::Creature;
+use super::Creature;
 
 #[derive(Clone, Debug)]
 pub enum RetaliationCount {

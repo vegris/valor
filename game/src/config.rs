@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 extern crate ron;
 
-use gamedata::{heroes::Hero, Battlefield, Creature};
+use gamedata::{battlefields::Battlefield, creatures::Creature, heroes::Hero};
 
 #[derive(Clone, Copy, Deserialize)]
 pub struct Army {

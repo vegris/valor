@@ -1,4 +1,4 @@
-use gamedata::Ability;
+use gamedata::creatures::abilities::Ability;
 
 use crate::battlestate::BattleState;
 use crate::pathfinding;

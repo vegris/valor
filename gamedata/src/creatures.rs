@@ -1,9 +1,9 @@
-extern crate serde;
 use serde::Deserialize;
-
-mod abilities;
-pub use abilities::{Ability, RetaliationCount};
 use strum_macros::EnumCount;
+
+pub mod abilities;
+
+use abilities::Ability;
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize, EnumCount)]
 pub enum Creature {

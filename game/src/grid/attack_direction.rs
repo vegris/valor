@@ -1,4 +1,4 @@
-use gamedata::Creature;
+use gamedata::creatures::Creature;
 
 use super::hexagon_part::HexagonPart;
 

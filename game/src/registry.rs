@@ -5,7 +5,7 @@ extern crate sdl2;
 use sdl2::surface::Surface;
 
 use formats::{pcx, DefContainer, LodIndex};
-use gamedata::Creature;
+use gamedata::creatures::Creature;
 use strum::EnumCount;
 
 use crate::graphics::spritesheet::creature::AnimationType;

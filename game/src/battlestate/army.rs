@@ -1,4 +1,4 @@
-use gamedata::Creature;
+use gamedata::creatures::Creature;
 
 use crate::grid::GridPos;
 use crate::pathfinding::head_from_tail;

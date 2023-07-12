@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 use std::time::Duration;
 
-use gamedata::{Creature, CreatureStats, RetaliationCount};
+use gamedata::creatures::abilities::RetaliationCount;
+use gamedata::creatures::{Creature, CreatureStats};
 
 use crate::battlestate::turns;
 use crate::graphics::animation::AnimationQueue;

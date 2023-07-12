@@ -1,7 +1,8 @@
 use std::{collections::VecDeque, time::Duration};
 
-use gamedata::Creature;
 use sdl2::rect::Point;
+
+use gamedata::creatures::Creature;
 
 use crate::registry::ResourceRegistry;
 
