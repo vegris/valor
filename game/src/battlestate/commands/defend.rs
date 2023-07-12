@@ -1,13 +1,13 @@
-use crate::battlestate::BattleState;
+use crate::{battlestate::BattleState, command::Defend};
 
-use super::CommandT;
+use super::Event;
 
-impl CommandT for crate::command::Defend {
-    fn is_applicable(&self, _state: &BattleState) -> bool {
-        true
-    }
-    fn apply(self, state: &mut BattleState) {
-        let current_stack = state.get_current_stack_mut();
-        current_stack.defending = true;
-    }
+pub fn is_applicable(_command: Defend, _state: &BattleState) -> bool {
+    true
+}
+pub fn apply(_command: Defend, state: &mut BattleState) -> Vec<Event> {
+    let current_stack = state.get_current_stack_mut();
+    current_stack.defending = true;
+
+    vec![]
 }

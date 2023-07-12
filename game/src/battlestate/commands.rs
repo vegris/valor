@@ -8,11 +8,6 @@ mod r#move;
 mod shoot;
 mod wait;
 
-pub trait CommandT {
-    fn is_applicable(&self, state: &BattleState) -> bool;
-    fn apply(self, state: &mut BattleState);
-}
-
 #[derive(Debug)]
 pub struct Strike {
     pub retaliation: bool,
@@ -39,24 +34,20 @@ pub enum Event {
 
 pub fn is_applicable(state: &BattleState, command: Command) -> bool {
     match command {
-        Command::Defend(command) => command.is_applicable(state),
-        Command::Wait(command) => command.is_applicable(state),
-        Command::Move(command) => command.is_applicable(state),
-        Command::Attack(command) => command.is_applicable(state),
-        Command::Shoot(command) => command.is_applicable(state),
+        Command::Defend(command) => defend::is_applicable(command, state),
+        Command::Wait(command) => wait::is_applicable(command, state),
+        Command::Move(command) => r#move::is_applicable(command, state),
+        Command::Attack(command) => attack::is_applicable(command, state),
+        Command::Shoot(command) => shoot::is_applicable(command, state),
     }
 }
 
 pub fn apply(state: &mut BattleState, command: Command) -> Vec<Event> {
-    let mut events = vec![];
-
     match command {
-        Command::Defend(command) => command.apply(state),
-        Command::Wait(command) => command.apply(state),
-        Command::Move(command) => events = command.apply(state),
-        Command::Attack(command) => events = command.apply(state),
-        Command::Shoot(command) => events = command.apply(state),
+        Command::Defend(command) => defend::apply(command, state),
+        Command::Wait(command) => wait::apply(command, state),
+        Command::Move(command) => r#move::apply(command, state),
+        Command::Attack(command) => attack::apply(command, state),
+        Command::Shoot(command) => shoot::apply(command, state),
     }
-
-    events
 }

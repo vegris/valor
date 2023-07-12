@@ -1,23 +1,14 @@
-use crate::{battlestate::BattleState, grid::GridPos};
+use crate::{battlestate::BattleState, command::Move};
 
 use super::Event;
 
-impl crate::command::Move {
-    pub fn is_applicable(&self, state: &BattleState) -> bool {
-        is_applicable(state, self.destination)
-    }
-    pub fn apply(self, state: &mut BattleState) -> Vec<Event> {
-        apply(state, self.destination)
-    }
-}
-
-pub fn is_applicable(state: &BattleState, destination: GridPos) -> bool {
+pub fn is_applicable(command: Move, state: &BattleState) -> bool {
     let current_stack = state.get_current_stack();
 
     let is_position_available = crate::pathfinding::get_occupied_cells_for(
         current_stack.creature,
         current_stack.side,
-        destination,
+        command.destination,
     )
     .map(|cells| {
         cells
@@ -27,18 +18,18 @@ pub fn is_applicable(state: &BattleState, destination: GridPos) -> bool {
     })
     .unwrap_or(false);
 
-    is_position_available && state.reachable_cells.contains(&destination)
+    is_position_available && state.reachable_cells.contains(&command.destination)
 }
 
-pub fn apply(state: &mut BattleState, destination: GridPos) -> Vec<Event> {
+pub fn apply(command: Move, state: &mut BattleState) -> Vec<Event> {
     let path = state
         .navigation_array
-        .get_shortest_path(destination)
+        .get_shortest_path(command.destination)
         .unwrap();
 
     let current_stack = state.get_current_stack_mut();
 
-    current_stack.head = destination;
+    current_stack.head = command.destination;
 
     let mut events = vec![];
     if !path.is_empty() {
