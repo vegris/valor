@@ -76,16 +76,16 @@ type CachedValue = Spritesheet<AnimationType>;
 pub struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
 
 impl CreaturesCache {
-    pub fn new() -> Self {
+    fn new() -> Self {
         const NONE: Option<CachedValue> = None;
         Self([NONE; Creature::COUNT])
     }
 
-    pub fn get(&mut self, creature: Creature) -> Option<&mut CachedValue> {
+    fn get(&mut self, creature: Creature) -> Option<&mut CachedValue> {
         self.0[creature as usize].as_mut()
     }
 
-    pub fn put(&mut self, creature: Creature, value: CachedValue) {
+    fn put(&mut self, creature: Creature, value: CachedValue) {
         self.0[creature as usize] = Some(value);
     }
 }
