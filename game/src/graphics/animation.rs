@@ -20,7 +20,7 @@ struct Tween {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct Anim {
+pub struct Animation {
     pub type_: AnimationType,
     duration: Duration,
     delay: Duration,
@@ -42,12 +42,12 @@ pub enum Status {
 
 #[derive(Clone, Debug)]
 pub struct AnimationQueue {
-    queue: VecDeque<Anim>,
-    idle: Option<Anim>,
+    queue: VecDeque<Animation>,
+    idle: Option<Animation>,
     invert_side: bool,
 }
 
-impl Anim {
+impl Animation {
     pub fn new(
         animation_type: AnimationType,
         creature: Creature,
@@ -140,7 +140,7 @@ impl AnimationQueue {
         }
     }
 
-    pub fn push(&mut self, animation: Anim) {
+    pub fn push(&mut self, animation: Animation) {
         self.queue.push_back(animation);
     }
 
@@ -163,12 +163,12 @@ impl AnimationQueue {
 
         if let Some(idle) = &mut self.idle {
             if let Status::Finished = idle.status() {
-                self.idle = Some(Anim::new(AnimationType::Standing, creature, rr));
+                self.idle = Some(Animation::new(AnimationType::Standing, creature, rr));
             } else {
                 idle.update(dt);
             }
         } else {
-            self.idle = Some(Anim::new(AnimationType::Standing, creature, rr));
+            self.idle = Some(Animation::new(AnimationType::Standing, creature, rr));
         }
     }
 

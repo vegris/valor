@@ -6,7 +6,7 @@ use strum_macros::EnumIter;
 
 use crate::command::Command;
 use crate::config::Config;
-use crate::graphics::animation::{Anim, AtEndEvent};
+use crate::graphics::animation::{Animation, AtEndEvent};
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
@@ -257,19 +257,19 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                     let mut defender_animations = vec![];
 
                     attacker_animations.push(
-                        Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
+                        Animation::new(AnimationType::TurnLeft, attacker.creature, rr)
                             .set_at_end(AtEndEvent::InvertSide),
                     );
 
-                    let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
+                    let anim = Animation::new(AnimationType::TurnRight, attacker.creature, rr);
                     attacker_animations.push(anim);
 
                     defender_animations.push(
-                        Anim::new(AnimationType::TurnLeft, defender.creature, rr)
+                        Animation::new(AnimationType::TurnLeft, defender.creature, rr)
                             .set_at_end(AtEndEvent::InvertSide),
                     );
 
-                    let anim = Anim::new(AnimationType::TurnRight, defender.creature, rr);
+                    let anim = Animation::new(AnimationType::TurnRight, defender.creature, rr);
                     defender_animations.push(anim);
 
                     let attacker_duration = attacker.animation_queue.total_duration();
@@ -303,20 +303,20 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                     let mut defender_animations = vec![];
 
                     if attacker.is_alive() {
-                        let anim = Anim::new(AnimationType::TurnLeft, attacker.creature, rr)
+                        let anim = Animation::new(AnimationType::TurnLeft, attacker.creature, rr)
                             .set_at_end(AtEndEvent::InvertSide);
                         attacker_animations.push(anim);
 
-                        let anim = Anim::new(AnimationType::TurnRight, attacker.creature, rr);
+                        let anim = Animation::new(AnimationType::TurnRight, attacker.creature, rr);
                         attacker_animations.push(anim);
                     }
 
                     if defender.is_alive() {
-                        let anim = Anim::new(AnimationType::TurnLeft, defender.creature, rr)
+                        let anim = Animation::new(AnimationType::TurnLeft, defender.creature, rr)
                             .set_at_end(AtEndEvent::InvertSide);
                         defender_animations.push(anim);
 
-                        let anim = Anim::new(AnimationType::TurnRight, defender.creature, rr);
+                        let anim = Animation::new(AnimationType::TurnRight, defender.creature, rr);
                         defender_animations.push(anim);
                     }
 
@@ -349,18 +349,18 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 let mut animations = vec![];
 
                 let start = path[0].center();
-                let animation = Anim::new(AnimationType::StartMoving, stack.creature, rr)
+                let animation = Animation::new(AnimationType::StartMoving, stack.creature, rr)
                     .add_tween(start, start);
                 animations.push(animation);
 
                 let mut from = path[0];
 
                 if facing_side(path[0], path[1]) != stack.side {
-                    let anim = Anim::new(AnimationType::TurnLeft, stack.creature, rr)
+                    let anim = Animation::new(AnimationType::TurnLeft, stack.creature, rr)
                         .set_at_end(AtEndEvent::InvertSide)
                         .add_tween(from.center(), from.center());
                     animations.push(anim);
-                    let anim = Anim::new(AnimationType::TurnRight, stack.creature, rr)
+                    let anim = Animation::new(AnimationType::TurnRight, stack.creature, rr)
                         .add_tween(from.center(), from.center());
                     animations.push(anim);
 
@@ -368,14 +368,14 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 }
 
                 if !stack.creature.is_teleporting() {
-                    let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
+                    let animation = Animation::new(AnimationType::Moving, stack.creature, rr)
                         .add_tween(from.center(), path[1].center());
                     animations.push(animation);
 
                     from = path[1];
 
                     for to in &path[2..] {
-                        let animation = Anim::new(AnimationType::Moving, stack.creature, rr)
+                        let animation = Animation::new(AnimationType::Moving, stack.creature, rr)
                             .add_tween(from.center(), to.center());
 
                         if facing_side(from, *to) != cur_side {
@@ -390,14 +390,14 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                     }
                 }
 
-                let animation = Anim::new(AnimationType::StopMoving, stack.creature, rr);
+                let animation = Animation::new(AnimationType::StopMoving, stack.creature, rr);
                 animations.push(animation);
 
                 if cur_side != stack.side {
-                    let anim = Anim::new(AnimationType::TurnLeft, stack.creature, rr)
+                    let anim = Animation::new(AnimationType::TurnLeft, stack.creature, rr)
                         .set_at_end(AtEndEvent::InvertSide);
                     animations.push(anim);
-                    let anim = Anim::new(AnimationType::TurnRight, stack.creature, rr);
+                    let anim = Animation::new(AnimationType::TurnRight, stack.creature, rr);
                     animations.push(anim);
                 }
 
@@ -411,7 +411,8 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 lethal,
             } => {
                 let [attacker, target] = state.stacks.get_many_mut([attacker, target]).unwrap();
-                let mut animation = Anim::new(AnimationType::ShootStraight, attacker.creature, rr);
+                let mut animation =
+                    Animation::new(AnimationType::ShootStraight, attacker.creature, rr);
                 let shoot_duration = animation.duration();
 
                 let attacker_duration = attacker.animation_queue.total_duration();
@@ -432,7 +433,7 @@ fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut Resource
                 };
 
                 let animation =
-                    Anim::new(animation_type, target.creature, rr).add_delay(shoot_duration);
+                    Animation::new(animation_type, target.creature, rr).add_delay(shoot_duration);
                 target.animation_queue.push(animation);
             }
         }
@@ -445,7 +446,7 @@ fn animate_strike(
     lethal: bool,
     rr: &mut ResourceRegistry,
 ) {
-    let animation = Anim::new(AnimationType::AttackStraight, attacker.creature, rr);
+    let animation = Animation::new(AnimationType::AttackStraight, attacker.creature, rr);
 
     let total_delay = attacker
         .animation_queue
@@ -462,7 +463,7 @@ fn animate_strike(
     } else {
         AnimationType::GettingHit
     };
-    let animation = Anim::new(animation_type, defender.creature, rr).add_delay(total_delay);
+    let animation = Animation::new(animation_type, defender.creature, rr).add_delay(total_delay);
     defender.animation_queue.push(animation);
 }
 
