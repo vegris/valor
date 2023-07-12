@@ -37,7 +37,7 @@ pub enum AnimationType {
 impl super::AnimationType for AnimationType {
     const DEF_TYPE: u32 = 66;
 
-    fn index(&self) -> u32 {
+    fn container_index(&self) -> u32 {
         match self {
             Self::Moving => 0,
             Self::MouseOver => 1,
@@ -64,6 +64,10 @@ impl super::AnimationType for AnimationType {
             Self::StopMoving => 21,
         }
     }
+
+    fn array_index(&self) -> usize {
+        *self as usize
+    }
 }
 
 impl Spritesheet<AnimationType> {
@@ -78,7 +82,7 @@ impl Spritesheet<AnimationType> {
         animation_type: AnimationType,
         progress: f32,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let sprite = self.get_sprite(animation_type as usize, progress).unwrap();
+        let sprite = self.get_sprite(animation_type, progress).unwrap();
 
         let draw_rect = draw_rect(sprite, draw_pos, side);
 
@@ -94,12 +98,6 @@ impl Spritesheet<AnimationType> {
         }?;
 
         Ok(())
-    }
-
-    pub fn frames_count(&self, animation_type: AnimationType) -> Option<usize> {
-        self.blocks[animation_type as usize]
-            .as_ref()
-            .map(|block| block.len())
     }
 }
 

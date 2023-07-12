@@ -23,7 +23,8 @@ pub struct Spritesheet<A: AnimationType> {
 pub trait AnimationType: EnumCount + IntoEnumIterator {
     const DEF_TYPE: u32;
 
-    fn index(&self) -> u32;
+    fn container_index(&self) -> u32;
+    fn array_index(&self) -> usize;
 }
 
 impl<A: AnimationType> Spritesheet<A> {
@@ -68,7 +69,7 @@ impl<A: AnimationType> Spritesheet<A> {
         blocks.resize(A::COUNT, None);
 
         for (index, animation_type) in A::iter().enumerate() {
-            if let Some(block) = blocks2names.get(&animation_type.index()) {
+            if let Some(block) = blocks2names.get(&animation_type.container_index()) {
                 let block = block
                     .iter()
                     .map(|sprite_name| names2indexes[sprite_name])
@@ -88,14 +89,21 @@ impl<A: AnimationType> Spritesheet<A> {
         }
     }
 
-    pub fn get_sprite(&self, block_index: usize, progress: f32) -> Option<&Sprite> {
+    pub fn get_sprite(&self, animation_type: A, progress: f32) -> Option<&Sprite> {
         assert!((0.0..=1.0).contains(&progress));
-        self.blocks[block_index]
-            .as_ref()
-            .map(|block| &self.sprites[sprite_index(block, progress)])
-    }
-}
 
-fn sprite_index(block: &AnimationBlock, progress: f32) -> usize {
-    block[((block.len() - 1) as f32 * progress).round() as usize]
+        self.get_block(animation_type).map(|block| {
+            let block_index = (block.len() - 1) as f32 * progress;
+            let sprite_index = block[block_index.round() as usize];
+            &self.sprites[sprite_index]
+        })
+    }
+
+    pub fn frames_count(&self, animation_type: A) -> Option<usize> {
+        self.get_block(animation_type).map(|block| block.len())
+    }
+
+    fn get_block(&self, animation_type: A) -> Option<&AnimationBlock> {
+        self.blocks[animation_type.array_index()].as_ref()
+    }
 }

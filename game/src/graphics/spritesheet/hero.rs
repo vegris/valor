@@ -19,13 +19,17 @@ pub enum AnimationType {
 impl super::AnimationType for AnimationType {
     const DEF_TYPE: u32 = 73;
 
-    fn index(&self) -> u32 {
+    fn container_index(&self) -> u32 {
         match self {
             AnimationType::Idle => 1,
             AnimationType::Facepalm => 2,
             AnimationType::Happy => 3,
             AnimationType::Casting => 4,
         }
+    }
+
+    fn array_index(&self) -> usize {
+        *self as usize
     }
 }
 
@@ -38,7 +42,7 @@ impl Spritesheet<AnimationType> {
         animation_type: AnimationType,
         progress: f32,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let sprite = self.get_sprite(animation_type as usize, progress).unwrap();
+        let sprite = self.get_sprite(animation_type, progress).unwrap();
         let draw_rect = draw_rect(sprite, side);
         let texture = sprite.surface.as_texture(tc)?;
 
