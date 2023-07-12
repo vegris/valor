@@ -6,6 +6,7 @@ use sdl2::surface::Surface;
 
 use formats::{pcx, DefContainer, LodIndex};
 use gamedata::Creature;
+use strum::EnumCount;
 
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::graphics::spritesheet::Spritesheet;

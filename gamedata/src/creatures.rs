@@ -3,8 +3,9 @@ use serde::Deserialize;
 
 mod abilities;
 pub use abilities::{Ability, RetaliationCount};
+use strum_macros::EnumCount;
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize, EnumCount)]
 pub enum Creature {
     // Castle
     Pikeman,
@@ -178,8 +179,6 @@ type C = Creature;
 type CS = CreatureStats;
 
 impl Creature {
-    pub const COUNT: usize = 145;
-
     pub const fn base_stats(&self) -> CreatureStats {
         match self {
             // Castle
