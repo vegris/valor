@@ -3,7 +3,8 @@ use std::{collections::HashMap, marker::PhantomData};
 use sdl2::pixels::{Color, Palette};
 use strum::{EnumCount, IntoEnumIterator};
 
-use formats::{DefContainer, DefSprite};
+use formats::def::container::Container as DefContainer;
+use formats::def::sprite::Sprite as DefSprite;
 
 pub mod creature;
 pub mod hero;

@@ -1,7 +1,3 @@
-mod lod;
-pub use lod::LodIndex;
-
+pub mod def;
+pub mod lod;
 pub mod pcx;
-
-mod def;
-pub use def::{DefContainer, DefSprite};

@@ -6,7 +6,7 @@ extern crate strum_macros;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use formats::DefContainer;
+use formats::def::container::Container;
 
 use crate::grid::AttackDirection;
 use crate::registry::ResourceRegistry;
@@ -85,7 +85,7 @@ impl Cursors {
     pub fn load(rr: &mut ResourceRegistry) -> Self {
         let def_container = rr.load_def(CONTAINTER_FILENAME);
 
-        let DefContainer {
+        let Container {
             mut names2sprites,
             blocks2names,
             mut colors,

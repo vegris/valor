@@ -4,7 +4,10 @@ use std::path::Path;
 extern crate sdl2;
 use sdl2::surface::Surface;
 
-use formats::{pcx, DefContainer, LodIndex};
+use formats::def::container::Container;
+use formats::lod::LodIndex;
+use formats::pcx;
+
 use gamedata::creatures::Creature;
 use strum::EnumCount;
 
@@ -54,9 +57,9 @@ impl ResourceRegistry {
         image8.to_surface()
     }
 
-    pub fn load_def(&mut self, filename: &str) -> DefContainer {
+    pub fn load_def(&mut self, filename: &str) -> Container {
         let bytes = self.def_archive.read_file(filename);
-        DefContainer::from_bytes(&bytes)
+        Container::from_bytes(&bytes)
     }
 
     pub fn get_creature_container(
