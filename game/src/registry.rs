@@ -1,7 +1,9 @@
 use std::error::Error;
 use std::path::Path;
 
-extern crate sdl2;
+use strum::EnumCount;
+
+use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
 
 use formats::def::container::Container;
@@ -9,7 +11,6 @@ use formats::lod::LodIndex;
 use formats::pcx;
 
 use gamedata::creatures::Creature;
-use strum::EnumCount;
 
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::graphics::spritesheet::Spritesheet;
@@ -38,23 +39,25 @@ impl ResourceRegistry {
     }
 
     pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
-        let mut bytes = self.pcx_archive.read_file(filename);
-        let pcx = pcx::from_bytes(&mut bytes)?;
-        either::for_both!(pcx, img => img.to_surface())
+        self.load_pcx_internal(filename, true)
     }
+
     pub fn load_pcx_with_transparency(
         &mut self,
         filename: &str,
     ) -> Result<Surface<'static>, Box<dyn Error>> {
+        self.load_pcx_internal(filename, true)
+    }
+
+    fn load_pcx_internal(
+        &mut self,
+        filename: &str,
+        apply_transparency: bool,
+    ) -> Result<Surface<'static>, Box<dyn Error>> {
         let mut bytes = self.pcx_archive.read_file(filename);
-        let pcx = pcx::from_bytes(&mut bytes)?;
+        let image = pcx::from_bytes(&mut bytes)?;
 
-        let mut image8 = pcx
-            .right()
-            .ok_or::<String>("Unexpected image type!".into())?;
-
-        image8.apply_transparency()?;
-        image8.to_surface()
+        pcx_to_surface(image, apply_transparency)
     }
 
     pub fn load_def(&mut self, filename: &str) -> Container {
@@ -73,6 +76,50 @@ impl ResourceRegistry {
         }
         self.cache.get(creature).unwrap()
     }
+}
+
+fn pcx_to_surface(
+    image: pcx::Image,
+    apply_transparency: bool,
+) -> Result<Surface<'static>, Box<dyn Error>> {
+    let pcx::Image {
+        width,
+        height,
+        data: mut image_data,
+        ..
+    } = image;
+
+    let mut surface = {
+        let (pixels, pitch, pixel_format) = match image_data {
+            pcx::ImageData::RGB24(ref mut bytes) => (bytes, width * 3, PixelFormatEnum::BGR24),
+            pcx::ImageData::Index8 { ref mut bytes, .. } => (bytes, width, PixelFormatEnum::Index8),
+        };
+
+        let surface = Surface::from_data(pixels, width, height, pitch, pixel_format)?;
+        surface.convert_format(surface.pixel_format_enum())?
+    };
+
+    if let pcx::ImageData::Index8 { colors, .. } = image_data {
+        let mut colors: Box<[Color]> = colors
+            .into_iter()
+            .map(|c| Color::RGB(c.red, c.green, c.blue))
+            .collect();
+
+        if apply_transparency {
+            let color_changes = [0, 32, 64, 128, 128];
+
+            for (index, alpha) in color_changes.into_iter().enumerate() {
+                colors[index] = Color::RGBA(0, 0, 0, alpha);
+            }
+
+            surface.set_color_key(true, Color::RGB(0, 0, 0))?;
+        }
+
+        let palette = Palette::with_colors(&colors)?;
+        surface.set_palette(&palette)?;
+    }
+
+    Ok(surface)
 }
 
 type CachedValue = Spritesheet<AnimationType>;
