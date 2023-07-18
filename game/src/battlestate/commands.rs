@@ -1,36 +1,13 @@
-use crate::{command::Command, grid::GridPos};
+use crate::command::Command;
+use crate::event::Event;
 
-use super::{BattleState, StackHandle};
+use super::BattleState;
 
 mod attack;
 mod defend;
 mod r#move;
 mod shoot;
 mod wait;
-
-#[derive(Debug)]
-pub struct Strike {
-    pub retaliation: bool,
-    pub lethal: bool,
-}
-
-#[derive(Debug)]
-pub enum Event {
-    Attack {
-        attacker: StackHandle,
-        defender: StackHandle,
-        strikes: Vec<Strike>,
-    },
-    Shot {
-        attacker: StackHandle,
-        target: StackHandle,
-        lethal: bool,
-    },
-    Movement {
-        stack_handle: StackHandle,
-        path: Vec<GridPos>,
-    },
-}
 
 pub fn is_applicable(state: &BattleState, command: Command) -> bool {
     match command {

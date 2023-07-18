@@ -10,12 +10,12 @@ use crate::{pathfinding, ResourceRegistry};
 
 use crate::stack::Stack;
 
-use crate::graphics::spritesheet::creature::AnimationType;
-
+use super::animations::AnimationState;
 use super::Statics;
 
 pub fn draw(
     stack: &Stack,
+    animation_state: &AnimationState,
     canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
@@ -24,24 +24,22 @@ pub fn draw(
 ) -> Result<(), Box<dyn Error>> {
     let spritesheet = rr.get_creature_container(stack.creature);
 
-    let (animation_type, animation_progress, invert_side, tween_pos) =
-        if stack.is_alive() || stack.animation_queue.is_animating() {
-            stack.animation_queue.get_animation()
-        } else {
-            (AnimationType::Death, 1.0, false, None)
-        };
+    let animation_data = animation_state.get_state();
+
+    // let (animation_type, animation_progress, invert_side, tween_pos) =
+    //     if stack.is_alive() || stack.animation_queue.is_animating() {
+    //         stack.animation_queue.get_animation()
+    //     } else {
+    //         (AnimationType::Death, 1.0, false, None)
+    //     };
 
     let tail = pathfinding::tail_for(stack.creature, stack.side, stack.head)
         .unwrap()
         .center();
 
-    let draw_pos = if let Some(draw_pos) = tween_pos {
-        draw_pos
-    } else {
-        tail
-    };
+    let draw_pos = animation_data.position.unwrap_or(tail);
 
-    let (side, draw_pos) = if invert_side {
+    let (side, draw_pos) = if animation_data.invert_side {
         let head = stack.head.center();
         let x = tail.x - head.x;
         let y = tail.y - head.y;
@@ -56,8 +54,8 @@ pub fn draw(
         draw_pos,
         side,
         is_selected,
-        animation_type,
-        animation_progress,
+        animation_data.type_,
+        animation_data.frame_index,
     )?;
 
     if stack.is_alive() {

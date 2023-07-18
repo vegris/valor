@@ -40,9 +40,9 @@ impl Spritesheet<AnimationType> {
         tc: &TextureCreator<WindowContext>,
         side: Side,
         animation_type: AnimationType,
-        progress: f32,
+        frame_index: usize,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let sprite = self.get_sprite(animation_type, progress).unwrap();
+        let sprite = self.get_sprite(animation_type, frame_index).unwrap();
         let draw_rect = draw_rect(sprite, side);
         let texture = sprite.surface.as_texture(tc)?;
 

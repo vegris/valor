@@ -1,3 +1,4 @@
+use std::collections::{HashMap, hash_map};
 use std::error::Error;
 
 use sdl2::render::{TextureCreator, WindowCanvas};
@@ -5,14 +6,15 @@ use sdl2::video::WindowContext;
 
 use strum::IntoEnumIterator;
 
-use crate::battlestate::{BattleState, Side};
+use crate::battlestate::{BattleState, Side, StackHandle};
 use crate::command::Command;
+use crate::event::Event;
 use crate::grid::GridPos;
 use crate::input::FrameData;
 use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
-pub mod animation;
+mod animations;
 mod cursors;
 pub mod spritesheet;
 pub mod stack;
@@ -24,9 +26,75 @@ pub use statics::Statics;
 use self::statics::StaticTexture;
 use spritesheet::hero;
 
+use self::animations::AnimationState;
+
+pub struct Animations(HashMap<StackHandle, AnimationState>);
+
+pub fn create_animations(state: &BattleState, rr: &mut ResourceRegistry) -> Animations {
+    let animations = state
+        .units()
+        .into_iter()
+        .map(|handle| {
+            let creature = state.get_stack(handle).creature;
+            let animation = AnimationState::new(creature, rr);
+
+            (handle, animation)
+        })
+        .collect();
+
+    Animations(animations)
+}
+
+impl Animations {
+    pub fn values_mut(&mut self) -> hash_map::ValuesMut<'_, StackHandle, AnimationState> {
+        self.0.values_mut()
+    }
+
+    fn get_many_mut<const N: usize>(
+        &mut self,
+        handles: [StackHandle; N],
+    ) -> Option<[&mut AnimationState; N]> {
+        use std::mem::MaybeUninit;
+
+        for index in 1..N {
+            if handles[index] == handles[index - 1] {
+                return None;
+            }
+        }
+
+        let mut arr: MaybeUninit<[&mut AnimationState; N]> = MaybeUninit::uninit();
+        let arr_ptr = arr.as_mut_ptr();
+
+        // SAFETY: We expect `handles` to contain disjunct values that are in bounds of `self`.
+        unsafe {
+            for (i, handle) in handles.iter().enumerate() {
+                if let Some(stack) = self.0.get_mut(handle) {
+                    *(*arr_ptr).get_unchecked_mut(i) = &mut *(stack as *mut _);
+                } else {
+                    return None;
+                }
+            }
+
+            Some(arr.assume_init())
+        }
+    }
+}
+
+pub fn process_events(
+    state: &BattleState,
+    events: Vec<Event>,
+    animations: &mut Animations,
+    rr: &mut ResourceRegistry,
+) {
+    for event in events {
+        animations::process_event(state, event, animations, rr);
+    }
+}
+
 pub fn draw(
     state: &BattleState,
     frame_data: &FrameData,
+    animations: &Animations,
     canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
@@ -41,7 +109,7 @@ pub fn draw(
 
     for side in Side::iter() {
         if let Some(hero) = &statics.heroes[side as usize] {
-            hero.draw(canvas, tc, side, hero::AnimationType::Idle, 0.0)?;
+            hero.draw(canvas, tc, side, hero::AnimationType::Idle, 0)?;
         }
     }
 
@@ -142,7 +210,8 @@ pub fn draw(
     for handle in units {
         let is_current = state.is_current(handle);
         let stack = state.get_stack(handle);
-        stack::draw(stack, canvas, rr, tc, is_current, statics)?;
+        let animation_state = animations.0.get(&handle).unwrap();
+        stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
     }
 
     Ok(())

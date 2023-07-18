@@ -1,8 +1,10 @@
-use std::{error::Error, time::Instant};
+use std::error::Error;
+use std::time::Instant;
 
 mod battlestate;
 mod command;
 mod config;
+mod event;
 mod graphics;
 mod grid;
 mod input;
@@ -48,6 +50,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         &ttf_context,
     )?;
 
+    let mut animations = graphics::create_animations(&game_state, &mut resource_registry);
+
     let mut frame_start = Instant::now();
 
     loop {
@@ -57,12 +61,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let frame_data = input::process(&game_state, &mut event_pump);
 
-        game_state.update(dt, &mut resource_registry);
+        // game_state.update(dt, &mut resource_registry);
+
+        for animation_state in animations.values_mut() {
+            animation_state.update(dt);
+        }
 
         canvas.clear();
         graphics::draw(
             &game_state,
             &frame_data,
+            &animations,
             &mut canvas,
             &mut resource_registry,
             &texture_creator,
@@ -71,7 +80,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         canvas.present();
 
         if let Some(command) = frame_data.command {
-            game_state.apply_command(command, &mut resource_registry);
+            let events = game_state.apply_command(command);
+
+            graphics::process_events(&game_state, events, &mut animations, &mut resource_registry);
         }
     }
 }

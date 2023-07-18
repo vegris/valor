@@ -3,8 +3,7 @@ use gamedata::creatures::abilities::Ability;
 use crate::battlestate::damage;
 use crate::battlestate::BattleState;
 use crate::command::Shoot;
-
-use super::Event;
+use crate::event::{Event, Shot};
 
 const ATTACK_TYPE: damage::AttackType = damage::AttackType::Shoot;
 
@@ -30,11 +29,11 @@ pub fn apply(command: Shoot, state: &mut BattleState) -> Vec<Event> {
 
     damage::deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
 
-    events.push(Event::Shot {
+    events.push(Event::Shot(Shot {
         attacker: state.current_stack,
         target: command.target,
         lethal: !defender.is_alive(),
-    });
+    }));
 
     if !defender.is_alive() {
         return events;
@@ -45,11 +44,11 @@ pub fn apply(command: Shoot, state: &mut BattleState) -> Vec<Event> {
 
         attacker.current_ammo -= 1;
         damage::deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);
-        events.push(Event::Shot {
+        events.push(Event::Shot(Shot {
             attacker: state.current_stack,
             target: command.target,
             lethal: !defender.is_alive(),
-        });
+        }));
     }
 
     events

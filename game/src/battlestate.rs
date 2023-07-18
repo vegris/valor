@@ -1,15 +1,13 @@
 use std::collections::HashMap;
 use std::error::Error;
-use std::time::Duration;
 
 use strum_macros::EnumIter;
 
 use crate::command::Command;
 use crate::config::Config;
-use crate::graphics::animation::{Animation, AtEndEvent};
-use crate::graphics::spritesheet::creature::AnimationType;
+use crate::event::Event;
 use crate::grid::GridPos;
-use crate::registry::ResourceRegistry;
+
 use crate::stack::Stack;
 
 use crate::pathfinding::NavigationArray;
@@ -21,8 +19,6 @@ mod hero;
 pub mod turns;
 
 use hero::Hero;
-
-use self::commands::Event;
 
 #[derive(Clone, Copy, PartialEq, Debug, EnumIter)]
 pub enum Side {
@@ -123,17 +119,11 @@ impl BattleState {
         Ok(state)
     }
 
-    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        for stack in self.stacks.0.values_mut() {
-            stack.update(dt, rr);
-        }
-    }
-
     pub fn is_command_applicable(&self, command: Command) -> bool {
         commands::is_applicable(self, command)
     }
 
-    pub fn apply_command(&mut self, command: Command, rr: &mut ResourceRegistry) {
+    pub fn apply_command(&mut self, command: Command) -> Vec<Event> {
         assert!(commands::is_applicable(self, command));
         let events = commands::apply(self, command);
         println!("Command applied!");
@@ -152,7 +142,7 @@ impl BattleState {
             std::process::exit(0);
         }
 
-        process_events(self, events, rr);
+        events
     }
 
     pub fn get_stack(&self, handle: StackHandle) -> &Stack {
@@ -238,257 +228,4 @@ impl BattleState {
             _ => unreachable!(),
         }
     }
-}
-
-fn process_events(state: &mut BattleState, events: Vec<Event>, rr: &mut ResourceRegistry) {
-    for event in events {
-        match event {
-            Event::Attack {
-                attacker,
-                defender,
-                strikes,
-            } => {
-                let [attacker, defender] = state.stacks.get_many_mut([attacker, defender]).unwrap();
-
-                let needs_turning = needs_turning(attacker, defender);
-
-                if needs_turning {
-                    let mut attacker_animations = vec![];
-                    let mut defender_animations = vec![];
-
-                    attacker_animations.push(
-                        Animation::new(AnimationType::TurnLeft, attacker.creature, rr)
-                            .set_at_end(AtEndEvent::InvertSide),
-                    );
-
-                    let anim = Animation::new(AnimationType::TurnRight, attacker.creature, rr);
-                    attacker_animations.push(anim);
-
-                    defender_animations.push(
-                        Animation::new(AnimationType::TurnLeft, defender.creature, rr)
-                            .set_at_end(AtEndEvent::InvertSide),
-                    );
-
-                    let anim = Animation::new(AnimationType::TurnRight, defender.creature, rr);
-                    defender_animations.push(anim);
-
-                    let attacker_duration = attacker.animation_queue.total_duration();
-                    let defender_duration = defender.animation_queue.total_duration();
-                    if attacker_duration > defender_duration {
-                        defender_animations[0] =
-                            defender_animations[0].add_delay(attacker_duration - defender_duration);
-                    } else {
-                        attacker_animations[0] =
-                            attacker_animations[0].add_delay(defender_duration - attacker_duration);
-                    }
-
-                    for animation in attacker_animations {
-                        attacker.animation_queue.push(animation);
-                    }
-                    for animation in defender_animations {
-                        defender.animation_queue.push(animation);
-                    }
-                }
-
-                for strike in strikes {
-                    if strike.retaliation {
-                        animate_strike(defender, attacker, strike.lethal, rr);
-                    } else {
-                        animate_strike(attacker, defender, strike.lethal, rr);
-                    }
-                }
-
-                if needs_turning {
-                    let mut attacker_animations = vec![];
-                    let mut defender_animations = vec![];
-
-                    if attacker.is_alive() {
-                        let anim = Animation::new(AnimationType::TurnLeft, attacker.creature, rr)
-                            .set_at_end(AtEndEvent::InvertSide);
-                        attacker_animations.push(anim);
-
-                        let anim = Animation::new(AnimationType::TurnRight, attacker.creature, rr);
-                        attacker_animations.push(anim);
-                    }
-
-                    if defender.is_alive() {
-                        let anim = Animation::new(AnimationType::TurnLeft, defender.creature, rr)
-                            .set_at_end(AtEndEvent::InvertSide);
-                        defender_animations.push(anim);
-
-                        let anim = Animation::new(AnimationType::TurnRight, defender.creature, rr);
-                        defender_animations.push(anim);
-                    }
-
-                    let attacker_duration = attacker.animation_queue.total_duration();
-                    let defender_duration = defender.animation_queue.total_duration();
-                    if attacker_duration > defender_duration {
-                        defender_animations[0] =
-                            defender_animations[0].add_delay(attacker_duration - defender_duration);
-                    } else {
-                        attacker_animations[0] =
-                            attacker_animations[0].add_delay(defender_duration - attacker_duration);
-                    }
-
-                    for animation in attacker_animations {
-                        attacker.animation_queue.push(animation);
-                    }
-                    for animation in defender_animations {
-                        defender.animation_queue.push(animation);
-                    }
-                }
-            }
-            Event::Movement { stack_handle, path } => {
-                if path.len() == 1 {
-                    continue;
-                }
-
-                let stack = state.get_stack_mut(stack_handle);
-
-                let mut cur_side = stack.side;
-                let mut animations = vec![];
-
-                let start = path[0].center();
-                let animation = Animation::new(AnimationType::StartMoving, stack.creature, rr)
-                    .add_tween(start, start);
-                animations.push(animation);
-
-                let mut from = path[0];
-
-                if facing_side(path[0], path[1]) != stack.side {
-                    let anim = Animation::new(AnimationType::TurnLeft, stack.creature, rr)
-                        .set_at_end(AtEndEvent::InvertSide)
-                        .add_tween(from.center(), from.center());
-                    animations.push(anim);
-                    let anim = Animation::new(AnimationType::TurnRight, stack.creature, rr)
-                        .add_tween(from.center(), from.center());
-                    animations.push(anim);
-
-                    cur_side = cur_side.other();
-                }
-
-                if !stack.creature.is_teleporting() {
-                    let animation = Animation::new(AnimationType::Moving, stack.creature, rr)
-                        .add_tween(from.center(), path[1].center());
-                    animations.push(animation);
-
-                    from = path[1];
-
-                    for to in &path[2..] {
-                        let animation = Animation::new(AnimationType::Moving, stack.creature, rr)
-                            .add_tween(from.center(), to.center());
-
-                        if facing_side(from, *to) != cur_side {
-                            if let Some(animation) = animations.last_mut() {
-                                *animation = animation.set_at_end(AtEndEvent::InvertSide);
-                            }
-                            cur_side = cur_side.other();
-                        }
-
-                        animations.push(animation);
-                        from = *to;
-                    }
-                }
-
-                let animation = Animation::new(AnimationType::StopMoving, stack.creature, rr);
-                animations.push(animation);
-
-                if cur_side != stack.side {
-                    let anim = Animation::new(AnimationType::TurnLeft, stack.creature, rr)
-                        .set_at_end(AtEndEvent::InvertSide);
-                    animations.push(anim);
-                    let anim = Animation::new(AnimationType::TurnRight, stack.creature, rr);
-                    animations.push(anim);
-                }
-
-                for animation in animations {
-                    stack.animation_queue.push(animation);
-                }
-            }
-            Event::Shot {
-                attacker,
-                target,
-                lethal,
-            } => {
-                let [attacker, target] = state.stacks.get_many_mut([attacker, target]).unwrap();
-                let mut animation =
-                    Animation::new(AnimationType::ShootStraight, attacker.creature, rr);
-                let shoot_duration = animation.duration();
-
-                let attacker_duration = attacker.animation_queue.total_duration();
-                let target_duration = target.animation_queue.total_duration();
-
-                if target_duration > attacker_duration {
-                    let delay = target_duration - attacker_duration;
-                    animation = animation.add_delay(delay);
-                }
-                attacker.animation_queue.push(animation);
-
-                let animation_type = if lethal {
-                    AnimationType::Death
-                } else if target.defending {
-                    AnimationType::Defend
-                } else {
-                    AnimationType::GettingHit
-                };
-
-                let animation =
-                    Animation::new(animation_type, target.creature, rr).add_delay(shoot_duration);
-                target.animation_queue.push(animation);
-            }
-        }
-    }
-}
-
-fn animate_strike(
-    attacker: &mut Stack,
-    defender: &mut Stack,
-    lethal: bool,
-    rr: &mut ResourceRegistry,
-) {
-    let animation = Animation::new(AnimationType::AttackStraight, attacker.creature, rr);
-
-    let total_delay = attacker
-        .animation_queue
-        .total_duration()
-        .checked_sub(defender.animation_queue.total_duration())
-        .unwrap_or(Duration::ZERO)
-        + animation.duration() / 2;
-    attacker.animation_queue.push(animation);
-
-    let animation_type = if lethal {
-        AnimationType::Death
-    } else if defender.defending {
-        AnimationType::Defend
-    } else {
-        AnimationType::GettingHit
-    };
-    let animation = Animation::new(animation_type, defender.creature, rr).add_delay(total_delay);
-    defender.animation_queue.push(animation);
-}
-
-fn facing_side(pos: GridPos, target: GridPos) -> Side {
-    assert!(pos != target);
-
-    if pos.y == target.y {
-        if pos.x > target.x {
-            Side::Defender
-        } else {
-            Side::Attacker
-        }
-    } else if pos.is_even_row() {
-        if pos.x <= target.x {
-            Side::Attacker
-        } else {
-            Side::Defender
-        }
-    } else if pos.x >= target.x {
-        Side::Defender
-    } else {
-        Side::Attacker
-    }
-}
-
-fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
-    facing_side(attacker.head, defender.head) != attacker.side
 }

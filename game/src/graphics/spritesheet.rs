@@ -90,12 +90,9 @@ impl<A: AnimationType> Spritesheet<A> {
         }
     }
 
-    pub fn get_sprite(&self, animation_type: A, progress: f32) -> Option<&Sprite> {
-        assert!((0.0..=1.0).contains(&progress));
-
+    pub fn get_sprite(&self, animation_type: A, frame_index: usize) -> Option<&Sprite> {
         self.get_block(animation_type).map(|block| {
-            let block_index = (block.len() - 1) as f32 * progress;
-            let sprite_index = block[block_index.round() as usize];
+            let sprite_index = block[frame_index];
             &self.sprites[sprite_index]
         })
     }

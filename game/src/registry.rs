@@ -101,7 +101,7 @@ fn pcx_to_surface(
 
     if let pcx::ImageData::Index8 { colors, .. } = image_data {
         let mut colors: Box<[Color]> = colors
-            .into_iter()
+            .iter()
             .map(|c| Color::RGB(c.red, c.green, c.blue))
             .collect();
 

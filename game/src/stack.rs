@@ -1,13 +1,12 @@
 use std::collections::HashSet;
-use std::time::Duration;
+
 
 use gamedata::creatures::abilities::RetaliationCount;
 use gamedata::creatures::{Creature, CreatureStats};
 
 use crate::battlestate::turns;
-use crate::graphics::animation::AnimationQueue;
 use crate::grid::GridPos;
-use crate::registry::ResourceRegistry;
+
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;
@@ -27,8 +26,6 @@ pub struct Stack {
     pub defending: bool,
 
     pub retaliation_count: RetaliationCount,
-
-    pub animation_queue: AnimationQueue,
 }
 
 impl Stack {
@@ -43,12 +40,7 @@ impl Stack {
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
             retaliation_count: creature.retaliation_count(),
-            animation_queue: AnimationQueue::new(),
         }
-    }
-
-    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        self.animation_queue.update(dt, self.creature, rr);
     }
 
     pub fn base_stats(&self) -> CreatureStats {

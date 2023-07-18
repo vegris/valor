@@ -80,9 +80,9 @@ impl Spritesheet<AnimationType> {
         side: Side,
         is_selected: bool,
         animation_type: AnimationType,
-        progress: f32,
+        frame_index: usize,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let sprite = self.get_sprite(animation_type, progress).unwrap();
+        let sprite = self.get_sprite(animation_type, frame_index).unwrap();
 
         let draw_rect = draw_rect(sprite, draw_pos, side);
 

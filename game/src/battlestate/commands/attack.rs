@@ -6,7 +6,9 @@ use crate::pathfinding;
 
 use crate::battlestate::damage::{deal_damage, AttackType};
 
-use super::{r#move, Event, Strike};
+use crate::event::{Attack as AttackEvent, Event, Strike};
+
+use super::r#move;
 
 const ATTACK_TYPE: AttackType = AttackType::Melee;
 
@@ -120,11 +122,11 @@ pub fn apply(command: Attack, state: &mut BattleState) -> Vec<Event> {
         ));
     }
 
-    let attack = Event::Attack {
+    let attack = Event::Attack(AttackEvent {
         attacker: state.current_stack,
         defender: defender_handle,
         strikes,
-    };
+    });
 
     events.push(attack);
     events

@@ -1,6 +1,6 @@
 use crate::{battlestate::BattleState, command::Move};
 
-use super::Event;
+use crate::event::{Event, Movement};
 
 pub fn is_applicable(command: Move, state: &BattleState) -> bool {
     let current_stack = state.get_current_stack();
@@ -33,10 +33,10 @@ pub fn apply(command: Move, state: &mut BattleState) -> Vec<Event> {
 
     let mut events = vec![];
     if !path.is_empty() {
-        events.push(Event::Movement {
+        events.push(Event::Movement(Movement {
             stack_handle: state.current_stack,
             path,
-        });
+        }));
     }
 
     events
