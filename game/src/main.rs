@@ -12,10 +12,15 @@ mod pathfinding;
 mod registry;
 mod stack;
 
+use rand::seq::IteratorRandom;
+
 use battlestate::BattleState;
 use config::Config;
 use graphics::Statics;
 use registry::ResourceRegistry;
+
+const MUSIC_PATH: &str = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM 3 Complete/Mp3";
+const TRACK_COUNT: usize = 4;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::load()?;
@@ -34,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     sdl2::mixer::allocate_channels(4);
 
-    let path = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM 3 Complete/Mp3/COMBAT01.MP3";
+    let path = choose_music();
     let music = sdl2::mixer::Music::from_file(path)?;
     music.play(-1)?;
 
@@ -99,4 +104,18 @@ fn main() -> Result<(), Box<dyn Error>> {
             graphics::process_events(&game_state, events, &mut animations, &mut resource_registry);
         }
     }
+}
+
+fn choose_music() -> String {
+    let mut rng = rand::thread_rng();
+
+    let choice = (1..=TRACK_COUNT).choose(&mut rng).unwrap();
+
+    let track_name = format!("COMBAT0{}.MP3", choice);
+
+    let mut path = std::path::PathBuf::new();
+    path.push(MUSIC_PATH);
+    path.push(track_name);
+
+    path.into_os_string().into_string().unwrap()
 }
