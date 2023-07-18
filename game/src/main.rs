@@ -24,6 +24,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let sdl_context = sdl2::init()?;
     let ttf_context = sdl2::ttf::init()?;
 
+    let _mixer_context = sdl2::mixer::init(sdl2::mixer::InitFlag::MP3)?;
+    sdl2::mixer::open_audio(
+        sdl2::mixer::DEFAULT_FREQUENCY,
+        sdl2::mixer::DEFAULT_FORMAT,
+        sdl2::mixer::DEFAULT_CHANNELS,
+        256,
+    )?;
+
+    let path = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM 3 Complete/Mp3/COMBAT01.MP3";
+    let music = sdl2::mixer::Music::from_file(path)?;
+    music.play(-1)?;
+
     // Инициализация видео подсистемы
     let video_subsystem = sdl_context.video()?;
 

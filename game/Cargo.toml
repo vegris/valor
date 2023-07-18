@@ -9,7 +9,7 @@ edition = "2021"
 [dependencies.sdl2]
 version = "0.35"
 default-features = false
-features = ["ttf"]
+features = ["ttf", "mixer"]
 
 [dependencies.rand]
 version = "0.8.5"
