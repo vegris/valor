@@ -11,6 +11,7 @@ use crate::{pathfinding, ResourceRegistry};
 use crate::stack::Stack;
 
 use super::animations::AnimationState;
+use super::spritesheet::creature::AnimationType;
 use super::Statics;
 
 pub fn draw(
@@ -26,12 +27,15 @@ pub fn draw(
 
     let animation_data = animation_state.get_state();
 
-    // let (animation_type, animation_progress, invert_side, tween_pos) =
-    //     if stack.is_alive() || stack.animation_queue.is_animating() {
-    //         stack.animation_queue.get_animation()
-    //     } else {
-    //         (AnimationType::Death, 1.0, false, None)
-    //     };
+    let (animation_type, frame_index) = if stack.is_alive() || animation_state.is_animating() {
+        (animation_data.type_, animation_data.frame_index)
+    } else {
+        let animation_type = AnimationType::Death;
+        (
+            animation_type,
+            spritesheet.frames_count(animation_type).unwrap() - 1,
+        )
+    };
 
     let tail = pathfinding::tail_for(stack.creature, stack.side, stack.head)
         .unwrap()
@@ -54,8 +58,8 @@ pub fn draw(
         draw_pos,
         side,
         is_selected,
-        animation_data.type_,
-        animation_data.frame_index,
+        animation_type,
+        frame_index,
     )?;
 
     if stack.is_alive() {

@@ -156,6 +156,10 @@ impl AnimationState {
             .sum()
     }
 
+    pub fn is_animating(&self) -> bool {
+        !self.event_queue.is_empty()
+    }
+
     fn put_animation(
         &mut self,
         animation_type: AnimationType,
