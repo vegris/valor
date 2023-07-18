@@ -20,7 +20,8 @@ use graphics::Statics;
 use registry::ResourceRegistry;
 
 const MUSIC_PATH: &str = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM 3 Complete/Mp3";
-const TRACK_COUNT: usize = 4;
+const MUSIC_TRACK_COUNT: usize = 4;
+const BATTLE_START_TRACK_COUNT: usize = 8;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::load()?;
@@ -38,10 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
 
     sdl2::mixer::allocate_channels(4);
-
-    let path = choose_music();
-    let music = sdl2::mixer::Music::from_file(path)?;
-    music.play(-1)?;
+    sdl2::mixer::reserve_channels(1);
 
     // Инициализация видео подсистемы
     let video_subsystem = sdl_context.video()?;
@@ -56,6 +54,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Открытие файлов с ресурсами
     let mut resource_registry = ResourceRegistry::init();
+
+    let channel = 1;
+    let sound = resource_registry.get_sound(&choose_battle_start_sound());
+    sdl2::mixer::Channel(channel).play(sound, 0)?;
+
+    let music = std::rc::Rc::new(sdl2::mixer::Music::from_file(choose_music())?);
+    let music_copy = music.clone();
+    sdl2::mixer::set_channel_finished(move |ch| {
+        if ch.0 == 1 {
+            music_copy.play(-1).unwrap();
+            sdl2::mixer::unset_channel_finished();
+        }
+    });
 
     // Инициализация подсистемы событий
     let mut event_pump = sdl_context.event_pump()?;
@@ -106,10 +117,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 }
 
+fn choose_battle_start_sound() -> String {
+    let mut rng = rand::thread_rng();
+    let choice = (0..BATTLE_START_TRACK_COUNT).choose(&mut rng).unwrap();
+    format!("BATTLE0{}", choice)
+}
+
 fn choose_music() -> String {
     let mut rng = rand::thread_rng();
 
-    let choice = (1..=TRACK_COUNT).choose(&mut rng).unwrap();
+    let choice = (1..=MUSIC_TRACK_COUNT).choose(&mut rng).unwrap();
 
     let track_name = format!("COMBAT0{}.MP3", choice);
 
