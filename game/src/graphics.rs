@@ -1,4 +1,4 @@
-use std::collections::{HashMap, hash_map};
+use std::collections::{hash_map, HashMap};
 use std::error::Error;
 
 use sdl2::render::{TextureCreator, WindowCanvas};

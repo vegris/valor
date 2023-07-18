@@ -1,12 +1,10 @@
 use std::collections::HashSet;
 
-
 use gamedata::creatures::abilities::RetaliationCount;
 use gamedata::creatures::{Creature, CreatureStats};
 
 use crate::battlestate::turns;
 use crate::grid::GridPos;
-
 
 use super::battlestate::{BattleState, Side};
 use super::pathfinding;

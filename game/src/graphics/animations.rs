@@ -1,16 +1,16 @@
-use std::collections::{VecDeque};
+use std::collections::VecDeque;
 use std::time::Duration;
 
 use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
 
-use crate::battlestate::{BattleState};
+use crate::battlestate::BattleState;
 use crate::event::Event;
 use crate::registry::ResourceRegistry;
 
-use super::Animations;
 use super::spritesheet::creature::AnimationType;
+use super::Animations;
 
 mod animation;
 mod choreographer;
@@ -90,7 +90,7 @@ impl AnimationState {
                 AnimationEvent::InvertSide => {
                     self.invert_side = !self.invert_side;
                     update_result.event_finished = true;
-                },
+                }
             }
 
             if update_result.event_finished {
@@ -136,16 +136,22 @@ impl AnimationState {
     }
 
     pub fn total_duration(&self) -> Duration {
-        self.event_queue.iter().map(|event| {
-            match event {
+        self.event_queue
+            .iter()
+            .map(|event| match event {
                 AnimationEvent::Animation(animation) => animation.progress.time_left(),
                 AnimationEvent::Delay(progress) => progress.time_left(),
-                AnimationEvent::InvertSide => Duration::ZERO
-            }
-        }).sum()
+                AnimationEvent::InvertSide => Duration::ZERO,
+            })
+            .sum()
     }
 
-    fn put_animation(&mut self, animation_type: AnimationType, creature: Creature, rr: &mut ResourceRegistry) {
+    fn put_animation(
+        &mut self,
+        animation_type: AnimationType,
+        creature: Creature,
+        rr: &mut ResourceRegistry,
+    ) {
         let animation = Animation::new(animation_type, creature, rr);
         let event = AnimationEvent::Animation(animation);
         self.event_queue.push_back(event);
