@@ -94,10 +94,11 @@ pub fn animate_shot(
 
     equalize([attacker, defender]);
 
-    let animation = Animation::new(AnimationType::ShootStraight, attacker_stack.creature, rr);
+    let animation_type = AnimationType::ShootStraight;
+    let animation = Animation::new(animation_type, attacker_stack.creature, rr);
     let duration = animation.progress.time_left();
 
-    attacker.put_event(AnimationEvent::Animation(animation));
+    attacker.put_animation(animation_type, attacker_stack.creature, rr);
 
     defender.put_delay(duration);
     animate_get_hit(defender, defender_stack, shot.lethal, rr);
@@ -206,10 +207,11 @@ fn animate_strike(
     lethal: bool,
     rr: &mut ResourceRegistry,
 ) {
-    let animation = Animation::new(AnimationType::AttackStraight, attacker_stack.creature, rr);
+    let animation_type = AnimationType::AttackStraight;
+    let animation = Animation::new(animation_type, attacker_stack.creature, rr);
     let animation_duration = animation.progress.time_left();
 
-    attacker.put_event(AnimationEvent::Animation(animation));
+    attacker.put_animation(animation_type, attacker_stack.creature, rr);
     defender.put_delay(animation_duration / 2);
     animate_get_hit(defender, defender_stack, lethal, rr);
 }

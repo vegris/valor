@@ -2,6 +2,7 @@ use serde::Deserialize;
 use strum_macros::EnumCount;
 
 pub mod abilities;
+pub mod sounds;
 
 use abilities::Ability;
 

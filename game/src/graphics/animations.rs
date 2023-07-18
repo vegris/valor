@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use std::time::Duration;
 
+use gamedata::creatures::sounds::CreatureSound;
 use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
@@ -36,6 +37,7 @@ enum AnimationEvent {
     Animation(Animation),
     Delay(TimeProgress),
     InvertSide,
+    PlaySound(&'static str),
 }
 
 #[derive(Default)]
@@ -70,7 +72,7 @@ impl AnimationState {
         }
     }
 
-    pub fn update(&mut self, dt: Duration) {
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         let mut animation_in_progress = false;
 
         while let Some(event) = self.event_queue.front_mut() {
@@ -89,6 +91,13 @@ impl AnimationState {
                 }
                 AnimationEvent::InvertSide => {
                     self.invert_side = !self.invert_side;
+                    update_result.event_finished = true;
+                }
+                AnimationEvent::PlaySound(sound) => {
+                    let sound = rr.get_sound(sound);
+                    let channel = sdl2::mixer::Channel(-1);
+                    channel.play(sound, 0).unwrap();
+
                     update_result.event_finished = true;
                 }
             }
@@ -142,6 +151,7 @@ impl AnimationState {
                 AnimationEvent::Animation(animation) => animation.progress.time_left(),
                 AnimationEvent::Delay(progress) => progress.time_left(),
                 AnimationEvent::InvertSide => Duration::ZERO,
+                AnimationEvent::PlaySound(_) => Duration::ZERO,
             })
             .sum()
     }
@@ -153,6 +163,26 @@ impl AnimationState {
         rr: &mut ResourceRegistry,
     ) {
         let animation = Animation::new(animation_type, creature, rr);
+
+        let sound_type = match animation_type {
+            AnimationType::AttackStraight => Some(CreatureSound::Attack),
+            AnimationType::Defend => Some(CreatureSound::Defend),
+            AnimationType::StartMoving => Some(CreatureSound::StartMoving),
+            AnimationType::Moving => Some(CreatureSound::Move),
+            AnimationType::StopMoving => Some(CreatureSound::EndMoving),
+            AnimationType::ShootStraight => Some(CreatureSound::Shoot),
+            AnimationType::GettingHit => Some(CreatureSound::Wince),
+            AnimationType::Death => Some(CreatureSound::Killed),
+            _ => None,
+        };
+
+        if let Some(sound_type) = sound_type {
+            if let Some(filename) = creature.sounds().get(sound_type) {
+                self.event_queue
+                    .push_back(AnimationEvent::PlaySound(filename));
+            }
+        }
+
         let event = AnimationEvent::Animation(animation);
         self.event_queue.push_back(event);
     }

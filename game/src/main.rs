@@ -32,6 +32,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         256,
     )?;
 
+    sdl2::mixer::allocate_channels(4);
+
     let path = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM 3 Complete/Mp3/COMBAT01.MP3";
     let music = sdl2::mixer::Music::from_file(path)?;
     music.play(-1)?;
@@ -76,7 +78,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // game_state.update(dt, &mut resource_registry);
 
         for animation_state in animations.values_mut() {
-            animation_state.update(dt);
+            animation_state.update(dt, &mut resource_registry);
         }
 
         canvas.clear();
