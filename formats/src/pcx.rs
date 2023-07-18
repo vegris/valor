@@ -63,6 +63,6 @@ fn image_data(size: u32, width: u32, height: u32, bytes: &[u8]) -> Result<ImageD
             };
             Ok(image_data)
         }
-        _ => return Err("Unknown pcx format!".into()),
+        _ => Err("Unknown pcx format!".into()),
     }
 }
