@@ -41,7 +41,7 @@ pub fn draw(
         .unwrap()
         .center();
 
-    let draw_pos = animation_data.position.unwrap_or(tail);
+    let draw_pos = animation_data.position;
 
     let (side, draw_pos) = if animation_data.invert_side {
         let head = stack.head.center();

@@ -19,11 +19,6 @@ pub struct Tween {
     to: Point,
 }
 
-pub struct AnimationData {
-    pub frame_index: usize,
-    pub position: Option<Point>,
-}
-
 impl Animation {
     pub fn new(
         animation_type: AnimationType,
@@ -43,21 +38,45 @@ impl Animation {
         }
     }
 
-    pub fn get_state(&self) -> AnimationData {
+    pub fn new_with_tween(
+        animation_type: AnimationType,
+        creature: Creature,
+        rr: &mut ResourceRegistry,
+        tween: Tween,
+    ) -> Self {
+        let spritesheet = rr.get_creature_container(creature);
+
+        let frame_count = spritesheet.frames_count(animation_type).unwrap();
+        let duration = frame_duration(animation_type) * frame_count as u32;
+
+        Self {
+            type_: animation_type,
+            frame_count,
+            progress: TimeProgress::new(duration),
+            tween: Some(tween),
+        }
+    }
+
+    pub fn get_frame(&self) -> usize {
         let progress = self.progress.progress();
 
-        let frame_index = ((self.frame_count - 1) as f32 * progress).round() as usize;
+        ((self.frame_count - 1) as f32 * progress).round() as usize
+    }
 
-        let position = self.tween.as_ref().map(|tween| {
+    pub fn get_position(&self) -> Option<Point> {
+        let progress = self.progress.progress();
+
+        self.tween.as_ref().map(|tween| {
             let x = tween.from.x + ((tween.to.x - tween.from.x) as f32 * progress) as i32;
             let y = tween.from.y + ((tween.to.y - tween.from.y) as f32 * progress) as i32;
             Point::new(x, y)
-        });
+        })
+    }
+}
 
-        AnimationData {
-            frame_index,
-            position,
-        }
+impl Tween {
+    pub fn new(from: Point, to: Point) -> Self {
+        Self { from, to }
     }
 }
 
@@ -65,7 +84,7 @@ fn frame_duration(animation_type: AnimationType) -> Duration {
     let ms = match animation_type {
         AnimationType::Standing => 200,
         AnimationType::TurnLeft | AnimationType::TurnRight => 100,
-        AnimationType::Moving => 50,
+        AnimationType::Moving => 100,
         _ => 100,
     };
 
