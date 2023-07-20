@@ -184,7 +184,7 @@ impl BattleState {
         if let Some(handle) = turns::find_active_stack(self) {
             self.current_stack = handle;
 
-            let mut stack = self.get_current_stack_mut();
+            let stack = self.get_current_stack_mut();
             stack.defending = false;
             println!("Current stack is {}", stack);
 
