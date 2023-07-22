@@ -4,38 +4,52 @@ use std::time::Duration;
 use gamedata::creatures::sounds::CreatureSound;
 
 use gamedata::creatures::Creature;
+use sdl2::rect::Point;
 
 use crate::battlestate::BattleState;
 use crate::event::Event;
+use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
+use crate::sound;
 
 use super::spritesheet::creature::AnimationType;
 use super::Animations;
 
 mod animation;
 mod choreographer;
+mod movement;
 mod time_progress;
 
 use self::animation::Animation;
+use self::movement::Movement;
 use self::time_progress::TimeProgress;
 
 pub struct AnimationState {
     event_queue: VecDeque<AnimationEvent>,
     idle: Animation,
     invert_side: bool,
+    position: Point,
 }
 
 pub struct AnimationData {
     pub type_: AnimationType,
     pub frame_index: usize,
     pub invert_side: bool,
+    pub position: Point,
 }
 
 enum AnimationEvent {
     Animation(Animation),
     Delay(TimeProgress),
     InvertSide,
-    PlaySound(&'static str),
+    PlaySound(Sound),
+    StopSound,
+    Movement(Movement),
+}
+
+struct Sound {
+    sound: &'static str,
+    looping: bool,
 }
 
 #[derive(Default)]
@@ -60,13 +74,14 @@ pub fn process_event(
 }
 
 impl AnimationState {
-    pub fn new(creature: Creature, rr: &mut ResourceRegistry) -> Self {
+    pub fn new(creature: Creature, position: GridPos, rr: &mut ResourceRegistry) -> Self {
         let idle = Animation::new(AnimationType::Standing, creature, rr);
 
         Self {
             event_queue: VecDeque::new(),
             idle,
             invert_side: false,
+            position: position.center(),
         }
     }
 
@@ -92,11 +107,23 @@ impl AnimationState {
                     update_result.event_finished = true;
                 }
                 AnimationEvent::PlaySound(sound) => {
-                    let sound = rr.get_sound(sound);
-                    let channel = sdl2::mixer::Channel(-1);
-                    channel.play(sound, 0).unwrap();
-
+                    sound::play_sound(sound.sound, rr, sound.looping).unwrap();
                     update_result.event_finished = true;
+                }
+                AnimationEvent::StopSound => {
+                    sound::stop_looping();
+                    update_result.event_finished = true;
+                }
+                AnimationEvent::Movement(movement) => {
+                    update_progress(&mut movement.progress, dt, &mut update_result);
+
+                    if !update_result.event_finished {
+                        self.position = movement.get_position();
+                    }
+
+                    if update_result.consumed_dt {
+                        animation_in_progress = true;
+                    };
                 }
             }
 
@@ -120,22 +147,25 @@ impl AnimationState {
     }
 
     pub fn get_state(&self) -> AnimationData {
-        let animation = self
+        let (animation_type, frame_index) = self
             .event_queue
             .front()
-            .and_then(|event| {
-                if let AnimationEvent::Animation(animation) = event {
-                    Some(animation)
-                } else {
-                    None
+            .and_then(|event| match event {
+                AnimationEvent::Animation(animation) => {
+                    Some((animation.type_, animation.get_frame()))
                 }
+                AnimationEvent::Movement(movement) => {
+                    Some((Movement::ANIMATION_TYPE, movement.get_frame()))
+                }
+                _ => None,
             })
-            .unwrap_or(&self.idle);
+            .unwrap_or((self.idle.type_, self.idle.get_frame()));
 
         AnimationData {
-            type_: animation.type_,
-            frame_index: animation.get_frame(),
+            type_: animation_type,
+            frame_index,
             invert_side: self.invert_side,
+            position: self.position,
         }
     }
 
@@ -147,6 +177,8 @@ impl AnimationState {
                 AnimationEvent::Delay(progress) => progress.time_left(),
                 AnimationEvent::InvertSide => Duration::ZERO,
                 AnimationEvent::PlaySound(_) => Duration::ZERO,
+                AnimationEvent::StopSound => Duration::ZERO,
+                AnimationEvent::Movement(movement) => movement.progress.time_left(),
             })
             .sum()
     }
@@ -174,6 +206,21 @@ impl AnimationState {
         self.event_queue.push_back(event);
     }
 
+    fn put_movement(&mut self, creature: Creature, path: Vec<GridPos>, rr: &mut ResourceRegistry) {
+        let sound = creature.sounds().get(CreatureSound::Move).unwrap();
+        let sound = Sound {
+            sound,
+            looping: true,
+        };
+        self.event_queue.push_back(AnimationEvent::PlaySound(sound));
+
+        let movement = Movement::new(creature, path, rr);
+        self.event_queue
+            .push_back(AnimationEvent::Movement(movement));
+
+        self.event_queue.push_back(AnimationEvent::StopSound);
+    }
+
     fn put_event(&mut self, event: AnimationEvent) {
         self.event_queue.push_back(event);
     }
@@ -193,8 +240,10 @@ impl AnimationState {
 
         if let Some(sound_type) = sound_type {
             if let Some(filename) = creature.sounds().get(sound_type) {
-                self.event_queue
-                    .push_back(AnimationEvent::PlaySound(filename));
+                self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+                    sound: filename,
+                    looping: false,
+                }));
             }
         }
     }

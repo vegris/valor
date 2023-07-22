@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use gamedata::creatures::Creature;
 
 use crate::{graphics::spritesheet::creature::AnimationType, registry::ResourceRegistry};
@@ -21,7 +19,7 @@ impl Animation {
         let spritesheet = rr.get_creature_container(creature);
 
         let frame_count = spritesheet.frames_count(animation_type).unwrap();
-        let duration = frame_duration(animation_type) * frame_count as u32;
+        let duration = animation_type.frame_duration() * frame_count as u32;
 
         Self {
             type_: animation_type,
@@ -35,15 +33,4 @@ impl Animation {
 
         ((self.frame_count - 1) as f32 * progress).round() as usize
     }
-}
-
-fn frame_duration(animation_type: AnimationType) -> Duration {
-    let ms = match animation_type {
-        AnimationType::Standing => 200,
-        AnimationType::TurnLeft | AnimationType::TurnRight => 100,
-        AnimationType::Moving => 100,
-        _ => 100,
-    };
-
-    Duration::from_millis(ms)
 }

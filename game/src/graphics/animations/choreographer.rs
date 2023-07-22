@@ -104,13 +104,15 @@ pub fn animate_shot(
     animate_get_hit(defender, defender_stack, shot.lethal, rr);
 }
 
-#[allow(unused)]
 pub fn animate_movement(
     movement: Movement,
     state: &BattleState,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
+    let stack = state.get_stack(movement.stack_handle);
+    let stack_animations = animations.0.get_mut(&movement.stack_handle).unwrap();
+    stack_animations.put_movement(stack.creature, movement.path, rr);
 }
 
 fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {

@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 pub struct TimeProgress {
-    duration: Duration,
-    spent: Duration,
+    pub duration: Duration,
+    pub spent: Duration,
 }
 
 impl TimeProgress {

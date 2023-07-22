@@ -18,9 +18,9 @@ impl GridPos {
     pub const X_RANGE: RangeInclusive<i32> = 1..=15;
     pub const Y_RANGE: RangeInclusive<i32> = 1..=11;
 
-    pub const CELL_WIDTH: u32 = 46;
-    pub const CELL_HEIGHT: u32 = 52;
-    pub const CELL_VERTICAL: u32 = 32;
+    pub const CELL_WIDTH: i32 = 46;
+    pub const CELL_HEIGHT: i32 = 52;
+    pub const CELL_VERTICAL: i32 = 32;
 
     const ODD_START_POINT: (i32, i32) = (105, 117);
     const EVEN_START_POINT: (i32, i32) = (83, 159);
@@ -55,7 +55,7 @@ impl GridPos {
     }
 
     pub fn center(&self) -> Point {
-        let (x, y) = (self.x as u32 - 1, self.y as u32 - 1);
+        let (x, y) = (self.x - 1, self.y - 1);
 
         // Вычитаем единицу чтобы рисовать клетки "внахлёст"
         let x_offset = x * (Self::CELL_WIDTH - 1);
@@ -67,24 +67,27 @@ impl GridPos {
             Self::ODD_START_POINT
         };
 
-        Point::from(start_point).offset(x_offset as i32, y_offset as i32)
+        Point::from(start_point).offset(x_offset, y_offset)
     }
 
     pub fn bounding_rect(&self) -> Rect {
-        Rect::from_center(self.center(), Self::CELL_WIDTH, Self::CELL_HEIGHT)
+        Rect::from_center(
+            self.center(),
+            Self::CELL_WIDTH as u32,
+            Self::CELL_HEIGHT as u32,
+        )
     }
 
     pub fn find_pointer_position(point: Point) -> Option<GridPos> {
-        let odd_x_relative = point.x() - (Self::ODD_START_POINT.0 - (Self::CELL_WIDTH / 2) as i32);
-        let odd_y_relative = point.y() - (Self::ODD_START_POINT.1 - Self::CELL_HEIGHT as i32);
-        let odd_x_rect = odd_x_relative / (Self::CELL_WIDTH - 1) as i32 + 1;
-        let odd_y_rect = odd_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) as i32 + 1;
+        let odd_x_relative = point.x() - (Self::ODD_START_POINT.0 - (Self::CELL_WIDTH / 2));
+        let odd_y_relative = point.y() - (Self::ODD_START_POINT.1 - Self::CELL_HEIGHT);
+        let odd_x_rect = odd_x_relative / (Self::CELL_WIDTH - 1) + 1;
+        let odd_y_rect = odd_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) + 1;
 
-        let even_x_relative =
-            point.x() - (Self::EVEN_START_POINT.0 - (Self::CELL_WIDTH / 2) as i32);
-        let even_y_relative = point.y() - (Self::EVEN_START_POINT.1 - Self::CELL_HEIGHT as i32);
-        let even_x_rect = even_x_relative / (Self::CELL_WIDTH - 1) as i32 + 1;
-        let even_y_rect = even_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) as i32 + 1;
+        let even_x_relative = point.x() - (Self::EVEN_START_POINT.0 - (Self::CELL_WIDTH / 2));
+        let even_y_relative = point.y() - (Self::EVEN_START_POINT.1 - Self::CELL_HEIGHT);
+        let even_x_rect = even_x_relative / (Self::CELL_WIDTH - 1) + 1;
+        let even_y_rect = even_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) + 1;
 
         let odd_y_rect_real = odd_y_rect * 2 - 1;
         let even_y_rect_real = even_y_rect * 2;
@@ -137,8 +140,8 @@ impl GridPos {
         let relative_point = point - self.center();
         let (abs_x, abs_y) = (relative_point.x().abs(), relative_point.y().abs());
         // -2 выбрано подбором
-        let v = Self::CELL_VERTICAL as i32 / 2 - 2;
-        let h = Self::CELL_HEIGHT as i32 / 2;
+        let v = Self::CELL_VERTICAL / 2 - 2;
+        let h = Self::CELL_HEIGHT / 2;
         let res = 2 * v * h - v * abs_x - h * abs_y;
         res > 0
     }

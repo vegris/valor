@@ -6,7 +6,9 @@ use sdl2::render::TextureCreator;
 use sdl2::render::WindowCanvas;
 use sdl2::video::WindowContext;
 
-use crate::{pathfinding, ResourceRegistry};
+use crate::battlestate::Side;
+use crate::grid::GridPos;
+use crate::ResourceRegistry;
 
 use crate::stack::Stack;
 
@@ -37,18 +39,23 @@ pub fn draw(
         )
     };
 
-    let tail = pathfinding::tail_for(stack.creature, stack.side, stack.head)
-        .unwrap()
-        .center();
-
-    let (side, draw_pos) = if animation_data.invert_side {
-        let head = stack.head.center();
-        let x = tail.x - head.x;
-        let y = tail.y - head.y;
-        (stack.side.other(), tail.offset(-x, -y))
+    let side = if animation_data.invert_side {
+        stack.side.other()
     } else {
-        (stack.side, tail)
+        stack.side
     };
+
+    let offset_x = if stack.creature.is_wide() {
+        let offset = GridPos::CELL_WIDTH;
+        match side {
+            Side::Attacker => -offset,
+            Side::Defender => offset,
+        }
+    } else {
+        0
+    };
+
+    let draw_pos = animation_data.position.offset(offset_x, 0);
 
     spritesheet.draw(
         canvas,

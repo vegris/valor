@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
@@ -32,6 +34,19 @@ pub enum AnimationType {
     TwoHexAttackDown,
     StartMoving,
     StopMoving,
+}
+
+impl AnimationType {
+    pub fn frame_duration(&self) -> Duration {
+        let ms = match self {
+            AnimationType::Standing => 200,
+            AnimationType::TurnLeft | AnimationType::TurnRight => 100,
+            AnimationType::Moving => 100,
+            _ => 100,
+        };
+
+        Duration::from_millis(ms)
+    }
 }
 
 impl super::AnimationType for AnimationType {
