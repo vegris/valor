@@ -71,6 +71,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             animation_state.update(dt, &mut resource_registry);
         }
 
+        let is_animating = animations.0.values().any(|a| a.is_animating());
+
         canvas.clear();
         graphics::draw(
             &game_state,
@@ -80,13 +82,21 @@ fn main() -> Result<(), Box<dyn Error>> {
             &mut resource_registry,
             &texture_creator,
             &statics,
+            is_animating,
         )?;
         canvas.present();
 
-        if let Some(command) = frame_data.command {
-            let events = game_state.apply_command(command);
+        if !is_animating {
+            if let Some(command) = frame_data.command {
+                let events = game_state.apply_command(command);
 
-            graphics::process_events(&game_state, events, &mut animations, &mut resource_registry);
+                graphics::process_events(
+                    &game_state,
+                    events,
+                    &mut animations,
+                    &mut resource_registry,
+                );
+            }
         }
     }
 }

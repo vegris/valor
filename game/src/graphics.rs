@@ -28,7 +28,7 @@ use spritesheet::hero;
 
 use self::animations::AnimationState;
 
-pub struct Animations(HashMap<StackHandle, AnimationState>);
+pub struct Animations(pub HashMap<StackHandle, AnimationState>);
 
 pub fn create_animations(state: &BattleState, rr: &mut ResourceRegistry) -> Animations {
     let animations = state
@@ -91,6 +91,7 @@ pub fn process_events(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn draw(
     state: &BattleState,
     frame_data: &FrameData,
@@ -99,6 +100,7 @@ pub fn draw(
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
+    is_animating: bool,
 ) -> Result<(), Box<dyn Error>> {
     // Рисуем поле боя
     canvas.copy(
@@ -185,22 +187,24 @@ pub fn draw(
         }
     }
 
-    for cell in state.reachable_cells() {
-        canvas.copy(
-            statics.textures.get(StaticTexture::GridCellShadow),
-            None,
-            cell.bounding_rect(),
-        )?;
-    }
+    if !is_animating {
+        for cell in state.reachable_cells() {
+            canvas.copy(
+                statics.textures.get(StaticTexture::GridCellShadow),
+                None,
+                cell.bounding_rect(),
+            )?;
+        }
 
-    highlighted_cells.sort();
-    highlighted_cells.dedup();
-    for cell in highlighted_cells {
-        canvas.copy(
-            statics.textures.get(StaticTexture::GridCellShadow),
-            None,
-            cell.bounding_rect(),
-        )?;
+        highlighted_cells.sort();
+        highlighted_cells.dedup();
+        for cell in highlighted_cells {
+            canvas.copy(
+                statics.textures.get(StaticTexture::GridCellShadow),
+                None,
+                cell.bounding_rect(),
+            )?;
+        }
     }
 
     // Рисуем существ
@@ -213,7 +217,7 @@ pub fn draw(
     });
 
     for handle in units {
-        let is_current = state.is_current(handle);
+        let is_current = state.is_current(handle) && !is_animating;
         let stack = state.get_stack(handle);
         let animation_state = animations.0.get(&handle).unwrap();
         stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
