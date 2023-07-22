@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::mem::ManuallyDrop;
 use std::path::PathBuf;
 
 use rand::seq::IteratorRandom;
@@ -8,11 +7,13 @@ use sdl2::mixer::Channel;
 
 use crate::registry::ResourceRegistry;
 
+static mut MUSIC_TRACK: Option<mixer::Music> = None;
+
 const START_CHANNEL: Channel = Channel(1);
 const LOOPING_CHANNEL: Channel = Channel(2);
 
 pub fn initialize() -> Result<(), Box<dyn Error>> {
-    let _mixer_context = mixer::init(mixer::InitFlag::MP3)?;
+    mixer::init(mixer::InitFlag::MP3)?;
 
     mixer::open_audio(
         mixer::DEFAULT_FREQUENCY,
@@ -30,14 +31,17 @@ pub fn initialize() -> Result<(), Box<dyn Error>> {
 pub fn setup_music(rr: &mut ResourceRegistry) -> Result<(), Box<dyn Error>> {
     START_CHANNEL.play(rr.get_sound(&start_sound()), 0)?;
 
-    mixer::set_channel_finished(move |ch| {
+    let music = mixer::Music::from_file(music_track()).ok();
+
+    unsafe {
+        MUSIC_TRACK = music;
+    }
+
+    mixer::set_channel_finished(|ch| {
         if ch.0 == 1 {
-            let music = mixer::Music::from_file(music_track()).unwrap();
+            let music = unsafe { MUSIC_TRACK.as_ref().unwrap() };
             music.play(-1).unwrap();
             sdl2::mixer::unset_channel_finished();
-            // Leak music so it continues playing
-            // TODO: refactor it into static value
-            let _ = ManuallyDrop::new(music);
         }
     });
 
