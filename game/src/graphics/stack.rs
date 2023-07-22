@@ -67,7 +67,7 @@ pub fn draw(
         frame_index,
     )?;
 
-    if stack.is_alive() {
+    if stack.is_alive() && !animation_state.is_animating() {
         draw_count(stack, canvas, tc, statics)?;
     }
 
