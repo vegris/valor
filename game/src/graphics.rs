@@ -134,7 +134,11 @@ pub fn draw(
         highlighted_cells.push(cell);
     }
 
-    set_cursor(&statics.cursors, state, frame_data);
+    if is_animating {
+        statics.cursors.get(Cursor::Pointer).set();
+    } else {
+        set_cursor(&statics.cursors, state, frame_data);
+    }
 
     if let Some(command) = frame_data.potential_lmb_command {
         match command {
