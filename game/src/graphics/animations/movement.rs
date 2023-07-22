@@ -1,11 +1,12 @@
 use std::time::Duration;
 
-use gamedata::creatures::Creature;
 use sdl2::rect::Point;
 
-use crate::{
-    graphics::spritesheet::creature::AnimationType, grid::GridPos, registry::ResourceRegistry,
-};
+use gamedata::creatures::Creature;
+
+use crate::graphics::spritesheet::creature::AnimationType;
+use crate::grid::GridPos;
+use crate::ResourceRegistry;
 
 use super::time_progress::TimeProgress;
 
