@@ -209,7 +209,7 @@ pub fn draw(
         let alive = state.get_stack(handle).is_alive();
         let position = animations.0[&handle].position;
 
-        (alive, position.y, position.x)
+        (alive, (position.y, position.x))
     });
 
     for handle in units {

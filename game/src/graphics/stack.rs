@@ -45,7 +45,7 @@ pub fn draw(
         stack.side
     };
 
-    let offset_x = if stack.creature.is_wide() {
+    let offset_x = if stack.creature.is_wide() && !animation_data.invert_side {
         let offset = GridPos::CELL_WIDTH;
         match side {
             Side::Attacker => -offset,
