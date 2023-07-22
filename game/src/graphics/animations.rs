@@ -2,13 +2,11 @@ use std::collections::VecDeque;
 use std::time::Duration;
 
 use gamedata::creatures::sounds::CreatureSound;
-use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
 
 use crate::battlestate::BattleState;
 use crate::event::Event;
-use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
 
 use super::spritesheet::creature::AnimationType;
@@ -18,20 +16,18 @@ mod animation;
 mod choreographer;
 mod time_progress;
 
-use self::animation::{Animation, Tween};
+use self::animation::Animation;
 use self::time_progress::TimeProgress;
 
 pub struct AnimationState {
     event_queue: VecDeque<AnimationEvent>,
     idle: Animation,
     invert_side: bool,
-    draw_pos: Point,
 }
 
 pub struct AnimationData {
     pub type_: AnimationType,
     pub frame_index: usize,
-    pub position: Point,
     pub invert_side: bool,
 }
 
@@ -64,14 +60,13 @@ pub fn process_event(
 }
 
 impl AnimationState {
-    pub fn new(creature: Creature, position: GridPos, rr: &mut ResourceRegistry) -> Self {
+    pub fn new(creature: Creature, rr: &mut ResourceRegistry) -> Self {
         let idle = Animation::new(AnimationType::Standing, creature, rr);
 
         Self {
             event_queue: VecDeque::new(),
             idle,
             invert_side: false,
-            draw_pos: position.center(),
         }
     }
 
@@ -84,10 +79,6 @@ impl AnimationState {
             match event {
                 AnimationEvent::Animation(animation) => {
                     update_progress(&mut animation.progress, dt, &mut update_result);
-
-                    if let Some(pos) = animation.get_position() {
-                        self.draw_pos = pos;
-                    }
 
                     if update_result.consumed_dt {
                         animation_in_progress = true;
@@ -145,7 +136,6 @@ impl AnimationState {
             type_: animation.type_,
             frame_index: animation.get_frame(),
             invert_side: self.invert_side,
-            position: self.draw_pos,
         }
     }
 
@@ -174,20 +164,6 @@ impl AnimationState {
         self.put_sound(animation_type, creature);
 
         let animation = Animation::new(animation_type, creature, rr);
-        let event = AnimationEvent::Animation(animation);
-        self.event_queue.push_back(event);
-    }
-
-    fn put_animation_with_tween(
-        &mut self,
-        animation_type: AnimationType,
-        creature: Creature,
-        rr: &mut ResourceRegistry,
-        tween: Tween,
-    ) {
-        self.put_sound(animation_type, creature);
-
-        let animation = Animation::new_with_tween(animation_type, creature, rr, tween);
         let event = AnimationEvent::Animation(animation);
         self.event_queue.push_back(event);
     }

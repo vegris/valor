@@ -41,15 +41,13 @@ pub fn draw(
         .unwrap()
         .center();
 
-    let draw_pos = animation_data.position;
-
     let (side, draw_pos) = if animation_data.invert_side {
         let head = stack.head.center();
         let x = tail.x - head.x;
         let y = tail.y - head.y;
-        (stack.side.other(), draw_pos.offset(-x, -y))
+        (stack.side.other(), tail.offset(-x, -y))
     } else {
-        (stack.side, draw_pos)
+        (stack.side, tail)
     };
 
     spritesheet.draw(

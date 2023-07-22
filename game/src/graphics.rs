@@ -36,7 +36,7 @@ pub fn create_animations(state: &BattleState, rr: &mut ResourceRegistry) -> Anim
         .into_iter()
         .map(|handle| {
             let stack = state.get_stack(handle);
-            let animation = AnimationState::new(stack.creature, stack.head, rr);
+            let animation = AnimationState::new(stack.creature, rr);
 
             (handle, animation)
         })

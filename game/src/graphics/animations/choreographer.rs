@@ -8,7 +8,7 @@ use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
-use super::animation::{Animation, Tween};
+use super::animation::Animation;
 use super::{AnimationEvent, AnimationState};
 
 pub fn animate_attack(
@@ -104,62 +104,13 @@ pub fn animate_shot(
     animate_get_hit(defender, defender_stack, shot.lethal, rr);
 }
 
+#[allow(unused)]
 pub fn animate_movement(
     movement: Movement,
     state: &BattleState,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
-    let path = movement.path;
-
-    if path.len() == 1 {
-        return;
-    }
-
-    let stack = state.get_stack(movement.stack_handle);
-    let stack_animations = animations.0.get_mut(&movement.stack_handle).unwrap();
-    let mut current_side = stack.side;
-
-    if facing_side(path[0], path[1]) != current_side {
-        stack_animations.put_animation(AnimationType::TurnLeft, stack.creature, rr);
-        stack_animations.put_event(AnimationEvent::InvertSide);
-        stack_animations.put_animation(AnimationType::TurnRight, stack.creature, rr);
-
-        current_side = current_side.other();
-    }
-
-    stack_animations.put_animation(AnimationType::StartMoving, stack.creature, rr);
-
-    if !stack.creature.is_teleporting() {
-        let mut from = path[0];
-        for to in &path[1..] {
-            let tween = Tween::new(from.center(), to.center());
-            stack_animations.put_animation_with_tween(
-                AnimationType::Moving,
-                stack.creature,
-                rr,
-                tween,
-            );
-
-            if facing_side(from, *to) != current_side {
-                stack_animations.put_animation(AnimationType::TurnLeft, stack.creature, rr);
-                stack_animations.put_event(AnimationEvent::InvertSide);
-                stack_animations.put_animation(AnimationType::TurnRight, stack.creature, rr);
-
-                current_side = current_side.other();
-            }
-
-            from = *to;
-        }
-    }
-
-    stack_animations.put_animation(AnimationType::StopMoving, stack.creature, rr);
-
-    if current_side != stack.side {
-        stack_animations.put_animation(AnimationType::TurnLeft, stack.creature, rr);
-        stack_animations.put_event(AnimationEvent::InvertSide);
-        stack_animations.put_animation(AnimationType::TurnRight, stack.creature, rr);
-    }
 }
 
 fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {
