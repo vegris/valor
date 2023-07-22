@@ -28,7 +28,7 @@ pub struct AnimationState {
     event_queue: VecDeque<AnimationEvent>,
     idle: Animation,
     invert_side: bool,
-    position: Point,
+    pub position: Point,
 }
 
 pub struct AnimationData {

@@ -205,7 +205,12 @@ pub fn draw(
 
     // Рисуем существ
     let mut units = state.units();
-    units.sort_unstable_by_key(|&handle| state.get_stack(handle).head.y);
+    units.sort_unstable_by_key(|&handle| {
+        let alive = state.get_stack(handle).is_alive();
+        let position = animations.0[&handle].position;
+
+        (alive, position.y, position.x)
+    });
 
     for handle in units {
         let is_current = state.is_current(handle);
