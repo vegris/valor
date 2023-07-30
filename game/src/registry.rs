@@ -48,7 +48,7 @@ impl ResourceRegistry {
     }
 
     pub fn load_pcx(&mut self, filename: &str) -> Result<Surface<'static>, Box<dyn Error>> {
-        self.load_pcx_internal(filename, true)
+        self.load_pcx_internal(filename, false)
     }
 
     pub fn load_pcx_with_transparency(
