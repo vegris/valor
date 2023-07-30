@@ -1,7 +1,10 @@
+use strum_macros::EnumDiscriminants;
+
 use super::battlestate::StackHandle;
 use crate::grid::{AttackDirection, GridPos};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, EnumDiscriminants)]
+#[strum_discriminants(vis())]
 pub enum Command {
     Move(Move),
     Wait,
@@ -10,39 +13,20 @@ pub enum Command {
     Shoot(Shoot),
 }
 
-#[derive(Clone, Copy, PartialEq)]
-enum CommandFieldless {
-    Move,
-    Wait,
-    Defend,
-    Attack,
-    Shoot,
-}
-
 impl Command {
     pub fn requires_current_stack_update(&self) -> bool {
         [
-            CommandFieldless::Defend,
-            CommandFieldless::Move,
-            CommandFieldless::Shoot,
-            CommandFieldless::Wait,
-            CommandFieldless::Attack,
+            CommandDiscriminants::Defend,
+            CommandDiscriminants::Move,
+            CommandDiscriminants::Shoot,
+            CommandDiscriminants::Wait,
+            CommandDiscriminants::Attack,
         ]
-        .contains(&self.fieldless())
+        .contains(&self.into())
     }
 
     pub fn spends_turn(&self) -> bool {
-        self.fieldless() != CommandFieldless::Wait
-    }
-
-    fn fieldless(&self) -> CommandFieldless {
-        match self {
-            Self::Defend { .. } => CommandFieldless::Defend,
-            Self::Move { .. } => CommandFieldless::Move,
-            Self::Shoot { .. } => CommandFieldless::Shoot,
-            Self::Wait { .. } => CommandFieldless::Wait,
-            Self::Attack { .. } => CommandFieldless::Attack,
-        }
+        Into::<CommandDiscriminants>::into(self) != CommandDiscriminants::Wait
     }
 }
 
