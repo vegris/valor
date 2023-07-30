@@ -13,7 +13,7 @@ pub fn is_applicable(command: Move, state: &BattleState) -> bool {
     .map(|cells| {
         cells
             .into_iter()
-            .map(|cell| state.find_unit_for_cell(cell))
+            .map(|cell| state.find_unit_for_cell(cell).filter(|&h| h != state.current_stack))
             .all(|option| option.is_none())
     })
     .unwrap_or(false);
