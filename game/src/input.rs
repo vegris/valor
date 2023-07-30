@@ -90,10 +90,10 @@ fn construct_command(
     potential_lmb_command: Option<Command>,
 ) -> Option<Command> {
     if frame_input.key_d {
-        return Some(Command::Defend(command::Defend));
+        return Some(Command::Defend);
     }
     if frame_input.key_w {
-        return Some(Command::Wait(command::Wait));
+        return Some(Command::Wait);
     }
     if frame_input.btn_lmb {
         return potential_lmb_command;

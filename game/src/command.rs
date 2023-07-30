@@ -4,8 +4,8 @@ use crate::grid::{AttackDirection, GridPos};
 #[derive(Clone, Copy, Debug)]
 pub enum Command {
     Move(Move),
-    Wait(Wait),
-    Defend(Defend),
+    Wait,
+    Defend,
     Attack(Attack),
     Shoot(Shoot),
 }
@@ -50,12 +50,6 @@ impl Command {
 pub struct Move {
     pub destination: GridPos,
 }
-
-#[derive(Clone, Copy, Debug)]
-pub struct Wait;
-
-#[derive(Clone, Copy, Debug)]
-pub struct Defend;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Attack {
