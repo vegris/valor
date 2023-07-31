@@ -1508,10 +1508,10 @@ impl Creature {
     }
 
     pub fn abilities(self) -> Vec<Ability> {
-        let angels = [Creature::Angel, Creature::Archangel];
-        let devils = [Creature::Devil, Creature::ArchDevil];
-        let genies = [Creature::Genie, Creature::MasterGenie];
-        let efreets = [Creature::Efreeti, Creature::EfreetSultan];
+        let angels = Box::new([Creature::Angel, Creature::Archangel]);
+        let devils = Box::new([Creature::Devil, Creature::ArchDevil]);
+        let genies = Box::new([Creature::Genie, Creature::MasterGenie]);
+        let efreets = Box::new([Creature::Efreeti, Creature::EfreetSultan]);
 
         match self {
             Self::Marksman => vec![Ability::DoubleShot],
@@ -1522,19 +1522,11 @@ impl Creature {
                 count: abilities::RetaliationCount::Infinite,
             }],
             Self::Crusader => vec![Ability::DoubleStrike],
-            Self::Angel => vec![Ability::Hatred {
-                to: Box::new(devils),
-            }],
-            Self::Archangel => vec![Ability::Hatred {
-                to: Box::new(devils),
-            }],
+            Self::Angel => vec![Ability::Hatred { to: devils }],
+            Self::Archangel => vec![Ability::Hatred { to: devils }],
 
-            Self::Genie => vec![Ability::Hatred {
-                to: Box::new(efreets),
-            }],
-            Self::MasterGenie => vec![Ability::Hatred {
-                to: Box::new(efreets),
-            }],
+            Self::Genie => vec![Ability::Hatred { to: efreets }],
+            Self::MasterGenie => vec![Ability::Hatred { to: efreets }],
             Self::Naga => vec![Ability::NoRetaliation],
             Self::NagaQueen => vec![Ability::NoRetaliation],
             Self::Titan => vec![Ability::Hatred {
@@ -1545,24 +1537,10 @@ impl Creature {
             Self::HarpyHag => vec![Ability::NoRetaliation, Ability::ReturnAfterStrike],
 
             Self::Cerberus => vec![Ability::NoRetaliation],
-            Self::Efreeti => vec![Ability::Hatred {
-                to: Box::new(genies),
-            }],
-            Self::EfreetSultan => vec![Ability::Hatred {
-                to: Box::new(genies),
-            }],
-            Self::Devil => vec![
-                Ability::NoRetaliation,
-                Ability::Hatred {
-                    to: Box::new(angels),
-                },
-            ],
-            Self::ArchDevil => vec![
-                Ability::NoRetaliation,
-                Ability::Hatred {
-                    to: Box::new(angels),
-                },
-            ],
+            Self::Efreeti => vec![Ability::Hatred { to: genies }],
+            Self::EfreetSultan => vec![Ability::Hatred { to: genies }],
+            Self::Devil => vec![Ability::NoRetaliation, Ability::Hatred { to: angels }],
+            Self::ArchDevil => vec![Ability::NoRetaliation, Ability::Hatred { to: angels }],
 
             Self::Vampire => vec![Ability::NoRetaliation],
             Self::VampireLord => vec![Ability::NoRetaliation],
