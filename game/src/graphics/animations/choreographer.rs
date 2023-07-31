@@ -1,6 +1,7 @@
+use std::fmt::Debug;
 use std::time::Duration;
 
-use crate::battlestate::{BattleState, Side};
+use crate::battlestate::{BattleState, Side, StackHandle};
 use crate::event::{Attack, Movement, Shot};
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::graphics::Animations;
@@ -11,70 +12,70 @@ use crate::stack::Stack;
 use super::animation::Animation;
 use super::{AnimationEvent, AnimationState};
 
+struct StackWithAnimation<'a> {
+    stack: &'a Stack,
+    animation: &'a mut AnimationState,
+}
+
+impl Debug for StackWithAnimation<'_> {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        unimplemented!()
+    }
+}
+
+impl<'a> StackWithAnimation<'a> {
+    fn create_many<const N: usize>(
+        handles: [StackHandle; N],
+        state: &'a BattleState,
+        animations: &'a mut Animations,
+    ) -> [Self; N] {
+        let stacks = handles.map(|h| state.get_stack(h));
+        let animations = animations.get_many_mut(handles).unwrap();
+
+        Iterator::zip(stacks.into_iter(), animations.into_iter())
+            .map(|(stack, animation)| Self { stack, animation })
+            .collect::<Vec<Self>>()
+            .try_into()
+            .unwrap()
+    }
+}
+
 pub fn animate_attack(
     attack: Attack,
     state: &BattleState,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
-    let attacker_stack = state.get_stack(attack.attacker);
-    let defender_stack = state.get_stack(attack.defender);
+    let [mut attacker, mut defender] =
+        StackWithAnimation::create_many([attack.attacker, attack.defender], state, animations);
 
-    let [attacker, defender] = animations
-        .get_many_mut([attack.attacker, attack.defender])
-        .unwrap();
+    let needs_turning = needs_turning(attacker.stack, defender.stack);
 
-    let needs_turning = needs_turning(attacker_stack, defender_stack);
-
-    equalize([attacker, defender]);
+    equalize([attacker.animation, defender.animation]);
 
     if needs_turning {
-        attacker.put_animation(AnimationType::TurnLeft, attacker_stack.creature, rr);
-        attacker.put_event(AnimationEvent::InvertSide);
-        attacker.put_animation(AnimationType::TurnRight, attacker_stack.creature, rr);
-
-        defender.put_animation(AnimationType::TurnLeft, defender_stack.creature, rr);
-        defender.put_event(AnimationEvent::InvertSide);
-        defender.put_animation(AnimationType::TurnRight, defender_stack.creature, rr);
-
-        equalize([attacker, defender]);
+        animate_turning(&mut attacker, rr);
+        animate_turning(&mut defender, rr);
+        equalize([attacker.animation, defender.animation]);
     }
 
     for strike in attack.strikes {
-        if strike.retaliation {
-            animate_strike(
-                defender,
-                attacker,
-                defender_stack,
-                attacker_stack,
-                strike.lethal,
-                rr,
-            );
+        let (attacker, defender) = if strike.retaliation {
+            (&mut defender, &mut attacker)
         } else {
-            animate_strike(
-                attacker,
-                defender,
-                attacker_stack,
-                defender_stack,
-                strike.lethal,
-                rr,
-            );
-        }
+            (&mut attacker, &mut defender)
+        };
 
-        equalize([attacker, defender]);
+        animate_strike(attacker, defender, strike.lethal, rr);
+        equalize([attacker.animation, defender.animation]);
     }
 
     if needs_turning {
-        if attacker_stack.is_alive() {
-            attacker.put_animation(AnimationType::TurnLeft, attacker_stack.creature, rr);
-            attacker.put_event(AnimationEvent::InvertSide);
-            attacker.put_animation(AnimationType::TurnRight, attacker_stack.creature, rr);
+        if attacker.stack.is_alive() {
+            animate_turning(&mut attacker, rr);
         }
-
-        if defender_stack.is_alive() {
-            defender.put_animation(AnimationType::TurnLeft, defender_stack.creature, rr);
-            defender.put_event(AnimationEvent::InvertSide);
-            defender.put_animation(AnimationType::TurnRight, defender_stack.creature, rr);
+        if defender.stack.is_alive() {
+            animate_turning(&mut defender, rr);
         }
     }
 }
@@ -85,23 +86,21 @@ pub fn animate_shot(
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
-    let attacker_stack = state.get_stack(shot.attacker);
-    let defender_stack = state.get_stack(shot.target);
+    let [attacker, mut target] =
+        StackWithAnimation::create_many([shot.attacker, shot.target], state, animations);
 
-    let [attacker, defender] = animations
-        .get_many_mut([shot.attacker, shot.target])
-        .unwrap();
-
-    equalize([attacker, defender]);
+    equalize([attacker.animation, target.animation]);
 
     let animation_type = AnimationType::ShootStraight;
-    let animation = Animation::new(animation_type, attacker_stack.creature, rr);
+    let animation = Animation::new(animation_type, attacker.stack.creature, rr);
     let duration = animation.progress.time_left();
 
-    attacker.put_animation(animation_type, attacker_stack.creature, rr);
+    attacker
+        .animation
+        .put_animation(animation_type, attacker.stack.creature, rr);
 
-    defender.put_delay(duration);
-    animate_get_hit(defender, defender_stack, shot.lethal, rr);
+    target.animation.put_delay(duration);
+    animate_get_hit(&mut target, shot.lethal, rr);
 }
 
 pub fn animate_movement(
@@ -128,36 +127,43 @@ fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {
 }
 
 fn animate_strike(
-    attacker: &mut AnimationState,
-    defender: &mut AnimationState,
-    attacker_stack: &Stack,
-    defender_stack: &Stack,
+    attacker: &mut StackWithAnimation,
+    defender: &mut StackWithAnimation,
     lethal: bool,
     rr: &mut ResourceRegistry,
 ) {
     let animation_type = AnimationType::AttackStraight;
-    let animation = Animation::new(animation_type, attacker_stack.creature, rr);
+    let animation = Animation::new(animation_type, attacker.stack.creature, rr);
     let animation_duration = animation.progress.time_left();
 
-    attacker.put_animation(animation_type, attacker_stack.creature, rr);
-    defender.put_delay(animation_duration / 2);
-    animate_get_hit(defender, defender_stack, lethal, rr);
+    attacker
+        .animation
+        .put_animation(animation_type, attacker.stack.creature, rr);
+    defender.animation.put_delay(animation_duration / 2);
+    animate_get_hit(defender, lethal, rr);
 }
 
-fn animate_get_hit(
-    animation_state: &mut AnimationState,
-    stack: &Stack,
-    lethal: bool,
-    rr: &mut ResourceRegistry,
-) {
+fn animate_get_hit(victim: &mut StackWithAnimation, lethal: bool, rr: &mut ResourceRegistry) {
     let animation_type = if lethal {
         AnimationType::Death
-    } else if stack.defending {
+    } else if victim.stack.defending {
         AnimationType::Defend
     } else {
         AnimationType::GettingHit
     };
-    animation_state.put_animation(animation_type, stack.creature, rr);
+    victim
+        .animation
+        .put_animation(animation_type, victim.stack.creature, rr);
+}
+
+fn animate_turning(stack: &mut StackWithAnimation, rr: &mut ResourceRegistry) {
+    stack
+        .animation
+        .put_animation(AnimationType::TurnLeft, stack.stack.creature, rr);
+    stack.animation.put_event(AnimationEvent::InvertSide);
+    stack
+        .animation
+        .put_animation(AnimationType::TurnRight, stack.stack.creature, rr);
 }
 
 fn facing_side(pos: GridPos, target: GridPos) -> Side {
