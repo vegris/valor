@@ -1502,9 +1502,11 @@ impl Creature {
     }
 
     pub fn has_ability(self, ability: Ability) -> bool {
+        use std::mem::discriminant;
+
         self.abilities()
             .into_iter()
-            .any(|a| std::mem::discriminant(&ability) == std::mem::discriminant(&a))
+            .any(|a| discriminant(&ability) == discriminant(&a))
     }
 
     pub fn abilities(self) -> Vec<Ability> {
