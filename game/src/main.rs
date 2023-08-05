@@ -15,8 +15,9 @@ mod stack;
 
 use battlestate::BattleState;
 use config::Config;
-use graphics::Statics;
+use graphics::{spritesheet::button_state::ButtonState, statics::Buttons, Statics};
 use registry::ResourceRegistry;
+use sdl2::rect::Rect;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::load()?;
@@ -56,6 +57,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     sound::setup_music(&mut resource_registry)?;
 
+    // let menu_background = resource_registry.load_pcx("coplacbr.pcx")?;
+    let menu_background = resource_registry.load_pcx("cbar.pcx")?;
+
     let mut frame_start = Instant::now();
 
     loop {
@@ -64,8 +68,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         frame_start = now;
 
         let frame_data = input::process(&game_state, &mut event_pump);
-
-        // game_state.update(dt, &mut resource_registry);
 
         for animation_state in animations.values_mut() {
             animation_state.update(dt, &mut resource_registry);
@@ -84,6 +86,36 @@ fn main() -> Result<(), Box<dyn Error>> {
             &statics,
             is_animating,
         )?;
+
+        let texture = menu_background.as_texture(&texture_creator)?;
+        canvas.copy(
+            &texture,
+            None,
+            // Rect::new(0, 556, menu_background.width(), menu_background.height()),
+            Rect::new(1, 555, menu_background.width(), menu_background.height()),
+        )?;
+
+        let buttons = [
+            (Buttons::Settings, 4),
+            (Buttons::Surrender, 55),
+            (Buttons::Retreat, 106),
+            (Buttons::AutoBattle, 157),
+            (Buttons::BookOfMagic, 646),
+            (Buttons::Wait, 697),
+            (Buttons::Defend, 748),
+        ];
+
+        for (button, x) in buttons {
+            let sprite = statics.ui[button].get_sprite(ButtonState::Base, 0).unwrap();
+            let texture = sprite.surface.as_texture(&texture_creator)?;
+
+            canvas.copy(
+                &texture,
+                None,
+                Rect::new(x, 560, sprite.width, sprite.height),
+            )?;
+        }
+
         canvas.present();
 
         if !is_animating {

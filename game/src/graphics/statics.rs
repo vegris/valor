@@ -3,18 +3,20 @@ use std::error::Error;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
+use strum::{EnumCount, IntoEnumIterator};
+use strum_macros::{EnumCount, EnumIter};
 
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
 use super::spritesheet::hero::AnimationType;
-use super::spritesheet::Spritesheet;
 
 pub struct Statics<'a> {
-    pub(super) cursors: Cursors,
-    pub(super) font: Font<'a, 'static>,
-    pub(super) textures: Textures<'a>,
-    pub(super) heroes: [Option<Spritesheet<AnimationType>>; 2],
+    pub cursors: Cursors,
+    pub font: Font<'a, 'static>,
+    pub textures: Textures<'a>,
+    pub heroes: [Option<Spritesheet<AnimationType>>; 2],
+    pub ui: UI,
 }
 
 impl<'a> Statics<'a> {
@@ -40,6 +42,7 @@ impl<'a> Statics<'a> {
             font: ttf_context.load_font(font_path, font_size)?,
             textures: Textures::load(config, rr, tc)?,
             heroes,
+            ui: UI::load(rr),
         })
     }
 }
@@ -87,5 +90,61 @@ impl<'a> Textures<'a> {
 
     pub fn get(&self, texture: StaticTexture) -> &Texture {
         &self.0[texture as usize]
+    }
+}
+
+#[derive(EnumCount, EnumIter)]
+pub enum Buttons {
+    Surrender,
+    Retreat,
+    Settings,
+    AutoBattle,
+    BookOfMagic,
+    Wait,
+    Defend,
+}
+
+impl Buttons {
+    fn filename(self) -> &'static str {
+        match self {
+            Self::Surrender => "icm001.def",
+            Self::Retreat => "icm002.def",
+            Self::Settings => "icm003.def",
+            Self::AutoBattle => "icm004.def",
+            Self::BookOfMagic => "icm005.def",
+            Self::Wait => "icm006.def",
+            Self::Defend => "icm007.def",
+        }
+    }
+}
+
+use super::spritesheet::button_state::ButtonState;
+use super::spritesheet::Spritesheet;
+pub struct UI([Spritesheet<ButtonState>; Buttons::COUNT]);
+
+impl UI {
+    fn load(rr: &mut ResourceRegistry) -> Self {
+        let buttons = Buttons::iter()
+            .map(|b| rr.load_def(b.filename()))
+            .map(Spritesheet::<ButtonState>::from_def)
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap();
+
+        Self(buttons)
+    }
+}
+
+impl std::ops::Index<Buttons> for UI {
+    type Output = Spritesheet<ButtonState>;
+
+    fn index(&self, index: Buttons) -> &Self::Output {
+        &self.0[index as usize]
+    }
+}
+
+impl std::fmt::Debug for Spritesheet<ButtonState> {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        unimplemented!()
     }
 }
