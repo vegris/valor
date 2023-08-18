@@ -113,7 +113,16 @@ pub fn apply(command: Attack, state: &mut BattleState) -> Vec<Event> {
         });
     }
 
+    let attack = Event::Attack(AttackEvent {
+        attacker: state.current_stack,
+        defender: defender_handle,
+        strikes,
+    });
+
+    events.push(attack);
+
     if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
+        // FIXME: Need to recalculate navigation array for correct pathing
         events.extend(r#move::apply(
             Move {
                 destination: initial_position,
@@ -122,12 +131,5 @@ pub fn apply(command: Attack, state: &mut BattleState) -> Vec<Event> {
         ));
     }
 
-    let attack = Event::Attack(AttackEvent {
-        attacker: state.current_stack,
-        defender: defender_handle,
-        strikes,
-    });
-
-    events.push(attack);
     events
 }
