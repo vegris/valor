@@ -45,6 +45,7 @@ enum AnimationEvent {
     PlaySound(Sound),
     StopSound,
     Movement(Movement),
+    Teleport(GridPos),
 }
 
 struct Sound {
@@ -125,6 +126,10 @@ impl AnimationState {
                         animation_in_progress = true;
                     };
                 }
+                AnimationEvent::Teleport(pos) => {
+                    self.position = pos.center();
+                    update_result.event_finished = true;
+                }
             }
 
             if update_result.event_finished {
@@ -179,6 +184,7 @@ impl AnimationState {
                 AnimationEvent::PlaySound(_) => Duration::ZERO,
                 AnimationEvent::StopSound => Duration::ZERO,
                 AnimationEvent::Movement(movement) => movement.progress.time_left(),
+                AnimationEvent::Teleport(_) => Duration::ZERO,
             })
             .sum()
     }
@@ -207,18 +213,58 @@ impl AnimationState {
     }
 
     fn put_movement(&mut self, creature: Creature, path: Vec<GridPos>, rr: &mut ResourceRegistry) {
-        let sound = creature.sounds().get(CreatureSound::Move).unwrap();
-        let sound = Sound {
-            sound,
-            looping: true,
-        };
-        self.event_queue.push_back(AnimationEvent::PlaySound(sound));
+        if let Some(sound) = creature.sounds().get(CreatureSound::StartMoving) {
+            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+                sound,
+                looping: false,
+            }));
+        }
 
-        let movement = Movement::new(creature, path, rr);
-        self.event_queue
-            .push_back(AnimationEvent::Movement(movement));
+        let animation_type = AnimationType::StartMoving;
+        if rr
+            .get_creature_container(creature)
+            .frames_count(animation_type)
+            .is_some()
+        {
+            let animation = Animation::new(animation_type, creature, rr);
+            self.event_queue
+                .push_back(AnimationEvent::Animation(animation));
+        }
 
-        self.event_queue.push_back(AnimationEvent::StopSound);
+        if creature.is_teleporting() {
+            self.event_queue
+                .push_back(AnimationEvent::Teleport(*path.last().unwrap()));
+        } else {
+            let sound = creature.sounds().get(CreatureSound::Move).unwrap();
+            let sound = Sound {
+                sound,
+                looping: true,
+            };
+            self.event_queue.push_back(AnimationEvent::PlaySound(sound));
+
+            let movement = Movement::new(creature, path, rr);
+            self.event_queue
+                .push_back(AnimationEvent::Movement(movement));
+
+            self.event_queue.push_back(AnimationEvent::StopSound);
+        }
+
+        if let Some(sound) = creature.sounds().get(CreatureSound::EndMoving) {
+            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+                sound,
+                looping: false,
+            }));
+        }
+        let animation_type = AnimationType::StopMoving;
+        if rr
+            .get_creature_container(creature)
+            .frames_count(animation_type)
+            .is_some()
+        {
+            let animation = Animation::new(animation_type, creature, rr);
+            self.event_queue
+                .push_back(AnimationEvent::Animation(animation));
+        }
     }
 
     fn put_event(&mut self, event: AnimationEvent) {

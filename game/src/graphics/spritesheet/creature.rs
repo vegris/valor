@@ -42,6 +42,7 @@ impl AnimationType {
             AnimationType::Standing => 200,
             AnimationType::TurnLeft | AnimationType::TurnRight => 100,
             AnimationType::Moving => 100,
+            AnimationType::StartMoving | AnimationType::StopMoving => 75,
             _ => 100,
         };
 
