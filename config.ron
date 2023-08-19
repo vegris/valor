@@ -1,5 +1,6 @@
 Config(
     battlefield: LAVA,
+    music: false,
     armies: (
         Army(
             hero: Some(SirMullich),

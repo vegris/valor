@@ -16,6 +16,7 @@ pub struct Army {
 #[derive(Deserialize)]
 pub struct Config {
     pub battlefield: Battlefield,
+    pub music: bool,
     pub armies: [Army; 2],
 }
 

@@ -55,7 +55,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut animations = graphics::create_animations(&game_state, &mut resource_registry);
 
-    sound::setup_music(&mut resource_registry)?;
+    if config.music {
+        sound::setup_music(&mut resource_registry)?;
+    }
 
     // let menu_background = resource_registry.load_pcx("coplacbr.pcx")?;
     let menu_background = resource_registry.load_pcx("cbar.pcx")?;
