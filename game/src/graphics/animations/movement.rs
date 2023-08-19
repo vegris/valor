@@ -47,7 +47,7 @@ impl Movement {
 
         Self {
             tweens,
-            modifier: creature.walk_animation_time(),
+            modifier: creature.walk_animation_modifier(),
             frame_count,
             progress: TimeProgress::new(duration),
         }
@@ -91,7 +91,7 @@ const FLIGHT_PX_PER_SECOND: i32 = 250;
 const WALK_TILE_PER_SECOND: i32 = 2;
 
 fn total_duration(creature: Creature, tweens: &[Tween]) -> Duration {
-    let modifier = creature.walk_animation_time();
+    let modifier = creature.walk_animation_modifier();
 
     let duration_secs = if creature.is_flying() {
         let length: i32 = tweens.iter().map(|t| t.length_px()).sum();

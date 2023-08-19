@@ -1856,7 +1856,7 @@ impl Creature {
         }
     }
 
-    pub const fn walk_animation_time(self) -> f32 {
+    pub const fn walk_animation_modifier(self) -> f32 {
         match self {
             C::Pikeman => 1.15,
             C::Halberdier => 0.90,
