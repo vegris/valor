@@ -79,44 +79,177 @@ pub fn draw(
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
 ) -> Result<(), Box<dyn Error>> {
+    draw_battlefield(canvas, statics)?;
+
+    draw_heroes(canvas, tc, statics)?;
+
     let is_animating = animations.is_animating();
 
-    // Рисуем поле боя
+    set_cursor(&statics.cursors, state, frame_data, is_animating);
+
+    if !is_animating {
+        highlight_cells(canvas, statics, state.reachable_cells())?;
+        highlight_cells(
+            canvas,
+            statics,
+            &gather_highlighted_cells(state, frame_data),
+        )?;
+    }
+
+    draw_units(canvas, tc, statics, rr, state, animations)?;
+
+    draw_menu(canvas, tc, statics)?;
+
+    Ok(())
+}
+
+fn draw_battlefield(canvas: &mut WindowCanvas, statics: &Statics) -> Result<(), Box<dyn Error>> {
     canvas.copy(
         statics.textures.get(StaticTexture::Battlefield),
         None,
         sdl2::rect::Rect::new(0, 0, 800, 556),
     )?;
 
+    for x in GridPos::X_RANGE {
+        for y in GridPos::Y_RANGE {
+            canvas.copy(
+                statics.textures.get(StaticTexture::GridCell),
+                None,
+                GridPos::new(x, y).bounding_rect(),
+            )?;
+        }
+    }
+
+    Ok(())
+}
+
+fn draw_heroes(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+) -> Result<(), Box<dyn Error>> {
     for side in Side::iter() {
         if let Some(hero) = &statics.heroes[side as usize] {
             hero.draw(canvas, tc, side, hero::AnimationType::Idle, 0)?;
         }
     }
 
-    // Рисуем клетки на поле
-    for x in GridPos::X_RANGE {
-        for y in GridPos::Y_RANGE {
-            let draw_rect = GridPos::new(x, y).bounding_rect();
-            canvas.copy(
-                statics.textures.get(StaticTexture::GridCell),
-                None,
-                draw_rect,
-            )?;
-        }
+    Ok(())
+}
+
+fn highlight_cells(
+    canvas: &mut WindowCanvas,
+    statics: &Statics,
+    cells: &[GridPos],
+) -> Result<(), Box<dyn Error>> {
+    for cell in cells {
+        canvas.copy(
+            statics.textures.get(StaticTexture::GridCellShadow),
+            None,
+            cell.bounding_rect(),
+        )?;
     }
 
+    Ok(())
+}
+
+fn draw_units(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+    rr: &mut ResourceRegistry,
+    state: &BattleState,
+    animations: &Animations,
+) -> Result<(), Box<dyn Error>> {
+    let mut units = state.units();
+    units.sort_unstable_by_key(|&handle| {
+        let alive = state.get_stack(handle).is_alive();
+        let position = animations.0 .0[&handle].position;
+
+        (alive, (position.y, position.x))
+    });
+
+    let is_animating = animations.is_animating();
+
+    for handle in units {
+        let is_current = state.is_current(handle) && !is_animating;
+        let stack = state.get_stack(handle);
+        let animation_state = animations.0 .0.get(&handle).unwrap();
+        stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
+    }
+
+    Ok(())
+}
+
+fn draw_menu(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+) -> Result<(), Box<dyn Error>> {
+    canvas.copy(
+        statics.textures.get(StaticTexture::MenuBackground),
+        None,
+        Rect::new(1, 555, 800, 44),
+    )?;
+
+    let buttons = [
+        (Buttons::Settings, 4),
+        (Buttons::Surrender, 55),
+        (Buttons::Retreat, 106),
+        (Buttons::AutoBattle, 157),
+        (Buttons::BookOfMagic, 646),
+        (Buttons::Wait, 697),
+        (Buttons::Defend, 748),
+    ];
+
+    for (button, x) in buttons {
+        let sprite = statics.ui[button]
+            .get_sprite(spritesheet::button_state::ButtonState::Base, 0)
+            .unwrap();
+        let texture = sprite.surface.as_texture(tc)?;
+
+        canvas.copy(
+            &texture,
+            None,
+            Rect::new(x, 560, sprite.width, sprite.height),
+        )?;
+    }
+
+    Ok(())
+}
+
+fn set_cursor(cursors: &Cursors, state: &BattleState, frame_data: &FrameData, is_animating: bool) {
+    if is_animating {
+        cursors.get(Cursor::Pointer).set();
+        return;
+    }
+
+    let cursor = if let Some(command) = frame_data.potential_lmb_command {
+        match command {
+            Command::Move { .. } => {
+                if state.get_current_stack().creature.is_flying() {
+                    Cursor::Fly
+                } else {
+                    Cursor::Run
+                }
+            }
+            Command::Attack(command) => Cursor::from_attack_direction(command.attack_direction),
+            Command::Shoot { .. } => Cursor::Arrow,
+            _ => unreachable!(),
+        }
+    } else {
+        Cursor::Pointer
+    };
+
+    let sdl_cursor = cursors.get(cursor);
+    sdl_cursor.set();
+}
+
+fn gather_highlighted_cells(state: &BattleState, frame_data: &FrameData) -> Vec<GridPos> {
     let mut highlighted_cells = vec![];
 
-    // Выделяем клетку под курсором
     if let Some(cell) = frame_data.current_hover {
         highlighted_cells.push(cell);
-    }
-
-    if is_animating {
-        statics.cursors.get(Cursor::Pointer).set();
-    } else {
-        set_cursor(&statics.cursors, state, frame_data);
     }
 
     if let Some(command) = frame_data.potential_lmb_command {
@@ -170,104 +303,8 @@ pub fn draw(
         }
     }
 
-    if !is_animating {
-        for cell in state.reachable_cells() {
-            canvas.copy(
-                statics.textures.get(StaticTexture::GridCellShadow),
-                None,
-                cell.bounding_rect(),
-            )?;
-        }
+    highlighted_cells.sort();
+    highlighted_cells.dedup();
 
-        highlighted_cells.sort();
-        highlighted_cells.dedup();
-        for cell in highlighted_cells {
-            canvas.copy(
-                statics.textures.get(StaticTexture::GridCellShadow),
-                None,
-                cell.bounding_rect(),
-            )?;
-        }
-    }
-
-    // Рисуем существ
-    let mut units = state.units();
-    units.sort_unstable_by_key(|&handle| {
-        let alive = state.get_stack(handle).is_alive();
-        let position = animations.0 .0[&handle].position;
-
-        (alive, (position.y, position.x))
-    });
-
-    for handle in units {
-        let is_current = state.is_current(handle) && !is_animating;
-        let stack = state.get_stack(handle);
-        let animation_state = animations.0 .0.get(&handle).unwrap();
-        stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
-    }
-
-    draw_menu(canvas, tc, statics)?;
-
-    Ok(())
-}
-
-fn draw_menu(
-    canvas: &mut WindowCanvas,
-    tc: &TextureCreator<WindowContext>,
-    statics: &Statics,
-) -> Result<(), Box<dyn Error>> {
-    canvas.copy(
-        statics.textures.get(StaticTexture::MenuBackground),
-        None,
-        Rect::new(1, 555, 800, 44),
-    )?;
-
-    let buttons = [
-        (Buttons::Settings, 4),
-        (Buttons::Surrender, 55),
-        (Buttons::Retreat, 106),
-        (Buttons::AutoBattle, 157),
-        (Buttons::BookOfMagic, 646),
-        (Buttons::Wait, 697),
-        (Buttons::Defend, 748),
-    ];
-
-    for (button, x) in buttons {
-        let sprite = statics.ui[button]
-            .get_sprite(spritesheet::button_state::ButtonState::Base, 0)
-            .unwrap();
-        let texture = sprite.surface.as_texture(tc)?;
-
-        canvas.copy(
-            &texture,
-            None,
-            Rect::new(x, 560, sprite.width, sprite.height),
-        )?;
-    }
-
-    Ok(())
-}
-
-fn set_cursor(cursors: &Cursors, state: &BattleState, frame_data: &FrameData) {
-    let current_stack = state.get_current_stack();
-
-    let cursor = if let Some(command) = frame_data.potential_lmb_command {
-        match command {
-            Command::Move { .. } => {
-                if current_stack.creature.is_flying() {
-                    Cursor::Fly
-                } else {
-                    Cursor::Run
-                }
-            }
-            Command::Attack(command) => Cursor::from_attack_direction(command.attack_direction),
-            Command::Shoot { .. } => Cursor::Arrow,
-            _ => unreachable!(),
-        }
-    } else {
-        Cursor::Pointer
-    };
-
-    let sdl_cursor = cursors.get(cursor);
-    sdl_cursor.set();
+    highlighted_cells
 }
