@@ -30,7 +30,7 @@ impl<'a> StackWithAnimation<'a> {
         animations: &'a mut Animations,
     ) -> [Self; N] {
         let stacks = handles.map(|h| state.get_stack(h));
-        let animations = animations.get_many_mut(handles).unwrap();
+        let animations = animations.0.get_many_mut(handles).unwrap();
 
         Iterator::zip(stacks.into_iter(), animations.into_iter())
             .map(|(stack, animation)| Self { stack, animation })
@@ -110,7 +110,7 @@ pub fn animate_movement(
     rr: &mut ResourceRegistry,
 ) {
     let stack = state.get_stack(movement.stack_handle);
-    let stack_animations = animations.0.get_mut(&movement.stack_handle).unwrap();
+    let stack_animations = animations.0 .0.get_mut(&movement.stack_handle).unwrap();
     stack_animations.put_movement(stack.creature, movement.path, rr);
 }
 

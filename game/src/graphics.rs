@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::time::Duration;
 
 use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
@@ -29,21 +30,33 @@ use spritesheet::hero;
 
 use self::animations::AnimationState;
 
-type Animations = Map<StackHandle, AnimationState>;
+pub struct Animations(Map<StackHandle, AnimationState>);
 
-pub fn create_animations(state: &BattleState, rr: &mut ResourceRegistry) -> Animations {
-    let animations = state
-        .units()
-        .into_iter()
-        .map(|handle| {
-            let stack = state.get_stack(handle);
-            let animation = AnimationState::new(stack.creature, stack.head, rr);
+impl Animations {
+    pub fn create(state: &BattleState, rr: &mut ResourceRegistry) -> Self {
+        let animations = state
+            .units()
+            .into_iter()
+            .map(|handle| {
+                let stack = state.get_stack(handle);
+                let animation = AnimationState::new(stack.creature, stack.head, rr);
 
-            (handle, animation)
-        })
-        .collect();
+                (handle, animation)
+            })
+            .collect();
 
-    Map(animations)
+        Self(Map(animations))
+    }
+
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        for animation_state in self.0 .0.values_mut() {
+            animation_state.update(dt, rr);
+        }
+    }
+
+    pub fn is_animating(&self) -> bool {
+        self.0 .0.values().any(|a| a.is_animating())
+    }
 }
 
 pub fn process_events(
@@ -57,7 +70,6 @@ pub fn process_events(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn draw(
     state: &BattleState,
     frame_data: &FrameData,
@@ -66,8 +78,9 @@ pub fn draw(
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
-    is_animating: bool,
 ) -> Result<(), Box<dyn Error>> {
+    let is_animating = animations.is_animating();
+
     // Рисуем поле боя
     canvas.copy(
         statics.textures.get(StaticTexture::Battlefield),
@@ -181,7 +194,7 @@ pub fn draw(
     let mut units = state.units();
     units.sort_unstable_by_key(|&handle| {
         let alive = state.get_stack(handle).is_alive();
-        let position = animations.0[&handle].position;
+        let position = animations.0 .0[&handle].position;
 
         (alive, (position.y, position.x))
     });
@@ -189,7 +202,7 @@ pub fn draw(
     for handle in units {
         let is_current = state.is_current(handle) && !is_animating;
         let stack = state.get_stack(handle);
-        let animation_state = animations.0.get(&handle).unwrap();
+        let animation_state = animations.0 .0.get(&handle).unwrap();
         stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
     }
 

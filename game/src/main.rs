@@ -17,7 +17,7 @@ mod stack;
 
 use battlestate::BattleState;
 use config::Config;
-use graphics::Statics;
+use graphics::{Animations, Statics};
 use registry::ResourceRegistry;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut game_state = BattleState::new(&config)?;
 
-    let mut animations = graphics::create_animations(&game_state, &mut resource_registry);
+    let mut animations = Animations::create(&game_state, &mut resource_registry);
 
     if config.music {
         sound::setup_music(&mut resource_registry)?;
@@ -54,11 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let frame_data = input::process(&game_state, &mut event_pump);
 
-        for animation_state in animations.0.values_mut() {
-            animation_state.update(dt, &mut resource_registry);
-        }
-
-        let is_animating = animations.0.values().any(|a| a.is_animating());
+        animations.update(dt, &mut resource_registry);
 
         canvas.clear();
         graphics::draw(
@@ -69,12 +65,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             &mut resource_registry,
             &texture_creator,
             &statics,
-            is_animating,
         )?;
 
         canvas.present();
 
-        if !is_animating {
+        if !animations.is_animating() {
             if let Some(command) = frame_data.command {
                 let events = game_state.apply_command(command);
 
