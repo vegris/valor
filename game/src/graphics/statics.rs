@@ -47,15 +47,16 @@ impl<'a> Statics<'a> {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, EnumCount)]
 pub enum StaticTexture {
-    Battlefield = 0,
-    StackCountBackground = 1,
-    GridCell = 2,
-    GridCellShadow = 3,
+    Battlefield,
+    MenuBackground,
+    StackCountBackground,
+    GridCell,
+    GridCellShadow,
 }
 
-pub struct Textures<'a>([Texture<'a>; 4]);
+pub struct Textures<'a>([Texture<'a>; StaticTexture::COUNT]);
 
 impl<'a> Textures<'a> {
     fn load(
@@ -65,6 +66,7 @@ impl<'a> Textures<'a> {
     ) -> Result<Self, Box<dyn Error>> {
         let textures: Vec<Texture> = [
             (config.battlefield.filename(), false),
+            ("cbar.pcx", false),
             ("CmNumWin.pcx", false),
             ("CCellGrd.pcx", true),
             ("CCellShd.pcx", true),
@@ -83,7 +85,7 @@ impl<'a> Textures<'a> {
         })
         .collect::<Result<_, Box<dyn Error>>>()?;
 
-        let textures: [Texture; 4] = textures.try_into().ok().unwrap();
+        let textures: [Texture; StaticTexture::COUNT] = textures.try_into().ok().unwrap();
 
         Ok(Self(textures))
     }

@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 
@@ -23,7 +24,7 @@ pub mod statics;
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
-use self::statics::StaticTexture;
+use self::statics::{Buttons, StaticTexture};
 use spritesheet::hero;
 
 use self::animations::AnimationState;
@@ -190,6 +191,45 @@ pub fn draw(
         let stack = state.get_stack(handle);
         let animation_state = animations.0.get(&handle).unwrap();
         stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
+    }
+
+    draw_menu(canvas, tc, statics)?;
+
+    Ok(())
+}
+
+fn draw_menu(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+) -> Result<(), Box<dyn Error>> {
+    canvas.copy(
+        statics.textures.get(StaticTexture::MenuBackground),
+        None,
+        Rect::new(1, 555, 800, 44),
+    )?;
+
+    let buttons = [
+        (Buttons::Settings, 4),
+        (Buttons::Surrender, 55),
+        (Buttons::Retreat, 106),
+        (Buttons::AutoBattle, 157),
+        (Buttons::BookOfMagic, 646),
+        (Buttons::Wait, 697),
+        (Buttons::Defend, 748),
+    ];
+
+    for (button, x) in buttons {
+        let sprite = statics.ui[button]
+            .get_sprite(spritesheet::button_state::ButtonState::Base, 0)
+            .unwrap();
+        let texture = sprite.surface.as_texture(tc)?;
+
+        canvas.copy(
+            &texture,
+            None,
+            Rect::new(x, 560, sprite.width, sprite.height),
+        )?;
     }
 
     Ok(())
