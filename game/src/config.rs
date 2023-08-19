@@ -1,11 +1,10 @@
 use std::fs::File;
 
-extern crate serde;
 use serde::Deserialize;
 
-extern crate ron;
-
-use gamedata::{battlefields::Battlefield, creatures::Creature, heroes::Hero};
+use gamedata::battlefields::Battlefield;
+use gamedata::creatures::Creature;
+use gamedata::heroes::Hero;
 
 #[derive(Clone, Copy, Deserialize)]
 pub struct Army {

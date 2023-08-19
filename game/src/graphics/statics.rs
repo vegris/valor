@@ -3,6 +3,7 @@ use std::error::Error;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
+
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
