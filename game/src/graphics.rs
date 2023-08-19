@@ -1,4 +1,3 @@
-use std::collections::{hash_map, HashMap};
 use std::error::Error;
 
 use sdl2::render::{TextureCreator, WindowCanvas};
@@ -11,6 +10,7 @@ use crate::command::Command;
 use crate::event::Event;
 use crate::grid::GridPos;
 use crate::input::FrameData;
+use crate::map::Map;
 use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
@@ -28,7 +28,7 @@ use spritesheet::hero;
 
 use self::animations::AnimationState;
 
-pub struct Animations(pub HashMap<StackHandle, AnimationState>);
+type Animations = Map<StackHandle, AnimationState>;
 
 pub fn create_animations(state: &BattleState, rr: &mut ResourceRegistry) -> Animations {
     let animations = state
@@ -42,42 +42,7 @@ pub fn create_animations(state: &BattleState, rr: &mut ResourceRegistry) -> Anim
         })
         .collect();
 
-    Animations(animations)
-}
-
-impl Animations {
-    pub fn values_mut(&mut self) -> hash_map::ValuesMut<'_, StackHandle, AnimationState> {
-        self.0.values_mut()
-    }
-
-    fn get_many_mut<const N: usize>(
-        &mut self,
-        handles: [StackHandle; N],
-    ) -> Option<[&mut AnimationState; N]> {
-        use std::mem::MaybeUninit;
-
-        for index in 1..N {
-            if handles[index] == handles[index - 1] {
-                return None;
-            }
-        }
-
-        let mut arr: MaybeUninit<[&mut AnimationState; N]> = MaybeUninit::uninit();
-        let arr_ptr = arr.as_mut_ptr();
-
-        // SAFETY: We expect `handles` to contain disjunct values that are in bounds of `self`.
-        unsafe {
-            for (i, handle) in handles.iter().enumerate() {
-                if let Some(stack) = self.0.get_mut(handle) {
-                    *(*arr_ptr).get_unchecked_mut(i) = &mut *(stack as *mut _);
-                } else {
-                    return None;
-                }
-            }
-
-            Some(arr.assume_init())
-        }
-    }
+    Map(animations)
 }
 
 pub fn process_events(

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::error::Error;
 
 use strum_macros::EnumIter;
@@ -8,6 +7,7 @@ use crate::config::Config;
 use crate::event::Event;
 use crate::grid::GridPos;
 
+use crate::map::Map;
 use crate::stack::Stack;
 
 use crate::pathfinding::NavigationArray;
@@ -44,43 +44,10 @@ enum Winner {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct StackHandle(u32);
 
-pub struct Stacks(HashMap<StackHandle, Stack>);
-
-impl Stacks {
-    fn get_many_mut<const N: usize>(
-        &mut self,
-        handles: [StackHandle; N],
-    ) -> Option<[&mut Stack; N]> {
-        use std::mem::MaybeUninit;
-
-        for index in 1..N {
-            if handles[index] == handles[index - 1] {
-                return None;
-            }
-        }
-
-        let mut arr: MaybeUninit<[&mut Stack; N]> = MaybeUninit::uninit();
-        let arr_ptr = arr.as_mut_ptr();
-
-        // SAFETY: We expect `handles` to contain disjunct values that are in bounds of `self`.
-        unsafe {
-            for (i, handle) in handles.iter().enumerate() {
-                if let Some(stack) = self.0.get_mut(handle) {
-                    *(*arr_ptr).get_unchecked_mut(i) = &mut *(stack as *mut _);
-                } else {
-                    return None;
-                }
-            }
-
-            Some(arr.assume_init())
-        }
-    }
-}
-
 pub struct BattleState {
     // Логика
     heroes: [Option<Hero>; 2],
-    stacks: Stacks,
+    stacks: Map<StackHandle, Stack>,
     turn: turns::Turn,
     current_stack: StackHandle,
 
@@ -108,7 +75,7 @@ impl BattleState {
 
         let mut state = Self {
             heroes,
-            stacks: Stacks(stacks),
+            stacks: Map(stacks),
             turn: turns::Turn::new(),
             current_stack: StackHandle(0),
             navigation_array: NavigationArray::empty(),

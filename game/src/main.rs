@@ -8,6 +8,7 @@ mod event;
 mod graphics;
 mod grid;
 mod input;
+mod map;
 mod pathfinding;
 mod registry;
 mod sound;
@@ -71,7 +72,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let frame_data = input::process(&game_state, &mut event_pump);
 
-        for animation_state in animations.values_mut() {
+        for animation_state in animations.0.values_mut() {
             animation_state.update(dt, &mut resource_registry);
         }
 
