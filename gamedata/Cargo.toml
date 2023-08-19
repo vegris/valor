@@ -8,5 +8,5 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
-strum = "0.24"
-strum_macros = "0.24"
+strum = "0.25"
+strum_macros = "0.25"
