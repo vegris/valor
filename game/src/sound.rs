@@ -11,8 +11,8 @@ use crate::registry::ResourceRegistry;
 const START_CHANNEL: Channel = Channel(1);
 const LOOPING_CHANNEL: Channel = Channel(2);
 
-pub fn initialize() -> Result<(), Box<dyn Error>> {
-    mixer::init(mixer::InitFlag::MP3)?;
+pub fn initialize() -> Result<mixer::Sdl2MixerContext, Box<dyn Error>> {
+    let context = mixer::init(mixer::InitFlag::MP3)?;
 
     mixer::open_audio(
         mixer::DEFAULT_FREQUENCY,
@@ -24,7 +24,7 @@ pub fn initialize() -> Result<(), Box<dyn Error>> {
     mixer::allocate_channels(8);
     mixer::reserve_channels(2);
 
-    Ok(())
+    Ok(context)
 }
 
 pub fn setup_music(rr: &mut ResourceRegistry) -> Result<(), Box<dyn Error>> {

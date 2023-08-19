@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 mod battlestate;
 mod command;
@@ -11,6 +11,7 @@ mod input;
 mod map;
 mod pathfinding;
 mod registry;
+mod sdl;
 mod sound;
 mod stack;
 
@@ -22,36 +23,23 @@ use registry::ResourceRegistry;
 fn main() -> Result<(), Box<dyn Error>> {
     let config = Config::load()?;
 
-    // Инициализация SDL
-    let sdl_context = sdl2::init()?;
-    let ttf_context = sdl2::ttf::init()?;
-    sound::initialize()?;
+    let sdl = sdl::Sdl::initialize()?;
 
-    // Инициализация видео подсистемы
-    let video_subsystem = sdl_context.video()?;
-
-    let window = video_subsystem
-        .window("Rust", 800, 600)
-        .position_centered()
-        .build()?;
-
-    let mut canvas = window.into_canvas().present_vsync().build()?;
+    let mut canvas = sdl.build_canvas()?;
     let texture_creator = canvas.texture_creator();
 
-    // Открытие файлов с ресурсами
+    let mut event_pump = sdl.main_context.event_pump()?;
+
     let mut resource_registry = ResourceRegistry::init();
-
-    // Инициализация подсистемы событий
-    let mut event_pump = sdl_context.event_pump()?;
-
-    let mut game_state = BattleState::new(&config)?;
 
     let statics = Statics::init(
         &config,
         &mut resource_registry,
         &texture_creator,
-        &ttf_context,
+        &sdl.ttf_context,
     )?;
+
+    let mut game_state = BattleState::new(&config)?;
 
     let mut animations = graphics::create_animations(&game_state, &mut resource_registry);
 
@@ -59,12 +47,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         sound::setup_music(&mut resource_registry)?;
     }
 
-    let mut frame_start = Instant::now();
+    let mut frame_timer = FrameTimer::new();
 
     loop {
-        let now = Instant::now();
-        let dt = now - frame_start;
-        frame_start = now;
+        let dt = frame_timer.next_frame();
 
         let frame_data = input::process(&game_state, &mut event_pump);
 
@@ -100,5 +86,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                 );
             }
         }
+    }
+}
+
+struct FrameTimer {
+    frame_start: Instant,
+}
+
+impl FrameTimer {
+    fn new() -> Self {
+        Self {
+            frame_start: Instant::now(),
+        }
+    }
+
+    fn next_frame(&mut self) -> Duration {
+        let previous_frame = self.frame_start;
+        self.frame_start = Instant::now();
+
+        self.frame_start - previous_frame
     }
 }
