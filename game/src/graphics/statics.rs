@@ -7,6 +7,7 @@ use sdl2::video::WindowContext;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
+use crate::registry::image::{ImageT, PaletteImage, StaticImage};
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
@@ -75,10 +76,13 @@ impl<'a> Textures<'a> {
         .into_iter()
         .map(|(filename, with_transparency)| {
             let surface = if with_transparency {
-                rr.load_pcx_with_transparency(filename)
+                let mut image: PaletteImage = rr.load_image(filename)?;
+                image.apply_transparency()?;
+                image.into_surface()
             } else {
-                rr.load_pcx(filename)
-            }?;
+                let image: StaticImage = rr.load_image(filename)?;
+                image.into_surface()
+            };
 
             let texture = surface.as_texture(tc)?;
 
