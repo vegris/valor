@@ -8,7 +8,7 @@ use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 use strum::EnumCount;
 
-use formats::def::container::Container;
+use formats::def::Container;
 use formats::lod::LodIndex;
 
 use gamedata::creatures::Creature;

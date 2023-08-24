@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use sdl2::pixels::{Color, PixelFormatEnum};
 use sdl2::surface::Surface;
 
-use formats::def::container::Container as RawContainer;
-use formats::def::sprite::Sprite as RawSprite;
+use formats::def::Container as RawContainer;
+use formats::def::Sprite as RawSprite;
 
 pub struct Container {
     pub type_: u32,
