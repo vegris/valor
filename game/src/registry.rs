@@ -86,7 +86,7 @@ impl ResourceRegistry {
 
 type CachedValue = Spritesheet<AnimationType>;
 
-pub struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
+struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
 
 impl CreaturesCache {
     fn new() -> Self {
@@ -103,7 +103,7 @@ impl CreaturesCache {
     }
 }
 
-pub struct SoundCache(HashMap<String, Chunk>);
+struct SoundCache(HashMap<String, Chunk>);
 
 impl SoundCache {
     fn new() -> Self {
