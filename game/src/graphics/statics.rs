@@ -1,13 +1,14 @@
 use std::error::Error;
 
 use sdl2::render::{Texture, TextureCreator};
+use sdl2::surface::Surface;
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::registry::image::{ImageT, PaletteImage, StaticImage};
+use crate::registry::image::{PaletteImage, StaticImage};
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
@@ -75,13 +76,13 @@ impl<'a> Textures<'a> {
         ]
         .into_iter()
         .map(|(filename, with_transparency)| {
-            let surface = if with_transparency {
+            let surface: Surface = if with_transparency {
                 let mut image: PaletteImage = rr.load_image(filename)?;
                 image.apply_transparency()?;
-                image.into_surface()
+                image.into()
             } else {
                 let image: StaticImage = rr.load_image(filename)?;
-                image.into_surface()
+                image.into()
             };
 
             let texture = surface.as_texture(tc)?;

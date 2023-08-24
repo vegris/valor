@@ -19,7 +19,8 @@ pub enum ImageData {
     },
 }
 
-pub fn from_bytes(bytes: &mut [u8]) -> Result<Image, Box<dyn Error>> {
+#[allow(clippy::boxed_local)]
+pub fn from_bytes(mut bytes: Box<[u8]>) -> Result<Image, Box<dyn Error>> {
     let (header, data) = bytes.split_at_mut(12);
     let [size, width, height]: [u32; 3] = header
         .chunks_exact(4)

@@ -10,7 +10,6 @@ use strum::EnumCount;
 
 use formats::def::container::Container;
 use formats::lod::LodIndex;
-use formats::pcx;
 
 use gamedata::creatures::Creature;
 
@@ -50,9 +49,8 @@ impl ResourceRegistry {
     }
 
     pub fn load_image<Image: ImageT>(&mut self, filename: &str) -> Result<Image, Box<dyn Error>> {
-        let mut bytes = self.pcx_archive.read_file(filename);
-        let raw_image = pcx::from_bytes(&mut bytes)?;
-        let image = Image::from_raw(raw_image)?;
+        let bytes = self.pcx_archive.read_file(filename);
+        let image = image::from_bytes(bytes)?;
         Ok(image)
     }
 

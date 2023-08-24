@@ -1,14 +1,15 @@
-use std::error::Error;
-
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
 
+use formats::pcx;
 use formats::pcx::{Image, ImageData};
 
-pub trait ImageT: Sized {
-    fn from_raw(raw: Image) -> Result<Self, Box<dyn Error>>;
-    fn into_surface(self) -> Surface<'static>;
+pub trait ImageT:
+    Sized + TryFrom<inner::Either, Error = &'static str> + Into<Surface<'static>>
+{
 }
+
+type Error = Box<dyn std::error::Error>;
 
 pub struct StaticImage {
     surface: Surface<'static>,
@@ -19,15 +20,26 @@ pub struct PaletteImage {
     colors: Box<[Color]>,
 }
 
-enum Either {
-    Static(StaticImage),
-    Palette(PaletteImage),
+// Silence 'private in public' warning
+mod inner {
+    pub enum Either {
+        Static(super::StaticImage),
+        Palette(super::PaletteImage),
+    }
+}
+use inner::Either;
+
+pub fn from_bytes<Image: ImageT>(bytes: Box<[u8]>) -> Result<Image, Error> {
+    let raw = pcx::from_bytes(bytes)?;
+    let either = pcx_to_surface(raw)?;
+    let image = either.try_into()?;
+    Ok(image)
 }
 
-impl ImageT for StaticImage {
-    fn from_raw(raw: Image) -> Result<Self, Box<dyn Error>> {
-        let either = pcx_to_surface(raw)?;
-        let image = match either {
+impl TryFrom<Either> for StaticImage {
+    type Error = &'static str;
+    fn try_from(value: Either) -> Result<Self, Self::Error> {
+        let image = match value {
             Either::Static(static_image) => static_image,
             Either::Palette(palette_image) => StaticImage {
                 surface: palette_image.surface,
@@ -35,28 +47,36 @@ impl ImageT for StaticImage {
         };
         Ok(image)
     }
+}
 
-    fn into_surface(self) -> Surface<'static> {
-        self.surface
+impl From<StaticImage> for Surface<'static> {
+    fn from(value: StaticImage) -> Self {
+        value.surface
     }
 }
 
-impl ImageT for PaletteImage {
-    fn from_raw(raw: Image) -> Result<Self, Box<dyn Error>> {
-        let either = pcx_to_surface(raw)?;
-        match either {
-            Either::Static(_) => Err("Image is static".into()),
+impl ImageT for StaticImage {}
+
+impl TryFrom<Either> for PaletteImage {
+    type Error = &'static str;
+    fn try_from(value: Either) -> Result<Self, Self::Error> {
+        match value {
+            Either::Static(_) => Err("Image is static"),
             Either::Palette(palette_image) => Ok(palette_image),
         }
     }
+}
 
-    fn into_surface(self) -> Surface<'static> {
-        self.surface
+impl From<PaletteImage> for Surface<'static> {
+    fn from(value: PaletteImage) -> Self {
+        value.surface
     }
 }
 
+impl ImageT for PaletteImage {}
+
 impl PaletteImage {
-    pub fn apply_transparency(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn apply_transparency(&mut self) -> Result<(), Error> {
         let color_changes = [0, 32, 64, 128, 128];
         for (index, alpha) in color_changes.into_iter().enumerate() {
             self.colors[index] = Color::RGBA(0, 0, 0, alpha);
@@ -70,7 +90,7 @@ impl PaletteImage {
     }
 }
 
-fn pcx_to_surface(image: Image) -> Result<Either, Box<dyn Error>> {
+fn pcx_to_surface(image: Image) -> Result<Either, Error> {
     let Image {
         width,
         height,
@@ -105,12 +125,3 @@ fn pcx_to_surface(image: Image) -> Result<Either, Box<dyn Error>> {
 
     Ok(result)
 }
-// if apply_transparency {
-//     let color_changes = [0, 32, 64, 128, 128];
-
-//     for (index, alpha) in color_changes.into_iter().enumerate() {
-//         colors[index] = Color::RGBA(0, 0, 0, alpha);
-//     }
-
-//     surface.set_color_key(true, Color::RGB(0, 0, 0))?;
-// }
