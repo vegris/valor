@@ -20,6 +20,8 @@ use gamedata::creatures::Creature;
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::graphics::spritesheet::Spritesheet;
 
+pub mod def;
+
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
 const SND_ARCHIVE: &str = "Heroes3.snd";
@@ -69,9 +71,10 @@ impl ResourceRegistry {
         pcx_to_surface(image, apply_transparency)
     }
 
-    pub fn load_def(&mut self, filename: &str) -> Container {
+    pub fn load_def(&mut self, filename: &str) -> def::Container {
         let bytes = self.def_archive.read_file(filename);
-        Container::from_bytes(&bytes)
+        let raw = Container::from_bytes(&bytes);
+        def::Container::from_raw(raw)
     }
 
     pub fn get_creature_container(

@@ -3,8 +3,7 @@ use std::{collections::HashMap, marker::PhantomData};
 use sdl2::pixels::{Color, Palette};
 use strum::{EnumCount, IntoEnumIterator};
 
-use formats::def::container::Container as DefContainer;
-use formats::def::sprite::Sprite as DefSprite;
+use crate::registry::def::{Container as DefContainer, Sprite as DefSprite};
 
 pub mod button_state;
 pub mod creature;

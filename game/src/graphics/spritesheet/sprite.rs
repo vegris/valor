@@ -1,6 +1,6 @@
 use sdl2::{pixels::Color, surface::Surface};
 
-use formats::def::sprite::Sprite as DefSprite;
+use crate::registry::def::Sprite as DefSprite;
 
 pub struct Sprite {
     pub width: u32,

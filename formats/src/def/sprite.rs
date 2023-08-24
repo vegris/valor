@@ -1,9 +1,5 @@
 use std::ops::Deref;
 
-extern crate sdl2;
-use sdl2::pixels::PixelFormatEnum;
-use sdl2::surface::Surface;
-
 pub struct Sprite {
     pub full_size: u32,
     pub full_width: u32,
@@ -12,7 +8,7 @@ pub struct Sprite {
     pub height: u32,
     pub left_margin: u32,
     pub top_margin: u32,
-    pub surface: Surface<'static>,
+    pub pixels: Box<[u8]>,
 }
 
 struct Header {
@@ -42,34 +38,17 @@ impl Sprite {
         let (header_data, image_data) = data.split_at(HEADER_LENGTH);
 
         let header = parse_header(header_data);
-
-        let pixel_data = parse_pixel_data(&header, image_data);
-        let surface = create_surface(&header, pixel_data);
-
-        Self::new(header, surface)
-    }
-
-    fn new(header: Header, surface: Surface<'static>) -> Self {
-        let Header {
-            full_size,
-            format: _,
-            full_width,
-            full_height,
-            width,
-            height,
-            left_margin,
-            top_margin,
-        } = header;
+        let pixels = parse_pixel_data(&header, image_data);
 
         Self {
-            full_size,
-            full_width,
-            full_height,
-            width,
-            height,
-            left_margin,
-            top_margin,
-            surface,
+            full_size: header.full_size,
+            full_width: header.full_width,
+            full_height: header.full_height,
+            width: header.width,
+            height: header.height,
+            left_margin: header.left_margin,
+            top_margin: header.top_margin,
+            pixels,
         }
     }
 }
@@ -101,24 +80,8 @@ fn parse_header(header_data: &[u8]) -> Header {
         height: h,
         left_margin: lm,
         top_margin: tm,
-        format
+        format,
     }
-}
-
-fn create_surface(header: &Header, mut pixel_data: Box<[u8]>) -> Surface<'static> {
-    let Header { width, height, .. } = *header;
-
-    let surface = Surface::from_data(
-        &mut pixel_data,
-        width,
-        height,
-        width,
-        PixelFormatEnum::Index8,
-    )
-    .unwrap();
-    let static_surface = surface.convert_format(surface.pixel_format_enum()).unwrap();
-
-    static_surface
 }
 
 fn parse_pixel_data(header: &Header, image_data: &[u8]) -> Box<[u8]> {

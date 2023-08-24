@@ -4,8 +4,7 @@ use std::ops::Deref;
 
 use super::sprite::Sprite;
 
-extern crate sdl2;
-use sdl2::pixels::Color;
+use crate::Color;
 
 pub struct Container {
     pub type_: u32,
@@ -24,7 +23,11 @@ impl Container {
         let (palette_data, pixel_data) = payload.split_at(256 * 3);
         let colors = palette_data
             .chunks_exact(3)
-            .map(|chunk| Color::RGB(chunk[0], chunk[1], chunk[2]))
+            .map(|chunk| Color {
+                red: chunk[0],
+                green: chunk[1],
+                blue: chunk[2],
+            })
             .collect::<Box<[Color]>>();
 
         let mut names2sprites: HashMap<String, Sprite> = HashMap::new();

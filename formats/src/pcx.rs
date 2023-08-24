@@ -2,17 +2,13 @@ use std::convert::TryInto;
 use std::error::Error;
 use std::ops::Deref;
 
+use crate::Color;
+
 pub struct Image {
     pub size: u32,
     pub width: u32,
     pub height: u32,
     pub data: ImageData,
-}
-
-pub struct Color {
-    pub red: u8,
-    pub green: u8,
-    pub blue: u8,
 }
 
 pub enum ImageData {
