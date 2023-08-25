@@ -1,9 +1,8 @@
-use std::error::Error;
-
 use strum_macros::EnumIter;
 
 use crate::command::Command;
 use crate::config::Config;
+use crate::error::AnyHow;
 use crate::event::Event;
 use crate::grid::GridPos;
 
@@ -57,7 +56,7 @@ pub struct BattleState {
 }
 
 impl BattleState {
-    pub fn new(config: &Config) -> Result<Self, Box<dyn Error>> {
+    pub fn new(config: &Config) -> AnyHow<Self> {
         let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
         let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);
 

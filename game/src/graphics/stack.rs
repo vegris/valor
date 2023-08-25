@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::TextureCreator;
@@ -7,6 +5,7 @@ use sdl2::render::WindowCanvas;
 use sdl2::video::WindowContext;
 
 use crate::battlestate::Side;
+use crate::error::AnyWay;
 use crate::grid::GridPos;
 use crate::ResourceRegistry;
 
@@ -24,7 +23,7 @@ pub fn draw(
     tc: &TextureCreator<WindowContext>,
     is_selected: bool,
     statics: &Statics,
-) -> Result<(), Box<dyn Error>> {
+) -> AnyWay {
     let spritesheet = rr.get_creature_container(stack.creature);
 
     let animation_data = animation_state.get_state();
@@ -79,7 +78,7 @@ fn draw_count(
     canvas: &mut WindowCanvas,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
-) -> Result<(), Box<dyn Error>> {
+) -> AnyWay {
     let cell_center = logic.head.bounding_rect().center();
     let draw_center = cell_center.offset(0, 10);
 

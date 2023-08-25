@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::surface::Surface;
 use sdl2::ttf::Font;
@@ -8,6 +6,7 @@ use sdl2::video::WindowContext;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
+use crate::error::AnyHow;
 use crate::registry::image::{PaletteImage, StaticImage};
 use crate::{Config, ResourceRegistry};
 
@@ -28,7 +27,7 @@ impl<'a> Statics<'a> {
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
         ttf_context: &'a sdl2::ttf::Sdl2TtfContext,
-    ) -> Result<Self, Box<dyn Error>> {
+    ) -> AnyHow<Self> {
         let font_path = "/usr/share/fonts/TTF/OpenSans-Bold.ttf";
         let font_size = 16;
 
@@ -66,7 +65,7 @@ impl<'a> Textures<'a> {
         config: &Config,
         rr: &mut ResourceRegistry,
         tc: &'a TextureCreator<WindowContext>,
-    ) -> Result<Self, Box<dyn Error>> {
+    ) -> AnyHow<Self> {
         let textures: Vec<Texture> = [
             (config.battlefield.filename(), false),
             ("cbar.pcx", false),
@@ -89,7 +88,7 @@ impl<'a> Textures<'a> {
 
             Ok(texture)
         })
-        .collect::<Result<_, Box<dyn Error>>>()?;
+        .collect::<AnyHow<_>>()?;
 
         let textures: [Texture; StaticTexture::COUNT] = textures.try_into().ok().unwrap();
 

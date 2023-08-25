@@ -1,9 +1,9 @@
-use std::error::Error;
 use std::time::Instant;
 
 mod battlestate;
 mod command;
 mod config;
+mod error;
 mod event;
 mod graphics;
 mod grid;
@@ -16,10 +16,11 @@ mod stack;
 
 use battlestate::BattleState;
 use config::Config;
+use error::AnyWay;
 use graphics::{Animations, Statics};
 use registry::ResourceRegistry;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> AnyWay {
     let config = Config::load()?;
 
     // Инициализация SDL

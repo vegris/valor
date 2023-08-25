@@ -1,9 +1,9 @@
-use std::error::Error;
-
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
 
 use formats::pcx;
+
+use crate::error::{AnyHow, AnyWay};
 
 pub trait ImageT: Sized + TryFrom<Image, Error = &'static str> + Into<Surface<'static>> {}
 
@@ -21,7 +21,7 @@ pub enum Image {
     Palette(PaletteImage),
 }
 
-pub fn from_bytes<Image: ImageT>(bytes: Box<[u8]>) -> Result<Image, Box<dyn Error>> {
+pub fn from_bytes<Image: ImageT>(bytes: Box<[u8]>) -> AnyHow<Image> {
     let raw = pcx::from_bytes(bytes)?;
     let either = pcx_to_surface(raw)?;
     let image = either.try_into()?;
@@ -68,7 +68,7 @@ impl From<PaletteImage> for Surface<'static> {
 impl ImageT for PaletteImage {}
 
 impl PaletteImage {
-    pub fn apply_transparency(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn apply_transparency(&mut self) -> AnyWay {
         let color_changes = [0, 32, 64, 128, 128];
         for (index, alpha) in color_changes.into_iter().enumerate() {
             self.colors[index] = Color::RGBA(0, 0, 0, alpha);
@@ -82,7 +82,7 @@ impl PaletteImage {
     }
 }
 
-fn pcx_to_surface(image: pcx::Image) -> Result<Image, Box<dyn Error>> {
+fn pcx_to_surface(image: pcx::Image) -> AnyHow<Image> {
     let pcx::Image {
         width,
         height,

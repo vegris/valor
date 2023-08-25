@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::time::Duration;
 
 use sdl2::rect::Rect;
@@ -9,6 +8,7 @@ use strum::IntoEnumIterator;
 
 use crate::battlestate::{BattleState, Side, StackHandle};
 use crate::command::Command;
+use crate::error::AnyWay;
 use crate::event::Event;
 use crate::grid::GridPos;
 use crate::input::FrameData;
@@ -78,7 +78,7 @@ pub fn draw(
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
-) -> Result<(), Box<dyn Error>> {
+) -> AnyWay {
     draw_battlefield(canvas, statics)?;
 
     draw_heroes(canvas, tc, statics)?;
@@ -103,7 +103,7 @@ pub fn draw(
     Ok(())
 }
 
-fn draw_battlefield(canvas: &mut WindowCanvas, statics: &Statics) -> Result<(), Box<dyn Error>> {
+fn draw_battlefield(canvas: &mut WindowCanvas, statics: &Statics) -> AnyWay {
     canvas.copy(
         statics.textures.get(StaticTexture::Battlefield),
         None,
@@ -127,7 +127,7 @@ fn draw_heroes(
     canvas: &mut WindowCanvas,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
-) -> Result<(), Box<dyn Error>> {
+) -> AnyWay {
     for side in Side::iter() {
         if let Some(hero) = &statics.heroes[side as usize] {
             hero.draw(canvas, tc, side, hero::AnimationType::Idle, 0)?;
@@ -137,11 +137,7 @@ fn draw_heroes(
     Ok(())
 }
 
-fn highlight_cells(
-    canvas: &mut WindowCanvas,
-    statics: &Statics,
-    cells: &[GridPos],
-) -> Result<(), Box<dyn Error>> {
+fn highlight_cells(canvas: &mut WindowCanvas, statics: &Statics, cells: &[GridPos]) -> AnyWay {
     for cell in cells {
         canvas.copy(
             statics.textures.get(StaticTexture::GridCellShadow),
@@ -160,7 +156,7 @@ fn draw_units(
     rr: &mut ResourceRegistry,
     state: &BattleState,
     animations: &Animations,
-) -> Result<(), Box<dyn Error>> {
+) -> AnyWay {
     let mut units = state.units();
     units.sort_unstable_by_key(|&handle| {
         let alive = state.get_stack(handle).is_alive();
@@ -185,7 +181,7 @@ fn draw_menu(
     canvas: &mut WindowCanvas,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
-) -> Result<(), Box<dyn Error>> {
+) -> AnyWay {
     canvas.copy(
         statics.textures.get(StaticTexture::MenuBackground),
         None,

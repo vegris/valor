@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::mem::ManuallyDrop;
 use std::path::PathBuf;
 
@@ -6,12 +5,13 @@ use rand::seq::IteratorRandom;
 use sdl2::mixer;
 use sdl2::mixer::Channel;
 
+use crate::error::AnyWay;
 use crate::registry::ResourceRegistry;
 
 const START_CHANNEL: Channel = Channel(1);
 const LOOPING_CHANNEL: Channel = Channel(2);
 
-pub fn initialize() -> Result<(), Box<dyn Error>> {
+pub fn initialize() -> AnyWay {
     mixer::init(mixer::InitFlag::MP3)?;
 
     mixer::open_audio(
@@ -27,7 +27,7 @@ pub fn initialize() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn setup_music(rr: &mut ResourceRegistry) -> Result<(), Box<dyn Error>> {
+pub fn setup_music(rr: &mut ResourceRegistry) -> AnyWay {
     START_CHANNEL.play(rr.get_sound(&start_sound()), 0)?;
 
     let music = ManuallyDrop::new(mixer::Music::from_file(music_track())?);
@@ -41,11 +41,7 @@ pub fn setup_music(rr: &mut ResourceRegistry) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn play_sound(
-    filename: &str,
-    rr: &mut ResourceRegistry,
-    looping: bool,
-) -> Result<(), Box<dyn Error>> {
+pub fn play_sound(filename: &str, rr: &mut ResourceRegistry, looping: bool) -> AnyWay {
     let (channel, loops) = if looping {
         (LOOPING_CHANNEL, -1)
     } else {

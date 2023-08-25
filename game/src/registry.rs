@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::error::Error;
-
 use std::path::Path;
 
 use formats::snd::SndIndex;
@@ -13,6 +11,7 @@ use formats::lod::LodIndex;
 
 use gamedata::creatures::Creature;
 
+use crate::error::AnyHow;
 use crate::graphics::spritesheet::creature::AnimationType;
 use crate::graphics::spritesheet::Spritesheet;
 
@@ -48,7 +47,7 @@ impl ResourceRegistry {
         }
     }
 
-    pub fn load_image<Image: ImageT>(&mut self, filename: &str) -> Result<Image, Box<dyn Error>> {
+    pub fn load_image<Image: ImageT>(&mut self, filename: &str) -> AnyHow<Image> {
         let bytes = self.pcx_archive.read_file(filename);
         let image = image::from_bytes(bytes)?;
         Ok(image)
