@@ -7,7 +7,7 @@ use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::error::AnyHow;
-use crate::registry::image::{PaletteImage, StaticImage};
+use crate::registry::images::{PaletteImage, StaticImage};
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;

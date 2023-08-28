@@ -16,9 +16,9 @@ use crate::graphics::spritesheet::creature::AnimationType;
 use crate::graphics::spritesheet::Spritesheet;
 
 pub mod def;
-pub mod image;
+pub mod images;
 
-use self::image::ImageT;
+use self::images::ImageT;
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -49,7 +49,7 @@ impl ResourceRegistry {
 
     pub fn load_image<Image: ImageT>(&mut self, filename: &str) -> AnyHow<Image> {
         let bytes = self.pcx_archive.read_file(filename);
-        let image = image::from_bytes(bytes)?;
+        let image = images::from_bytes(bytes)?;
         Ok(image)
     }
 
