@@ -5,8 +5,6 @@ use formats::pcx;
 
 use crate::error::{AnyHow, AnyWay};
 
-pub trait ImageT: Sized + TryFrom<Image, Error = &'static str> + Into<Surface<'static>> {}
-
 pub struct StaticImage {
     surface: Surface<'static>,
 }
@@ -16,58 +14,36 @@ pub struct PaletteImage {
     colors: Box<[Color]>,
 }
 
-pub enum Image {
-    Static(StaticImage),
-    Palette(PaletteImage),
-}
-
-pub fn from_bytes<Image: ImageT>(bytes: Box<[u8]>) -> AnyHow<Image> {
-    let raw = pcx::from_bytes(bytes)?;
-    let either = pcx_to_surface(raw)?;
-    let image = either.try_into()?;
-    Ok(image)
-}
-
-impl TryFrom<Image> for StaticImage {
-    type Error = &'static str;
-    fn try_from(value: Image) -> Result<Self, Self::Error> {
-        let image = match value {
+impl StaticImage {
+    pub fn from_bytes(bytes: Box<[u8]>) -> AnyHow<Self> {
+        let image = Image::from_bytes(bytes)?;
+        let static_image = match image {
             Image::Static(static_image) => static_image,
             Image::Palette(palette_image) => StaticImage {
                 surface: palette_image.surface,
             },
         };
-        Ok(image)
+        Ok(static_image)
+    }
+
+    pub fn into_surface(self) -> Surface<'static> {
+        self.surface
     }
 }
 
-impl From<StaticImage> for Surface<'static> {
-    fn from(value: StaticImage) -> Self {
-        value.surface
-    }
-}
-
-impl ImageT for StaticImage {}
-
-impl TryFrom<Image> for PaletteImage {
-    type Error = &'static str;
-    fn try_from(value: Image) -> Result<Self, Self::Error> {
-        match value {
-            Image::Static(_) => Err("Image is static"),
+impl PaletteImage {
+    pub fn from_bytes(bytes: Box<[u8]>) -> AnyHow<Self> {
+        let image = Image::from_bytes(bytes)?;
+        match image {
+            Image::Static(_) => Err("Image is static".into()),
             Image::Palette(palette_image) => Ok(palette_image),
         }
     }
-}
 
-impl From<PaletteImage> for Surface<'static> {
-    fn from(value: PaletteImage) -> Self {
-        value.surface
+    pub fn into_surface(self) -> Surface<'static> {
+        self.surface
     }
-}
 
-impl ImageT for PaletteImage {}
-
-impl PaletteImage {
     pub fn apply_transparency(&mut self) -> AnyWay {
         let color_changes = [0, 32, 64, 128, 128];
         for (index, alpha) in color_changes.into_iter().enumerate() {
@@ -79,6 +55,19 @@ impl PaletteImage {
         self.surface.set_palette(&palette)?;
 
         Ok(())
+    }
+}
+
+enum Image {
+    Static(StaticImage),
+    Palette(PaletteImage),
+}
+
+impl Image {
+    fn from_bytes(bytes: Box<[u8]>) -> AnyHow<Self> {
+        let pcx = pcx::from_bytes(bytes)?;
+        let image = pcx_to_surface(pcx)?;
+        Ok(image)
     }
 }
 
