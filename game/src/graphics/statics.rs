@@ -6,10 +6,12 @@ use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::error::AnyHow;
+use crate::registry::spritesheets::{ContainerType, GroupIndex, SpriteGroup, SpriteGroupType};
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
 use super::spritesheet::hero::AnimationType;
+use super::spritesheet::Spritesheet;
 
 pub struct Statics<'a> {
     pub cursors: Cursors,
@@ -123,33 +125,42 @@ impl Buttons {
     }
 }
 
-use super::spritesheet::button_state::ButtonState;
-use super::spritesheet::Spritesheet;
-pub struct UI([Spritesheet<ButtonState>; Buttons::COUNT]);
+#[allow(unused)]
+#[derive(Clone, Copy, EnumCount)]
+pub enum ButtonState {
+    Base,
+    Pressed,
+    Disabled,
+    Hovered,
+}
+
+impl ContainerType for ButtonState {
+    const CONTAINER_TYPE: u32 = 71;
+}
+
+impl GroupIndex for ButtonState {
+    fn index(&self) -> usize {
+        *self as usize
+    }
+}
+
+impl SpriteGroupType for ButtonState {}
+
+pub struct UI([SpriteGroup<ButtonState>; Buttons::COUNT]);
 
 impl UI {
+    pub fn get(&self, button: Buttons) -> &SpriteGroup<ButtonState> {
+        &self.0[button as usize]
+    }
+
     fn load(rr: &mut ResourceRegistry) -> Self {
         let buttons = Buttons::iter()
-            .map(|b| rr.load_def(b.filename()))
-            .map(Spritesheet::<ButtonState>::from_def)
+            .map(|b| rr.load_sprite_group(b.filename()))
             .collect::<Vec<_>>()
             .try_into()
+            .ok()
             .unwrap();
 
         Self(buttons)
-    }
-}
-
-impl std::ops::Index<Buttons> for UI {
-    type Output = Spritesheet<ButtonState>;
-
-    fn index(&self, index: Buttons) -> &Self::Output {
-        &self.0[index as usize]
-    }
-}
-
-impl std::fmt::Debug for Spritesheet<ButtonState> {
-    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        unimplemented!()
     }
 }

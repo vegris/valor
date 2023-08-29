@@ -25,7 +25,7 @@ pub mod statics;
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
-use self::statics::{Buttons, StaticTexture};
+use self::statics::{ButtonState, Buttons, StaticTexture};
 use spritesheet::hero;
 
 use self::animations::AnimationState;
@@ -199,9 +199,7 @@ fn draw_menu(
     ];
 
     for (button, x) in buttons {
-        let sprite = statics.ui[button]
-            .get_sprite(spritesheet::button_state::ButtonState::Base, 0)
-            .unwrap();
+        let sprite = statics.ui.get(button).get(ButtonState::Base);
         let texture = sprite.surface.as_texture(tc)?;
 
         canvas.copy(

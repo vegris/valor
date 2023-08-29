@@ -5,7 +5,6 @@ use strum::{EnumCount, IntoEnumIterator};
 
 use crate::registry::def::{Container as DefContainer, Sprite as DefSprite};
 
-pub mod button_state;
 pub mod creature;
 pub mod hero;
 mod sprite;
