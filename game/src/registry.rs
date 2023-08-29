@@ -17,8 +17,10 @@ use crate::graphics::spritesheet::Spritesheet;
 
 pub mod def;
 pub mod images;
+pub mod spritesheets;
 
 use self::images::{PaletteImage, StaticImage};
+use self::spritesheets::{SpriteGroup, SpriteGroupType};
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -57,6 +59,11 @@ impl ResourceRegistry {
         let bytes = self.pcx_archive.read_file(filename);
         let image = PaletteImage::from_bytes(bytes)?;
         Ok(image)
+    }
+
+    pub fn load_sprite_group<G: SpriteGroupType>(&mut self, filename: &str) -> SpriteGroup<G> {
+        let bytes = self.def_archive.read_file(filename);
+        SpriteGroup::from_bytes(bytes)
     }
 
     pub fn load_def(&mut self, filename: &str) -> def::Container {
