@@ -122,7 +122,7 @@ fn with_selection(sprite: &Sprite, spritesheet: &SpriteSheet<AnimationType>) -> 
         .convert(&sprite.surface.pixel_format())
         .unwrap();
 
-    let mut colors = spritesheet.colors.to_vec();
+    let mut colors = spritesheet.colors().to_owned();
     colors[5] = Color::YELLOW;
     let palette = Palette::with_colors(&colors).unwrap();
 

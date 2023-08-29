@@ -26,8 +26,7 @@ pub struct SpriteGroup<G: SpriteGroupType> {
 
 type AnimationBlock = Box<[usize]>;
 pub struct SpriteSheet<S: SpriteSheetType> {
-    // TODO: encapsulate colors
-    pub colors: Box<[Color]>,
+    colors: Box<[Color]>,
     sprites: Box<[Sprite]>,
     blocks: Box<[Option<AnimationBlock>]>,
     spritesheet: PhantomData<S>,
@@ -154,6 +153,10 @@ impl<S: SpriteSheetType> SpriteSheet<S> {
 
     pub fn frames_count(&self, animation_type: S) -> Option<usize> {
         self.get_block(animation_type).map(|block| block.len())
+    }
+
+    pub fn colors(&self) -> &[Color] {
+        &self.colors
     }
 
     fn get_block(&self, animation_type: S) -> Option<&AnimationBlock> {
