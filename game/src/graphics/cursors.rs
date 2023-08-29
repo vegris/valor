@@ -1,16 +1,13 @@
-extern crate sdl2;
 use sdl2::mouse::Cursor as SDLCursor;
-use sdl2::pixels::{Color, Palette};
 
-extern crate strum_macros;
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
+use strum_macros::{EnumCount, EnumIter};
 
 use crate::grid::AttackDirection;
-use crate::registry::def::Container;
+use crate::registry::spritesheets::{ContainerType, SpriteGroupType};
 use crate::registry::ResourceRegistry;
 
-#[derive(Clone, Copy, EnumIter, Debug)]
+#[derive(Clone, Copy, EnumCount, EnumIter, Debug)]
 pub enum Cursor {
     Forbidden = 0,
     Run = 1,
@@ -76,37 +73,34 @@ impl Cursor {
     }
 }
 
+impl ContainerType for Cursor {
+    const CONTAINER_TYPE: u32 = 70;
+}
+
+impl SpriteGroupType for Cursor {
+    fn group_index(&self) -> usize {
+        *self as usize
+    }
+}
+
 const CONTAINTER_FILENAME: &str = "CRCOMBAT.def";
 
 pub struct Cursors(Box<[SDLCursor]>);
 
 impl Cursors {
     pub fn load(rr: &mut ResourceRegistry) -> Self {
-        let def_container = rr.load_def(CONTAINTER_FILENAME);
+        let sprite_group = rr.load_sprite_group::<Cursor>(CONTAINTER_FILENAME);
 
-        let Container {
-            mut names2sprites,
-            blocks2names,
-            mut colors,
-            ..
-        } = def_container;
-
-        // Применяем прозрачность
-        colors[0] = Color::RGBA(0, 0, 0, 0);
-        colors[1] = Color::RGBA(0, 0, 0, 32);
-        let palette = Palette::with_colors(&colors).unwrap();
-
-        let block = blocks2names.get(&0).unwrap();
-
-        let cursors = Iterator::zip(block.iter(), Cursor::iter())
-            .map(|(name, cursor)| {
-                let sprite = names2sprites.remove(name).unwrap();
-                let mut surface = sprite.surface;
-                surface.set_palette(&palette).unwrap();
+        let cursors = sprite_group
+            .into_sprites()
+            .into_vec() // Boxed slice problems...
+            .into_iter()
+            .zip(Cursor::iter())
+            .map(|(sprite, cursor)| {
                 let (off_x, off_y) = cursor.pointer_offset();
-                SDLCursor::from_surface(surface, off_x, off_y).unwrap()
+                SDLCursor::from_surface(sprite.surface, off_x, off_y).unwrap()
             })
-            .collect::<Box<[SDLCursor]>>();
+            .collect();
 
         Self(cursors)
     }

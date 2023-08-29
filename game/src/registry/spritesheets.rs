@@ -78,6 +78,10 @@ impl<G: SpriteGroupType> SpriteGroup<G> {
     pub fn get(&self, index: G) -> &Sprite {
         &self.sprites[index.group_index()]
     }
+
+    pub fn into_sprites(self) -> Box<[Sprite]> {
+        self.sprites
+    }
 }
 
 impl<S: SpriteSheetType> SpriteSheet<S> {

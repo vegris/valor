@@ -6,14 +6,12 @@ use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 use strum::EnumCount;
 
-use formats::def::Container;
 use formats::lod::LodIndex;
 
 use gamedata::creatures::Creature;
 
 use crate::error::AnyHow;
 
-pub mod def;
 pub mod images;
 pub mod spritesheets;
 
@@ -62,12 +60,6 @@ impl ResourceRegistry {
     pub fn load_sprite_group<G: SpriteGroupType>(&mut self, filename: &str) -> SpriteGroup<G> {
         let bytes = self.def_archive.read_file(filename);
         SpriteGroup::from_bytes(bytes)
-    }
-
-    pub fn load_def(&mut self, filename: &str) -> def::Container {
-        let bytes = self.def_archive.read_file(filename);
-        let raw = Container::from_bytes(&bytes);
-        def::Container::from_raw(raw)
     }
 
     pub fn load_spritesheet<S: SpriteSheetType>(&mut self, filename: &str) -> SpriteSheet<S> {
