@@ -26,7 +26,7 @@ fn main() -> AnyWay {
     // Инициализация SDL
     let sdl_context = sdl2::init()?;
     let ttf_context = sdl2::ttf::init()?;
-    sound::initialize()?;
+    sound::initialize(&config)?;
 
     // Инициализация видео подсистемы
     let video_subsystem = sdl_context.video()?;

@@ -5,13 +5,15 @@ use rand::seq::IteratorRandom;
 use sdl2::mixer;
 use sdl2::mixer::Channel;
 
+use crate::config::Config;
 use crate::error::AnyWay;
 use crate::registry::ResourceRegistry;
 
 const START_CHANNEL: Channel = Channel(1);
 const LOOPING_CHANNEL: Channel = Channel(2);
+const TOTAL_CHANNELS: i32 = 8;
 
-pub fn initialize() -> AnyWay {
+pub fn initialize(config: &Config) -> AnyWay {
     mixer::init(mixer::InitFlag::MP3)?;
 
     mixer::open_audio(
@@ -21,8 +23,12 @@ pub fn initialize() -> AnyWay {
         256,
     )?;
 
-    mixer::allocate_channels(8);
+    mixer::allocate_channels(TOTAL_CHANNELS);
     mixer::reserve_channels(2);
+
+    for channel in 0..8 {
+        Channel(channel).set_volume(config.volume);
+    }
 
     Ok(())
 }

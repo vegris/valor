@@ -16,6 +16,7 @@ pub struct Army {
 pub struct Config {
     pub battlefield: Battlefield,
     pub music: bool,
+    pub volume: i32,
     pub armies: [Army; 2],
 }
 
