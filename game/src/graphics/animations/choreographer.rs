@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use crate::battlestate::{BattleState, Side, StackHandle};
 use crate::event::{Attack, Movement, Shot};
-use crate::graphics::spritesheet::creature::AnimationType;
+use crate::graphics::creature::AnimationType;
 use crate::graphics::Animations;
 use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;

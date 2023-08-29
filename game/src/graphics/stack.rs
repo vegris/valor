@@ -12,7 +12,7 @@ use crate::ResourceRegistry;
 use crate::stack::Stack;
 
 use super::animations::AnimationState;
-use super::spritesheet::creature::AnimationType;
+use super::creature::AnimationType;
 use super::Statics;
 
 pub fn draw(
@@ -24,7 +24,7 @@ pub fn draw(
     is_selected: bool,
     statics: &Statics,
 ) -> AnyWay {
-    let spritesheet = rr.get_creature_container(stack.creature);
+    let spritesheet = rr.get_creature_spritesheet_mut(stack.creature);
 
     let animation_data = animation_state.get_state();
 

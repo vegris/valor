@@ -17,8 +17,9 @@ use crate::pathfinding;
 use crate::registry::ResourceRegistry;
 
 mod animations;
+pub mod creature;
 mod cursors;
-pub mod spritesheet;
+mod hero;
 pub mod stack;
 pub mod statics;
 
@@ -26,7 +27,6 @@ use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
 use self::statics::{ButtonState, Buttons, StaticTexture};
-use spritesheet::hero;
 
 use self::animations::AnimationState;
 

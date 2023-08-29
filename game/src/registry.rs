@@ -12,15 +12,13 @@ use formats::lod::LodIndex;
 use gamedata::creatures::Creature;
 
 use crate::error::AnyHow;
-use crate::graphics::spritesheet::creature::AnimationType;
-use crate::graphics::spritesheet::Spritesheet;
 
 pub mod def;
 pub mod images;
 pub mod spritesheets;
 
 use self::images::{PaletteImage, StaticImage};
-use self::spritesheets::{SpriteGroup, SpriteGroupType};
+use self::spritesheets::{SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetType};
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -72,13 +70,17 @@ impl ResourceRegistry {
         def::Container::from_raw(raw)
     }
 
-    pub fn get_creature_container(
+    pub fn load_spritesheet<S: SpriteSheetType>(&mut self, filename: &str) -> SpriteSheet<S> {
+        let bytes = self.def_archive.read_file(filename);
+        SpriteSheet::from_bytes(bytes)
+    }
+
+    pub fn get_creature_spritesheet_mut(
         &mut self,
         creature: Creature,
-    ) -> &mut Spritesheet<AnimationType> {
+    ) -> &mut SpriteSheet<crate::graphics::creature::AnimationType> {
         if self.creature_cache.get(creature).is_none() {
-            let def = self.load_def(creature.spritesheet_filename());
-            let spritesheet = Spritesheet::from_def(def);
+            let spritesheet = self.load_spritesheet(creature.spritesheet_filename());
             self.creature_cache.put(creature, spritesheet);
         }
         self.creature_cache.get(creature).unwrap()
@@ -94,7 +96,7 @@ impl ResourceRegistry {
     }
 }
 
-type CachedValue = Spritesheet<AnimationType>;
+type CachedValue = SpriteSheet<crate::graphics::creature::AnimationType>;
 
 struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
 

@@ -12,7 +12,7 @@ use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
 use crate::sound;
 
-use super::spritesheet::creature::AnimationType;
+use super::creature::AnimationType;
 use super::Animations;
 
 mod animation;
@@ -222,7 +222,7 @@ impl AnimationState {
 
         let animation_type = AnimationType::StartMoving;
         if rr
-            .get_creature_container(creature)
+            .get_creature_spritesheet_mut(creature)
             .frames_count(animation_type)
             .is_some()
         {
@@ -257,7 +257,7 @@ impl AnimationState {
         }
         let animation_type = AnimationType::StopMoving;
         if rr
-            .get_creature_container(creature)
+            .get_creature_spritesheet_mut(creature)
             .frames_count(animation_type)
             .is_some()
         {

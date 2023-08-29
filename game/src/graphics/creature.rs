@@ -8,9 +8,7 @@ use sdl2::video::{Window, WindowContext};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::battlestate::Side;
-
-use super::sprite::Sprite;
-use super::Spritesheet;
+use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
 
 #[derive(Clone, Copy, Debug, EnumCount, EnumIter, PartialEq)]
 pub enum AnimationType {
@@ -50,9 +48,14 @@ impl AnimationType {
     }
 }
 
-impl super::AnimationType for AnimationType {
-    const DEF_TYPE: u32 = 66;
+impl ContainerType for AnimationType {
+    const CONTAINER_TYPE: u32 = 66;
+}
 
+impl SpriteSheetType for AnimationType {
+    fn block_index(&self) -> usize {
+        *self as usize
+    }
     fn container_index(&self) -> u32 {
         match self {
             Self::Moving => 0,
@@ -80,13 +83,9 @@ impl super::AnimationType for AnimationType {
             Self::StopMoving => 21,
         }
     }
-
-    fn array_index(&self) -> usize {
-        *self as usize
-    }
 }
 
-impl Spritesheet<AnimationType> {
+impl SpriteSheet<AnimationType> {
     #[allow(clippy::too_many_arguments)]
     pub fn draw(
         &self,
@@ -117,7 +116,7 @@ impl Spritesheet<AnimationType> {
     }
 }
 
-fn with_selection(sprite: &Sprite, spritesheet: &Spritesheet<AnimationType>) -> Surface<'static> {
+fn with_selection(sprite: &Sprite, spritesheet: &SpriteSheet<AnimationType>) -> Surface<'static> {
     let mut surface = sprite
         .surface
         .convert(&sprite.surface.pixel_format())

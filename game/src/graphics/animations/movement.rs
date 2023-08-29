@@ -4,7 +4,7 @@ use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
 
-use crate::graphics::spritesheet::creature::AnimationType;
+use crate::graphics::creature::AnimationType;
 use crate::grid::GridPos;
 use crate::ResourceRegistry;
 
@@ -40,7 +40,7 @@ impl Movement {
                 .collect()
         };
 
-        let spritesheet = rr.get_creature_container(creature);
+        let spritesheet = rr.get_creature_spritesheet_mut(creature);
         let frame_count = spritesheet.frames_count(Self::ANIMATION_TYPE).unwrap();
 
         let duration = total_duration(creature, &tweens);

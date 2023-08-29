@@ -6,18 +6,17 @@ use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::error::AnyHow;
-use crate::registry::spritesheets::{ContainerType, GroupIndex, SpriteGroup, SpriteGroupType};
+use crate::registry::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
 use crate::{Config, ResourceRegistry};
 
 use super::cursors::Cursors;
-use super::spritesheet::hero::AnimationType;
-use super::spritesheet::Spritesheet;
+use super::hero::AnimationType;
 
 pub struct Statics<'a> {
     pub cursors: Cursors,
     pub font: Font<'a, 'static>,
     pub textures: Textures<'a>,
-    pub heroes: [Option<Spritesheet<AnimationType>>; 2],
+    pub heroes: [Option<SpriteSheet<AnimationType>>; 2],
     pub ui: UI,
 }
 
@@ -32,11 +31,8 @@ impl<'a> Statics<'a> {
         let font_size = 16;
 
         let heroes = config.armies.map(|army| {
-            army.hero.map(|h| {
-                let hero_def = rr.load_def(h.class().spritesheet_filename());
-
-                Spritesheet::from_def(hero_def)
-            })
+            army.hero
+                .map(|h| rr.load_spritesheet(h.class().spritesheet_filename()))
         });
 
         Ok(Self {
@@ -138,13 +134,11 @@ impl ContainerType for ButtonState {
     const CONTAINER_TYPE: u32 = 71;
 }
 
-impl GroupIndex for ButtonState {
-    fn index(&self) -> usize {
+impl SpriteGroupType for ButtonState {
+    fn group_index(&self) -> usize {
         *self as usize
     }
 }
-
-impl SpriteGroupType for ButtonState {}
 
 pub struct UI([SpriteGroup<ButtonState>; Buttons::COUNT]);
 

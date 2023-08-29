@@ -4,9 +4,7 @@ use sdl2::video::{Window, WindowContext};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::battlestate::Side;
-
-use super::sprite::Sprite;
-use super::Spritesheet;
+use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
 
 #[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum AnimationType {
@@ -16,8 +14,14 @@ pub enum AnimationType {
     Casting,
 }
 
-impl super::AnimationType for AnimationType {
-    const DEF_TYPE: u32 = 73;
+impl ContainerType for AnimationType {
+    const CONTAINER_TYPE: u32 = 73;
+}
+
+impl SpriteSheetType for AnimationType {
+    fn block_index(&self) -> usize {
+        *self as usize
+    }
 
     fn container_index(&self) -> u32 {
         match self {
@@ -27,13 +31,9 @@ impl super::AnimationType for AnimationType {
             AnimationType::Casting => 4,
         }
     }
-
-    fn array_index(&self) -> usize {
-        *self as usize
-    }
 }
 
-impl Spritesheet<AnimationType> {
+impl SpriteSheet<AnimationType> {
     pub fn draw(
         &self,
         canvas: &mut Canvas<Window>,
