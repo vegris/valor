@@ -7,7 +7,6 @@ use sdl2::rwops::RWops;
 use strum::EnumCount;
 
 use formats::lod::LodIndex;
-
 use gamedata::creatures::Creature;
 
 use crate::error::AnyHow;
@@ -67,6 +66,12 @@ impl ResourceRegistry {
         SpriteSheet::from_bytes(bytes)
     }
 
+    pub fn load_sound(&mut self, filename: &str) -> AnyHow<Chunk> {
+        let bytes = self.snd_archive.read_file(filename);
+        let chunk = RWops::from_bytes(&bytes)?.load_wav()?;
+        Ok(chunk)
+    }
+
     pub fn get_creature_spritesheet_mut(
         &mut self,
         creature: Creature,
@@ -80,8 +85,7 @@ impl ResourceRegistry {
 
     pub fn get_sound(&mut self, filename: &str) -> &Chunk {
         if self.sound_cache.get(filename).is_none() {
-            let bytes = self.snd_archive.read_file(filename);
-            let chunk = RWops::from_bytes(&bytes).unwrap().load_wav().unwrap();
+            let chunk = self.load_sound(filename).unwrap();
             self.sound_cache.put(filename, chunk);
         }
         self.sound_cache.get(filename).unwrap()

@@ -34,11 +34,12 @@ pub fn initialize(config: &Config) -> AnyWay {
 }
 
 pub fn setup_music(rr: &mut ResourceRegistry) -> AnyWay {
-    START_CHANNEL.play(rr.get_sound(&start_sound()), 0)?;
+    let sound = ManuallyDrop::new(rr.load_sound(&start_sound())?);
+    START_CHANNEL.play(&sound, 0)?;
 
     let music = ManuallyDrop::new(mixer::Music::from_file(music_track())?);
     mixer::set_channel_finished(move |ch| {
-        if ch.0 == 1 {
+        if ch == START_CHANNEL {
             music.play(-1).unwrap();
             sdl2::mixer::unset_channel_finished();
         }
