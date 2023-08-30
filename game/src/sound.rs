@@ -23,6 +23,8 @@ pub fn initialize(config: &Config) -> AnyWay {
         256,
     )?;
 
+    mixer::Music::set_volume(config.volume);
+
     mixer::allocate_channels(TOTAL_CHANNELS);
     mixer::reserve_channels(2);
 
