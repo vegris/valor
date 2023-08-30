@@ -9,8 +9,8 @@ use crate::config::Config;
 use crate::error::AnyWay;
 use crate::registry::ResourceRegistry;
 
-const START_CHANNEL: Channel = Channel(1);
-const LOOPING_CHANNEL: Channel = Channel(2);
+const START_CHANNEL: Channel = Channel(0);
+const LOOPING_CHANNEL: Channel = Channel(1);
 const TOTAL_CHANNELS: i32 = 8;
 
 pub fn initialize(config: &Config) -> AnyWay {
@@ -28,7 +28,7 @@ pub fn initialize(config: &Config) -> AnyWay {
     mixer::allocate_channels(TOTAL_CHANNELS);
     mixer::reserve_channels(2);
 
-    for channel in 0..8 {
+    for channel in 0..TOTAL_CHANNELS {
         Channel(channel).set_volume(config.volume);
     }
 
