@@ -72,10 +72,10 @@ impl ResourceRegistry {
         Ok(chunk)
     }
 
-    pub fn get_creature_spritesheet_mut(
+    pub fn get_creature_spritesheet(
         &mut self,
         creature: Creature,
-    ) -> &mut SpriteSheet<crate::graphics::creature::AnimationType> {
+    ) -> &SpriteSheet<crate::graphics::creature::AnimationType> {
         if self.creature_cache.get(creature).is_none() {
             let spritesheet = self.load_spritesheet(creature.spritesheet_filename());
             self.creature_cache.put(creature, spritesheet);
@@ -102,8 +102,8 @@ impl CreaturesCache {
         Self([NONE; Creature::COUNT])
     }
 
-    fn get(&mut self, creature: Creature) -> Option<&mut CachedValue> {
-        self.0[creature as usize].as_mut()
+    fn get(&mut self, creature: Creature) -> Option<&CachedValue> {
+        self.0[creature as usize].as_ref()
     }
 
     fn put(&mut self, creature: Creature, value: CachedValue) {

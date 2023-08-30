@@ -222,7 +222,7 @@ impl AnimationState {
 
         let animation_type = AnimationType::StartMoving;
         if rr
-            .get_creature_spritesheet_mut(creature)
+            .get_creature_spritesheet(creature)
             .frames_count(animation_type)
             .is_some()
         {
@@ -257,7 +257,7 @@ impl AnimationState {
         }
         let animation_type = AnimationType::StopMoving;
         if rr
-            .get_creature_spritesheet_mut(creature)
+            .get_creature_spritesheet(creature)
             .frames_count(animation_type)
             .is_some()
         {

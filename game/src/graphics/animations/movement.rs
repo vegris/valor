@@ -40,7 +40,7 @@ impl Movement {
                 .collect()
         };
 
-        let spritesheet = rr.get_creature_spritesheet_mut(creature);
+        let spritesheet = rr.get_creature_spritesheet(creature);
         let frame_count = spritesheet.frames_count(Self::ANIMATION_TYPE).unwrap();
 
         let duration = total_duration(creature, &tweens);
