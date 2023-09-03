@@ -1,19 +1,21 @@
-use std::collections::HashMap;
 use std::path::Path;
 
-use formats::snd::SndIndex;
 use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
-use strum::EnumCount;
+use strum::IntoEnumIterator;
 
 use formats::lod::LodIndex;
+use formats::snd::SndIndex;
+use gamedata::creatures::sounds::CreatureSound;
 use gamedata::creatures::Creature;
 
 use crate::error::AnyHow;
 
+mod creature_resources;
 pub mod images;
 pub mod spritesheets;
 
+use self::creature_resources::{CreatureResources, CreaturesCache};
 use self::images::{PaletteImage, StaticImage};
 use self::spritesheets::{SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetType};
 
@@ -25,8 +27,7 @@ pub struct ResourceRegistry {
     pcx_archive: LodIndex,
     def_archive: LodIndex,
     snd_archive: SndIndex,
-    creature_cache: CreaturesCache,
-    sound_cache: SoundCache,
+    creatures_cache: creature_resources::CreaturesCache,
 }
 
 impl ResourceRegistry {
@@ -39,8 +40,7 @@ impl ResourceRegistry {
             pcx_archive,
             def_archive,
             snd_archive,
-            creature_cache: CreaturesCache::new(),
-            sound_cache: SoundCache::new(),
+            creatures_cache: CreaturesCache::new(),
         }
     }
 
@@ -76,53 +76,42 @@ impl ResourceRegistry {
         &mut self,
         creature: Creature,
     ) -> &SpriteSheet<crate::graphics::creature::AnimationType> {
-        if self.creature_cache.get(creature).is_none() {
-            let spritesheet = self.load_spritesheet(creature.spritesheet_filename());
-            self.creature_cache.put(creature, spritesheet);
+        self.get_creature_resources(creature).spritesheet()
+    }
+
+    pub fn get_creature_sound(
+        &mut self,
+        creature: Creature,
+        sound: CreatureSound,
+    ) -> Option<&Chunk> {
+        self.get_creature_resources(creature).sounds().get(sound)
+    }
+
+    fn get_creature_resources(&mut self, creature: Creature) -> &CreatureResources {
+        if self.creatures_cache.get(creature).is_none() {
+            let resources = self.load_creature_resources(creature);
+            self.creatures_cache.put(creature, resources);
         }
-        self.creature_cache.get(creature).unwrap()
+        self.creatures_cache.get(creature).unwrap()
     }
 
-    pub fn get_sound(&mut self, filename: &str) -> &Chunk {
-        if self.sound_cache.get(filename).is_none() {
-            let chunk = self.load_sound(filename).unwrap();
-            self.sound_cache.put(filename, chunk);
-        }
-        self.sound_cache.get(filename).unwrap()
-    }
-}
+    fn load_creature_resources(&mut self, creature: Creature) -> CreatureResources {
+        let spritesheet = self.load_spritesheet(creature.spritesheet_filename());
 
-type CachedValue = SpriteSheet<crate::graphics::creature::AnimationType>;
+        let sounds = CreatureSound::iter()
+            .map(|sound| {
+                if let Some(filename) = creature.sounds().get(sound) {
+                    let chunk = self.load_sound(filename).unwrap();
+                    Some(chunk)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .ok()
+            .unwrap();
 
-struct CreaturesCache([Option<CachedValue>; Creature::COUNT]);
-
-impl CreaturesCache {
-    fn new() -> Self {
-        const NONE: Option<CachedValue> = None;
-        Self([NONE; Creature::COUNT])
-    }
-
-    fn get(&mut self, creature: Creature) -> Option<&CachedValue> {
-        self.0[creature as usize].as_ref()
-    }
-
-    fn put(&mut self, creature: Creature, value: CachedValue) {
-        self.0[creature as usize] = Some(value);
-    }
-}
-
-struct SoundCache(HashMap<String, Chunk>);
-
-impl SoundCache {
-    fn new() -> Self {
-        Self(HashMap::new())
-    }
-
-    fn get(&mut self, filename: &str) -> Option<&Chunk> {
-        self.0.get(filename)
-    }
-
-    fn put(&mut self, filename: &str, sound: Chunk) {
-        self.0.insert(filename.to_owned(), sound);
+        CreatureResources::new(spritesheet, sounds)
     }
 }

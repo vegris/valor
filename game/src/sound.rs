@@ -50,14 +50,14 @@ pub fn setup_music(rr: &mut ResourceRegistry) -> AnyWay {
     Ok(())
 }
 
-pub fn play_sound(filename: &str, rr: &mut ResourceRegistry, looping: bool) -> AnyWay {
+pub fn play_sound(chunk: &mixer::Chunk, looping: bool) -> AnyWay {
     let (channel, loops) = if looping {
         (LOOPING_CHANNEL, -1)
     } else {
-        (sdl2::mixer::Channel(-1), 0)
+        (Channel(-1), 0)
     };
 
-    channel.play(rr.get_sound(filename), loops)?;
+    channel.play(chunk, loops)?;
 
     Ok(())
 }

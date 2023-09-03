@@ -25,6 +25,7 @@ use self::movement::Movement;
 use self::time_progress::TimeProgress;
 
 pub struct AnimationState {
+    creature: Creature,
     event_queue: VecDeque<AnimationEvent>,
     idle: Animation,
     invert_side: bool,
@@ -49,7 +50,7 @@ enum AnimationEvent {
 }
 
 struct Sound {
-    sound: &'static str,
+    type_: CreatureSound,
     looping: bool,
 }
 
@@ -79,6 +80,7 @@ impl AnimationState {
         let idle = Animation::new(AnimationType::Standing, creature, rr);
 
         Self {
+            creature,
             event_queue: VecDeque::new(),
             idle,
             invert_side: false,
@@ -108,7 +110,9 @@ impl AnimationState {
                     update_result.event_finished = true;
                 }
                 AnimationEvent::PlaySound(sound) => {
-                    sound::play_sound(sound.sound, rr, sound.looping).unwrap();
+                    if let Some(chunk) = rr.get_creature_sound(self.creature, sound.type_) {
+                        sound::play_sound(chunk, sound.looping).unwrap();
+                    }
                     update_result.event_finished = true;
                 }
                 AnimationEvent::StopSound => {
@@ -199,7 +203,7 @@ impl AnimationState {
         creature: Creature,
         rr: &mut ResourceRegistry,
     ) {
-        self.put_sound(animation_type, creature);
+        self.put_sound(animation_type);
 
         let animation = Animation::new(animation_type, creature, rr);
         let event = AnimationEvent::Animation(animation);
@@ -213,12 +217,10 @@ impl AnimationState {
     }
 
     fn put_movement(&mut self, creature: Creature, path: Vec<GridPos>, rr: &mut ResourceRegistry) {
-        if let Some(sound) = creature.sounds().get(CreatureSound::StartMoving) {
-            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-                sound,
-                looping: false,
-            }));
-        }
+        self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+            type_: CreatureSound::StartMoving,
+            looping: false,
+        }));
 
         let animation_type = AnimationType::StartMoving;
         if rr
@@ -235,12 +237,10 @@ impl AnimationState {
             self.event_queue
                 .push_back(AnimationEvent::Teleport(*path.last().unwrap()));
         } else {
-            let sound = creature.sounds().get(CreatureSound::Move).unwrap();
-            let sound = Sound {
-                sound,
+            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+                type_: CreatureSound::Move,
                 looping: true,
-            };
-            self.event_queue.push_back(AnimationEvent::PlaySound(sound));
+            }));
 
             let movement = Movement::new(creature, path, rr);
             self.event_queue
@@ -249,12 +249,11 @@ impl AnimationState {
             self.event_queue.push_back(AnimationEvent::StopSound);
         }
 
-        if let Some(sound) = creature.sounds().get(CreatureSound::EndMoving) {
-            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-                sound,
-                looping: false,
-            }));
-        }
+        self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+            type_: CreatureSound::EndMoving,
+            looping: false,
+        }));
+
         let animation_type = AnimationType::StopMoving;
         if rr
             .get_creature_spritesheet(creature)
@@ -271,7 +270,7 @@ impl AnimationState {
         self.event_queue.push_back(event);
     }
 
-    fn put_sound(&mut self, animation_type: AnimationType, creature: Creature) {
+    fn put_sound(&mut self, animation_type: AnimationType) {
         let sound_type = match animation_type {
             AnimationType::AttackStraight => Some(CreatureSound::Attack),
             AnimationType::Defend => Some(CreatureSound::Defend),
@@ -285,12 +284,10 @@ impl AnimationState {
         };
 
         if let Some(sound_type) = sound_type {
-            if let Some(filename) = creature.sounds().get(sound_type) {
-                self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-                    sound: filename,
-                    looping: false,
-                }));
-            }
+            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
+                type_: sound_type,
+                looping: false,
+            }));
         }
     }
 }

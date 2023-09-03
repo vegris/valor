@@ -1,9 +1,9 @@
 use strum::EnumCount;
-use strum_macros::EnumCount;
+use strum_macros::{EnumCount, EnumIter};
 
 use super::Creature;
 
-#[derive(EnumCount)]
+#[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum CreatureSound {
     Attack,
     Defend,
