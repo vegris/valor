@@ -32,7 +32,7 @@ impl<'a> StackWithAnimation<'a> {
         let stacks = handles.map(|h| state.get_stack(h));
         let animations = animations.0.get_many_mut(handles).unwrap();
 
-        Iterator::zip(stacks.into_iter(), animations.into_iter())
+        Iterator::zip(stacks.into_iter(), animations)
             .map(|(stack, animation)| Self { stack, animation })
             .collect::<Vec<Self>>()
             .try_into()

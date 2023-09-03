@@ -30,7 +30,7 @@ pub fn form_units(starting_army: &[Option<(Creature, i32)>; 7], side: Side) -> V
     starting_army
         .iter()
         .filter_map(|c| *c)
-        .zip(formation.into_iter())
+        .zip(formation)
         .map(|((creature, count), y_pos)| {
             let head = head_from_tail(creature, side, GridPos::new(starting_x, y_pos));
             Stack::new(creature, count, head, side)
