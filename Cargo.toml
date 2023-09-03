@@ -4,6 +4,7 @@ members = [
     "gamedata",
     "game",
 ]
+resolver = "2"
 
 [profile.dev]
 debug = false
