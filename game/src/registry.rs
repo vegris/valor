@@ -27,7 +27,7 @@ pub struct ResourceRegistry {
     pcx_archive: LodIndex,
     def_archive: LodIndex,
     snd_archive: SndIndex,
-    creatures_cache: creature_resources::CreaturesCache,
+    creatures_cache: CreaturesCache,
 }
 
 impl ResourceRegistry {
