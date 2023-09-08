@@ -34,3 +34,14 @@ impl TimeProgress {
         self.duration - self.spent
     }
 }
+
+impl AsRef<TimeProgress> for TimeProgress {
+    fn as_ref(&self) -> &TimeProgress {
+        self
+    }
+}
+impl AsMut<TimeProgress> for TimeProgress {
+    fn as_mut(&mut self) -> &mut TimeProgress {
+        self
+    }
+}

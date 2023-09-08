@@ -3,12 +3,12 @@ use gamedata::creatures::Creature;
 use crate::graphics::creature::AnimationType;
 use crate::registry::ResourceRegistry;
 
-use super::TimeProgress;
+use super::time_progress::TimeProgress;
 
 pub struct Animation {
     pub type_: AnimationType,
     pub frame_count: usize,
-    pub progress: TimeProgress,
+    progress: TimeProgress,
 }
 
 impl Animation {
@@ -33,5 +33,24 @@ impl Animation {
         let progress = self.progress.progress();
 
         ((self.frame_count - 1) as f32 * progress).round() as usize
+    }
+
+    pub fn progress(&self) -> &TimeProgress {
+        &self.progress
+    }
+
+    pub fn progress_mut(&mut self) -> &mut TimeProgress {
+        &mut self.progress
+    }
+}
+
+impl AsRef<TimeProgress> for Animation {
+    fn as_ref(&self) -> &TimeProgress {
+        self.progress()
+    }
+}
+impl AsMut<TimeProgress> for Animation {
+    fn as_mut(&mut self) -> &mut TimeProgress {
+        self.progress_mut()
     }
 }

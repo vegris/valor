@@ -14,7 +14,7 @@ pub struct Movement {
     tweens: Box<[Tween]>,
     frame_count: usize,
     modifier: f32,
-    pub progress: TimeProgress,
+    progress: TimeProgress,
 }
 
 struct Tween {
@@ -76,6 +76,10 @@ impl Movement {
 
         ((self.frame_count - 1) as f32 * progress).round() as usize
     }
+
+    pub fn progress(&self) -> &TimeProgress {
+        &self.progress
+    }
 }
 
 impl Tween {
@@ -102,4 +106,15 @@ fn total_duration(creature: Creature, tweens: &[Tween]) -> Duration {
     };
 
     Duration::from_secs_f32(duration_secs)
+}
+
+impl AsRef<TimeProgress> for Movement {
+    fn as_ref(&self) -> &TimeProgress {
+        self.progress()
+    }
+}
+impl AsMut<TimeProgress> for Movement {
+    fn as_mut(&mut self) -> &mut TimeProgress {
+        &mut self.progress
+    }
 }

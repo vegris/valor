@@ -96,7 +96,7 @@ impl AnimationState {
 
             match event {
                 AnimationEvent::Animation(animation) => {
-                    update_progress(&mut animation.progress, dt, &mut update_result);
+                    update_progress(animation, dt, &mut update_result);
 
                     if update_result.consumed_dt {
                         animation_in_progress = true;
@@ -120,7 +120,7 @@ impl AnimationState {
                     update_result.event_finished = true;
                 }
                 AnimationEvent::Movement(movement) => {
-                    update_progress(&mut movement.progress, dt, &mut update_result);
+                    update_progress(movement, dt, &mut update_result);
 
                     if !update_result.event_finished {
                         self.position = movement.get_position();
@@ -145,13 +145,15 @@ impl AnimationState {
             }
         }
 
+        let idle_progress = self.idle.progress_mut();
+
         if animation_in_progress {
-            self.idle.progress.reset();
+            idle_progress.reset();
         } else {
-            if self.idle.progress.is_finished() {
-                self.idle.progress.reset();
+            if idle_progress.is_finished() {
+                idle_progress.reset();
             }
-            self.idle.progress.update(dt);
+            idle_progress.update(dt);
         }
     }
 
@@ -182,12 +184,12 @@ impl AnimationState {
         self.event_queue
             .iter()
             .map(|event| match event {
-                AnimationEvent::Animation(animation) => animation.progress.time_left(),
+                AnimationEvent::Animation(animation) => animation.progress().time_left(),
                 AnimationEvent::Delay(progress) => progress.time_left(),
                 AnimationEvent::InvertSide => Duration::ZERO,
                 AnimationEvent::PlaySound(_) => Duration::ZERO,
                 AnimationEvent::StopSound => Duration::ZERO,
-                AnimationEvent::Movement(movement) => movement.progress.time_left(),
+                AnimationEvent::Movement(movement) => movement.progress().time_left(),
                 AnimationEvent::Teleport(_) => Duration::ZERO,
             })
             .sum()
@@ -292,11 +294,17 @@ impl AnimationState {
     }
 }
 
-fn update_progress(progress: &mut TimeProgress, dt: Duration, update_result: &mut UpdateResult) {
+fn update_progress<T: AsMut<TimeProgress>>(
+    progress: &mut T,
+    dt: Duration,
+    update_result: &mut UpdateResult,
+) {
+    let progress = progress.as_mut();
+
     if progress.is_finished() {
         update_result.event_finished = true;
     } else {
         progress.update(dt);
         update_result.consumed_dt = true;
-    };
+    }
 }

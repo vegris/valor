@@ -93,7 +93,7 @@ pub fn animate_shot(
 
     let animation_type = AnimationType::ShootStraight;
     let animation = Animation::new(animation_type, attacker.stack.creature, rr);
-    let duration = animation.progress.time_left();
+    let duration = animation.progress().time_left();
 
     attacker
         .animation
@@ -134,7 +134,7 @@ fn animate_strike(
 ) {
     let animation_type = AnimationType::AttackStraight;
     let animation = Animation::new(animation_type, attacker.stack.creature, rr);
-    let animation_duration = animation.progress.time_left();
+    let animation_duration = animation.progress().time_left();
 
     attacker
         .animation
