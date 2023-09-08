@@ -1,6 +1,9 @@
 use std::fmt::Debug;
 use std::time::Duration;
 
+use gamedata::creatures::sounds::CreatureSound;
+use gamedata::creatures::Creature;
+
 use crate::battlestate::{BattleState, Side, StackHandle};
 use crate::event::{Attack, Movement, Shot};
 use crate::graphics::creature::AnimationType;
@@ -10,7 +13,7 @@ use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
 use super::animation::Animation;
-use super::{AnimationEvent, AnimationState};
+use super::{AnimationEvent, AnimationState, Sound};
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,
@@ -95,9 +98,12 @@ pub fn animate_shot(
     let animation = Animation::new(animation_type, attacker.stack.creature, rr);
     let duration = animation.progress().time_left();
 
-    attacker
-        .animation
-        .put_animation(animation_type, attacker.stack.creature, rr);
+    put_animation_with_sound(
+        attacker.animation,
+        animation_type,
+        attacker.stack.creature,
+        rr,
+    );
 
     target.animation.put_delay(duration);
     animate_get_hit(&mut target, shot.lethal, rr);
@@ -136,9 +142,13 @@ fn animate_strike(
     let animation = Animation::new(animation_type, attacker.stack.creature, rr);
     let animation_duration = animation.progress().time_left();
 
-    attacker
-        .animation
-        .put_animation(animation_type, attacker.stack.creature, rr);
+    put_animation_with_sound(
+        attacker.animation,
+        animation_type,
+        attacker.stack.creature,
+        rr,
+    );
+
     defender.animation.put_delay(animation_duration / 2);
     animate_get_hit(defender, lethal, rr);
 }
@@ -151,19 +161,24 @@ fn animate_get_hit(victim: &mut StackWithAnimation, lethal: bool, rr: &mut Resou
     } else {
         AnimationType::GettingHit
     };
-    victim
-        .animation
-        .put_animation(animation_type, victim.stack.creature, rr);
+
+    put_animation_with_sound(victim.animation, animation_type, victim.stack.creature, rr);
 }
 
 fn animate_turning(stack: &mut StackWithAnimation, rr: &mut ResourceRegistry) {
-    stack
-        .animation
-        .put_animation(AnimationType::TurnLeft, stack.stack.creature, rr);
+    put_animation_with_sound(
+        stack.animation,
+        AnimationType::TurnLeft,
+        stack.stack.creature,
+        rr,
+    );
     stack.animation.put_event(AnimationEvent::InvertSide);
-    stack
-        .animation
-        .put_animation(AnimationType::TurnRight, stack.stack.creature, rr);
+    put_animation_with_sound(
+        stack.animation,
+        AnimationType::TurnRight,
+        stack.stack.creature,
+        rr,
+    );
 }
 
 fn facing_side(pos: GridPos, target: GridPos) -> Side {
@@ -190,4 +205,37 @@ fn facing_side(pos: GridPos, target: GridPos) -> Side {
 
 fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
     facing_side(attacker.head, defender.head) != attacker.side
+}
+
+fn put_animation_with_sound(
+    state: &mut AnimationState,
+    animation_type: AnimationType,
+    creature: Creature,
+    rr: &mut ResourceRegistry,
+) {
+    if let Some(sound) = sound_for_animation(animation_type) {
+        state.put_event(AnimationEvent::PlaySound(sound));
+    }
+
+    let animation = Animation::new(animation_type, creature, rr);
+    state.put_event(AnimationEvent::Animation(animation));
+}
+
+fn sound_for_animation(animation_type: AnimationType) -> Option<Sound> {
+    let sound_type = match animation_type {
+        AnimationType::AttackStraight => Some(CreatureSound::Attack),
+        AnimationType::Defend => Some(CreatureSound::Defend),
+        AnimationType::StartMoving => Some(CreatureSound::StartMoving),
+        AnimationType::Moving => Some(CreatureSound::Move),
+        AnimationType::StopMoving => Some(CreatureSound::EndMoving),
+        AnimationType::ShootStraight => Some(CreatureSound::Shoot),
+        AnimationType::GettingHit => Some(CreatureSound::Wince),
+        AnimationType::Death => Some(CreatureSound::Killed),
+        _ => None,
+    };
+
+    sound_type.map(|type_| Sound {
+        type_,
+        looping: false,
+    })
 }

@@ -199,19 +199,6 @@ impl AnimationState {
         !self.event_queue.is_empty()
     }
 
-    fn put_animation(
-        &mut self,
-        animation_type: AnimationType,
-        creature: Creature,
-        rr: &mut ResourceRegistry,
-    ) {
-        self.put_sound(animation_type);
-
-        let animation = Animation::new(animation_type, creature, rr);
-        let event = AnimationEvent::Animation(animation);
-        self.event_queue.push_back(event);
-    }
-
     fn put_delay(&mut self, duration: Duration) {
         let progress = TimeProgress::new(duration);
         let event = AnimationEvent::Delay(progress);
@@ -270,27 +257,6 @@ impl AnimationState {
 
     fn put_event(&mut self, event: AnimationEvent) {
         self.event_queue.push_back(event);
-    }
-
-    fn put_sound(&mut self, animation_type: AnimationType) {
-        let sound_type = match animation_type {
-            AnimationType::AttackStraight => Some(CreatureSound::Attack),
-            AnimationType::Defend => Some(CreatureSound::Defend),
-            AnimationType::StartMoving => Some(CreatureSound::StartMoving),
-            AnimationType::Moving => Some(CreatureSound::Move),
-            AnimationType::StopMoving => Some(CreatureSound::EndMoving),
-            AnimationType::ShootStraight => Some(CreatureSound::Shoot),
-            AnimationType::GettingHit => Some(CreatureSound::Wince),
-            AnimationType::Death => Some(CreatureSound::Killed),
-            _ => None,
-        };
-
-        if let Some(sound_type) = sound_type {
-            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-                type_: sound_type,
-                looping: false,
-            }));
-        }
     }
 }
 
