@@ -13,8 +13,9 @@ use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
 use super::animation::Animation;
+use super::event::AnimationEvent;
 use super::movement::Movement as MovementEvent;
-use super::{AnimationEvent, AnimationState, Sound};
+use super::AnimationState;
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,
@@ -106,7 +107,7 @@ pub fn animate_shot(
         rr,
     );
 
-    target.animation.put_delay(duration);
+    target.animation.put_event(AnimationEvent::delay(duration));
     animate_get_hit(&mut target, shot.lethal, rr);
 }
 
@@ -122,17 +123,14 @@ pub fn animate_movement(
 
     let mut events = vec![];
 
-    events.push(AnimationEvent::PlaySound(Sound {
-        type_: CreatureSound::StartMoving,
-        looping: false,
-    }));
+    events.push(AnimationEvent::play_sound(CreatureSound::StartMoving));
 
     let animation_type = AnimationType::StartMoving;
     if rr
         .get_creature_spritesheet(creature)
         .has_animation(animation_type)
     {
-        events.push(AnimationEvent::Animation(Animation::new(
+        events.push(AnimationEvent::animation(Animation::new(
             animation_type,
             creature,
             rr,
@@ -140,29 +138,23 @@ pub fn animate_movement(
     }
 
     if creature.is_teleporting() {
-        events.push(AnimationEvent::Teleport(*path.last().unwrap()));
+        events.push(AnimationEvent::teleport(*path.last().unwrap()));
     } else {
         events.extend([
-            AnimationEvent::PlaySound(Sound {
-                type_: CreatureSound::Move,
-                looping: true,
-            }),
-            AnimationEvent::Movement(MovementEvent::new(creature, path, rr)),
-            AnimationEvent::StopSound,
+            AnimationEvent::play_sound_looping(CreatureSound::Move),
+            AnimationEvent::movement(MovementEvent::new(creature, path, rr)),
+            AnimationEvent::stop_sound(),
         ]);
     }
 
-    events.push(AnimationEvent::PlaySound(Sound {
-        type_: CreatureSound::EndMoving,
-        looping: false,
-    }));
+    events.push(AnimationEvent::play_sound(CreatureSound::EndMoving));
 
     let animation_type = AnimationType::StopMoving;
     if rr
         .get_creature_spritesheet(creature)
         .has_animation(animation_type)
     {
-        events.push(AnimationEvent::Animation(Animation::new(
+        events.push(AnimationEvent::animation(Animation::new(
             animation_type,
             creature,
             rr,
@@ -186,7 +178,7 @@ fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {
         .unwrap_or(Duration::ZERO);
 
     for state in animation_states {
-        state.put_delay(max_duration - state.total_duration());
+        state.put_event(AnimationEvent::delay(max_duration - state.total_duration()));
     }
 }
 
@@ -207,7 +199,9 @@ fn animate_strike(
         rr,
     );
 
-    defender.animation.put_delay(animation_duration / 2);
+    defender
+        .animation
+        .put_event(AnimationEvent::delay(animation_duration / 2));
     animate_get_hit(defender, lethal, rr);
 }
 
@@ -230,7 +224,7 @@ fn animate_turning(stack: &mut StackWithAnimation, rr: &mut ResourceRegistry) {
         stack.stack.creature,
         rr,
     );
-    stack.animation.put_event(AnimationEvent::InvertSide);
+    stack.animation.put_event(AnimationEvent::invert_side());
     put_animation_with_sound(
         stack.animation,
         AnimationType::TurnRight,
@@ -272,15 +266,18 @@ fn put_animation_with_sound(
     rr: &mut ResourceRegistry,
 ) {
     if let Some(sound) = sound_for_animation(animation_type) {
-        state.put_event(AnimationEvent::PlaySound(sound));
+        state.put_event(AnimationEvent::play_sound(sound));
     }
 
-    let animation = Animation::new(animation_type, creature, rr);
-    state.put_event(AnimationEvent::Animation(animation));
+    state.put_event(AnimationEvent::animation(Animation::new(
+        animation_type,
+        creature,
+        rr,
+    )));
 }
 
-fn sound_for_animation(animation_type: AnimationType) -> Option<Sound> {
-    let sound_type = match animation_type {
+fn sound_for_animation(animation_type: AnimationType) -> Option<CreatureSound> {
+    match animation_type {
         AnimationType::AttackStraight => Some(CreatureSound::Attack),
         AnimationType::Defend => Some(CreatureSound::Defend),
         AnimationType::StartMoving => Some(CreatureSound::StartMoving),
@@ -290,10 +287,5 @@ fn sound_for_animation(animation_type: AnimationType) -> Option<Sound> {
         AnimationType::GettingHit => Some(CreatureSound::Wince),
         AnimationType::Death => Some(CreatureSound::Killed),
         _ => None,
-    };
-
-    sound_type.map(|type_| Sound {
-        type_,
-        looping: false,
-    })
+    }
 }

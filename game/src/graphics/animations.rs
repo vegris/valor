@@ -1,10 +1,9 @@
 use std::collections::VecDeque;
 use std::time::Duration;
 
-use gamedata::creatures::sounds::CreatureSound;
+use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
-use sdl2::rect::Point;
 
 use crate::battlestate::BattleState;
 use crate::event::Event;
@@ -17,12 +16,13 @@ use super::Animations;
 
 mod animation;
 mod choreographer;
+mod event;
 mod movement;
 mod time_progress;
 
 use self::animation::Animation;
+use self::event::{AnimationEvent, InstantEvent, TimeProgressEvent};
 use self::movement::Movement;
-use self::time_progress::TimeProgress;
 
 pub struct AnimationState {
     creature: Creature,
@@ -37,27 +37,6 @@ pub struct AnimationData {
     pub frame_index: usize,
     pub invert_side: bool,
     pub position: Point,
-}
-
-enum AnimationEvent {
-    Animation(Animation),
-    Delay(TimeProgress),
-    InvertSide,
-    PlaySound(Sound),
-    StopSound,
-    Movement(Movement),
-    Teleport(GridPos),
-}
-
-struct Sound {
-    type_: CreatureSound,
-    looping: bool,
-}
-
-#[derive(Default)]
-struct UpdateResult {
-    event_finished: bool,
-    consumed_dt: bool,
 }
 
 pub fn process_event(
@@ -89,72 +68,49 @@ impl AnimationState {
     }
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        let mut animation_in_progress = false;
-
         while let Some(event) = self.event_queue.front_mut() {
-            let mut update_result = UpdateResult::default();
-
             match event {
-                AnimationEvent::Animation(animation) => {
-                    update_progress(animation, dt, &mut update_result);
-
-                    if update_result.consumed_dt {
-                        animation_in_progress = true;
-                    };
-                }
-                AnimationEvent::Delay(progress) => {
-                    update_progress(progress, dt, &mut update_result);
-                }
-                AnimationEvent::InvertSide => {
-                    self.invert_side = !self.invert_side;
-                    update_result.event_finished = true;
-                }
-                AnimationEvent::PlaySound(sound) => {
-                    if let Some(chunk) = rr.get_creature_sound(self.creature, sound.type_) {
-                        sound::play_sound(chunk, sound.looping).unwrap();
+                AnimationEvent::Instant(instant_event) => {
+                    match instant_event {
+                        InstantEvent::InvertSide => {
+                            self.invert_side = !self.invert_side;
+                        }
+                        InstantEvent::PlaySound(sound) => {
+                            if let Some(chunk) = rr.get_creature_sound(self.creature, sound.type_) {
+                                sound::play_sound(chunk, sound.looping).unwrap();
+                            }
+                        }
+                        InstantEvent::StopSound => {
+                            sound::stop_looping();
+                        }
+                        InstantEvent::Teleport(position) => {
+                            self.position = position.center();
+                        }
                     }
-                    update_result.event_finished = true;
+                    self.event_queue.pop_front();
                 }
-                AnimationEvent::StopSound => {
-                    sound::stop_looping();
-                    update_result.event_finished = true;
-                }
-                AnimationEvent::Movement(movement) => {
-                    update_progress(movement, dt, &mut update_result);
+                AnimationEvent::TimeProgress(progress_event) => {
+                    if progress_event.as_ref().is_finished() {
+                        self.event_queue.pop_front();
+                    } else {
+                        progress_event.as_mut().update(dt);
 
-                    if !update_result.event_finished {
-                        self.position = movement.get_position();
+                        if let TimeProgressEvent::Movement(movement) = progress_event {
+                            self.position = movement.get_position();
+                        }
+
+                        break;
                     }
-
-                    if update_result.consumed_dt {
-                        animation_in_progress = true;
-                    };
                 }
-                AnimationEvent::Teleport(pos) => {
-                    self.position = pos.center();
-                    update_result.event_finished = true;
-                }
-            }
-
-            if update_result.event_finished {
-                self.event_queue.pop_front();
-            }
-
-            if update_result.consumed_dt {
-                break;
             }
         }
 
         let idle_progress = self.idle.progress_mut();
 
-        if animation_in_progress {
+        if idle_progress.is_finished() {
             idle_progress.reset();
-        } else {
-            if idle_progress.is_finished() {
-                idle_progress.reset();
-            }
-            idle_progress.update(dt);
         }
+        idle_progress.update(dt);
     }
 
     pub fn get_state(&self) -> AnimationData {
@@ -162,13 +118,16 @@ impl AnimationState {
             .event_queue
             .front()
             .and_then(|event| match event {
-                AnimationEvent::Animation(animation) => {
-                    Some((animation.type_, animation.get_frame()))
-                }
-                AnimationEvent::Movement(movement) => {
-                    Some((Movement::ANIMATION_TYPE, movement.get_frame()))
-                }
-                _ => None,
+                AnimationEvent::Instant(_) => None,
+                AnimationEvent::TimeProgress(progress_event) => match progress_event {
+                    TimeProgressEvent::Animation(animation) => {
+                        Some((animation.type_, animation.get_frame()))
+                    }
+                    TimeProgressEvent::Movement(movement) => {
+                        Some((Movement::ANIMATION_TYPE, movement.get_frame()))
+                    }
+                    _ => None,
+                },
             })
             .unwrap_or((self.idle.type_, self.idle.get_frame()));
 
@@ -184,13 +143,8 @@ impl AnimationState {
         self.event_queue
             .iter()
             .map(|event| match event {
-                AnimationEvent::Animation(animation) => animation.progress().time_left(),
-                AnimationEvent::Delay(progress) => progress.time_left(),
-                AnimationEvent::InvertSide => Duration::ZERO,
-                AnimationEvent::PlaySound(_) => Duration::ZERO,
-                AnimationEvent::StopSound => Duration::ZERO,
-                AnimationEvent::Movement(movement) => movement.progress().time_left(),
-                AnimationEvent::Teleport(_) => Duration::ZERO,
+                AnimationEvent::Instant(_) => Duration::ZERO,
+                AnimationEvent::TimeProgress(progress_event) => progress_event.as_ref().time_left(),
             })
             .sum()
     }
@@ -199,28 +153,7 @@ impl AnimationState {
         !self.event_queue.is_empty()
     }
 
-    fn put_delay(&mut self, duration: Duration) {
-        let progress = TimeProgress::new(duration);
-        let event = AnimationEvent::Delay(progress);
-        self.event_queue.push_back(event);
-    }
-
     fn put_event(&mut self, event: AnimationEvent) {
         self.event_queue.push_back(event);
-    }
-}
-
-fn update_progress<T: AsMut<TimeProgress>>(
-    progress: &mut T,
-    dt: Duration,
-    update_result: &mut UpdateResult,
-) {
-    let progress = progress.as_mut();
-
-    if progress.is_finished() {
-        update_result.event_finished = true;
-    } else {
-        progress.update(dt);
-        update_result.consumed_dt = true;
     }
 }
