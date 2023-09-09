@@ -9,14 +9,14 @@ use super::movement::Movement;
 use super::time_progress::TimeProgress;
 
 pub enum AnimationEvent {
-    TimeProgress(TimeProgressEvent),
     Instant(InstantEvent),
+    TimeProgress(TimeProgressEvent),
+    Delay(TimeProgress),
 }
 
 pub enum TimeProgressEvent {
     Animation(Animation),
     Movement(Movement),
-    Delay(TimeProgress),
 }
 
 pub enum InstantEvent {
@@ -41,7 +41,7 @@ impl AnimationEvent {
     }
 
     pub fn delay(duration: Duration) -> Self {
-        Self::TimeProgress(TimeProgressEvent::Delay(TimeProgress::new(duration)))
+        Self::Delay(TimeProgress::new(duration))
     }
 
     pub fn invert_side() -> Self {
@@ -77,7 +77,6 @@ impl AsRef<TimeProgress> for TimeProgressEvent {
         match self {
             Self::Animation(animation) => animation.as_ref(),
             Self::Movement(movement) => movement.as_ref(),
-            Self::Delay(progress) => progress,
         }
     }
 }
@@ -87,7 +86,6 @@ impl AsMut<TimeProgress> for TimeProgressEvent {
         match self {
             Self::Animation(animation) => animation.as_mut(),
             Self::Movement(movement) => movement.as_mut(),
-            Self::Delay(progress) => progress,
         }
     }
 }
