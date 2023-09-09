@@ -205,56 +205,6 @@ impl AnimationState {
         self.event_queue.push_back(event);
     }
 
-    fn put_movement(&mut self, creature: Creature, path: Vec<GridPos>, rr: &mut ResourceRegistry) {
-        self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-            type_: CreatureSound::StartMoving,
-            looping: false,
-        }));
-
-        let animation_type = AnimationType::StartMoving;
-        if rr
-            .get_creature_spritesheet(creature)
-            .frames_count(animation_type)
-            .is_some()
-        {
-            let animation = Animation::new(animation_type, creature, rr);
-            self.event_queue
-                .push_back(AnimationEvent::Animation(animation));
-        }
-
-        if creature.is_teleporting() {
-            self.event_queue
-                .push_back(AnimationEvent::Teleport(*path.last().unwrap()));
-        } else {
-            self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-                type_: CreatureSound::Move,
-                looping: true,
-            }));
-
-            let movement = Movement::new(creature, path, rr);
-            self.event_queue
-                .push_back(AnimationEvent::Movement(movement));
-
-            self.event_queue.push_back(AnimationEvent::StopSound);
-        }
-
-        self.event_queue.push_back(AnimationEvent::PlaySound(Sound {
-            type_: CreatureSound::EndMoving,
-            looping: false,
-        }));
-
-        let animation_type = AnimationType::StopMoving;
-        if rr
-            .get_creature_spritesheet(creature)
-            .frames_count(animation_type)
-            .is_some()
-        {
-            let animation = Animation::new(animation_type, creature, rr);
-            self.event_queue
-                .push_back(AnimationEvent::Animation(animation));
-        }
-    }
-
     fn put_event(&mut self, event: AnimationEvent) {
         self.event_queue.push_back(event);
     }

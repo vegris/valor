@@ -13,6 +13,7 @@ use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
 use super::animation::Animation;
+use super::movement::Movement as MovementEvent;
 use super::{AnimationEvent, AnimationState, Sound};
 
 struct StackWithAnimation<'a> {
@@ -116,8 +117,65 @@ pub fn animate_movement(
     rr: &mut ResourceRegistry,
 ) {
     let stack = state.get_stack(movement.stack_handle);
-    let stack_animations = animations.0 .0.get_mut(&movement.stack_handle).unwrap();
-    stack_animations.put_movement(stack.creature, movement.path, rr);
+    let creature = stack.creature;
+    let path = movement.path;
+
+    let mut events = vec![];
+
+    events.push(AnimationEvent::PlaySound(Sound {
+        type_: CreatureSound::StartMoving,
+        looping: false,
+    }));
+
+    let animation_type = AnimationType::StartMoving;
+    if rr
+        .get_creature_spritesheet(creature)
+        .has_animation(animation_type)
+    {
+        events.push(AnimationEvent::Animation(Animation::new(
+            animation_type,
+            creature,
+            rr,
+        )));
+    }
+
+    if creature.is_teleporting() {
+        events.push(AnimationEvent::Teleport(*path.last().unwrap()));
+    } else {
+        events.extend([
+            AnimationEvent::PlaySound(Sound {
+                type_: CreatureSound::Move,
+                looping: true,
+            }),
+            AnimationEvent::Movement(MovementEvent::new(creature, path, rr)),
+            AnimationEvent::StopSound,
+        ]);
+    }
+
+    events.push(AnimationEvent::PlaySound(Sound {
+        type_: CreatureSound::EndMoving,
+        looping: false,
+    }));
+
+    let animation_type = AnimationType::StopMoving;
+    if rr
+        .get_creature_spritesheet(creature)
+        .has_animation(animation_type)
+    {
+        events.push(AnimationEvent::Animation(Animation::new(
+            animation_type,
+            creature,
+            rr,
+        )));
+    }
+
+    animations
+        .0
+         .0
+        .get_mut(&movement.stack_handle)
+        .unwrap()
+        .event_queue
+        .extend(events);
 }
 
 fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {

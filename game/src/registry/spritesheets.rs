@@ -159,6 +159,10 @@ impl<S: SpriteSheetType> SpriteSheet<S> {
         &self.colors
     }
 
+    pub fn has_animation(&self, animation_type: S) -> bool {
+        self.get_block(animation_type).is_some()
+    }
+
     fn get_block(&self, animation_type: S) -> Option<&AnimationBlock> {
         self.blocks[animation_type.block_index()].as_ref()
     }
