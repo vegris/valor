@@ -111,18 +111,18 @@ impl AnimationState {
                         self.current_event = CurrentEvent::Event(progress_event);
                         break;
                     }
-                    AnimationEvent::Delay(delay) => {
+                    AnimationEvent::Delay(duration) => {
                         match self.current_event {
                             CurrentEvent::Event(_) => {
                                 let idle =
                                     Animation::new(AnimationType::Standing, self.creature, rr);
                                 self.current_event = CurrentEvent::Idle(Idle {
                                     animation: idle,
-                                    delay,
+                                    delay: TimeProgress::new(duration),
                                 });
                             }
                             CurrentEvent::Idle(ref mut idle) => {
-                                idle.delay.duration += delay.duration;
+                                idle.delay.add(duration);
                             }
                         }
                         break;
@@ -195,7 +195,7 @@ impl AnimationState {
                 AnimationEvent::TimeProgress(progress_event) => {
                     progress_event.progress().time_left()
                 }
-                AnimationEvent::Delay(progress) => progress.time_left(),
+                AnimationEvent::Delay(duration) => *duration,
             })
             .sum();
 

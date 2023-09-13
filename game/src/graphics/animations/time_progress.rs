@@ -33,4 +33,8 @@ impl TimeProgress {
     pub fn time_left(&self) -> Duration {
         self.duration - self.spent
     }
+
+    pub fn add(&mut self, duration: Duration) {
+        self.duration += duration;
+    }
 }

@@ -11,7 +11,7 @@ use super::time_progress::TimeProgress;
 pub enum AnimationEvent {
     Instant(InstantEvent),
     TimeProgress(TimeProgressEvent),
-    Delay(TimeProgress),
+    Delay(Duration),
 }
 
 pub enum TimeProgressEvent {
@@ -41,7 +41,7 @@ impl AnimationEvent {
     }
 
     pub fn delay(duration: Duration) -> Self {
-        Self::Delay(TimeProgress::new(duration))
+        Self::Delay(duration)
     }
 
     pub fn invert_side() -> Self {
