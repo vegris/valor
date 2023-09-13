@@ -16,14 +16,13 @@ use super::Animations;
 
 mod animation;
 mod choreographer;
+mod current_event;
 mod event;
 mod movement;
 mod time_progress;
 
-use self::animation::Animation;
+use self::current_event::{CurrentEvent, Idle};
 use self::event::{AnimationEvent, InstantEvent, TimeProgressEvent};
-use self::movement::Movement;
-use self::time_progress::TimeProgress;
 
 pub struct AnimationState {
     creature: Creature,
@@ -31,16 +30,6 @@ pub struct AnimationState {
     current_event: CurrentEvent,
     invert_side: bool,
     pub position: Point,
-}
-
-enum CurrentEvent {
-    Event(TimeProgressEvent),
-    Idle(Idle),
-}
-
-struct Idle {
-    animation: Animation,
-    delay: TimeProgress,
 }
 
 pub struct AnimationData {
@@ -67,15 +56,10 @@ pub fn process_event(
 
 impl AnimationState {
     pub fn new(creature: Creature, position: GridPos, rr: &mut ResourceRegistry) -> Self {
-        let idle = Animation::new(AnimationType::Standing, creature, rr);
-
         Self {
             creature,
             event_queue: VecDeque::new(),
-            current_event: CurrentEvent::Idle(Idle {
-                animation: idle,
-                delay: TimeProgress::new(Duration::ZERO),
-            }),
+            current_event: CurrentEvent::Idle(Idle::empty(creature, rr)),
             invert_side: false,
             position: position.center(),
         }
@@ -83,21 +67,10 @@ impl AnimationState {
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         if let CurrentEvent::Idle(ref mut idle) = self.current_event {
-            let idle_progress = idle.animation.progress_mut();
-            if idle_progress.is_finished() {
-                idle_progress.reset();
-            } else {
-                idle_progress.update(dt);
-            }
+            idle.update_animation(dt);
         }
 
-        let current_event_finished = match &self.current_event {
-            CurrentEvent::Event(event) => event.progress(),
-            CurrentEvent::Idle(idle) => &idle.delay,
-        }
-        .is_finished();
-
-        if !current_event_finished {
+        if !self.current_event.is_finished() {
             match self.current_event {
                 CurrentEvent::Event(ref mut event) => {
                     if let TimeProgressEvent::Movement(movement) = event {
@@ -107,7 +80,7 @@ impl AnimationState {
                     event.progress_mut().update(dt);
                 }
                 CurrentEvent::Idle(ref mut idle) => {
-                    idle.delay.update(dt);
+                    idle.update_delay(dt);
                 }
             }
             return;
@@ -137,35 +110,19 @@ impl AnimationState {
         if let Some(event) = time_event {
             match event {
                 TimeEvent::Delay(duration) => {
-                    let idle = Animation::new(AnimationType::Standing, self.creature, rr);
-                    self.current_event = CurrentEvent::Idle(Idle {
-                        animation: idle,
-                        delay: TimeProgress::new(duration),
-                    });
+                    self.current_event = CurrentEvent::Idle(Idle::new(self.creature, rr, duration));
                 }
                 TimeEvent::TimeProgress(progress_event) => {
                     self.current_event = CurrentEvent::Event(progress_event);
                 }
             }
         } else {
-            let idle = Animation::new(AnimationType::Standing, self.creature, rr);
-            self.current_event = CurrentEvent::Idle(Idle {
-                animation: idle,
-                delay: TimeProgress::new(Duration::ZERO),
-            });
+            self.current_event = CurrentEvent::Idle(Idle::empty(self.creature, rr));
         }
     }
 
     pub fn get_state(&self) -> AnimationData {
-        let (animation_type, frame_index) = match &self.current_event {
-            CurrentEvent::Event(event) => match event {
-                TimeProgressEvent::Animation(animation) => (animation.type_, animation.get_frame()),
-                TimeProgressEvent::Movement(movement) => {
-                    (Movement::ANIMATION_TYPE, movement.get_frame())
-                }
-            },
-            CurrentEvent::Idle(idle) => (idle.animation.type_, idle.animation.get_frame()),
-        };
+        let (animation_type, frame_index) = self.current_event.animation_state();
 
         AnimationData {
             type_: animation_type,
@@ -176,11 +133,6 @@ impl AnimationState {
     }
 
     pub fn total_duration(&self) -> Duration {
-        let current_duration = match &self.current_event {
-            CurrentEvent::Event(event) => event.progress().time_left(),
-            CurrentEvent::Idle(idle) => idle.delay.time_left(),
-        };
-
         let queue_duration = self
             .event_queue
             .iter()
@@ -193,7 +145,7 @@ impl AnimationState {
             })
             .sum();
 
-        current_duration + queue_duration
+        self.current_event.time_left() + queue_duration
     }
 
     pub fn is_animating(&self) -> bool {
