@@ -43,14 +43,3 @@ impl Animation {
         &mut self.progress
     }
 }
-
-impl AsRef<TimeProgress> for Animation {
-    fn as_ref(&self) -> &TimeProgress {
-        self.progress()
-    }
-}
-impl AsMut<TimeProgress> for Animation {
-    fn as_mut(&mut self) -> &mut TimeProgress {
-        self.progress_mut()
-    }
-}

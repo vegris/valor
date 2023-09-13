@@ -80,6 +80,10 @@ impl Movement {
     pub fn progress(&self) -> &TimeProgress {
         &self.progress
     }
+
+    pub fn progress_mut(&mut self) -> &mut TimeProgress {
+        &mut self.progress
+    }
 }
 
 impl Tween {
@@ -106,15 +110,4 @@ fn total_duration(creature: Creature, tweens: &[Tween]) -> Duration {
     };
 
     Duration::from_secs_f32(duration_secs)
-}
-
-impl AsRef<TimeProgress> for Movement {
-    fn as_ref(&self) -> &TimeProgress {
-        self.progress()
-    }
-}
-impl AsMut<TimeProgress> for Movement {
-    fn as_mut(&mut self) -> &mut TimeProgress {
-        &mut self.progress
-    }
 }

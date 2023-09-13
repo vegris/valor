@@ -83,7 +83,7 @@ impl AnimationState {
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
         let current_event_finished = match &self.current_event {
-            CurrentEvent::Event(event) => event.as_ref(),
+            CurrentEvent::Event(event) => event.progress(),
             CurrentEvent::Idle(idle) => &idle.delay,
         }
         .is_finished();
@@ -137,7 +137,7 @@ impl AnimationState {
                     self.position = movement.get_position();
                 }
 
-                let event_progress = event.as_mut();
+                let event_progress = event.progress_mut();
                 if event_progress.is_finished() {
                     let idle = Animation::new(AnimationType::Standing, self.creature, rr);
                     self.current_event = CurrentEvent::Idle(Idle {
@@ -153,7 +153,7 @@ impl AnimationState {
                     idle.delay.update(dt);
                 }
 
-                let idle_progress = idle.animation.as_mut();
+                let idle_progress = idle.animation.progress_mut();
                 if idle_progress.is_finished() {
                     idle_progress.reset();
                 }
@@ -183,7 +183,7 @@ impl AnimationState {
 
     pub fn total_duration(&self) -> Duration {
         let current_duration = match &self.current_event {
-            CurrentEvent::Event(event) => event.as_ref().time_left(),
+            CurrentEvent::Event(event) => event.progress().time_left(),
             CurrentEvent::Idle(idle) => idle.delay.time_left(),
         };
 
@@ -192,7 +192,9 @@ impl AnimationState {
             .iter()
             .map(|event| match event {
                 AnimationEvent::Instant(_) => Duration::ZERO,
-                AnimationEvent::TimeProgress(progress_event) => progress_event.as_ref().time_left(),
+                AnimationEvent::TimeProgress(progress_event) => {
+                    progress_event.progress().time_left()
+                }
                 AnimationEvent::Delay(progress) => progress.time_left(),
             })
             .sum();

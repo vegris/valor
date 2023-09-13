@@ -72,20 +72,18 @@ impl AnimationEvent {
     }
 }
 
-impl AsRef<TimeProgress> for TimeProgressEvent {
-    fn as_ref(&self) -> &TimeProgress {
+impl TimeProgressEvent {
+    pub fn progress(&self) -> &TimeProgress {
         match self {
-            Self::Animation(animation) => animation.as_ref(),
-            Self::Movement(movement) => movement.as_ref(),
+            Self::Animation(animation) => animation.progress(),
+            Self::Movement(movement) => movement.progress(),
         }
     }
-}
 
-impl AsMut<TimeProgress> for TimeProgressEvent {
-    fn as_mut(&mut self) -> &mut TimeProgress {
+    pub fn progress_mut(&mut self) -> &mut TimeProgress {
         match self {
-            Self::Animation(animation) => animation.as_mut(),
-            Self::Movement(movement) => movement.as_mut(),
+            Self::Animation(animation) => animation.progress_mut(),
+            Self::Movement(movement) => movement.progress_mut(),
         }
     }
 }
