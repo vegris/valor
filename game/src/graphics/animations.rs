@@ -82,83 +82,77 @@ impl AnimationState {
     }
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        if let CurrentEvent::Idle(ref mut idle) = self.current_event {
+            let idle_progress = idle.animation.progress_mut();
+            if idle_progress.is_finished() {
+                idle_progress.reset();
+            } else {
+                idle_progress.update(dt);
+            }
+        }
+
         let current_event_finished = match &self.current_event {
             CurrentEvent::Event(event) => event.progress(),
             CurrentEvent::Idle(idle) => &idle.delay,
         }
         .is_finished();
 
-        if current_event_finished {
-            while let Some(event) = self.event_queue.pop_front() {
-                match event {
-                    AnimationEvent::Instant(instant_event) => match instant_event {
-                        InstantEvent::InvertSide => {
-                            self.invert_side = !self.invert_side;
-                        }
-                        InstantEvent::PlaySound(sound) => {
-                            if let Some(chunk) = rr.get_creature_sound(self.creature, sound.type_) {
-                                sound::play_sound(chunk, sound.looping).unwrap();
-                            }
-                        }
-                        InstantEvent::StopSound => {
-                            sound::stop_looping();
-                        }
-                        InstantEvent::Teleport(position) => {
-                            self.position = position.center();
-                        }
-                    },
-                    AnimationEvent::TimeProgress(progress_event) => {
-                        self.current_event = CurrentEvent::Event(progress_event);
-                        break;
+        if !current_event_finished {
+            match self.current_event {
+                CurrentEvent::Event(ref mut event) => {
+                    if let TimeProgressEvent::Movement(movement) = event {
+                        self.position = movement.get_position();
                     }
-                    AnimationEvent::Delay(duration) => {
-                        match self.current_event {
-                            CurrentEvent::Event(_) => {
-                                let idle =
-                                    Animation::new(AnimationType::Standing, self.creature, rr);
-                                self.current_event = CurrentEvent::Idle(Idle {
-                                    animation: idle,
-                                    delay: TimeProgress::new(duration),
-                                });
-                            }
-                            CurrentEvent::Idle(ref mut idle) => {
-                                idle.delay.add(duration);
-                            }
-                        }
-                        break;
+
+                    event.progress_mut().update(dt);
+                }
+                CurrentEvent::Idle(ref mut idle) => {
+                    idle.delay.update(dt);
+                }
+            }
+            return;
+        }
+
+        let (instant_events, time_event) = find_time_progress_event(&mut self.event_queue);
+
+        for event in instant_events.iter() {
+            match event {
+                InstantEvent::InvertSide => {
+                    self.invert_side = !self.invert_side;
+                }
+                InstantEvent::PlaySound(sound) => {
+                    if let Some(chunk) = rr.get_creature_sound(self.creature, sound.type_) {
+                        sound::play_sound(chunk, sound.looping).unwrap();
                     }
+                }
+                InstantEvent::StopSound => {
+                    sound::stop_looping();
+                }
+                InstantEvent::Teleport(position) => {
+                    self.position = position.center();
                 }
             }
         }
 
-        match self.current_event {
-            CurrentEvent::Event(ref mut event) => {
-                if let TimeProgressEvent::Movement(movement) = event {
-                    self.position = movement.get_position();
-                }
-
-                let event_progress = event.progress_mut();
-                if event_progress.is_finished() {
+        if let Some(event) = time_event {
+            match event {
+                TimeEvent::Delay(duration) => {
                     let idle = Animation::new(AnimationType::Standing, self.creature, rr);
                     self.current_event = CurrentEvent::Idle(Idle {
                         animation: idle,
-                        delay: TimeProgress::new(Duration::ZERO),
+                        delay: TimeProgress::new(duration),
                     });
-                } else {
-                    event_progress.update(dt);
+                }
+                TimeEvent::TimeProgress(progress_event) => {
+                    self.current_event = CurrentEvent::Event(progress_event);
                 }
             }
-            CurrentEvent::Idle(ref mut idle) => {
-                if !idle.delay.is_finished() {
-                    idle.delay.update(dt);
-                }
-
-                let idle_progress = idle.animation.progress_mut();
-                if idle_progress.is_finished() {
-                    idle_progress.reset();
-                }
-                idle_progress.update(dt);
-            }
+        } else {
+            let idle = Animation::new(AnimationType::Standing, self.creature, rr);
+            self.current_event = CurrentEvent::Idle(Idle {
+                animation: idle,
+                delay: TimeProgress::new(Duration::ZERO),
+            });
         }
     }
 
@@ -209,4 +203,32 @@ impl AnimationState {
     fn put_event(&mut self, event: AnimationEvent) {
         self.event_queue.push_back(event);
     }
+}
+
+enum TimeEvent {
+    TimeProgress(TimeProgressEvent),
+    Delay(Duration),
+}
+
+fn find_time_progress_event(
+    event_queue: &mut VecDeque<AnimationEvent>,
+) -> (Box<[InstantEvent]>, Option<TimeEvent>) {
+    let mut events = vec![];
+    let mut time_event = None;
+
+    while let Some(event) = event_queue.pop_front() {
+        match event {
+            AnimationEvent::Instant(instant_event) => events.push(instant_event),
+            AnimationEvent::Delay(duration) => {
+                time_event = Some(TimeEvent::Delay(duration));
+                break;
+            }
+            AnimationEvent::TimeProgress(progress_event) => {
+                time_event = Some(TimeEvent::TimeProgress(progress_event));
+                break;
+            }
+        }
+    }
+
+    (events.into_boxed_slice(), time_event)
 }
