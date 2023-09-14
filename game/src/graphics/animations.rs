@@ -22,11 +22,13 @@ mod movement;
 mod time_progress;
 
 use self::current_event::{CurrentEvent, Idle};
-use self::events::{AnimationEvent, InstantEvent, TimeProgressEvent};
+use self::events::{
+    AnimationEvent, AnimationEventByGroup, InstantEvent, TimeEvent, TimeProgressEvent,
+};
 
 pub struct AnimationState {
     creature: Creature,
-    event_queue: VecDeque<AnimationEvent>,
+    event_queue: VecDeque<AnimationEventByGroup>,
     current_event: CurrentEvent,
     invert_side: bool,
     pub position: Point,
@@ -137,11 +139,13 @@ impl AnimationState {
             .event_queue
             .iter()
             .map(|event| match event {
-                AnimationEvent::Instant(_) => Duration::ZERO,
-                AnimationEvent::TimeProgress(progress_event) => {
-                    progress_event.progress().time_left()
-                }
-                AnimationEvent::Delay(duration) => *duration,
+                AnimationEventByGroup::Instant(_) => Duration::ZERO,
+                AnimationEventByGroup::Time(time_event) => match time_event {
+                    TimeEvent::Delay(duration) => *duration,
+                    TimeEvent::TimeProgress(progress_event) => {
+                        progress_event.progress().time_left()
+                    }
+                },
             })
             .sum();
 
@@ -152,35 +156,22 @@ impl AnimationState {
         !self.event_queue.is_empty()
     }
 
-    fn put_event(&mut self, event: AnimationEvent) {
-        self.event_queue.push_back(event);
+    fn push_event(&mut self, event: AnimationEvent) {
+        self.event_queue.push_back(event.into());
     }
-}
-
-enum TimeEvent {
-    TimeProgress(TimeProgressEvent),
-    Delay(Duration),
 }
 
 fn find_time_progress_event(
-    event_queue: &mut VecDeque<AnimationEvent>,
+    event_queue: &mut VecDeque<AnimationEventByGroup>,
 ) -> (Box<[InstantEvent]>, Option<TimeEvent>) {
     let mut events = vec![];
-    let mut time_event = None;
 
     while let Some(event) = event_queue.pop_front() {
         match event {
-            AnimationEvent::Instant(instant_event) => events.push(instant_event),
-            AnimationEvent::Delay(duration) => {
-                time_event = Some(TimeEvent::Delay(duration));
-                break;
-            }
-            AnimationEvent::TimeProgress(progress_event) => {
-                time_event = Some(TimeEvent::TimeProgress(progress_event));
-                break;
-            }
+            AnimationEventByGroup::Instant(instant_event) => events.push(instant_event),
+            AnimationEventByGroup::Time(time_event) => return (events.into(), Some(time_event)),
         }
     }
 
-    (events.into_boxed_slice(), time_event)
+    (events.into(), None)
 }

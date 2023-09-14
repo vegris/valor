@@ -9,7 +9,21 @@ use super::movement::Movement;
 use super::time_progress::TimeProgress;
 
 pub enum AnimationEvent {
+    Animation(Animation),
+    Movement(Movement),
+    Delay(Duration),
+    InvertSide,
+    PlaySound(Sound),
+    StopSound,
+    Teleport(GridPos),
+}
+
+pub enum AnimationEventByGroup {
     Instant(InstantEvent),
+    Time(TimeEvent),
+}
+
+pub enum TimeEvent {
     TimeProgress(TimeProgressEvent),
     Delay(Duration),
 }
@@ -31,44 +45,27 @@ pub struct Sound {
     pub looping: bool,
 }
 
-impl AnimationEvent {
-    pub fn animation(animation: Animation) -> Self {
-        Self::TimeProgress(TimeProgressEvent::Animation(animation))
-    }
-
-    pub fn movement(movement: Movement) -> Self {
-        Self::TimeProgress(TimeProgressEvent::Movement(movement))
-    }
-
-    pub fn delay(duration: Duration) -> Self {
-        Self::Delay(duration)
-    }
-
-    pub fn invert_side() -> Self {
-        Self::Instant(InstantEvent::InvertSide)
-    }
-
-    pub fn play_sound(sound_type: CreatureSound) -> Self {
-        Self::play_sound_internal(sound_type, false)
-    }
-
-    pub fn play_sound_looping(sound_type: CreatureSound) -> Self {
-        Self::play_sound_internal(sound_type, true)
-    }
-
-    fn play_sound_internal(sound_type: CreatureSound, looping: bool) -> Self {
-        Self::Instant(InstantEvent::PlaySound(Sound {
-            type_: sound_type,
-            looping,
-        }))
-    }
-
-    pub fn stop_sound() -> Self {
-        Self::Instant(InstantEvent::StopSound)
-    }
-
-    pub fn teleport(position: GridPos) -> Self {
-        Self::Instant(InstantEvent::Teleport(position))
+impl From<AnimationEvent> for AnimationEventByGroup {
+    fn from(value: AnimationEvent) -> Self {
+        match value {
+            AnimationEvent::Animation(animation) => AnimationEventByGroup::Time(
+                TimeEvent::TimeProgress(TimeProgressEvent::Animation(animation)),
+            ),
+            AnimationEvent::Movement(movement) => AnimationEventByGroup::Time(
+                TimeEvent::TimeProgress(TimeProgressEvent::Movement(movement)),
+            ),
+            AnimationEvent::Delay(duration) => {
+                AnimationEventByGroup::Time(TimeEvent::Delay(duration))
+            }
+            AnimationEvent::InvertSide => AnimationEventByGroup::Instant(InstantEvent::InvertSide),
+            AnimationEvent::PlaySound(sound) => {
+                AnimationEventByGroup::Instant(InstantEvent::PlaySound(sound))
+            }
+            AnimationEvent::StopSound => AnimationEventByGroup::Instant(InstantEvent::StopSound),
+            AnimationEvent::Teleport(position) => {
+                AnimationEventByGroup::Instant(InstantEvent::Teleport(position))
+            }
+        }
     }
 }
 
@@ -85,5 +82,19 @@ impl TimeProgressEvent {
             Self::Animation(animation) => animation.progress_mut(),
             Self::Movement(movement) => movement.progress_mut(),
         }
+    }
+}
+
+impl Sound {
+    pub fn new(type_: CreatureSound) -> Self {
+        Self::_new(type_, false)
+    }
+
+    pub fn new_looping(type_: CreatureSound) -> Self {
+        Self::_new(type_, true)
+    }
+
+    fn _new(type_: CreatureSound, looping: bool) -> Self {
+        Self { type_, looping }
     }
 }

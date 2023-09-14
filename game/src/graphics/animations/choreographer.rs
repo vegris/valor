@@ -13,7 +13,7 @@ use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
 use super::animation::Animation;
-use super::events::AnimationEvent;
+use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
 use super::AnimationState;
 
@@ -107,7 +107,7 @@ pub fn animate_shot(
         rr,
     );
 
-    target.animation.put_event(AnimationEvent::delay(duration));
+    target.animation.push_event(AnimationEvent::Delay(duration));
     animate_get_hit(&mut target, shot.lethal, rr);
 }
 
@@ -123,14 +123,16 @@ pub fn animate_movement(
 
     let mut events = vec![];
 
-    events.push(AnimationEvent::play_sound(CreatureSound::StartMoving));
+    events.push(AnimationEvent::PlaySound(Sound::new(
+        CreatureSound::StartMoving,
+    )));
 
     let animation_type = AnimationType::StartMoving;
     if rr
         .get_creature_spritesheet(creature)
         .has_animation(animation_type)
     {
-        events.push(AnimationEvent::animation(Animation::new(
+        events.push(AnimationEvent::Animation(Animation::new(
             animation_type,
             creature,
             rr,
@@ -138,36 +140,35 @@ pub fn animate_movement(
     }
 
     if creature.is_teleporting() {
-        events.push(AnimationEvent::teleport(*path.last().unwrap()));
+        events.push(AnimationEvent::Teleport(*path.last().unwrap()));
     } else {
         events.extend([
-            AnimationEvent::play_sound_looping(CreatureSound::Move),
-            AnimationEvent::movement(MovementEvent::new(creature, path, rr)),
-            AnimationEvent::stop_sound(),
+            AnimationEvent::PlaySound(Sound::new_looping(CreatureSound::Move)),
+            AnimationEvent::Movement(MovementEvent::new(creature, path, rr)),
+            AnimationEvent::StopSound,
         ]);
     }
 
-    events.push(AnimationEvent::play_sound(CreatureSound::EndMoving));
+    events.push(AnimationEvent::PlaySound(Sound::new(
+        CreatureSound::EndMoving,
+    )));
 
     let animation_type = AnimationType::StopMoving;
     if rr
         .get_creature_spritesheet(creature)
         .has_animation(animation_type)
     {
-        events.push(AnimationEvent::animation(Animation::new(
+        events.push(AnimationEvent::Animation(Animation::new(
             animation_type,
             creature,
             rr,
         )));
     }
 
-    animations
-        .0
-         .0
-        .get_mut(&movement.stack_handle)
-        .unwrap()
-        .event_queue
-        .extend(events);
+    let animation_queue = animations.0 .0.get_mut(&movement.stack_handle).unwrap();
+    for event in events.into_iter() {
+        animation_queue.push_event(event);
+    }
 }
 
 fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {
@@ -178,7 +179,7 @@ fn equalize<const N: usize>(animation_states: [&mut AnimationState; N]) {
         .unwrap_or(Duration::ZERO);
 
     for state in animation_states {
-        state.put_event(AnimationEvent::delay(max_duration - state.total_duration()));
+        state.push_event(AnimationEvent::Delay(max_duration - state.total_duration()));
     }
 }
 
@@ -201,7 +202,7 @@ fn animate_strike(
 
     defender
         .animation
-        .put_event(AnimationEvent::delay(animation_duration / 2));
+        .push_event(AnimationEvent::Delay(animation_duration / 2));
     animate_get_hit(defender, lethal, rr);
 }
 
@@ -224,7 +225,7 @@ fn animate_turning(stack: &mut StackWithAnimation, rr: &mut ResourceRegistry) {
         stack.stack.creature,
         rr,
     );
-    stack.animation.put_event(AnimationEvent::invert_side());
+    stack.animation.push_event(AnimationEvent::InvertSide);
     put_animation_with_sound(
         stack.animation,
         AnimationType::TurnRight,
@@ -266,10 +267,10 @@ fn put_animation_with_sound(
     rr: &mut ResourceRegistry,
 ) {
     if let Some(sound) = sound_for_animation(animation_type) {
-        state.put_event(AnimationEvent::play_sound(sound));
+        state.push_event(AnimationEvent::PlaySound(Sound::new(sound)));
     }
 
-    state.put_event(AnimationEvent::animation(Animation::new(
+    state.push_event(AnimationEvent::Animation(Animation::new(
         animation_type,
         creature,
         rr,
