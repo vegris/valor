@@ -6,7 +6,7 @@ use crate::graphics::creature::{self, AnimationType};
 use crate::registry::ResourceRegistry;
 
 use super::animation::Animation;
-use super::event::TimeProgressEvent;
+use super::events::TimeProgressEvent;
 use super::movement::Movement;
 use super::time_progress::TimeProgress;
 

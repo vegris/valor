@@ -17,12 +17,12 @@ use super::Animations;
 mod animation;
 mod choreographer;
 mod current_event;
-mod event;
+mod events;
 mod movement;
 mod time_progress;
 
 use self::current_event::{CurrentEvent, Idle};
-use self::event::{AnimationEvent, InstantEvent, TimeProgressEvent};
+use self::events::{AnimationEvent, InstantEvent, TimeProgressEvent};
 
 pub struct AnimationState {
     creature: Creature,

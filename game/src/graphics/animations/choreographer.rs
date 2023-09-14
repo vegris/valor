@@ -13,7 +13,7 @@ use crate::registry::ResourceRegistry;
 use crate::stack::Stack;
 
 use super::animation::Animation;
-use super::event::AnimationEvent;
+use super::events::AnimationEvent;
 use super::movement::Movement as MovementEvent;
 use super::AnimationState;
 
