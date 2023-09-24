@@ -69,12 +69,13 @@ pub fn apply(command: Attack, state: &mut BattleState) -> Vec<Event> {
     )
     .unwrap();
 
-    events.extend(r#move::apply(
+    let move_events = r#move::apply(
         Move {
             destination: position,
         },
         state,
-    ));
+    );
+    events.extend(move_events.clone());
 
     let defender_handle = state.find_unit_for_cell(command.attack_position).unwrap();
 
@@ -122,13 +123,23 @@ pub fn apply(command: Attack, state: &mut BattleState) -> Vec<Event> {
     events.push(attack);
 
     if attacker.is_alive() && attacker.creature.has_ability(Ability::ReturnAfterStrike) {
-        // FIXME: Need to recalculate navigation array for correct pathing
-        events.extend(r#move::apply(
-            Move {
-                destination: initial_position,
-            },
-            state,
-        ));
+        // FIXME: Use real movement logic instead
+        let movement = TryInto::<[_; 1]>::try_into(move_events)
+            .ok()
+            .and_then(|[event]| {
+                if let Event::Movement(movement) = event {
+                    Some(movement)
+                } else {
+                    None
+                }
+            });
+
+        if let Some(mut movement) = movement {
+            attacker.head = initial_position;
+
+            movement.path.reverse();
+            events.push(Event::Movement(movement));
+        }
     }
 
     events

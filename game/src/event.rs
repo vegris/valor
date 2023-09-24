@@ -1,33 +1,33 @@
 use crate::{battlestate::StackHandle, grid::GridPos};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Strike {
     pub retaliation: bool,
     pub lethal: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Event {
     Attack(Attack),
     Shot(Shot),
     Movement(Movement),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Attack {
     pub attacker: StackHandle,
     pub defender: StackHandle,
     pub strikes: Vec<Strike>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Shot {
     pub attacker: StackHandle,
     pub target: StackHandle,
     pub lethal: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Movement {
     pub stack_handle: StackHandle,
     pub path: Vec<GridPos>,
