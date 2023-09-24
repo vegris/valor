@@ -26,22 +26,23 @@ pub fn is_applicable(command: Move, state: &BattleState) -> bool {
 }
 
 pub fn apply(command: Move, state: &mut BattleState) -> Vec<Event> {
+    let mut events = vec![];
+
+    if command.destination == state.get_current_stack().head {
+        return events;
+    }
+
     let path = state
         .navigation_array
         .get_shortest_path(command.destination)
         .unwrap();
 
-    let current_stack = state.get_current_stack_mut();
+    state.get_current_stack_mut().head = command.destination;
 
-    current_stack.head = command.destination;
-
-    let mut events = vec![];
-    if !path.is_empty() {
-        events.push(Event::Movement(Movement {
-            stack_handle: state.current_stack,
-            path,
-        }));
-    }
+    events.push(Event::Movement(Movement {
+        stack_handle: state.current_stack,
+        path,
+    }));
 
     events
 }
