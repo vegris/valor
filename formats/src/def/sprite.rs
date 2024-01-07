@@ -22,7 +22,6 @@ struct Header {
     format: Format,
 }
 
-#[derive(Clone, Copy)]
 enum Format {
     Raw,
     Offsets,
@@ -85,18 +84,11 @@ fn parse_header(header_data: &[u8]) -> Header {
 }
 
 fn parse_pixel_data(header: &Header, image_data: &[u8]) -> Box<[u8]> {
-    let Header {
-        height,
-        width,
-        format,
-        ..
-    } = *header;
-
-    let size = (width * height) as usize;
+    let size = (header.width * header.height) as usize;
 
     let mut pixel_data: Vec<u8> = Vec::with_capacity(size);
 
-    match format {
+    match header.format {
         Format::Raw => pixel_data.extend_from_slice(&image_data[..size]),
         Format::Offsets => parse_offsets(header, image_data, &mut pixel_data),
         Format::SegmentedOffsets => parse_segmented_offsets(header, image_data, &mut pixel_data),
