@@ -15,7 +15,7 @@ pub struct Stack {
     pub count: i32,
 
     pub current_health: i32,
-    pub current_ammo: u8,
+    pub current_ammo: i32,
 
     pub head: GridPos,
     pub side: Side,
@@ -31,7 +31,7 @@ impl Stack {
         Stack {
             creature,
             count,
-            current_health: creature.base_stats().health as i32,
+            current_health: creature.base_stats().health,
             current_ammo: creature.base_stats().ammo_capacity,
             head,
             side,
@@ -45,7 +45,7 @@ impl Stack {
         self.creature.base_stats()
     }
 
-    pub fn speed(&self) -> u8 {
+    pub fn speed(&self) -> i32 {
         self.base_stats().speed
     }
 
@@ -81,7 +81,7 @@ impl Stack {
 
         dbg!(self.count);
         dbg!(self.current_health);
-        let creature_health = self.creature.base_stats().health as i32;
+        let creature_health = self.creature.base_stats().health;
 
         let total_health = (self.count - 1) * creature_health + self.current_health - damage;
 

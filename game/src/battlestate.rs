@@ -156,7 +156,7 @@ impl BattleState {
 
             let stack_head = stack.head;
             let is_flying = stack.creature.is_flying();
-            let stack_speed = stack.speed().into();
+            let stack_speed = stack.speed();
 
             let navigation_array = NavigationArray::new(stack_head, self, is_flying);
             let reachable_cells = navigation_array.get_reachable_cells(stack_speed);

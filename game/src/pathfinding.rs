@@ -9,7 +9,7 @@ use crate::grid::{AttackDirection, GridPos};
 #[derive(Clone, Copy, Debug)]
 struct VisitedCell {
     came_from: GridPos,
-    cost_to_here: u32,
+    cost_to_here: i32,
 }
 
 const X_MAX: usize = *GridPos::X_RANGE.end() as usize;
@@ -26,7 +26,7 @@ impl NavigationArray {
         let mut map = Self([None; X_MAX * Y_MAX]);
         map.put_cell(cell, cell, 0);
 
-        let mut to_see: VecDeque<(GridPos, u32)> = VecDeque::new();
+        let mut to_see: VecDeque<(GridPos, i32)> = VecDeque::new();
         to_see.push_back((cell, 0));
 
         while let Some((cell, cost_to_here)) = to_see.pop_front() {
@@ -86,7 +86,7 @@ impl NavigationArray {
         None
     }
 
-    pub fn get_reachable_cells(&self, speed: u32) -> Vec<GridPos> {
+    pub fn get_reachable_cells(&self, speed: i32) -> Vec<GridPos> {
         let mut reachable = vec![];
 
         for x in GridPos::X_RANGE {
@@ -109,7 +109,7 @@ impl NavigationArray {
     fn get_cell(&self, cell: GridPos) -> Option<VisitedCell> {
         self.0[Self::cell_to_index(cell)]
     }
-    fn put_cell(&mut self, cell: GridPos, previous_cell: GridPos, cost_to_here: u32) {
+    fn put_cell(&mut self, cell: GridPos, previous_cell: GridPos, cost_to_here: i32) {
         let visited_cell = VisitedCell {
             came_from: previous_cell,
             cost_to_here,

@@ -68,11 +68,10 @@ fn primary_damage_modifiers(
     defender_hero: Option<&Hero>,
     defender: &Stack,
 ) -> (f32, f32) {
-    let attack = attacker.base_stats().attack as i32 + attacker_hero.map_or(0, |h| h.stats.attack);
+    let attack = attacker.base_stats().attack + attacker_hero.map_or(0, |h| h.stats.attack);
     let attack = attack as f32;
 
-    let defence =
-        defender.base_stats().defence as i32 + defender_hero.map_or(0, |h| h.stats.defence);
+    let defence = defender.base_stats().defence + defender_hero.map_or(0, |h| h.stats.defence);
     let defence = defence as f32;
 
     let defence = if let Some(reduction_percent) = attacker.creature.ignore_defence() {

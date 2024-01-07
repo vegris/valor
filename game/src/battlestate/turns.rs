@@ -18,7 +18,7 @@ pub fn find_active_stack(state: &BattleState) -> Option<StackHandle> {
         })
         .fold(None, |acc, current| {
             // Без max_first тяжко
-            fn key((_, stack): (StackHandle, &Stack)) -> u8 {
+            fn key((_, stack): (StackHandle, &Stack)) -> i32 {
                 stack.speed()
             }
             match acc {

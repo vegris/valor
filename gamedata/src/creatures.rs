@@ -167,13 +167,13 @@ pub enum Creature {
 }
 
 pub struct CreatureStats {
-    pub level: u8,
-    pub attack: u8,
-    pub defence: u8,
+    pub level: i32,
+    pub attack: i32,
+    pub defence: i32,
     pub damage: (i32, i32),
-    pub health: u16,
-    pub speed: u8,
-    pub ammo_capacity: u8,
+    pub health: i32,
+    pub speed: i32,
+    pub ammo_capacity: i32,
 }
 
 type C = Creature;
