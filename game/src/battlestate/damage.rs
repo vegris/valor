@@ -50,8 +50,7 @@ fn base_damage(stack: &Stack) -> i32 {
         return damage_low * stack.count;
     }
 
-    let sum: i32 = Uniform::try_from(damage_low..damage_high)
-        .unwrap()
+    let sum: i32 = Uniform::from(damage_low..damage_high)
         .sample_iter(rand::thread_rng())
         .take(i32::min(stack.count, 10) as usize)
         .sum();

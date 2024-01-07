@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::convert::TryInto;
-use std::ops::Deref;
 
 use crate::Color;
 
@@ -49,7 +48,7 @@ impl Container {
             let sprites = offsets_buf
                 .chunks_exact(4)
                 .map(|chunk| u32::from_ne_bytes(chunk.try_into().unwrap()))
-                .map(|offset| Sprite::from_bytes(bytes.deref(), offset));
+                .map(|offset| Sprite::from_bytes(bytes, offset));
 
             let block = names.clone().collect::<Box<[String]>>();
             blocks2names.insert(block_id, block);
