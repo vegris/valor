@@ -1,4 +1,3 @@
-extern crate serde;
 use serde::Deserialize;
 
 // Придумать человеские имена

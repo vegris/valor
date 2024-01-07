@@ -1563,7 +1563,7 @@ impl Creature {
     }
 
     pub fn is_wide(&self) -> bool {
-        const WIDE_CREATURES: [Creature; 53] = [
+        [
             // Castle
             C::Griffin,
             C::RoyalGriffin,
@@ -1628,12 +1628,12 @@ impl Creature {
             // War Machines
             C::Ballista,
             C::Catapult,
-        ];
-        WIDE_CREATURES.contains(self)
+        ]
+        .contains(self)
     }
 
     pub fn is_flying(&self) -> bool {
-        const FLYING_CREATURES: [Creature; 42] = [
+        [
             // Castle
             C::Griffin,
             C::RoyalGriffin,
@@ -1686,13 +1686,12 @@ impl Creature {
             C::FaerieDragon,
             C::RustDragon,
             C::AzureDragon,
-        ];
-        FLYING_CREATURES.contains(self)
+        ]
+        .contains(self)
     }
 
     pub fn is_teleporting(&self) -> bool {
-        const TELEPORTING_CREATURES: [Creature; 2] = [Creature::Devil, Creature::ArchDevil];
-        TELEPORTING_CREATURES.contains(self)
+        [Creature::Devil, Creature::ArchDevil].contains(self)
     }
 
     pub const fn spritesheet_filename(self) -> &'static str {
