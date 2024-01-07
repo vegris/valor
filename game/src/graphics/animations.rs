@@ -118,7 +118,7 @@ impl AnimationState {
                     self.current_event = CurrentEvent::Event(progress_event);
                 }
             }
-        } else {
+        } else if !matches!(self.current_event, CurrentEvent::Idle(_)) {
             self.current_event = CurrentEvent::Idle(Idle::empty(self.creature, rr));
         }
     }
