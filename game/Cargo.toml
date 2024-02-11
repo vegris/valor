@@ -20,6 +20,7 @@ strum = "0.25"
 strum_macros = "0.25"
 ron = "0.8"
 serde = { version = "1", features = ["derive"] }
+egui = { version = "0.24.1", default-features = false }
 
 formats = { path = "../formats" }
 gamedata = { path = "../gamedata" }

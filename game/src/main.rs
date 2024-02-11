@@ -7,6 +7,7 @@ mod error;
 mod event;
 mod graphics;
 mod grid;
+mod gui;
 mod input;
 mod map;
 mod pathfinding;
@@ -60,6 +61,8 @@ fn main() -> AnyWay {
         sound::setup_music(&mut resource_registry)?;
     }
 
+    let ctx = gui::create_context();
+
     let mut frame_start = Instant::now();
 
     loop {
@@ -67,7 +70,10 @@ fn main() -> AnyWay {
         let dt = now - frame_start;
         frame_start = now;
 
-        let frame_data = input::process(&game_state, &mut event_pump);
+        let frame_input = input::gather_input(&mut event_pump);
+        let frame_data = input::process_input(&game_state, &frame_input);
+
+        let frame_output = gui::create_frame(&ctx, &frame_input);
 
         animations.update(dt, &mut resource_registry);
 

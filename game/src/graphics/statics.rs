@@ -3,7 +3,7 @@ use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
 use strum::{EnumCount, IntoEnumIterator};
-use strum_macros::{EnumCount, EnumIter};
+use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
 use crate::error::AnyHow;
 use crate::registry::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
@@ -96,7 +96,7 @@ impl<'a> Textures<'a> {
     }
 }
 
-#[derive(EnumCount, EnumIter)]
+#[derive(EnumCount, EnumIter, IntoStaticStr)]
 pub enum Buttons {
     Surrender,
     Retreat,
