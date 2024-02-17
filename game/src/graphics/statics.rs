@@ -5,6 +5,8 @@ use sdl2::video::WindowContext;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
+use gamedata::spells::Spell;
+
 use crate::error::AnyHow;
 use crate::registry::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
 use crate::{Config, ResourceRegistry};
@@ -18,6 +20,7 @@ pub struct Statics<'a> {
     pub textures: Textures<'a>,
     pub heroes: [Option<SpriteSheet<AnimationType>>; 2],
     pub ui: UI,
+    pub spells: SpriteGroup<Spell>,
 }
 
 impl<'a> Statics<'a> {
@@ -35,12 +38,15 @@ impl<'a> Statics<'a> {
                 .map(|h| rr.load_spritesheet(h.class().spritesheet_filename()))
         });
 
+        let spells = rr.load_sprite_group(Spell::SPRITESHEET);
+
         Ok(Self {
             cursors: Cursors::load(rr),
             font: ttf_context.load_font(font_path, font_size)?,
             textures: Textures::load(config, rr, tc)?,
             heroes,
             ui: UI::load(rr),
+            spells,
         })
     }
 }
@@ -52,6 +58,7 @@ pub enum StaticTexture {
     StackCountBackground,
     GridCell,
     GridCellShadow,
+    SpellBook,
 }
 
 pub struct Textures<'a>([Texture<'a>; StaticTexture::COUNT]);
@@ -68,6 +75,7 @@ impl<'a> Textures<'a> {
             ("CmNumWin.pcx", false),
             ("CCellGrd.pcx", true),
             ("CCellShd.pcx", true),
+            ("SpelBack.pcx", false),
         ]
         .into_iter()
         .map(|(filename, with_transparency)| {
@@ -96,7 +104,7 @@ impl<'a> Textures<'a> {
     }
 }
 
-#[derive(EnumCount, EnumIter, IntoStaticStr)]
+#[derive(Clone, Copy, EnumCount, EnumIter, IntoStaticStr)]
 pub enum Buttons {
     Surrender,
     Retreat,
@@ -118,6 +126,16 @@ impl Buttons {
             Self::Wait => "icm006.def",
             Self::Defend => "icm007.def",
         }
+    }
+}
+
+impl TryFrom<u64> for Buttons {
+    type Error = &'static str;
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        // TODO: Write a real implementation
+        let index = value.try_into().unwrap();
+        Buttons::iter().nth(index).ok_or("Not in range")
     }
 }
 
@@ -156,5 +174,15 @@ impl UI {
             .unwrap();
 
         Self(buttons)
+    }
+}
+
+impl ContainerType for Spell {
+    const CONTAINER_TYPE: u32 = 71;
+}
+
+impl SpriteGroupType for Spell {
+    fn group_index(&self) -> usize {
+        *self as usize
     }
 }

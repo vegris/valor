@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use egui::TextureId;
 use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
@@ -11,10 +12,11 @@ use crate::command::Command;
 use crate::error::AnyWay;
 use crate::event::Event;
 use crate::grid::GridPos;
+use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::map::Map;
-use crate::pathfinding;
 use crate::registry::ResourceRegistry;
+use crate::{pathfinding, State};
 
 mod animations;
 pub mod creature;
@@ -78,6 +80,8 @@ pub fn draw(
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
+    shapes: Vec<(egui::Rect, TextureId)>,
+    state2: &State,
 ) -> AnyWay {
     draw_battlefield(canvas, statics)?;
 
@@ -98,7 +102,65 @@ pub fn draw(
 
     draw_units(canvas, tc, statics, rr, state, animations)?;
 
-    draw_menu(canvas, tc, statics)?;
+    canvas.copy(
+        statics.textures.get(StaticTexture::MenuBackground),
+        None,
+        Rect::new(1, 555, 800, 44),
+    )?;
+
+    for (rect, texture_id) in shapes.iter() {
+        let texture: Texture = texture_id.clone().try_into().unwrap();
+
+        match texture {
+            Texture::Button(Button(button, _state)) => {
+                let sprite = statics.ui.get(button).get(ButtonState::Base);
+                let texture = sprite.surface.as_texture(tc)?;
+
+                let x = rect.min.x as i32;
+                let y = rect.min.y as i32;
+
+                canvas.copy(&texture, None, Rect::new(x, y, sprite.width, sprite.height))?;
+            }
+            Texture::Spell(_) => {}
+        }
+    }
+
+    if matches!(state2, State::SpellBook) {
+        canvas.copy(
+            statics.textures.get(StaticTexture::SpellBook),
+            None,
+            sdl2::rect::Rect::new(400 - 310, 2, 620, 595),
+        )?;
+    }
+
+    for (rect, texture_id) in shapes {
+        let texture: Texture = texture_id.try_into().unwrap();
+
+        match texture {
+            Texture::Button(_) => {}
+            Texture::Spell(spell) => {
+                let sprite = statics.spells.get(spell);
+                let texture = sprite.surface.as_texture(tc)?;
+
+                let x = rect.min.x as i32;
+                let y = rect.min.y as i32;
+
+                canvas.copy(&texture, None, Rect::new(x, y, sprite.width, sprite.height))?;
+            }
+        }
+    }
+
+    // draw_menu(canvas, tc, statics, shapes)?;
+
+    // let spell_sprite = statics.spells.get(Spell::Armaggedon);
+    //
+    // dbg!(spell_sprite.width, spell_sprite.height);
+    //
+    // canvas.copy(
+    //     &spell_sprite.surface.as_texture(tc)?,
+    //     None,
+    //     sdl2::rect::Rect::new(0, 0, 40, 40),
+    // )?;
 
     Ok(())
 }
@@ -181,6 +243,7 @@ fn draw_menu(
     canvas: &mut WindowCanvas,
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
+    shapes: Vec<(egui::Rect, u64)>,
 ) -> AnyWay {
     canvas.copy(
         statics.textures.get(StaticTexture::MenuBackground),
@@ -188,27 +251,16 @@ fn draw_menu(
         Rect::new(1, 555, 800, 44),
     )?;
 
-    let buttons = [
-        (Buttons::Settings, 4),
-        (Buttons::Surrender, 55),
-        (Buttons::Retreat, 106),
-        (Buttons::AutoBattle, 157),
-        (Buttons::BookOfMagic, 646),
-        (Buttons::Wait, 697),
-        (Buttons::Defend, 748),
-    ];
-
-    for (button, x) in buttons {
+    for (rect, id) in shapes {
+        let button: Buttons = id.try_into().unwrap();
         let sprite = statics.ui.get(button).get(ButtonState::Base);
         let texture = sprite.surface.as_texture(tc)?;
 
-        canvas.copy(
-            &texture,
-            None,
-            Rect::new(x, 560, sprite.width, sprite.height),
-        )?;
-    }
+        let x = rect.min.x as i32;
+        let y = rect.min.y as i32;
 
+        canvas.copy(&texture, None, Rect::new(x, y, sprite.width, sprite.height))?;
+    }
     Ok(())
 }
 

@@ -21,6 +21,11 @@ use error::AnyWay;
 use graphics::{Animations, Statics};
 use registry::ResourceRegistry;
 
+pub enum State {
+    Main,
+    SpellBook,
+}
+
 fn main() -> AnyWay {
     let config = Config::load()?;
 
@@ -65,17 +70,21 @@ fn main() -> AnyWay {
 
     let mut frame_start = Instant::now();
 
+    let mut state = State::Main;
+
     loop {
         let now = Instant::now();
         let dt = now - frame_start;
         frame_start = now;
 
         let frame_input = input::gather_input(&mut event_pump);
-        let frame_data = input::process_input(&game_state, &frame_input);
+        let frame_data = input::process_input(&game_state, &frame_input, &mut state);
 
-        let frame_output = gui::create_frame(&ctx, &frame_input);
+        let full_output = gui::create_frame(&ctx, &frame_input, &mut state);
 
         animations.update(dt, &mut resource_registry);
+
+        let shapes = gui::output_to_shapes(full_output);
 
         canvas.clear();
         graphics::draw(
@@ -86,6 +95,8 @@ fn main() -> AnyWay {
             &mut resource_registry,
             &texture_creator,
             &statics,
+            shapes,
+            &state,
         )?;
 
         canvas.present();

@@ -1,9 +1,9 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
 use crate::battlestate::BattleState;
-use crate::command;
 use crate::command::Command;
 use crate::grid::{AttackDirection, GridPos};
+use crate::{command, State};
 
 #[derive(Default)]
 pub struct FrameInput {
@@ -53,27 +53,44 @@ pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
     frame_input
 }
 
-pub fn process_input(state: &BattleState, frame_input: &FrameInput) -> FrameData {
+pub fn process_input(
+    state: &BattleState,
+    frame_input: &FrameInput,
+    state2: &mut State,
+) -> FrameData {
     if frame_input.quit {
-        std::process::exit(0);
+        match state2 {
+            State::Main => std::process::exit(0),
+            State::SpellBook => *state2 = State::Main,
+        }
     }
 
-    let cursor_pos = frame_input.cursor_position;
-    let current_hover = GridPos::find_pointer_position(cursor_pos.into());
+    match state2 {
+        State::Main => {
+            let cursor_pos = frame_input.cursor_position;
+            let current_hover = GridPos::find_pointer_position(cursor_pos.into());
 
-    let current_stack = state.get_current_stack();
-    let attack_direction = current_hover
-        .map(|cell| cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature));
+            let current_stack = state.get_current_stack();
+            let attack_direction = current_hover.map(|cell| {
+                cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature)
+            });
 
-    let potential_lmb_command =
-        construct_potential_lmb_command(state, current_hover, attack_direction);
+            let potential_lmb_command =
+                construct_potential_lmb_command(state, current_hover, attack_direction);
 
-    let command = construct_command(frame_input, potential_lmb_command);
+            let command = construct_command(frame_input, potential_lmb_command);
 
-    FrameData {
-        current_hover,
-        potential_lmb_command,
-        command,
+            FrameData {
+                current_hover,
+                potential_lmb_command,
+                command,
+            }
+        }
+        State::SpellBook => FrameData {
+            current_hover: None,
+            potential_lmb_command: None,
+            command: None,
+        },
     }
 }
 
