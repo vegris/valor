@@ -7,7 +7,7 @@ use egui::{
 };
 use gamedata::spells::Spell;
 
-use crate::{graphics::statics::Buttons, input::FrameInput, State};
+use crate::{command::Cast, graphics::statics::Buttons, input::FrameInput, State};
 
 use self::textures::Button;
 
@@ -15,7 +15,12 @@ pub fn create_context() -> Context {
     Context::default()
 }
 
-pub fn create_frame(ctx: &Context, input: &FrameInput, state: &mut State) -> FullOutput {
+pub fn create_frame(
+    ctx: &Context,
+    input: &FrameInput,
+    state: &mut State,
+    cast: &mut Option<Cast>,
+) -> FullOutput {
     let raw_input = raw_input_from_frame_input(input);
 
     ctx.run(raw_input, |ctx| {
@@ -26,7 +31,7 @@ pub fn create_frame(ctx: &Context, input: &FrameInput, state: &mut State) -> Ful
         if matches!(state, State::SpellBook) {
             egui::Area::new("spellbook")
                 .fixed_pos((400. - 310., 0.))
-                .show(ctx, |ui| spell_book(ui, state));
+                .show(ctx, |ui| spell_book(ui, state, cast));
         }
     })
 }
@@ -93,7 +98,7 @@ fn menu(ui: &mut Ui, state: &mut State) {
     }
 }
 
-fn spell_book(ui: &mut Ui, state: &mut State) {
+fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
     let texture_id = textures::convert_spell(Spell::Armaggedon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
@@ -106,6 +111,10 @@ fn spell_book(ui: &mut Ui, state: &mut State) {
     if ui.put(rect, button).clicked() {
         dbg!("ARMAGEDDON!!!");
         *state = State::Main;
+        *command = Some(Cast {
+            spell: Spell::Armaggedon,
+            target: None,
+        });
     }
 
     let texture_id = textures::convert_spell(Spell::Armaggedon);

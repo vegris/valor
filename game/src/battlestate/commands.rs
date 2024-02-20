@@ -4,6 +4,7 @@ use crate::event::Event;
 use super::BattleState;
 
 mod attack;
+mod cast;
 mod defend;
 mod r#move;
 mod shoot;
@@ -16,6 +17,7 @@ pub fn is_applicable(state: &BattleState, command: Command) -> bool {
         Command::Move(command) => r#move::is_applicable(command, state),
         Command::Attack(command) => attack::is_applicable(command, state),
         Command::Shoot(command) => shoot::is_applicable(command, state),
+        Command::Cast(command) => cast::is_applicable(command, state),
     }
 }
 
@@ -26,5 +28,6 @@ pub fn apply(state: &mut BattleState, command: Command) -> Vec<Event> {
         Command::Move(command) => r#move::apply(command, state),
         Command::Attack(command) => attack::apply(command, state),
         Command::Shoot(command) => shoot::apply(command, state),
+        Command::Cast(command) => cast::apply(command, state),
     }
 }

@@ -78,9 +78,11 @@ fn main() -> AnyWay {
         frame_start = now;
 
         let frame_input = input::gather_input(&mut event_pump);
-        let frame_data = input::process_input(&game_state, &frame_input, &mut state);
 
-        let full_output = gui::create_frame(&ctx, &frame_input, &mut state);
+        let mut cast = None;
+        let full_output = gui::create_frame(&ctx, &frame_input, &mut state, &mut cast);
+
+        let frame_data = input::process_input(&game_state, &frame_input, &mut state, cast);
 
         animations.update(dt, &mut resource_registry);
 

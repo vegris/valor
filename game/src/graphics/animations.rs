@@ -53,6 +53,10 @@ pub fn process_event(
         Event::Movement(movement) => {
             choreographer::animate_movement(movement, state, animations, rr)
         }
+        Event::Cast(_cast) => {
+            // TODO: implement
+            // choreographer::animate_cast(cast, state, animations, other_animations, rr)
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use gamedata::spells::SpellAnimation;
 use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 use strum::IntoEnumIterator;
@@ -8,16 +9,21 @@ use formats::lod::LodIndex;
 use formats::snd::SndIndex;
 use gamedata::creatures::sounds::CreatureSound;
 use gamedata::creatures::Creature;
+use strum_macros::{EnumCount, EnumIter};
 
 use crate::error::AnyHow;
 
 mod creature_resources;
 pub mod images;
+mod spells_cache;
 pub mod spritesheets;
 
 use self::creature_resources::{CreatureResources, CreaturesCache};
 use self::images::{PaletteImage, StaticImage};
-use self::spritesheets::{SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetType};
+use self::spells_cache::SpellsCache;
+use self::spritesheets::{
+    ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetType,
+};
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -28,6 +34,7 @@ pub struct ResourceRegistry {
     def_archive: LodIndex,
     snd_archive: SndIndex,
     creatures_cache: CreaturesCache,
+    spells_cache: SpellsCache,
 }
 
 impl ResourceRegistry {
@@ -41,6 +48,7 @@ impl ResourceRegistry {
             def_archive,
             snd_archive,
             creatures_cache: CreaturesCache::new(),
+            spells_cache: SpellsCache::new(),
         }
     }
 
@@ -113,5 +121,34 @@ impl ResourceRegistry {
             .unwrap();
 
         CreatureResources::new(spritesheet, sounds)
+    }
+
+    pub fn get_spell_animation(
+        &mut self,
+        spell_animation: SpellAnimation,
+    ) -> &SpriteSheet<SpellAnimationType> {
+        if self.spells_cache.get(spell_animation).is_none() {
+            let spritesheet = self.load_spritesheet(spell_animation.spritesheet());
+            self.spells_cache.put(spell_animation, spritesheet);
+        }
+        self.spells_cache.get(spell_animation).unwrap()
+    }
+}
+
+#[derive(Clone, Copy, EnumCount, EnumIter)]
+pub enum SpellAnimationType {
+    Casting,
+}
+
+impl ContainerType for SpellAnimationType {
+    const CONTAINER_TYPE: u32 = 64;
+}
+impl SpriteSheetType for SpellAnimationType {
+    fn block_index(&self) -> usize {
+        *self as usize
+    }
+
+    fn container_index(&self) -> u32 {
+        0
     }
 }

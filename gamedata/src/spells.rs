@@ -1,6 +1,6 @@
-use strum_macros::EnumCount;
+use strum_macros::{EnumCount, EnumIter};
 
-#[derive(Clone, Copy, PartialEq, EnumCount)]
+#[derive(Clone, Copy, Debug, PartialEq, EnumCount)]
 pub enum Spell {
     CallShip,
     DestroyShip,
@@ -120,6 +120,19 @@ impl SpellSchool {
             Self::Earth => "SpLevE.def",
             Self::Fire => "SpLevF.def",
             Self::Water => "SpLevW.def",
+        }
+    }
+}
+
+#[derive(Clone, Copy, EnumCount, EnumIter)]
+pub enum SpellAnimation {
+    Armageddon,
+}
+
+impl SpellAnimation {
+    pub const fn spritesheet(self) -> &'static str {
+        match self {
+            Self::Armageddon => "C06SPF0.def",
         }
     }
 }

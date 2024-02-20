@@ -15,7 +15,7 @@ use crate::grid::GridPos;
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::map::Map;
-use crate::registry::ResourceRegistry;
+use crate::registry::{ResourceRegistry, SpellAnimationType};
 use crate::{pathfinding, State};
 
 mod animations;
@@ -102,6 +102,29 @@ pub fn draw(
 
     draw_units(canvas, tc, statics, rr, state, animations)?;
 
+    let spell_animation = rr.get_spell_animation(gamedata::spells::SpellAnimation::Armageddon);
+
+    let sprite = spell_animation
+        .get_sprite(SpellAnimationType::Casting, 5)
+        .unwrap();
+    let texture = sprite.surface.as_texture(tc)?;
+
+    // Draw armageddon
+    // for row in 0..4 {
+    //     for column in 0..3 {
+    //         canvas.copy(
+    //             &texture,
+    //             None,
+    //             Rect::new(
+    //                 sprite.width as i32 * row,
+    //                 sprite.height as i32 * column,
+    //                 sprite.width,
+    //                 sprite.height,
+    //             ),
+    //         )?;
+    //     }
+    // }
+
     canvas.copy(
         statics.textures.get(StaticTexture::MenuBackground),
         None,
@@ -109,7 +132,7 @@ pub fn draw(
     )?;
 
     for (rect, texture_id) in shapes.iter() {
-        let texture: Texture = texture_id.clone().try_into().unwrap();
+        let texture: Texture = (*texture_id).try_into().unwrap();
 
         match texture {
             Texture::Button(Button(button, _state)) => {
@@ -149,18 +172,6 @@ pub fn draw(
             }
         }
     }
-
-    // draw_menu(canvas, tc, statics, shapes)?;
-
-    // let spell_sprite = statics.spells.get(Spell::Armaggedon);
-    //
-    // dbg!(spell_sprite.width, spell_sprite.height);
-    //
-    // canvas.copy(
-    //     &spell_sprite.surface.as_texture(tc)?,
-    //     None,
-    //     sdl2::rect::Rect::new(0, 0, 40, 40),
-    // )?;
 
     Ok(())
 }

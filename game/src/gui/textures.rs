@@ -64,9 +64,9 @@ impl TryFrom<TextureId> for Texture {
 
 pub struct Button(pub Buttons, pub ButtonState);
 
-impl Into<TextureId> for Button {
-    fn into(self) -> TextureId {
-        let value = (self.0, self.1);
+impl From<Button> for TextureId {
+    fn from(val: Button) -> Self {
+        let value = (val.0, val.1);
 
         let texture_id = match value {
             (Buttons::Surrender, ButtonState::Base) => 0,

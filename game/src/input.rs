@@ -1,7 +1,7 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
 use crate::battlestate::BattleState;
-use crate::command::Command;
+use crate::command::{Cast, Command};
 use crate::grid::{AttackDirection, GridPos};
 use crate::{command, State};
 
@@ -57,6 +57,7 @@ pub fn process_input(
     state: &BattleState,
     frame_input: &FrameInput,
     state2: &mut State,
+    cast: Option<Cast>,
 ) -> FrameData {
     if frame_input.quit {
         match state2 {
@@ -78,7 +79,9 @@ pub fn process_input(
             let potential_lmb_command =
                 construct_potential_lmb_command(state, current_hover, attack_direction);
 
-            let command = construct_command(frame_input, potential_lmb_command);
+            let command = cast
+                .map(Command::Cast)
+                .or_else(|| construct_command(frame_input, potential_lmb_command));
 
             FrameData {
                 current_hover,

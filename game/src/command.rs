@@ -1,3 +1,4 @@
+use gamedata::spells::Spell;
 use strum_macros::EnumDiscriminants;
 
 use super::battlestate::StackHandle;
@@ -11,6 +12,7 @@ pub enum Command {
     Defend,
     Attack(Attack),
     Shoot(Shoot),
+    Cast(Cast),
 }
 
 impl Command {
@@ -44,4 +46,10 @@ pub struct Attack {
 #[derive(Clone, Copy, Debug)]
 pub struct Shoot {
     pub target: StackHandle,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct Cast {
+    pub spell: Spell,
+    pub target: Option<GridPos>,
 }
