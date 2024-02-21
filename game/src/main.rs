@@ -18,7 +18,7 @@ mod stack;
 use battlestate::BattleState;
 use config::Config;
 use error::AnyWay;
-use graphics::{Animations, Statics};
+use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
 use registry::ResourceRegistry;
 
 pub enum State {
@@ -62,6 +62,8 @@ fn main() -> AnyWay {
 
     let mut animations = Animations::create(&game_state, &mut resource_registry);
 
+    let mut entity_animations = EntityAnimations::new();
+
     if config.music {
         sound::setup_music(&mut resource_registry)?;
     }
@@ -85,6 +87,7 @@ fn main() -> AnyWay {
         let frame_data = input::process_input(&game_state, &frame_input, &mut state, cast);
 
         animations.update(dt, &mut resource_registry);
+        entity_animations.update(dt, &mut resource_registry);
 
         let shapes = gui::output_to_shapes(full_output);
 
@@ -93,6 +96,7 @@ fn main() -> AnyWay {
             &game_state,
             &frame_data,
             &animations,
+            &entity_animations,
             &mut canvas,
             &mut resource_registry,
             &texture_creator,
@@ -111,6 +115,7 @@ fn main() -> AnyWay {
                     &game_state,
                     events,
                     &mut animations,
+                    &mut entity_animations,
                     &mut resource_registry,
                 );
             }

@@ -18,7 +18,7 @@ use crate::map::Map;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
 use crate::{pathfinding, State};
 
-mod animations;
+pub mod animations;
 pub mod creature;
 mod cursors;
 mod hero;
@@ -28,9 +28,10 @@ pub mod statics;
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
+use self::animations::entity_animations::{EntityAnimations};
 use self::statics::{ButtonState, Buttons, StaticTexture};
 
-use self::animations::AnimationState;
+use self::animations::{AnimationState};
 
 pub struct Animations(Map<StackHandle, AnimationState>);
 
@@ -65,10 +66,11 @@ pub fn process_events(
     state: &BattleState,
     events: Vec<Event>,
     animations: &mut Animations,
+    entity_animations: &mut EntityAnimations,
     rr: &mut ResourceRegistry,
 ) {
     for event in events {
-        animations::process_event(state, event, animations, rr);
+        animations::process_event(state, event, animations, entity_animations, rr);
     }
 }
 
@@ -76,6 +78,7 @@ pub fn draw(
     state: &BattleState,
     frame_data: &FrameData,
     animations: &Animations,
+    entity_animations: &EntityAnimations,
     canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
     tc: &TextureCreator<WindowContext>,
@@ -102,12 +105,32 @@ pub fn draw(
 
     draw_units(canvas, tc, statics, rr, state, animations)?;
 
+    let r#type = SpellAnimationType::Casting;
+    for animation in entity_animations.0.iter() {
+        let spell_animation = rr.get_spell_animation(animation.spell_animation);
+        let frame =
+            spell_animation.frames_count(r#type).unwrap() as f32 * animation.progress.progress();
+        let frame = frame as usize;
+        let sprite = spell_animation.get_sprite(r#type, frame).unwrap();
+        let texture = sprite.surface.as_texture(tc)?;
+
+        canvas.copy(
+            &texture,
+            None,
+            Rect::new(
+                animation.position.0,
+                animation.position.1,
+                sprite.width,
+                sprite.height,
+            ),
+        )?;
+    }
     let spell_animation = rr.get_spell_animation(gamedata::spells::SpellAnimation::Armageddon);
 
     let sprite = spell_animation
         .get_sprite(SpellAnimationType::Casting, 5)
         .unwrap();
-    let texture = sprite.surface.as_texture(tc)?;
+    let _texture = sprite.surface.as_texture(tc)?;
 
     // Draw armageddon
     // for row in 0..4 {

@@ -3,19 +3,22 @@ use std::time::Duration;
 
 use gamedata::creatures::sounds::CreatureSound;
 use gamedata::creatures::Creature;
+use gamedata::spells::{Spell, SpellAnimation};
 
 use crate::battlestate::{BattleState, Side, StackHandle};
-use crate::event::{Attack, Movement, Shot};
+use crate::event::{Attack, Cast, Movement, Shot};
 use crate::graphics::creature::AnimationType;
 use crate::graphics::Animations;
 use crate::grid::GridPos;
-use crate::registry::ResourceRegistry;
+use crate::registry::{ResourceRegistry, SpellAnimationType};
 use crate::stack::Stack;
 
 use super::animation::Animation;
+use super::entity_animations::{EntityAnimation, EntityAnimations};
 use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
-use super::AnimationState;
+use super::time_progress::TimeProgress;
+use super::{AnimationState};
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,
@@ -168,6 +171,32 @@ pub fn animate_movement(
     let animation_queue = animations.0 .0.get_mut(&movement.stack_handle).unwrap();
     for event in events.into_iter() {
         animation_queue.push_event(event);
+    }
+}
+
+pub fn animate_cast(
+    cast: Cast,
+    _state: &BattleState,
+    _animations: &mut Animations,
+    entity_animations: &mut EntityAnimations,
+    rr: &mut ResourceRegistry,
+) {
+    if cast.spell == Spell::Armaggedon {
+        let sprite = rr
+            .get_spell_animation(SpellAnimation::Armageddon)
+            .get_sprite(SpellAnimationType::Casting, 0)
+            .unwrap();
+
+        for row in 0..4 {
+            for column in 0..3 {
+                let animation = EntityAnimation {
+                    position: (sprite.width as i32 * row, sprite.height as i32 * column),
+                    progress: TimeProgress::new(Duration::from_secs(1)),
+                    spell_animation: SpellAnimation::Armageddon,
+                };
+                entity_animations.push(animation);
+            }
+        }
     }
 }
 

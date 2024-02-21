@@ -17,11 +17,13 @@ use super::Animations;
 mod animation;
 mod choreographer;
 mod current_event;
+pub mod entity_animations;
 mod events;
 mod movement;
 mod time_progress;
 
 use self::current_event::{CurrentEvent, Idle};
+use self::entity_animations::EntityAnimations;
 use self::events::{
     AnimationEvent, AnimationEventByGroup, InstantEvent, TimeEvent, TimeProgressEvent,
 };
@@ -45,6 +47,7 @@ pub fn process_event(
     state: &BattleState,
     event: Event,
     animations: &mut Animations,
+    entity_animations: &mut EntityAnimations,
     rr: &mut ResourceRegistry,
 ) {
     match event {
@@ -53,9 +56,8 @@ pub fn process_event(
         Event::Movement(movement) => {
             choreographer::animate_movement(movement, state, animations, rr)
         }
-        Event::Cast(_cast) => {
-            // TODO: implement
-            // choreographer::animate_cast(cast, state, animations, other_animations, rr)
+        Event::Cast(cast) => {
+            choreographer::animate_cast(cast, state, animations, entity_animations, rr)
         }
     }
 }
