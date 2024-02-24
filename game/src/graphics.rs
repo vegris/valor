@@ -132,26 +132,10 @@ pub fn draw(
         .unwrap();
     let _texture = sprite.surface.as_texture(tc)?;
 
-    // Draw armageddon
-    // for row in 0..4 {
-    //     for column in 0..3 {
-    //         canvas.copy(
-    //             &texture,
-    //             None,
-    //             Rect::new(
-    //                 sprite.width as i32 * row,
-    //                 sprite.height as i32 * column,
-    //                 sprite.width,
-    //                 sprite.height,
-    //             ),
-    //         )?;
-    //     }
-    // }
-
     canvas.copy(
         statics.textures.get(StaticTexture::MenuBackground),
         None,
-        Rect::new(1, 555, 800, 44),
+        Rect::new(0, 556, 800, 44),
     )?;
 
     for (rect, texture_id) in shapes.iter() {
@@ -270,31 +254,6 @@ fn draw_units(
         stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
     }
 
-    Ok(())
-}
-
-fn draw_menu(
-    canvas: &mut WindowCanvas,
-    tc: &TextureCreator<WindowContext>,
-    statics: &Statics,
-    shapes: Vec<(egui::Rect, u64)>,
-) -> AnyWay {
-    canvas.copy(
-        statics.textures.get(StaticTexture::MenuBackground),
-        None,
-        Rect::new(1, 555, 800, 44),
-    )?;
-
-    for (rect, id) in shapes {
-        let button: Buttons = id.try_into().unwrap();
-        let sprite = statics.ui.get(button).get(ButtonState::Base);
-        let texture = sprite.surface.as_texture(tc)?;
-
-        let x = rect.min.x as i32;
-        let y = rect.min.y as i32;
-
-        canvas.copy(&texture, None, Rect::new(x, y, sprite.width, sprite.height))?;
-    }
     Ok(())
 }
 

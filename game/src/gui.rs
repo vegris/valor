@@ -25,7 +25,7 @@ pub fn create_frame(
 
     ctx.run(raw_input, |ctx| {
         egui::Area::new("menu")
-            .fixed_pos((1., 555.))
+            .fixed_pos((0., 556.))
             .show(ctx, |ui| menu(ui, state));
 
         if matches!(state, State::SpellBook) {
@@ -67,13 +67,13 @@ pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, TextureId)> {
 
 fn menu(ui: &mut Ui, state: &mut State) {
     let buttons = [
-        (Buttons::Settings, 4),
-        (Buttons::Surrender, 55),
-        (Buttons::Retreat, 106),
-        (Buttons::AutoBattle, 157),
-        (Buttons::BookOfMagic, 646),
-        (Buttons::Wait, 697),
-        (Buttons::Defend, 748),
+        (Buttons::Settings, 3),
+        (Buttons::Surrender, 54),
+        (Buttons::Retreat, 105),
+        (Buttons::AutoBattle, 156),
+        (Buttons::BookOfMagic, 645),
+        (Buttons::Wait, 696),
+        (Buttons::Defend, 747),
     ];
 
     for (b, x) in buttons.into_iter() {
@@ -84,8 +84,8 @@ fn menu(ui: &mut Ui, state: &mut State) {
 
         let button = egui::Button::image(image).frame(false);
         let rect = egui::Rect::from_two_pos(
-            (x as f32, 555.).into(),
-            ((x + 48) as f32, 555. + 44.).into(),
+            (x as f32, 557.).into(),
+            ((x + 48) as f32, 557. + 44.).into(),
         );
         if ui.put(rect, button).clicked() {
             let name: &'static str = b.into();
@@ -99,92 +99,34 @@ fn menu(ui: &mut Ui, state: &mut State) {
 }
 
 fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
-    let texture_id = textures::convert_spell(Spell::Armageddon);
-    let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
-    let image = egui::widgets::Image::from_texture(texture);
-    let button = egui::Button::image(image).frame(false);
+    let x_start = 210.;
+    let y_start = 110.;
 
-    let x_pos = 210.;
-    let y_pos = 110.;
+    let x_change = 80.;
+    let y_change = 100.;
 
-    let rect = egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
-    if ui.put(rect, button).clicked() {
-        dbg!("ARMAGEDDON!!!");
-        *state = State::Main;
-        *command = Some(Cast {
-            spell: Spell::Armageddon,
-            target: None,
-        });
-    }
+    for x in 0..2 {
+        for y in 0..3 {
+            let x_pos = x_start + x_change * x as f32;
+            let y_pos = y_start + y_change * y as f32;
 
-    let texture_id = textures::convert_spell(Spell::Armageddon);
-    let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
-    let image = egui::widgets::Image::from_texture(texture);
-    let button = egui::Button::image(image).frame(false);
+            let rect =
+                egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
 
-    let x_pos = 290.;
-    let y_pos = 110.;
+            let texture_id = textures::convert_spell(Spell::Armageddon);
+            let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
+            let image = egui::widgets::Image::from_texture(texture);
+            let button = egui::Button::image(image).frame(false);
 
-    let rect = egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
-    if ui.put(rect, button).clicked() {
-        dbg!("ARMAGEDDON!!!");
-        *state = State::Main;
-    }
-
-    let texture_id = textures::convert_spell(Spell::Armageddon);
-    let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
-    let image = egui::widgets::Image::from_texture(texture);
-    let button = egui::Button::image(image).frame(false);
-
-    let x_pos = 210.;
-    let y_pos = 210.;
-
-    let rect = egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
-    if ui.put(rect, button).clicked() {
-        dbg!("ARMAGEDDON!!!");
-        *state = State::Main;
-    }
-
-    let texture_id = textures::convert_spell(Spell::Armageddon);
-    let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
-    let image = egui::widgets::Image::from_texture(texture);
-    let button = egui::Button::image(image).frame(false);
-
-    let x_pos = 290.;
-    let y_pos = 210.;
-
-    let rect = egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
-    if ui.put(rect, button).clicked() {
-        dbg!("ARMAGEDDON!!!");
-        *state = State::Main;
-    }
-
-    let texture_id = textures::convert_spell(Spell::Armageddon);
-    let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
-    let image = egui::widgets::Image::from_texture(texture);
-    let button = egui::Button::image(image).frame(false);
-
-    let x_pos = 210.;
-    let y_pos = 310.;
-
-    let rect = egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
-    if ui.put(rect, button).clicked() {
-        dbg!("ARMAGEDDON!!!");
-        *state = State::Main;
-    }
-
-    let texture_id = textures::convert_spell(Spell::Armageddon);
-    let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
-    let image = egui::widgets::Image::from_texture(texture);
-    let button = egui::Button::image(image).frame(false);
-
-    let x_pos = 290.;
-    let y_pos = 310.;
-
-    let rect = egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
-    if ui.put(rect, button).clicked() {
-        dbg!("ARMAGEDDON!!!");
-        *state = State::Main;
+            if ui.put(rect, button).clicked() {
+                dbg!("ARMAGEDDON!!!");
+                *state = State::Main;
+                *command = Some(Cast {
+                    spell: Spell::Armageddon,
+                    target: None,
+                });
+            }
+        }
     }
 }
 
