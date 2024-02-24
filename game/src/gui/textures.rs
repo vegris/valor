@@ -51,7 +51,7 @@ impl TryFrom<TextureId> for Texture {
                     62 => Self::Button(Button(Buttons::Defend, ButtonState::Disabled)),
                     63 => Self::Button(Button(Buttons::Defend, ButtonState::Hovered)),
 
-                    100 => Self::Spell(Spell::Armaggedon),
+                    100 => Self::Spell(Spell::Armageddon),
 
                     _ => return Err("TextureId is out of range"),
                 };
@@ -111,7 +111,7 @@ impl From<Button> for TextureId {
 
 pub fn convert_spell(spell: Spell) -> TextureId {
     let texture_id = match spell {
-        Spell::Armaggedon => 100,
+        Spell::Armageddon => 100,
         _ => todo!(),
     };
     TextureId::User(texture_id)

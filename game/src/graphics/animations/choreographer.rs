@@ -18,7 +18,7 @@ use super::entity_animations::{EntityAnimation, EntityAnimations};
 use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
 use super::time_progress::TimeProgress;
-use super::{AnimationState};
+use super::AnimationState;
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,
@@ -181,7 +181,7 @@ pub fn animate_cast(
     entity_animations: &mut EntityAnimations,
     rr: &mut ResourceRegistry,
 ) {
-    if cast.spell == Spell::Armaggedon {
+    if cast.spell == Spell::Armageddon {
         let sprite = rr
             .get_spell_animation(SpellAnimation::Armageddon)
             .get_sprite(SpellAnimationType::Casting, 0)

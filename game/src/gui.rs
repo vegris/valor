@@ -99,7 +99,7 @@ fn menu(ui: &mut Ui, state: &mut State) {
 }
 
 fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
-    let texture_id = textures::convert_spell(Spell::Armaggedon);
+    let texture_id = textures::convert_spell(Spell::Armageddon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
     let button = egui::Button::image(image).frame(false);
@@ -112,12 +112,12 @@ fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
         dbg!("ARMAGEDDON!!!");
         *state = State::Main;
         *command = Some(Cast {
-            spell: Spell::Armaggedon,
+            spell: Spell::Armageddon,
             target: None,
         });
     }
 
-    let texture_id = textures::convert_spell(Spell::Armaggedon);
+    let texture_id = textures::convert_spell(Spell::Armageddon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
     let button = egui::Button::image(image).frame(false);
@@ -131,7 +131,7 @@ fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
         *state = State::Main;
     }
 
-    let texture_id = textures::convert_spell(Spell::Armaggedon);
+    let texture_id = textures::convert_spell(Spell::Armageddon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
     let button = egui::Button::image(image).frame(false);
@@ -145,7 +145,7 @@ fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
         *state = State::Main;
     }
 
-    let texture_id = textures::convert_spell(Spell::Armaggedon);
+    let texture_id = textures::convert_spell(Spell::Armageddon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
     let button = egui::Button::image(image).frame(false);
@@ -159,7 +159,7 @@ fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
         *state = State::Main;
     }
 
-    let texture_id = textures::convert_spell(Spell::Armaggedon);
+    let texture_id = textures::convert_spell(Spell::Armageddon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
     let button = egui::Button::image(image).frame(false);
@@ -173,7 +173,7 @@ fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
         *state = State::Main;
     }
 
-    let texture_id = textures::convert_spell(Spell::Armaggedon);
+    let texture_id = textures::convert_spell(Spell::Armageddon);
     let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
     let image = egui::widgets::Image::from_texture(texture);
     let button = egui::Button::image(image).frame(false);

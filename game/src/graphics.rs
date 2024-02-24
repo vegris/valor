@@ -28,10 +28,10 @@ pub mod statics;
 use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
-use self::animations::entity_animations::{EntityAnimations};
+use self::animations::entity_animations::EntityAnimations;
 use self::statics::{ButtonState, Buttons, StaticTexture};
 
-use self::animations::{AnimationState};
+use self::animations::AnimationState;
 
 pub struct Animations(Map<StackHandle, AnimationState>);
 
