@@ -76,7 +76,7 @@ fn start_sound() -> String {
 }
 
 fn music_track() -> PathBuf {
-    const MUSIC_PATH: &str = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM 3 Complete/Mp3";
+    const MUSIC_PATH: &str = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM3/Mp3";
     const MUSIC_TRACK_COUNT: usize = 4;
 
     let track_name = (1..=MUSIC_TRACK_COUNT)
