@@ -1,5 +1,7 @@
 use strum_macros::{EnumCount, EnumIter};
 
+use crate::heroes::abilities::Level;
+
 #[derive(Clone, Copy, Debug, PartialEq, EnumCount)]
 pub enum Spell {
     SummonBoat,
@@ -268,6 +270,221 @@ impl Spell {
             Self::SummonBoat => SpellLevel::First,
             Self::ScuttleBoat => SpellLevel::Second,
             Self::WaterWalk => SpellLevel::Fourth,
+        }
+    }
+
+    pub const fn cost(self, school_level: Option<Level>) -> i32 {
+        match (self, school_level) {
+            (Spell::MagicArrow, None | Some(Level::Basic)) => 5,
+            (Spell::MagicArrow, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::LightningBolt, None | Some(Level::Basic)) => 10,
+            (Spell::LightningBolt, Some(Level::Advanced | Level::Expert)) => 8,
+
+            (Spell::DestroyUndead, None | Some(Level::Basic)) => 15,
+            (Spell::DestroyUndead, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::ChainLightning, None | Some(Level::Basic)) => 24,
+            (Spell::ChainLightning, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::TitanLightningBolt, _) => 0,
+
+            (Spell::DeathRipple, None | Some(Level::Basic)) => 10,
+            (Spell::DeathRipple, Some(Level::Advanced | Level::Expert)) => 8,
+
+            (Spell::MeteorShower, None | Some(Level::Basic)) => 16,
+            (Spell::MeteorShower, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::Implosion, None | Some(Level::Basic)) => 25,
+            (Spell::Implosion, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::FireWall, None | Some(Level::Basic)) => 8,
+            (Spell::FireWall, Some(Level::Advanced | Level::Expert)) => 6,
+
+            (Spell::Fireball, None | Some(Level::Basic)) => 15,
+            (Spell::Fireball, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::LandMine, None | Some(Level::Basic)) => 18,
+            (Spell::LandMine, Some(Level::Advanced | Level::Expert)) => 15,
+
+            (Spell::Armageddon, None | Some(Level::Basic)) => 24,
+            (Spell::Armageddon, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Inferno, None | Some(Level::Basic)) => 16,
+            (Spell::Inferno, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::IceBolt, None | Some(Level::Basic)) => 8,
+            (Spell::IceBolt, Some(Level::Advanced | Level::Expert)) => 6,
+
+            (Spell::FrostRing, None | Some(Level::Basic)) => 12,
+            (Spell::FrostRing, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::Haste, None | Some(Level::Basic)) => 6,
+            (Spell::Haste, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::DisruptingRay, None | Some(Level::Basic)) => 10,
+            (Spell::DisruptingRay, Some(Level::Advanced | Level::Expert)) => 8,
+
+            (Spell::Fortune, None | Some(Level::Basic)) => 7,
+            (Spell::Fortune, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::Precision, None | Some(Level::Basic)) => 8,
+            (Spell::Precision, Some(Level::Advanced | Level::Expert)) => 6,
+
+            (Spell::ProtectAir, None | Some(Level::Basic)) => 7,
+            (Spell::ProtectAir, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::AirShield, None | Some(Level::Basic)) => 12,
+            (Spell::AirShield, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::Hypnotize, None | Some(Level::Basic)) => 18,
+            (Spell::Hypnotize, Some(Level::Advanced | Level::Expert)) => 15,
+
+            (Spell::Counterstrike, None | Some(Level::Basic)) => 24,
+            (Spell::Counterstrike, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::MagicMirror, None | Some(Level::Basic)) => 25,
+            (Spell::MagicMirror, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::SummonAir, None | Some(Level::Basic)) => 25,
+            (Spell::SummonAir, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Shield, None | Some(Level::Basic)) => 5,
+            (Spell::Shield, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::Slow, None | Some(Level::Basic)) => 6,
+            (Spell::Slow, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::StoneSkin, None | Some(Level::Basic)) => 5,
+            (Spell::StoneSkin, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::Quicksand, None | Some(Level::Basic)) => 8,
+            (Spell::Quicksand, Some(Level::Advanced | Level::Expert)) => 6,
+
+            (Spell::AnimateDead, None | Some(Level::Basic)) => 15,
+            (Spell::AnimateDead, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::AntiMagic, None | Some(Level::Basic)) => 15,
+            (Spell::AntiMagic, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::Earthquake, None | Some(Level::Basic)) => 20,
+            (Spell::Earthquake, Some(Level::Advanced | Level::Expert)) => 17,
+
+            (Spell::ForceField, None | Some(Level::Basic)) => 12,
+            (Spell::ForceField, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::ProtectEarth, None | Some(Level::Basic)) => 12,
+            (Spell::ProtectEarth, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::Resurrection, None | Some(Level::Basic)) => 20,
+            (Spell::Resurrection, Some(Level::Advanced | Level::Expert)) => 16,
+
+            (Spell::Sorrow, None | Some(Level::Basic)) => 16,
+            (Spell::Sorrow, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::SummonEarth, None | Some(Level::Basic)) => 25,
+            (Spell::SummonEarth, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Bloodlust, None | Some(Level::Basic)) => 5,
+            (Spell::Bloodlust, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::Curse, None | Some(Level::Basic)) => 6,
+            (Spell::Curse, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::ProtectFire, None | Some(Level::Basic)) => 5,
+            (Spell::ProtectFire, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::Blind, None | Some(Level::Basic)) => 10,
+            (Spell::Blind, Some(Level::Advanced | Level::Expert)) => 8,
+
+            (Spell::Misfortune, None | Some(Level::Basic)) => 12,
+            (Spell::Misfortune, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::Berserk, None | Some(Level::Basic)) => 20,
+            (Spell::Berserk, Some(Level::Advanced | Level::Expert)) => 16,
+
+            (Spell::FireShield, None | Some(Level::Basic)) => 16,
+            (Spell::FireShield, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::Frenzy, None | Some(Level::Basic)) => 16,
+            (Spell::Frenzy, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::Slayer, None | Some(Level::Basic)) => 16,
+            (Spell::Slayer, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::Sacrifice, None | Some(Level::Basic)) => 25,
+            (Spell::Sacrifice, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::SummonFire, None | Some(Level::Basic)) => 25,
+            (Spell::SummonFire, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Bless, None | Some(Level::Basic)) => 5,
+            (Spell::Bless, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::Cure, None | Some(Level::Basic)) => 6,
+            (Spell::Cure, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::Dispel, None | Some(Level::Basic)) => 5,
+            (Spell::Dispel, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::ProtectWater, None | Some(Level::Basic)) => 5,
+            (Spell::ProtectWater, Some(Level::Advanced | Level::Expert)) => 4,
+
+            (Spell::RemoveObstacle, None | Some(Level::Basic)) => 7,
+            (Spell::RemoveObstacle, Some(Level::Advanced | Level::Expert)) => 5,
+
+            (Spell::Weakness, None | Some(Level::Basic)) => 8,
+            (Spell::Weakness, Some(Level::Advanced | Level::Expert)) => 6,
+
+            (Spell::Forgetfulness, None | Some(Level::Basic)) => 12,
+            (Spell::Forgetfulness, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::Mirth, None | Some(Level::Basic)) => 12,
+            (Spell::Mirth, Some(Level::Advanced | Level::Expert)) => 9,
+
+            (Spell::Teleport, None) => 15,
+            (Spell::Teleport, Some(Level::Basic)) => 12,
+            (Spell::Teleport, Some(Level::Advanced)) => 6,
+            (Spell::Teleport, Some(Level::Expert)) => 3,
+
+            (Spell::Clone, None | Some(Level::Basic)) => 24,
+            (Spell::Clone, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Prayer, None | Some(Level::Basic)) => 16,
+            (Spell::Prayer, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::SummonWater, None | Some(Level::Basic)) => 25,
+            (Spell::SummonWater, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Visions, None | Some(Level::Basic)) => 4,
+            (Spell::Visions, Some(Level::Advanced | Level::Expert)) => 2,
+
+            (Spell::ViewAir, None | Some(Level::Basic)) => 2,
+            (Spell::ViewAir, Some(Level::Advanced | Level::Expert)) => 1,
+
+            (Spell::Disguise, None | Some(Level::Basic)) => 4,
+            (Spell::Disguise, Some(Level::Advanced | Level::Expert)) => 2,
+
+            (Spell::DimensionDoor, None | Some(Level::Basic)) => 25,
+            (Spell::DimensionDoor, Some(Level::Advanced | Level::Expert)) => 20,
+
+            (Spell::Fly, None | Some(Level::Basic)) => 20,
+            (Spell::Fly, Some(Level::Advanced | Level::Expert)) => 15,
+
+            (Spell::ViewEarth, None | Some(Level::Basic)) => 2,
+            (Spell::ViewEarth, Some(Level::Advanced | Level::Expert)) => 1,
+
+            (Spell::TownPortal, None | Some(Level::Basic)) => 16,
+            (Spell::TownPortal, Some(Level::Advanced | Level::Expert)) => 12,
+
+            (Spell::SummonBoat, None | Some(Level::Basic)) => 8,
+            (Spell::SummonBoat, Some(Level::Advanced | Level::Expert)) => 7,
+
+            (Spell::ScuttleBoat, None | Some(Level::Basic)) => 8,
+            (Spell::ScuttleBoat, Some(Level::Advanced | Level::Expert)) => 6,
+
+            (Spell::WaterWalk, None | Some(Level::Basic)) => 12,
+            (Spell::WaterWalk, Some(Level::Advanced | Level::Expert)) => 8,
         }
     }
 }
