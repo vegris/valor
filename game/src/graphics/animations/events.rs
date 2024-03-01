@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use gamedata::creatures::sounds::CreatureSound;
+use gamedata::creatures::CreatureSound;
 
 use crate::grid::GridPos;
 

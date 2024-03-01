@@ -1,8 +1,7 @@
 use sdl2::mixer::Chunk;
 use strum::EnumCount;
 
-use gamedata::creatures::sounds::CreatureSound;
-use gamedata::creatures::Creature;
+use gamedata::creatures::{Creature, CreatureSound};
 
 use crate::graphics::creature::AnimationType;
 

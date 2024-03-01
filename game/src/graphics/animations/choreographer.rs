@@ -1,8 +1,7 @@
 use std::fmt::Debug;
 use std::time::Duration;
 
-use gamedata::creatures::sounds::CreatureSound;
-use gamedata::creatures::Creature;
+use gamedata::creatures::{Creature, CreatureSound};
 use gamedata::spells::{Spell, SpellAnimation};
 
 use crate::battlestate::{BattleState, Side, StackHandle};

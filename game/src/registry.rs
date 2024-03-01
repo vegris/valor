@@ -7,8 +7,7 @@ use strum::IntoEnumIterator;
 
 use formats::lod::LodIndex;
 use formats::snd::SndIndex;
-use gamedata::creatures::sounds::CreatureSound;
-use gamedata::creatures::Creature;
+use gamedata::creatures::{Creature, CreatureSound};
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::error::AnyHow;
