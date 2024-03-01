@@ -29,7 +29,7 @@ use cursors::{Cursor, Cursors};
 pub use statics::Statics;
 
 use self::animations::entity_animations::EntityAnimations;
-use self::statics::{ButtonState, Buttons, StaticTexture};
+use self::statics::{ButtonState, StaticTexture};
 
 use self::animations::AnimationState;
 
