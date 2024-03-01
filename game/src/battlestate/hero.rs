@@ -1,16 +1,16 @@
-use gamedata::heroes::{Ability, HeroAbility, Level};
+use gamedata::heroes::{Ability, LearnedAbility, Level};
 use gamedata::heroes::{Hero as GDHero, Stats};
 
 pub struct Hero {
     pub hero: GDHero,
     pub stats: Stats,
-    pub abilities: [Option<HeroAbility>; 7],
+    pub abilities: [Option<LearnedAbility>; 7],
 }
 
 impl Hero {
     pub fn build(hero: GDHero) -> Self {
-        const NONE: Option<HeroAbility> = None;
-        let mut abilities: [Option<HeroAbility>; 7] = [NONE; 7];
+        const NONE: Option<LearnedAbility> = None;
+        let mut abilities: [Option<LearnedAbility>; 7] = [NONE; 7];
 
         for (i, item) in hero.starting_abilities().into_iter().enumerate() {
             abilities[i] = item;

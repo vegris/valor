@@ -230,7 +230,7 @@ pub enum Level {
 }
 
 #[derive(Clone, Copy)]
-pub struct HeroAbility {
+pub struct LearnedAbility {
     pub ability: Ability,
     pub level: Level,
 }
@@ -405,1501 +405,1501 @@ impl Hero {
         }
     }
 
-    pub const fn starting_abilities(self) -> [Option<HeroAbility>; 2] {
+    pub const fn starting_abilities(self) -> [Option<LearnedAbility>; 2] {
         match self {
             Hero::Christian => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Edric => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
             ],
             Hero::Orrin => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Sorsha => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Sylvia => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Navigation,
                     level: Level::Basic,
                 }),
             ],
             Hero::Tyris => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Valeska => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Catherine => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::HaartFresh => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Estates,
                     level: Level::Basic,
                 }),
             ],
             Hero::Roland => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
             ],
             Hero::SirMullich => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Adela => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Diplomacy,
                     level: Level::Basic,
                 }),
             ],
             Hero::Adelaide => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Caitlin => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Cuthbert => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Estates,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ingham => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
             ],
             Hero::Loynis => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Rion => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::FirstAid,
                     level: Level::Basic,
                 }),
             ],
             Hero::Sanya => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Clancy => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Pathfinding,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ivor => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Jenova => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Kyrre => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Logistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Mephala => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ryland => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Diplomacy,
                     level: Level::Basic,
                 }),
             ],
             Hero::Thorgrim => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Ufretin => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Luck,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gelu => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Aeris => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Basic,
                 }),
             ],
             Hero::Alagar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Coronius => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
             ],
             Hero::Elleshar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gem => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::FirstAid,
                     level: Level::Basic,
                 }),
             ],
             Hero::Malcom => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Melodia => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Luck,
                     level: Level::Basic,
                 }),
             ],
             Hero::Uland => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Advanced,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Ballistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Fafner => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Iona => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Josephine => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Neela => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
             ],
             Hero::Piquedram => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Basic,
                 }),
             ],
             Hero::Rissa => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Thane => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Torosar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Aine => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
             ],
             Hero::Astral => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Cyra => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Diplomacy,
                     level: Level::Basic,
                 }),
             ],
             Hero::Daremyth => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Halon => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
             ],
             Hero::Serena => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Solmyr => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Theodorus => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Ballistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Dracon => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Calh => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Basic,
                 }),
             ],
             Hero::Fiona => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Ignatius => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Marius => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Nymus => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Octavia => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Pyre => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Logistics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Rashka => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
             ],
             Hero::Xeron => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ash => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Axsis => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ayden => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Calid => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Olema => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Ballistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Xarfax => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
             ],
             Hero::Xyron => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
             ],
             Hero::Zydar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Charna => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Clavius => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Galthran => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
             ],
             Hero::Isra => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Moandor => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Straker => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Tamika => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Vokial => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::HaartStale => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Aislinn => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
             ],
             Hero::Nagash => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Nimbus => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Sandro => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Septienna => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
             ],
             Hero::Thant => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
             ],
             Hero::Vidomina => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Xsi => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Necromancy,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ajit => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Arlach => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Dace => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Damacon => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Gunnar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Logistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Lorelei => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Basic,
                 }),
             ],
             Hero::Shakti => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Synca => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
             ],
             Hero::Mutare => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Estates,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::MutareDrake => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Estates,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Alamar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scholar,
                     level: Level::Basic,
                 }),
             ],
             Hero::Darkstorn => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Deemer => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Advanced,
                 }),
             ],
             Hero::Geon => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Jaegar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
             ],
             Hero::Jeddite => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Malekith => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Sephinroth => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::CragHack => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Gretchin => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Pathfinding,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gurnisson => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Jabarkas => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Krellion => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Shiva => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Basic,
                 }),
             ],
             Hero::Tyraxor => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Yog => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Ballistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Boragus => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Kilgor => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Dessa => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Logistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gird => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gundula => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Oris => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Saurug => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Terek => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Vey => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
             ],
             Hero::Zubin => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Alkin => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
             ],
             Hero::Broghild => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Scouting,
                     level: Level::Basic,
                 }),
             ],
             Hero::Bron => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Resistance,
                     level: Level::Basic,
                 }),
             ],
             Hero::Drakon => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Leadership,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gerwulf => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Korbac => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Pathfinding,
                     level: Level::Basic,
                 }),
             ],
             Hero::Tazar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Wystan => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Armorer,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Archery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Andra => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Intelligence,
                     level: Level::Basic,
                 }),
             ],
             Hero::Merist => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Mirlanda => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Rosic => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Mysticism,
                     level: Level::Basic,
                 }),
             ],
             Hero::Styg => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Sorcery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Tiva => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EagleEye,
                     level: Level::Basic,
                 }),
             ],
             Hero::Verdish => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::FirstAid,
                     level: Level::Basic,
                 }),
             ],
             Hero::Voy => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Navigation,
                     level: Level::Basic,
                 }),
             ],
             Hero::Adrienne => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::FireMagic,
                     level: Level::Expert,
                 }),
             ],
             Hero::Erdamon => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Estates,
                     level: Level::Basic,
                 }),
             ],
             Hero::Fiur => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Ignissa => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Kalt => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Learning,
                     level: Level::Basic,
                 }),
             ],
             Hero::Lacus => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Advanced,
                 }),
                 None,
             ],
             Hero::Monere => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Logistics,
                     level: Level::Basic,
                 }),
             ],
             Hero::Pasis => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Offense,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Artillery,
                     level: Level::Basic,
                 }),
             ],
             Hero::Thunar => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Tactics,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Estates,
                     level: Level::Basic,
                 }),
             ],
             Hero::Aenain => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::AirMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Brissa => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::AirMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Ciele => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::WaterMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Gelare => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::WaterMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Grindan => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EarthMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Inteus => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::FireMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Labetha => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::EarthMagic,
                     level: Level::Basic,
                 }),
             ],
             Hero::Luna => [
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::Wisdom,
                     level: Level::Basic,
                 }),
-                Some(HeroAbility {
+                Some(LearnedAbility {
                     ability: Ability::FireMagic,
                     level: Level::Basic,
                 }),
