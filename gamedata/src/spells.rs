@@ -99,6 +99,11 @@ pub enum SpellLevel {
     Fifth,
 }
 
+#[derive(Clone, Copy, EnumCount, EnumIter)]
+pub enum SpellAnimation {
+    Armageddon,
+}
+
 impl Spell {
     pub const SPRITESHEET: &'static str = "spells.def";
 
@@ -498,11 +503,6 @@ impl SpellSchool {
             Self::Water => "SpLevW.def",
         }
     }
-}
-
-#[derive(Clone, Copy, EnumCount, EnumIter)]
-pub enum SpellAnimation {
-    Armageddon,
 }
 
 impl SpellAnimation {
