@@ -1,7 +1,7 @@
 use rand::distributions::Uniform;
 use rand::prelude::Distribution;
 
-use gamedata::heroes::abilities::{Ability, Level};
+use gamedata::heroes::{Ability, Level};
 
 use crate::stack::Stack;
 

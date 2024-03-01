@@ -1,6 +1,6 @@
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::heroes::abilities::Level;
+use crate::heroes::Level;
 
 #[derive(Clone, Copy, Debug, PartialEq, EnumCount)]
 pub enum Spell {

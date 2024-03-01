@@ -1,4 +1,4 @@
-use gamedata::heroes::abilities::{Ability, HeroAbility, Level};
+use gamedata::heroes::{Ability, HeroAbility, Level};
 use gamedata::heroes::{Hero as GDHero, Stats};
 
 pub struct Hero {
