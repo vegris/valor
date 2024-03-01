@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use gamedata::creatures;
-use gamedata::creatures::abilities::RetaliationCount;
 use gamedata::creatures::Creature;
 
 use crate::battlestate::turns;
@@ -27,6 +26,37 @@ pub struct Stack {
     pub retaliation_count: RetaliationCount,
 }
 
+#[derive(Clone, Debug)]
+pub enum RetaliationCount {
+    Finite(i32),
+    Infinite,
+}
+
+impl RetaliationCount {
+    pub fn from_creature(creature: Creature) -> Self {
+        creature
+            .abilities()
+            .into_iter()
+            .find_map(|ability| match ability {
+                creatures::Ability::ExtraRetaliation => Some(Self::Finite(2)),
+                creatures::Ability::InfiniteRetaliations => Some(Self::Infinite),
+                _ => None,
+            })
+            .unwrap_or(Self::Finite(1))
+    }
+
+    pub fn has_retaliation(&self) -> bool {
+        !matches!(self, RetaliationCount::Finite(0))
+    }
+
+    pub fn decrement(&mut self) {
+        if let RetaliationCount::Finite(n) = self {
+            assert!(*n != 0);
+            *n -= 1;
+        }
+    }
+}
+
 impl Stack {
     pub fn new(creature: Creature, count: i32, head: GridPos, side: Side) -> Self {
         Stack {
@@ -38,8 +68,13 @@ impl Stack {
             side,
             turn_state: Some(turns::Phase::Fresh),
             defending: false,
-            retaliation_count: creature.retaliation_count(),
+            retaliation_count: RetaliationCount::from_creature(creature),
         }
+    }
+
+    pub fn refresh_for_next_turn(&mut self) {
+        self.turn_state = Some(turns::Phase::Fresh);
+        self.retaliation_count = RetaliationCount::from_creature(self.creature);
     }
 
     pub fn base_stats(&self) -> creatures::Stats {

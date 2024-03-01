@@ -1,4 +1,4 @@
-use gamedata::creatures::abilities::Ability;
+use gamedata::creatures::Ability;
 
 use crate::battlestate::damage;
 use crate::battlestate::BattleState;

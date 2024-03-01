@@ -2,10 +2,6 @@ use serde::Deserialize;
 use strum::EnumCount;
 use strum_macros::{EnumCount, EnumIter};
 
-pub mod abilities;
-
-use abilities::Ability;
-
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize, EnumCount)]
 pub enum Creature {
     // Castle
@@ -174,6 +170,21 @@ pub struct Stats {
     pub health: i32,
     pub speed: i32,
     pub ammo_capacity: i32,
+}
+
+pub enum Ability {
+    DoubleStrike,
+    DoubleShot,
+
+    ReturnAfterStrike,
+
+    NoRetaliation,
+    ExtraRetaliation,
+    InfiniteRetaliations,
+
+    Hatred { to: Box<[Creature]> },
+
+    IgnoreDefence { percent: f32 },
 }
 
 #[derive(Clone, Copy, EnumCount, EnumIter)]
@@ -1528,12 +1539,8 @@ impl Creature {
 
         match self {
             Self::Marksman => vec![Ability::DoubleShot],
-            Self::Griffin => vec![Ability::ExtraRetaliations {
-                count: abilities::RetaliationCount::Finite(1),
-            }],
-            Self::RoyalGriffin => vec![Ability::ExtraRetaliations {
-                count: abilities::RetaliationCount::Infinite,
-            }],
+            Self::Griffin => vec![Ability::ExtraRetaliation],
+            Self::RoyalGriffin => vec![Ability::InfiniteRetaliations],
             Self::Crusader => vec![Ability::DoubleStrike],
             Self::Angel => vec![Ability::Hatred { to: devils }],
             Self::Archangel => vec![Ability::Hatred { to: devils }],

@@ -167,8 +167,7 @@ impl BattleState {
                 self.turn = self.turn.next();
 
                 for stack in self.stacks.0.values_mut() {
-                    stack.turn_state = Some(turns::Phase::Fresh);
-                    stack.retaliation_count = stack.creature.retaliation_count();
+                    stack.refresh_for_next_turn();
                 }
             }
             self.update_current_stack();

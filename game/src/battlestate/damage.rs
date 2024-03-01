@@ -74,11 +74,12 @@ fn primary_damage_modifiers(
     let defence = defender.base_stats().defence + defender_hero.map_or(0, |h| h.stats.defence);
     let defence = defence as f32;
 
-    let defence = if let Some(reduction_percent) = attacker.creature.ignore_defence() {
-        (defence * (1.0 - reduction_percent)).ceil() - 1.0
-    } else {
-        defence
-    };
+    // TODO: bring back ignore defence
+    // let defence = if let Some(reduction_percent) = attacker.creature.ignore_defence() {
+    //     (defence * (1.0 - reduction_percent)).ceil() - 1.0
+    // } else {
+    //     defence
+    // };
 
     let md1 = if attack > defence {
         0.05 * (attack - defence)
