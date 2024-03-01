@@ -2139,7 +2139,7 @@ impl Creature {
         }
     }
 
-    pub fn sounds(&self) -> Sounds {
+    pub const fn sounds(&self) -> Sounds {
         match self {
             Self::Angel => Sounds([
                 Some("ANGLATTK"),
