@@ -187,6 +187,13 @@ pub enum Ability {
     IgnoreDefence { percent: f32 },
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum MovementType {
+    Walk,
+    Fly,
+    Teleport,
+}
+
 #[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum Sound {
     Attack,
@@ -1650,66 +1657,168 @@ impl Creature {
         .contains(self)
     }
 
-    pub fn is_flying(&self) -> bool {
-        [
-            // Castle
-            Self::Griffin,
-            Self::RoyalGriffin,
-            Self::Angel,
-            Self::Archangel,
-            // Rampart
-            Self::Pegasus,
-            Self::SilverPegasus,
-            Self::GreenDragon,
-            Self::GoldDragon,
-            // Tower
-            Self::StoneGargoyle,
-            Self::ObsidianGargoyle,
-            Self::Genie,
-            Self::MasterGenie,
-            // Inferno
-            Self::Efreeti,
-            Self::EfreetSultan,
-            Self::Devil,
-            Self::ArchDevil,
-            // Necropolis
-            Self::Wight,
-            Self::Wraith,
-            Self::Vampire,
-            Self::VampireLord,
-            Self::BoneDragon,
-            Self::GhostDragon,
-            // Dungeon
-            Self::Harpy,
-            Self::HarpyHag,
-            Self::Manticore,
-            Self::Scorpicore,
-            Self::RedDragon,
-            Self::BlackDragon,
-            // Stronghold
-            Self::Roc,
-            Self::Thunderbird,
-            // Fortress
-            Self::SerpentFly,
-            Self::DragonFly,
-            Self::Wyvern,
-            Self::WyvernMonarch,
-            // Conflux
-            Self::Pixie,
-            Self::Sprite,
-            Self::EnergyElemental,
-            Self::Firebird,
-            Self::Phoenix,
-            // Neutral
-            Self::FaerieDragon,
-            Self::RustDragon,
-            Self::AzureDragon,
-        ]
-        .contains(self)
+    pub const fn movement_type(self) -> MovementType {
+        match self {
+            Self::Pikeman => MovementType::Walk,
+            Self::Halberdier => MovementType::Walk,
+            Self::Archer => MovementType::Walk,
+            Self::Marksman => MovementType::Walk,
+            Self::Griffin => MovementType::Fly,
+            Self::RoyalGriffin => MovementType::Fly,
+            Self::Swordsman => MovementType::Walk,
+            Self::Crusader => MovementType::Walk,
+            Self::Monk => MovementType::Walk,
+            Self::Zealot => MovementType::Walk,
+            Self::Cavalier => MovementType::Walk,
+            Self::Champion => MovementType::Walk,
+            Self::Angel => MovementType::Fly,
+            Self::Archangel => MovementType::Fly,
+
+            Self::Centaur => MovementType::Walk,
+            Self::CentaurCaptain => MovementType::Walk,
+            Self::Dwarf => MovementType::Walk,
+            Self::BattleDwarf => MovementType::Walk,
+            Self::WoodElf => MovementType::Walk,
+            Self::GrandElf => MovementType::Walk,
+            Self::Pegasus => MovementType::Fly,
+            Self::SilverPegasus => MovementType::Fly,
+            Self::DendroidGuard => MovementType::Walk,
+            Self::DendroidSoldier => MovementType::Walk,
+            Self::Unicorn => MovementType::Walk,
+            Self::WarUnicorn => MovementType::Walk,
+            Self::GreenDragon => MovementType::Fly,
+            Self::GoldDragon => MovementType::Fly,
+
+            Self::Gremlin => MovementType::Walk,
+            Self::MasterGremlin => MovementType::Walk,
+            Self::StoneGargoyle => MovementType::Fly,
+            Self::ObsidianGargoyle => MovementType::Fly,
+            Self::StoneGolem => MovementType::Walk,
+            Self::IronGolem => MovementType::Walk,
+            Self::Mage => MovementType::Walk,
+            Self::ArchMage => MovementType::Walk,
+            Self::Genie => MovementType::Fly,
+            Self::MasterGenie => MovementType::Fly,
+            Self::Naga => MovementType::Walk,
+            Self::NagaQueen => MovementType::Walk,
+            Self::Giant => MovementType::Walk,
+            Self::Titan => MovementType::Walk,
+
+            Self::Imp => MovementType::Walk,
+            Self::Familiar => MovementType::Walk,
+            Self::Gog => MovementType::Walk,
+            Self::Magog => MovementType::Walk,
+            Self::HellHound => MovementType::Walk,
+            Self::Cerberus => MovementType::Walk,
+            Self::Demon => MovementType::Walk,
+            Self::HornedDemon => MovementType::Walk,
+            Self::PitFiend => MovementType::Walk,
+            Self::PitLord => MovementType::Walk,
+            Self::Efreeti => MovementType::Fly,
+            Self::EfreetSultan => MovementType::Fly,
+            Self::Devil => MovementType::Teleport,
+            Self::ArchDevil => MovementType::Teleport,
+
+            Self::Skeleton => MovementType::Walk,
+            Self::SkeletonWarrior => MovementType::Walk,
+            Self::WalkingDead => MovementType::Walk,
+            Self::Zombie => MovementType::Walk,
+            Self::Wight => MovementType::Fly,
+            Self::Wraith => MovementType::Fly,
+            Self::Vampire => MovementType::Fly,
+            Self::VampireLord => MovementType::Fly,
+            Self::Lich => MovementType::Walk,
+            Self::PowerLich => MovementType::Walk,
+            Self::BlackKnight => MovementType::Walk,
+            Self::DreadKnight => MovementType::Walk,
+            Self::BoneDragon => MovementType::Fly,
+            Self::GhostDragon => MovementType::Fly,
+
+            Self::Troglodyte => MovementType::Walk,
+            Self::InfernalTroglodyte => MovementType::Walk,
+            Self::Harpy => MovementType::Fly,
+            Self::HarpyHag => MovementType::Fly,
+            Self::Beholder => MovementType::Walk,
+            Self::EvilEye => MovementType::Walk,
+            Self::Medusa => MovementType::Walk,
+            Self::MedusaQueen => MovementType::Walk,
+            Self::Minotaur => MovementType::Walk,
+            Self::MinotaurKing => MovementType::Walk,
+            Self::Manticore => MovementType::Fly,
+            Self::Scorpicore => MovementType::Fly,
+            Self::RedDragon => MovementType::Fly,
+            Self::BlackDragon => MovementType::Fly,
+
+            Self::Goblin => MovementType::Walk,
+            Self::Hobgoblin => MovementType::Walk,
+            Self::WolfRider => MovementType::Walk,
+            Self::WolfRaider => MovementType::Walk,
+            Self::Orc => MovementType::Walk,
+            Self::OrcChieftain => MovementType::Walk,
+            Self::Ogre => MovementType::Walk,
+            Self::OgreMagi => MovementType::Walk,
+            Self::Roc => MovementType::Fly,
+            Self::Thunderbird => MovementType::Fly,
+            Self::Cyclops => MovementType::Walk,
+            Self::CyclopsKing => MovementType::Walk,
+            Self::Behemoth => MovementType::Walk,
+            Self::AncientBehemoth => MovementType::Walk,
+
+            Self::Gnoll => MovementType::Walk,
+            Self::GnollMarauder => MovementType::Walk,
+            Self::Lizardman => MovementType::Walk,
+            Self::LizardWarrior => MovementType::Walk,
+            Self::SerpentFly => MovementType::Fly,
+            Self::DragonFly => MovementType::Fly,
+            Self::Basilisk => MovementType::Walk,
+            Self::GreaterBasilisk => MovementType::Walk,
+            Self::Gorgon => MovementType::Walk,
+            Self::MightyGorgon => MovementType::Walk,
+            Self::Wyvern => MovementType::Fly,
+            Self::WyvernMonarch => MovementType::Fly,
+            Self::Hydra => MovementType::Walk,
+            Self::ChaosHydra => MovementType::Walk,
+
+            Self::Pixie => MovementType::Fly,
+            Self::Sprite => MovementType::Fly,
+            Self::AirElemental => MovementType::Walk,
+            Self::StormElemental => MovementType::Walk,
+            Self::WaterElemental => MovementType::Walk,
+            Self::IceElemental => MovementType::Walk,
+            Self::FireElemental => MovementType::Walk,
+            Self::EnergyElemental => MovementType::Fly,
+            Self::EarthElemental => MovementType::Walk,
+            Self::MagmaElemental => MovementType::Walk,
+            Self::PsychicElemental => MovementType::Walk,
+            Self::MagicElemental => MovementType::Walk,
+            Self::Firebird => MovementType::Fly,
+            Self::Phoenix => MovementType::Fly,
+
+            Self::Peasant => MovementType::Walk,
+            Self::Halfling => MovementType::Walk,
+            Self::Boar => MovementType::Walk,
+            Self::Rogue => MovementType::Walk,
+            Self::Mummy => MovementType::Walk,
+            Self::Nomad => MovementType::Walk,
+            Self::Sharpshooter => MovementType::Walk,
+            Self::Troll => MovementType::Walk,
+            Self::GoldGolem => MovementType::Walk,
+            Self::DiamondGolem => MovementType::Walk,
+            Self::Enchanter => MovementType::Walk,
+            Self::FaerieDragon => MovementType::Fly,
+            Self::RustDragon => MovementType::Fly,
+            Self::CrystalDragon => MovementType::Walk,
+            Self::AzureDragon => MovementType::Fly,
+
+            Self::Ballista => unreachable!(),
+            Self::FirstAidTent => unreachable!(),
+            Self::Catapult => unreachable!(),
+            Self::AmmoCart => unreachable!(),
+        }
     }
 
-    pub fn is_teleporting(&self) -> bool {
-        [Creature::Devil, Creature::ArchDevil].contains(self)
+    pub fn is_flying(self) -> bool {
+        [MovementType::Fly, MovementType::Teleport].contains(&self.movement_type())
     }
 
     pub const fn spritesheet_filename(self) -> &'static str {

@@ -142,7 +142,7 @@ pub fn animate_movement(
         )));
     }
 
-    if creature.is_teleporting() {
+    if creature.movement_type() == creatures::MovementType::Teleport {
         events.push(AnimationEvent::Teleport(*path.last().unwrap()));
     } else {
         events.extend([
