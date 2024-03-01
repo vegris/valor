@@ -1,7 +1,7 @@
 use rand::distributions::Uniform;
 use rand::prelude::Distribution;
 
-use gamedata::heroes::{Ability, Level};
+use gamedata::heroes::{Ability, AbilityLevel};
 
 use crate::stack::Stack;
 
@@ -98,23 +98,23 @@ fn primary_damage_modifiers(
 }
 
 fn offence_modifier(attacker_hero: Option<&Hero>, attack_type: AttackType) -> f32 {
-    fn offence(level: Level) -> f32 {
+    fn offence(level: AbilityLevel) -> f32 {
         match level {
-            Level::Basic => 0.1,
-            Level::Advanced => 0.2,
-            Level::Expert => 0.3,
+            AbilityLevel::Basic => 0.1,
+            AbilityLevel::Advanced => 0.2,
+            AbilityLevel::Expert => 0.3,
         }
     }
 
-    fn archery(level: Level) -> f32 {
+    fn archery(level: AbilityLevel) -> f32 {
         match level {
-            Level::Basic => 0.1,
-            Level::Advanced => 0.25,
-            Level::Expert => 0.5,
+            AbilityLevel::Basic => 0.1,
+            AbilityLevel::Advanced => 0.25,
+            AbilityLevel::Expert => 0.5,
         }
     }
 
-    type ModifierFN = fn(Level) -> f32;
+    type ModifierFN = fn(AbilityLevel) -> f32;
     let (ability, modifier_fun): (Ability, ModifierFN) = match attack_type {
         AttackType::Melee => (Ability::Offense, offence),
         AttackType::Shoot => (Ability::Archery, archery),
@@ -129,9 +129,9 @@ fn armorer_modifier(defender_hero: Option<&Hero>) -> f32 {
     let m = defender_hero
         .and_then(|h| h.get_ability_level(Ability::Armorer))
         .map_or(0.0, |l| match l {
-            Level::Basic => 0.05,
-            Level::Advanced => 0.1,
-            Level::Expert => 0.15,
+            AbilityLevel::Basic => 0.05,
+            AbilityLevel::Advanced => 0.1,
+            AbilityLevel::Expert => 0.15,
         });
 
     1.0 - m

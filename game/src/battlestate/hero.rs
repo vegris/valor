@@ -1,4 +1,4 @@
-use gamedata::heroes::{Ability, LearnedAbility, Level};
+use gamedata::heroes::{Ability, AbilityLevel, LearnedAbility};
 use gamedata::heroes::{Hero as GDHero, Stats};
 
 pub struct Hero {
@@ -23,7 +23,7 @@ impl Hero {
         }
     }
 
-    pub fn get_ability_level(&self, ability: Ability) -> Option<Level> {
+    pub fn get_ability_level(&self, ability: Ability) -> Option<AbilityLevel> {
         self.abilities
             .into_iter()
             .find_map(|v| v.filter(|ha| ha.ability == ability).map(|ha| ha.level))
