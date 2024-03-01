@@ -166,7 +166,7 @@ pub enum Creature {
     AmmoCart,
 }
 
-pub struct CreatureStats {
+pub struct Stats {
     pub level: i32,
     pub attack: i32,
     pub defence: i32,
@@ -175,9 +175,6 @@ pub struct CreatureStats {
     pub speed: i32,
     pub ammo_capacity: i32,
 }
-
-type C = Creature;
-type CS = CreatureStats;
 
 #[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum CreatureSound {
@@ -194,10 +191,10 @@ pub enum CreatureSound {
 pub struct CreatureSounds([Option<&'static str>; CreatureSound::COUNT]);
 
 impl Creature {
-    pub const fn base_stats(&self) -> CreatureStats {
+    pub const fn base_stats(&self) -> Stats {
         match self {
             // Castle
-            Self::Pikeman => CS {
+            Self::Pikeman => Stats {
                 level: 1,
                 attack: 4,
                 defence: 5,
@@ -206,7 +203,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::Halberdier => CS {
+            Self::Halberdier => Stats {
                 level: 1,
                 attack: 6,
                 defence: 5,
@@ -215,7 +212,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Archer => CS {
+            Self::Archer => Stats {
                 level: 2,
                 attack: 6,
                 defence: 3,
@@ -224,7 +221,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 12,
             },
-            Self::Marksman => CS {
+            Self::Marksman => Stats {
                 level: 2,
                 attack: 6,
                 defence: 3,
@@ -233,7 +230,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 24,
             },
-            Self::Griffin => CS {
+            Self::Griffin => Stats {
                 level: 3,
                 attack: 8,
                 defence: 8,
@@ -242,7 +239,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::RoyalGriffin => CS {
+            Self::RoyalGriffin => Stats {
                 level: 3,
                 attack: 9,
                 defence: 9,
@@ -251,7 +248,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::Swordsman => CS {
+            Self::Swordsman => Stats {
                 level: 4,
                 attack: 10,
                 defence: 12,
@@ -260,7 +257,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Crusader => CS {
+            Self::Crusader => Stats {
                 level: 4,
                 attack: 12,
                 defence: 12,
@@ -269,7 +266,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::Monk => CS {
+            Self::Monk => Stats {
                 level: 5,
                 attack: 12,
                 defence: 7,
@@ -278,7 +275,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 12,
             },
-            Self::Zealot => CS {
+            Self::Zealot => Stats {
                 level: 5,
                 attack: 12,
                 defence: 10,
@@ -287,7 +284,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 24,
             },
-            Self::Cavalier => CS {
+            Self::Cavalier => Stats {
                 level: 6,
                 attack: 15,
                 defence: 15,
@@ -296,7 +293,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Champion => CS {
+            Self::Champion => Stats {
                 level: 6,
                 attack: 16,
                 defence: 16,
@@ -305,7 +302,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::Angel => CS {
+            Self::Angel => Stats {
                 level: 7,
                 attack: 20,
                 defence: 20,
@@ -314,7 +311,7 @@ impl Creature {
                 speed: 12,
                 ammo_capacity: 0,
             },
-            Self::Archangel => CS {
+            Self::Archangel => Stats {
                 level: 7,
                 attack: 30,
                 defence: 30,
@@ -324,7 +321,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Rampart
-            Self::Centaur => CS {
+            Self::Centaur => Stats {
                 level: 1,
                 attack: 5,
                 defence: 3,
@@ -333,7 +330,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::CentaurCaptain => CS {
+            Self::CentaurCaptain => Stats {
                 level: 1,
                 attack: 6,
                 defence: 3,
@@ -342,7 +339,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 0,
             },
-            Self::Dwarf => CS {
+            Self::Dwarf => Stats {
                 level: 2,
                 attack: 6,
                 defence: 7,
@@ -351,7 +348,7 @@ impl Creature {
                 speed: 3,
                 ammo_capacity: 0,
             },
-            Self::BattleDwarf => CS {
+            Self::BattleDwarf => Stats {
                 level: 2,
                 attack: 7,
                 defence: 7,
@@ -360,7 +357,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::WoodElf => CS {
+            Self::WoodElf => Stats {
                 level: 3,
                 attack: 9,
                 defence: 5,
@@ -369,7 +366,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 24,
             },
-            Self::GrandElf => CS {
+            Self::GrandElf => Stats {
                 level: 3,
                 attack: 9,
                 defence: 5,
@@ -378,7 +375,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 24,
             },
-            Self::Pegasus => CS {
+            Self::Pegasus => Stats {
                 level: 4,
                 attack: 9,
                 defence: 8,
@@ -387,7 +384,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 0,
             },
-            Self::SilverPegasus => CS {
+            Self::SilverPegasus => Stats {
                 level: 4,
                 attack: 9,
                 defence: 10,
@@ -396,7 +393,7 @@ impl Creature {
                 speed: 12,
                 ammo_capacity: 0,
             },
-            Self::DendroidGuard => CS {
+            Self::DendroidGuard => Stats {
                 level: 5,
                 attack: 9,
                 defence: 12,
@@ -405,7 +402,7 @@ impl Creature {
                 speed: 3,
                 ammo_capacity: 0,
             },
-            Self::DendroidSoldier => CS {
+            Self::DendroidSoldier => Stats {
                 level: 5,
                 attack: 9,
                 defence: 12,
@@ -414,7 +411,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::Unicorn => CS {
+            Self::Unicorn => Stats {
                 level: 6,
                 attack: 15,
                 defence: 14,
@@ -423,7 +420,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::WarUnicorn => CS {
+            Self::WarUnicorn => Stats {
                 level: 6,
                 attack: 15,
                 defence: 14,
@@ -432,7 +429,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::GreenDragon => CS {
+            Self::GreenDragon => Stats {
                 level: 7,
                 attack: 18,
                 defence: 18,
@@ -441,7 +438,7 @@ impl Creature {
                 speed: 10,
                 ammo_capacity: 0,
             },
-            Self::GoldDragon => CS {
+            Self::GoldDragon => Stats {
                 level: 7,
                 attack: 27,
                 defence: 27,
@@ -451,7 +448,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Tower
-            Self::Gremlin => CS {
+            Self::Gremlin => Stats {
                 level: 1,
                 attack: 3,
                 defence: 3,
@@ -460,7 +457,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::MasterGremlin => CS {
+            Self::MasterGremlin => Stats {
                 level: 1,
                 attack: 4,
                 defence: 4,
@@ -469,7 +466,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 8,
             },
-            Self::StoneGargoyle => CS {
+            Self::StoneGargoyle => Stats {
                 level: 2,
                 attack: 6,
                 defence: 6,
@@ -478,7 +475,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::ObsidianGargoyle => CS {
+            Self::ObsidianGargoyle => Stats {
                 level: 2,
                 attack: 7,
                 defence: 7,
@@ -487,7 +484,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::StoneGolem => CS {
+            Self::StoneGolem => Stats {
                 level: 3,
                 attack: 7,
                 defence: 10,
@@ -496,7 +493,7 @@ impl Creature {
                 speed: 3,
                 ammo_capacity: 0,
             },
-            Self::IronGolem => CS {
+            Self::IronGolem => Stats {
                 level: 3,
                 attack: 9,
                 defence: 10,
@@ -505,7 +502,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Mage => CS {
+            Self::Mage => Stats {
                 level: 4,
                 attack: 11,
                 defence: 8,
@@ -514,7 +511,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 24,
             },
-            Self::ArchMage => CS {
+            Self::ArchMage => Stats {
                 level: 4,
                 attack: 12,
                 defence: 9,
@@ -523,7 +520,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 24,
             },
-            Self::Genie => CS {
+            Self::Genie => Stats {
                 level: 5,
                 attack: 12,
                 defence: 12,
@@ -532,7 +529,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::MasterGenie => CS {
+            Self::MasterGenie => Stats {
                 level: 5,
                 attack: 12,
                 defence: 12,
@@ -541,7 +538,7 @@ impl Creature {
                 speed: 11,
                 ammo_capacity: 0,
             },
-            Self::Naga => CS {
+            Self::Naga => Stats {
                 level: 6,
                 attack: 16,
                 defence: 13,
@@ -550,7 +547,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::NagaQueen => CS {
+            Self::NagaQueen => Stats {
                 level: 6,
                 attack: 16,
                 defence: 13,
@@ -559,7 +556,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Giant => CS {
+            Self::Giant => Stats {
                 level: 7,
                 attack: 19,
                 defence: 16,
@@ -568,7 +565,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Titan => CS {
+            Self::Titan => Stats {
                 level: 7,
                 attack: 24,
                 defence: 24,
@@ -578,7 +575,7 @@ impl Creature {
                 ammo_capacity: 24,
             },
             // Inferno
-            Self::Imp => CS {
+            Self::Imp => Stats {
                 level: 1,
                 attack: 2,
                 defence: 3,
@@ -587,7 +584,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Familiar => CS {
+            Self::Familiar => Stats {
                 level: 1,
                 attack: 4,
                 defence: 4,
@@ -596,7 +593,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Gog => CS {
+            Self::Gog => Stats {
                 level: 2,
                 attack: 6,
                 defence: 4,
@@ -605,7 +602,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 12,
             },
-            Self::Magog => CS {
+            Self::Magog => Stats {
                 level: 2,
                 attack: 7,
                 defence: 4,
@@ -614,7 +611,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 24,
             },
-            Self::HellHound => CS {
+            Self::HellHound => Stats {
                 level: 3,
                 attack: 10,
                 defence: 6,
@@ -623,7 +620,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Cerberus => CS {
+            Self::Cerberus => Stats {
                 level: 3,
                 attack: 10,
                 defence: 8,
@@ -632,7 +629,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 0,
             },
-            Self::Demon => CS {
+            Self::Demon => Stats {
                 level: 4,
                 attack: 10,
                 defence: 10,
@@ -641,7 +638,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::HornedDemon => CS {
+            Self::HornedDemon => Stats {
                 level: 4,
                 attack: 10,
                 defence: 10,
@@ -650,7 +647,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::PitFiend => CS {
+            Self::PitFiend => Stats {
                 level: 5,
                 attack: 13,
                 defence: 13,
@@ -659,7 +656,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::PitLord => CS {
+            Self::PitLord => Stats {
                 level: 5,
                 attack: 13,
                 defence: 13,
@@ -668,7 +665,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Efreeti => CS {
+            Self::Efreeti => Stats {
                 level: 6,
                 attack: 16,
                 defence: 12,
@@ -677,7 +674,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::EfreetSultan => CS {
+            Self::EfreetSultan => Stats {
                 level: 6,
                 attack: 16,
                 defence: 14,
@@ -686,7 +683,7 @@ impl Creature {
                 speed: 13,
                 ammo_capacity: 0,
             },
-            Self::Devil => CS {
+            Self::Devil => Stats {
                 level: 7,
                 attack: 19,
                 defence: 21,
@@ -695,7 +692,7 @@ impl Creature {
                 speed: 11,
                 ammo_capacity: 0,
             },
-            Self::ArchDevil => CS {
+            Self::ArchDevil => Stats {
                 level: 7,
                 attack: 26,
                 defence: 28,
@@ -705,7 +702,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Necropolis
-            Self::Skeleton => CS {
+            Self::Skeleton => Stats {
                 level: 1,
                 attack: 5,
                 defence: 4,
@@ -714,7 +711,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::SkeletonWarrior => CS {
+            Self::SkeletonWarrior => Stats {
                 level: 1,
                 attack: 6,
                 defence: 6,
@@ -723,7 +720,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::WalkingDead => CS {
+            Self::WalkingDead => Stats {
                 level: 2,
                 attack: 5,
                 defence: 5,
@@ -732,7 +729,7 @@ impl Creature {
                 speed: 3,
                 ammo_capacity: 0,
             },
-            Self::Zombie => CS {
+            Self::Zombie => Stats {
                 level: 2,
                 attack: 5,
                 defence: 5,
@@ -741,7 +738,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::Wight => CS {
+            Self::Wight => Stats {
                 level: 3,
                 attack: 7,
                 defence: 7,
@@ -750,7 +747,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Wraith => CS {
+            Self::Wraith => Stats {
                 level: 3,
                 attack: 7,
                 defence: 7,
@@ -759,7 +756,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Vampire => CS {
+            Self::Vampire => Stats {
                 level: 4,
                 attack: 10,
                 defence: 9,
@@ -768,7 +765,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::VampireLord => CS {
+            Self::VampireLord => Stats {
                 level: 4,
                 attack: 10,
                 defence: 10,
@@ -777,7 +774,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::Lich => CS {
+            Self::Lich => Stats {
                 level: 5,
                 attack: 13,
                 defence: 10,
@@ -786,7 +783,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 12,
             },
-            Self::PowerLich => CS {
+            Self::PowerLich => Stats {
                 level: 5,
                 attack: 13,
                 defence: 10,
@@ -795,7 +792,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 24,
             },
-            Self::BlackKnight => CS {
+            Self::BlackKnight => Stats {
                 level: 6,
                 attack: 16,
                 defence: 16,
@@ -804,7 +801,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::DreadKnight => CS {
+            Self::DreadKnight => Stats {
                 level: 6,
                 attack: 18,
                 defence: 18,
@@ -813,7 +810,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::BoneDragon => CS {
+            Self::BoneDragon => Stats {
                 level: 7,
                 attack: 17,
                 defence: 15,
@@ -822,7 +819,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::GhostDragon => CS {
+            Self::GhostDragon => Stats {
                 level: 7,
                 attack: 19,
                 defence: 17,
@@ -832,7 +829,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Dungeon
-            Self::Troglodyte => CS {
+            Self::Troglodyte => Stats {
                 level: 1,
                 attack: 4,
                 defence: 3,
@@ -841,7 +838,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::InfernalTroglodyte => CS {
+            Self::InfernalTroglodyte => Stats {
                 level: 1,
                 attack: 5,
                 defence: 4,
@@ -850,7 +847,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Harpy => CS {
+            Self::Harpy => Stats {
                 level: 2,
                 attack: 6,
                 defence: 5,
@@ -859,7 +856,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::HarpyHag => CS {
+            Self::HarpyHag => Stats {
                 level: 2,
                 attack: 6,
                 defence: 6,
@@ -868,7 +865,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::Beholder => CS {
+            Self::Beholder => Stats {
                 level: 3,
                 attack: 9,
                 defence: 7,
@@ -877,7 +874,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 12,
             },
-            Self::EvilEye => CS {
+            Self::EvilEye => Stats {
                 level: 3,
                 attack: 10,
                 defence: 8,
@@ -886,7 +883,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 24,
             },
-            Self::Medusa => CS {
+            Self::Medusa => Stats {
                 level: 4,
                 attack: 9,
                 defence: 9,
@@ -895,7 +892,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 4,
             },
-            Self::MedusaQueen => CS {
+            Self::MedusaQueen => Stats {
                 level: 4,
                 attack: 10,
                 defence: 10,
@@ -904,7 +901,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 8,
             },
-            Self::Minotaur => CS {
+            Self::Minotaur => Stats {
                 level: 5,
                 attack: 14,
                 defence: 12,
@@ -913,7 +910,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::MinotaurKing => CS {
+            Self::MinotaurKing => Stats {
                 level: 5,
                 attack: 15,
                 defence: 15,
@@ -922,7 +919,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 0,
             },
-            Self::Manticore => CS {
+            Self::Manticore => Stats {
                 level: 6,
                 attack: 15,
                 defence: 13,
@@ -931,7 +928,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Scorpicore => CS {
+            Self::Scorpicore => Stats {
                 level: 6,
                 attack: 16,
                 defence: 14,
@@ -940,7 +937,7 @@ impl Creature {
                 speed: 11,
                 ammo_capacity: 0,
             },
-            Self::RedDragon => CS {
+            Self::RedDragon => Stats {
                 level: 7,
                 attack: 19,
                 defence: 19,
@@ -949,7 +946,7 @@ impl Creature {
                 speed: 11,
                 ammo_capacity: 0,
             },
-            Self::BlackDragon => CS {
+            Self::BlackDragon => Stats {
                 level: 7,
                 attack: 25,
                 defence: 25,
@@ -959,7 +956,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Stronghold
-            Self::Goblin => CS {
+            Self::Goblin => Stats {
                 level: 1,
                 attack: 4,
                 defence: 2,
@@ -968,7 +965,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Hobgoblin => CS {
+            Self::Hobgoblin => Stats {
                 level: 1,
                 attack: 5,
                 defence: 3,
@@ -977,7 +974,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::WolfRider => CS {
+            Self::WolfRider => Stats {
                 level: 2,
                 attack: 7,
                 defence: 5,
@@ -986,7 +983,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::WolfRaider => CS {
+            Self::WolfRaider => Stats {
                 level: 2,
                 attack: 8,
                 defence: 5,
@@ -995,7 +992,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 0,
             },
-            Self::Orc => CS {
+            Self::Orc => Stats {
                 level: 3,
                 attack: 8,
                 defence: 4,
@@ -1004,7 +1001,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 12,
             },
-            Self::OrcChieftain => CS {
+            Self::OrcChieftain => Stats {
                 level: 3,
                 attack: 8,
                 defence: 4,
@@ -1013,7 +1010,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 24,
             },
-            Self::Ogre => CS {
+            Self::Ogre => Stats {
                 level: 4,
                 attack: 13,
                 defence: 7,
@@ -1022,7 +1019,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::OgreMagi => CS {
+            Self::OgreMagi => Stats {
                 level: 4,
                 attack: 13,
                 defence: 7,
@@ -1031,7 +1028,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Roc => CS {
+            Self::Roc => Stats {
                 level: 5,
                 attack: 13,
                 defence: 11,
@@ -1040,7 +1037,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Thunderbird => CS {
+            Self::Thunderbird => Stats {
                 level: 5,
                 attack: 13,
                 defence: 11,
@@ -1049,7 +1046,7 @@ impl Creature {
                 speed: 11,
                 ammo_capacity: 0,
             },
-            Self::Cyclops => CS {
+            Self::Cyclops => Stats {
                 level: 6,
                 attack: 15,
                 defence: 12,
@@ -1058,7 +1055,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 16,
             },
-            Self::CyclopsKing => CS {
+            Self::CyclopsKing => Stats {
                 level: 6,
                 attack: 17,
                 defence: 13,
@@ -1067,7 +1064,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 24,
             },
-            Self::Behemoth => CS {
+            Self::Behemoth => Stats {
                 level: 7,
                 attack: 17,
                 defence: 17,
@@ -1076,7 +1073,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::AncientBehemoth => CS {
+            Self::AncientBehemoth => Stats {
                 level: 7,
                 attack: 19,
                 defence: 19,
@@ -1086,7 +1083,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Fortress
-            Self::Gnoll => CS {
+            Self::Gnoll => Stats {
                 level: 1,
                 attack: 3,
                 defence: 5,
@@ -1095,7 +1092,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::GnollMarauder => CS {
+            Self::GnollMarauder => Stats {
                 level: 1,
                 attack: 4,
                 defence: 6,
@@ -1104,7 +1101,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Lizardman => CS {
+            Self::Lizardman => Stats {
                 level: 2,
                 attack: 5,
                 defence: 6,
@@ -1113,7 +1110,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 12,
             },
-            Self::LizardWarrior => CS {
+            Self::LizardWarrior => Stats {
                 level: 2,
                 attack: 6,
                 defence: 8,
@@ -1122,7 +1119,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 24,
             },
-            Self::SerpentFly => CS {
+            Self::SerpentFly => Stats {
                 level: 3,
                 attack: 7,
                 defence: 9,
@@ -1131,7 +1128,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::DragonFly => CS {
+            Self::DragonFly => Stats {
                 level: 3,
                 attack: 8,
                 defence: 10,
@@ -1140,7 +1137,7 @@ impl Creature {
                 speed: 13,
                 ammo_capacity: 0,
             },
-            Self::Basilisk => CS {
+            Self::Basilisk => Stats {
                 level: 4,
                 attack: 11,
                 defence: 11,
@@ -1149,7 +1146,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::GreaterBasilisk => CS {
+            Self::GreaterBasilisk => Stats {
                 level: 4,
                 attack: 12,
                 defence: 12,
@@ -1158,7 +1155,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Gorgon => CS {
+            Self::Gorgon => Stats {
                 level: 5,
                 attack: 10,
                 defence: 14,
@@ -1167,7 +1164,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::MightyGorgon => CS {
+            Self::MightyGorgon => Stats {
                 level: 5,
                 attack: 11,
                 defence: 16,
@@ -1176,7 +1173,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::Wyvern => CS {
+            Self::Wyvern => Stats {
                 level: 6,
                 attack: 14,
                 defence: 14,
@@ -1185,7 +1182,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::WyvernMonarch => CS {
+            Self::WyvernMonarch => Stats {
                 level: 6,
                 attack: 14,
                 defence: 14,
@@ -1194,7 +1191,7 @@ impl Creature {
                 speed: 11,
                 ammo_capacity: 0,
             },
-            Self::Hydra => CS {
+            Self::Hydra => Stats {
                 level: 7,
                 attack: 16,
                 defence: 18,
@@ -1203,7 +1200,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::ChaosHydra => CS {
+            Self::ChaosHydra => Stats {
                 level: 7,
                 attack: 18,
                 defence: 20,
@@ -1213,7 +1210,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Conflux
-            Self::Pixie => CS {
+            Self::Pixie => Stats {
                 level: 1,
                 attack: 2,
                 defence: 2,
@@ -1222,7 +1219,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Sprite => CS {
+            Self::Sprite => Stats {
                 level: 1,
                 attack: 2,
                 defence: 2,
@@ -1231,7 +1228,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::AirElemental => CS {
+            Self::AirElemental => Stats {
                 level: 2,
                 attack: 9,
                 defence: 9,
@@ -1240,7 +1237,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::StormElemental => CS {
+            Self::StormElemental => Stats {
                 level: 2,
                 attack: 9,
                 defence: 9,
@@ -1249,7 +1246,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 24,
             },
-            Self::WaterElemental => CS {
+            Self::WaterElemental => Stats {
                 level: 3,
                 attack: 8,
                 defence: 10,
@@ -1258,7 +1255,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::IceElemental => CS {
+            Self::IceElemental => Stats {
                 level: 3,
                 attack: 8,
                 defence: 10,
@@ -1267,7 +1264,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 24,
             },
-            Self::FireElemental => CS {
+            Self::FireElemental => Stats {
                 level: 4,
                 attack: 10,
                 defence: 8,
@@ -1276,7 +1273,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::EnergyElemental => CS {
+            Self::EnergyElemental => Stats {
                 level: 4,
                 attack: 12,
                 defence: 8,
@@ -1285,7 +1282,7 @@ impl Creature {
                 speed: 8,
                 ammo_capacity: 0,
             },
-            Self::EarthElemental => CS {
+            Self::EarthElemental => Stats {
                 level: 5,
                 attack: 10,
                 defence: 10,
@@ -1294,7 +1291,7 @@ impl Creature {
                 speed: 4,
                 ammo_capacity: 0,
             },
-            Self::MagmaElemental => CS {
+            Self::MagmaElemental => Stats {
                 level: 5,
                 attack: 11,
                 defence: 11,
@@ -1303,7 +1300,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::PsychicElemental => CS {
+            Self::PsychicElemental => Stats {
                 level: 6,
                 attack: 15,
                 defence: 13,
@@ -1312,7 +1309,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::MagicElemental => CS {
+            Self::MagicElemental => Stats {
                 level: 6,
                 attack: 15,
                 defence: 13,
@@ -1321,7 +1318,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 0,
             },
-            Self::Firebird => CS {
+            Self::Firebird => Stats {
                 level: 7,
                 attack: 18,
                 defence: 18,
@@ -1330,7 +1327,7 @@ impl Creature {
                 speed: 15,
                 ammo_capacity: 0,
             },
-            Self::Phoenix => CS {
+            Self::Phoenix => Stats {
                 level: 7,
                 attack: 21,
                 defence: 18,
@@ -1340,7 +1337,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // Neutral
-            Self::Peasant => CS {
+            Self::Peasant => Stats {
                 level: 1,
                 attack: 1,
                 defence: 1,
@@ -1349,7 +1346,7 @@ impl Creature {
                 speed: 3,
                 ammo_capacity: 0,
             },
-            Self::Halfling => CS {
+            Self::Halfling => Stats {
                 level: 1,
                 attack: 4,
                 defence: 2,
@@ -1358,7 +1355,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 24,
             },
-            Self::Boar => CS {
+            Self::Boar => Stats {
                 level: 2,
                 attack: 6,
                 defence: 5,
@@ -1367,7 +1364,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::Rogue => CS {
+            Self::Rogue => Stats {
                 level: 2,
                 attack: 8,
                 defence: 3,
@@ -1376,7 +1373,7 @@ impl Creature {
                 speed: 6,
                 ammo_capacity: 0,
             },
-            Self::Mummy => CS {
+            Self::Mummy => Stats {
                 level: 3,
                 attack: 7,
                 defence: 7,
@@ -1385,7 +1382,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Nomad => CS {
+            Self::Nomad => Stats {
                 level: 3,
                 attack: 9,
                 defence: 8,
@@ -1394,7 +1391,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::Sharpshooter => CS {
+            Self::Sharpshooter => Stats {
                 level: 4,
                 attack: 12,
                 defence: 10,
@@ -1403,7 +1400,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 32,
             },
-            Self::Troll => CS {
+            Self::Troll => Stats {
                 level: 5,
                 attack: 14,
                 defence: 7,
@@ -1412,7 +1409,7 @@ impl Creature {
                 speed: 7,
                 ammo_capacity: 0,
             },
-            Self::GoldGolem => CS {
+            Self::GoldGolem => Stats {
                 level: 5,
                 attack: 11,
                 defence: 12,
@@ -1421,7 +1418,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::DiamondGolem => CS {
+            Self::DiamondGolem => Stats {
                 level: 6,
                 attack: 13,
                 defence: 12,
@@ -1430,7 +1427,7 @@ impl Creature {
                 speed: 5,
                 ammo_capacity: 0,
             },
-            Self::Enchanter => CS {
+            Self::Enchanter => Stats {
                 level: 6,
                 attack: 17,
                 defence: 12,
@@ -1439,7 +1436,7 @@ impl Creature {
                 speed: 9,
                 ammo_capacity: 32,
             },
-            Self::FaerieDragon => CS {
+            Self::FaerieDragon => Stats {
                 level: 7,
                 attack: 20,
                 defence: 20,
@@ -1448,7 +1445,7 @@ impl Creature {
                 speed: 15,
                 ammo_capacity: 0,
             },
-            Self::RustDragon => CS {
+            Self::RustDragon => Stats {
                 level: 7,
                 attack: 30,
                 defence: 30,
@@ -1457,7 +1454,7 @@ impl Creature {
                 speed: 17,
                 ammo_capacity: 0,
             },
-            Self::CrystalDragon => CS {
+            Self::CrystalDragon => Stats {
                 level: 7,
                 attack: 40,
                 defence: 40,
@@ -1466,7 +1463,7 @@ impl Creature {
                 speed: 16,
                 ammo_capacity: 0,
             },
-            Self::AzureDragon => CS {
+            Self::AzureDragon => Stats {
                 level: 7,
                 attack: 50,
                 defence: 50,
@@ -1476,7 +1473,7 @@ impl Creature {
                 ammo_capacity: 0,
             },
             // War Machines
-            Self::Ballista => CS {
+            Self::Ballista => Stats {
                 level: 1,
                 attack: 10,
                 defence: 10,
@@ -1485,7 +1482,7 @@ impl Creature {
                 speed: 0,
                 ammo_capacity: 0,
             },
-            Self::FirstAidTent => CS {
+            Self::FirstAidTent => Stats {
                 level: 1,
                 attack: 0,
                 defence: 0,
@@ -1494,7 +1491,7 @@ impl Creature {
                 speed: 0,
                 ammo_capacity: 0,
             },
-            Self::Catapult => CS {
+            Self::Catapult => Stats {
                 level: 1,
                 attack: 10,
                 defence: 10,
@@ -1503,7 +1500,7 @@ impl Creature {
                 speed: 0,
                 ammo_capacity: 0,
             },
-            Self::AmmoCart => CS {
+            Self::AmmoCart => Stats {
                 level: 1,
                 attack: 0,
                 defence: 5,
@@ -1579,69 +1576,69 @@ impl Creature {
     pub fn is_wide(&self) -> bool {
         [
             // Castle
-            C::Griffin,
-            C::RoyalGriffin,
-            C::Cavalier,
-            C::Champion,
-            C::Archangel,
+            Self::Griffin,
+            Self::RoyalGriffin,
+            Self::Cavalier,
+            Self::Champion,
+            Self::Archangel,
             // Rampart
-            C::Centaur,
-            C::CentaurCaptain,
-            C::Pegasus,
-            C::SilverPegasus,
-            C::Unicorn,
-            C::WarUnicorn,
-            C::GreenDragon,
-            C::GoldDragon,
+            Self::Centaur,
+            Self::CentaurCaptain,
+            Self::Pegasus,
+            Self::SilverPegasus,
+            Self::Unicorn,
+            Self::WarUnicorn,
+            Self::GreenDragon,
+            Self::GoldDragon,
             // Tower
-            C::Naga,
-            C::NagaQueen,
+            Self::Naga,
+            Self::NagaQueen,
             // Inferno
-            C::HellHound,
-            C::Cerberus,
+            Self::HellHound,
+            Self::Cerberus,
             // Necropolis
-            C::BlackKnight,
-            C::DreadKnight,
-            C::BoneDragon,
-            C::GhostDragon,
+            Self::BlackKnight,
+            Self::DreadKnight,
+            Self::BoneDragon,
+            Self::GhostDragon,
             // Dungeon
-            C::Medusa,
-            C::MedusaQueen,
-            C::Manticore,
-            C::Scorpicore,
-            C::RedDragon,
-            C::BlackDragon,
+            Self::Medusa,
+            Self::MedusaQueen,
+            Self::Manticore,
+            Self::Scorpicore,
+            Self::RedDragon,
+            Self::BlackDragon,
             // Stronghold
-            C::WolfRider,
-            C::WolfRaider,
-            C::Roc,
-            C::Thunderbird,
-            C::Behemoth,
-            C::AncientBehemoth,
+            Self::WolfRider,
+            Self::WolfRaider,
+            Self::Roc,
+            Self::Thunderbird,
+            Self::Behemoth,
+            Self::AncientBehemoth,
             // Fortress
-            C::Basilisk,
-            C::GreaterBasilisk,
-            C::Gorgon,
-            C::MightyGorgon,
-            C::Wyvern,
-            C::WyvernMonarch,
-            C::Hydra,
-            C::ChaosHydra,
+            Self::Basilisk,
+            Self::GreaterBasilisk,
+            Self::Gorgon,
+            Self::MightyGorgon,
+            Self::Wyvern,
+            Self::WyvernMonarch,
+            Self::Hydra,
+            Self::ChaosHydra,
             // Conflux
-            C::WaterElemental,
-            C::IceElemental,
-            C::Firebird,
-            C::Phoenix,
+            Self::WaterElemental,
+            Self::IceElemental,
+            Self::Firebird,
+            Self::Phoenix,
             // Neutral
-            C::Boar,
-            C::Nomad,
-            C::FaerieDragon,
-            C::RustDragon,
-            C::CrystalDragon,
-            C::AzureDragon,
+            Self::Boar,
+            Self::Nomad,
+            Self::FaerieDragon,
+            Self::RustDragon,
+            Self::CrystalDragon,
+            Self::AzureDragon,
             // War Machines
-            C::Ballista,
-            C::Catapult,
+            Self::Ballista,
+            Self::Catapult,
         ]
         .contains(self)
     }
@@ -1649,57 +1646,57 @@ impl Creature {
     pub fn is_flying(&self) -> bool {
         [
             // Castle
-            C::Griffin,
-            C::RoyalGriffin,
-            C::Angel,
-            C::Archangel,
+            Self::Griffin,
+            Self::RoyalGriffin,
+            Self::Angel,
+            Self::Archangel,
             // Rampart
-            C::Pegasus,
-            C::SilverPegasus,
-            C::GreenDragon,
-            C::GoldDragon,
+            Self::Pegasus,
+            Self::SilverPegasus,
+            Self::GreenDragon,
+            Self::GoldDragon,
             // Tower
-            C::StoneGargoyle,
-            C::ObsidianGargoyle,
-            C::Genie,
-            C::MasterGenie,
+            Self::StoneGargoyle,
+            Self::ObsidianGargoyle,
+            Self::Genie,
+            Self::MasterGenie,
             // Inferno
-            C::Efreeti,
-            C::EfreetSultan,
-            C::Devil,
-            C::ArchDevil,
+            Self::Efreeti,
+            Self::EfreetSultan,
+            Self::Devil,
+            Self::ArchDevil,
             // Necropolis
-            C::Wight,
-            C::Wraith,
-            C::Vampire,
-            C::VampireLord,
-            C::BoneDragon,
-            C::GhostDragon,
+            Self::Wight,
+            Self::Wraith,
+            Self::Vampire,
+            Self::VampireLord,
+            Self::BoneDragon,
+            Self::GhostDragon,
             // Dungeon
-            C::Harpy,
-            C::HarpyHag,
-            C::Manticore,
-            C::Scorpicore,
-            C::RedDragon,
-            C::BlackDragon,
+            Self::Harpy,
+            Self::HarpyHag,
+            Self::Manticore,
+            Self::Scorpicore,
+            Self::RedDragon,
+            Self::BlackDragon,
             // Stronghold
-            C::Roc,
-            C::Thunderbird,
+            Self::Roc,
+            Self::Thunderbird,
             // Fortress
-            C::SerpentFly,
-            C::DragonFly,
-            C::Wyvern,
-            C::WyvernMonarch,
+            Self::SerpentFly,
+            Self::DragonFly,
+            Self::Wyvern,
+            Self::WyvernMonarch,
             // Conflux
-            C::Pixie,
-            C::Sprite,
-            C::EnergyElemental,
-            C::Firebird,
-            C::Phoenix,
+            Self::Pixie,
+            Self::Sprite,
+            Self::EnergyElemental,
+            Self::Firebird,
+            Self::Phoenix,
             // Neutral
-            C::FaerieDragon,
-            C::RustDragon,
-            C::AzureDragon,
+            Self::FaerieDragon,
+            Self::RustDragon,
+            Self::AzureDragon,
         ]
         .contains(self)
     }
@@ -1871,158 +1868,158 @@ impl Creature {
 
     pub const fn walk_animation_modifier(self) -> f32 {
         match self {
-            C::Pikeman => 1.15,
-            C::Halberdier => 0.90,
-            C::Archer => 1.00,
-            C::Marksman => 1.00,
-            C::Griffin => 1.00,
-            C::RoyalGriffin => 1.05,
-            C::Swordsman => 0.87,
-            C::Crusader => 0.95,
-            C::Monk => 1.00,
-            C::Zealot => 1.00,
-            C::Cavalier => 1.00,
-            C::Champion => 0.90,
-            C::Angel => 0.82,
-            C::Archangel => 0.82,
+            Self::Pikeman => 1.15,
+            Self::Halberdier => 0.90,
+            Self::Archer => 1.00,
+            Self::Marksman => 1.00,
+            Self::Griffin => 1.00,
+            Self::RoyalGriffin => 1.05,
+            Self::Swordsman => 0.87,
+            Self::Crusader => 0.95,
+            Self::Monk => 1.00,
+            Self::Zealot => 1.00,
+            Self::Cavalier => 1.00,
+            Self::Champion => 0.90,
+            Self::Angel => 0.82,
+            Self::Archangel => 0.82,
 
-            C::Centaur => 0.50,
-            C::CentaurCaptain => 0.50,
-            C::Dwarf => 0.98,
-            C::BattleDwarf => 0.97,
-            C::WoodElf => 1.02,
-            C::GrandElf => 1.02,
-            C::Pegasus => 0.72,
-            C::SilverPegasus => 0.72,
-            C::DendroidGuard => 1.55,
-            C::DendroidSoldier => 1.55,
-            C::Unicorn => 1.20,
-            C::WarUnicorn => 1.20,
-            C::GreenDragon => 0.60,
-            C::GoldDragon => 0.60,
+            Self::Centaur => 0.50,
+            Self::CentaurCaptain => 0.50,
+            Self::Dwarf => 0.98,
+            Self::BattleDwarf => 0.97,
+            Self::WoodElf => 1.02,
+            Self::GrandElf => 1.02,
+            Self::Pegasus => 0.72,
+            Self::SilverPegasus => 0.72,
+            Self::DendroidGuard => 1.55,
+            Self::DendroidSoldier => 1.55,
+            Self::Unicorn => 1.20,
+            Self::WarUnicorn => 1.20,
+            Self::GreenDragon => 0.60,
+            Self::GoldDragon => 0.60,
 
-            C::Gremlin => 1.00,
-            C::MasterGremlin => 0.75,
-            C::StoneGargoyle => 0.70,
-            C::ObsidianGargoyle => 0.70,
-            C::IronGolem => 1.20,
-            C::StoneGolem => 1.45,
-            C::Mage => 1.00,
-            C::ArchMage => 1.00,
-            C::Genie => 1.00,
-            C::MasterGenie => 1.00,
-            C::Naga => 1.00,
-            C::NagaQueen => 1.00,
-            C::Giant => 1.38,
-            C::Titan => 1.38,
+            Self::Gremlin => 1.00,
+            Self::MasterGremlin => 0.75,
+            Self::StoneGargoyle => 0.70,
+            Self::ObsidianGargoyle => 0.70,
+            Self::IronGolem => 1.20,
+            Self::StoneGolem => 1.45,
+            Self::Mage => 1.00,
+            Self::ArchMage => 1.00,
+            Self::Genie => 1.00,
+            Self::MasterGenie => 1.00,
+            Self::Naga => 1.00,
+            Self::NagaQueen => 1.00,
+            Self::Giant => 1.38,
+            Self::Titan => 1.38,
 
-            C::Imp => 1.25,
-            C::Familiar => 1.30,
-            C::Gog => 1.27,
-            C::Magog => 1.33,
-            C::HellHound => 1.00,
-            C::Cerberus => 1.00,
-            C::Demon => 0.93,
-            C::HornedDemon => 0.93,
-            C::PitFiend => 1.00,
-            C::PitLord => 1.00,
-            C::Efreeti => 1.00,
-            C::EfreetSultan => 1.00,
-            C::Devil => 1.00,
-            C::ArchDevil => 1.00,
+            Self::Imp => 1.25,
+            Self::Familiar => 1.30,
+            Self::Gog => 1.27,
+            Self::Magog => 1.33,
+            Self::HellHound => 1.00,
+            Self::Cerberus => 1.00,
+            Self::Demon => 0.93,
+            Self::HornedDemon => 0.93,
+            Self::PitFiend => 1.00,
+            Self::PitLord => 1.00,
+            Self::Efreeti => 1.00,
+            Self::EfreetSultan => 1.00,
+            Self::Devil => 1.00,
+            Self::ArchDevil => 1.00,
 
-            C::Skeleton => 1.00,
-            C::SkeletonWarrior => 1.00,
-            C::WalkingDead => 1.30,
-            C::Zombie => 1.30,
-            C::Wight => 1.00,
-            C::Wraith => 1.00,
-            C::Vampire => 1.00,
-            C::VampireLord => 1.00,
-            C::Lich => 1.00,
-            C::PowerLich => 1.00,
-            C::BlackKnight => 1.00,
-            C::DreadKnight => 1.00,
-            C::BoneDragon => 0.75,
-            C::GhostDragon => 0.75,
+            Self::Skeleton => 1.00,
+            Self::SkeletonWarrior => 1.00,
+            Self::WalkingDead => 1.30,
+            Self::Zombie => 1.30,
+            Self::Wight => 1.00,
+            Self::Wraith => 1.00,
+            Self::Vampire => 1.00,
+            Self::VampireLord => 1.00,
+            Self::Lich => 1.00,
+            Self::PowerLich => 1.00,
+            Self::BlackKnight => 1.00,
+            Self::DreadKnight => 1.00,
+            Self::BoneDragon => 0.75,
+            Self::GhostDragon => 0.75,
 
-            C::Troglodyte => 0.80,
-            C::InfernalTroglodyte => 0.80,
-            C::Harpy => 0.85,
-            C::HarpyHag => 0.85,
-            C::Beholder => 1.00,
-            C::EvilEye => 1.00,
-            C::Medusa => 1.00,
-            C::MedusaQueen => 1.00,
-            C::Minotaur => 1.05,
-            C::MinotaurKing => 1.05,
-            C::Manticore => 0.80,
-            C::Scorpicore => 0.80,
-            C::RedDragon => 0.60,
-            C::BlackDragon => 0.60,
+            Self::Troglodyte => 0.80,
+            Self::InfernalTroglodyte => 0.80,
+            Self::Harpy => 0.85,
+            Self::HarpyHag => 0.85,
+            Self::Beholder => 1.00,
+            Self::EvilEye => 1.00,
+            Self::Medusa => 1.00,
+            Self::MedusaQueen => 1.00,
+            Self::Minotaur => 1.05,
+            Self::MinotaurKing => 1.05,
+            Self::Manticore => 0.80,
+            Self::Scorpicore => 0.80,
+            Self::RedDragon => 0.60,
+            Self::BlackDragon => 0.60,
 
-            C::Goblin => 1.21,
-            C::Hobgoblin => 1.24,
-            C::WolfRider => 0.93,
-            C::WolfRaider => 0.93,
-            C::Orc => 1.00,
-            C::OrcChieftain => 1.00,
-            C::Ogre => 1.28,
-            C::OgreMagi => 1.28,
-            C::Roc => 1.00,
-            C::Thunderbird => 1.00,
-            C::Cyclops => 1.00,
-            C::CyclopsKing => 1.00,
-            C::Behemoth => 1.17,
-            C::AncientBehemoth => 1.17,
+            Self::Goblin => 1.21,
+            Self::Hobgoblin => 1.24,
+            Self::WolfRider => 0.93,
+            Self::WolfRaider => 0.93,
+            Self::Orc => 1.00,
+            Self::OrcChieftain => 1.00,
+            Self::Ogre => 1.28,
+            Self::OgreMagi => 1.28,
+            Self::Roc => 1.00,
+            Self::Thunderbird => 1.00,
+            Self::Cyclops => 1.00,
+            Self::CyclopsKing => 1.00,
+            Self::Behemoth => 1.17,
+            Self::AncientBehemoth => 1.17,
 
-            C::Gnoll => 1.00,
-            C::GnollMarauder => 1.00,
-            C::Lizardman => 0.90,
-            C::LizardWarrior => 0.90,
-            C::Gorgon => 1.00,
-            C::MightyGorgon => 1.00,
-            C::SerpentFly => 0.77,
-            C::DragonFly => 0.77,
-            C::Basilisk => 1.00,
-            C::GreaterBasilisk => 1.00,
-            C::Wyvern => 0.67,
-            C::WyvernMonarch => 0.67,
-            C::Hydra => 1.00,
-            C::ChaosHydra => 1.00,
+            Self::Gnoll => 1.00,
+            Self::GnollMarauder => 1.00,
+            Self::Lizardman => 0.90,
+            Self::LizardWarrior => 0.90,
+            Self::Gorgon => 1.00,
+            Self::MightyGorgon => 1.00,
+            Self::SerpentFly => 0.77,
+            Self::DragonFly => 0.77,
+            Self::Basilisk => 1.00,
+            Self::GreaterBasilisk => 1.00,
+            Self::Wyvern => 0.67,
+            Self::WyvernMonarch => 0.67,
+            Self::Hydra => 1.00,
+            Self::ChaosHydra => 1.00,
 
-            C::AirElemental => 0.50,
-            C::EarthElemental => 1.00,
-            C::FireElemental => 0.50,
-            C::WaterElemental => 0.87,
-            C::GoldGolem => 1.20,
-            C::DiamondGolem => 1.27,
-            C::Pixie => 1.00,
-            C::Sprite => 1.00,
-            C::PsychicElemental => 1.00,
-            C::MagicElemental => 1.00,
-            C::IceElemental => 1.00,
-            C::MagmaElemental => 0.77,
-            C::StormElemental => 1.33,
-            C::EnergyElemental => 0.67,
-            C::Firebird => 1.00,
-            C::Phoenix => 1.00,
+            Self::AirElemental => 0.50,
+            Self::EarthElemental => 1.00,
+            Self::FireElemental => 0.50,
+            Self::WaterElemental => 0.87,
+            Self::GoldGolem => 1.20,
+            Self::DiamondGolem => 1.27,
+            Self::Pixie => 1.00,
+            Self::Sprite => 1.00,
+            Self::PsychicElemental => 1.00,
+            Self::MagicElemental => 1.00,
+            Self::IceElemental => 1.00,
+            Self::MagmaElemental => 0.77,
+            Self::StormElemental => 1.33,
+            Self::EnergyElemental => 0.67,
+            Self::Firebird => 1.00,
+            Self::Phoenix => 1.00,
 
-            C::AzureDragon => 0.60,
-            C::CrystalDragon => 0.60,
-            C::FaerieDragon => 0.60,
-            C::RustDragon => 0.60,
-            C::Enchanter => 1.00,
-            C::Sharpshooter => 1.02,
-            C::Halfling => 1.00,
-            C::Peasant => 1.00,
-            C::Boar => 1.00,
-            C::Mummy => 1.00,
-            C::Nomad => 1.00,
-            C::Rogue => 1.00,
-            C::Troll => 1.00,
+            Self::AzureDragon => 0.60,
+            Self::CrystalDragon => 0.60,
+            Self::FaerieDragon => 0.60,
+            Self::RustDragon => 0.60,
+            Self::Enchanter => 1.00,
+            Self::Sharpshooter => 1.02,
+            Self::Halfling => 1.00,
+            Self::Peasant => 1.00,
+            Self::Boar => 1.00,
+            Self::Mummy => 1.00,
+            Self::Nomad => 1.00,
+            Self::Rogue => 1.00,
+            Self::Troll => 1.00,
 
-            C::Catapult | C::Ballista | C::FirstAidTent | C::AmmoCart => unreachable!(),
+            Self::Catapult | Self::Ballista | Self::FirstAidTent | Self::AmmoCart => unreachable!(),
         }
     }
 

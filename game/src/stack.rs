@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 
+use gamedata::creatures;
 use gamedata::creatures::abilities::RetaliationCount;
-use gamedata::creatures::{Creature, CreatureStats};
+use gamedata::creatures::Creature;
 
 use crate::battlestate::turns;
 use crate::grid::GridPos;
@@ -41,7 +42,7 @@ impl Stack {
         }
     }
 
-    pub fn base_stats(&self) -> CreatureStats {
+    pub fn base_stats(&self) -> creatures::Stats {
         self.creature.base_stats()
     }
 
