@@ -7,7 +7,8 @@ use strum::IntoEnumIterator;
 
 use formats::lod::LodIndex;
 use formats::snd::SndIndex;
-use gamedata::creatures::{Creature, CreatureSound};
+use gamedata::creatures;
+use gamedata::creatures::Creature;
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::error::AnyHow;
@@ -89,7 +90,7 @@ impl ResourceRegistry {
     pub fn get_creature_sound(
         &mut self,
         creature: Creature,
-        sound: CreatureSound,
+        sound: creatures::Sound,
     ) -> Option<&Chunk> {
         self.get_creature_resources(creature).sounds().get(sound)
     }
@@ -105,7 +106,7 @@ impl ResourceRegistry {
     fn load_creature_resources(&mut self, creature: Creature) -> CreatureResources {
         let spritesheet = self.load_spritesheet(creature.spritesheet_filename());
 
-        let sounds = CreatureSound::iter()
+        let sounds = creatures::Sound::iter()
             .map(|sound| {
                 if let Some(filename) = creature.sounds().get(sound) {
                     let chunk = self.load_sound(filename).unwrap();

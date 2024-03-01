@@ -1,7 +1,8 @@
 use std::fmt::Debug;
 use std::time::Duration;
 
-use gamedata::creatures::{Creature, CreatureSound};
+use gamedata::creatures;
+use gamedata::creatures::Creature;
 use gamedata::spells::{Spell, SpellAnimation};
 
 use crate::battlestate::{BattleState, Side, StackHandle};
@@ -126,7 +127,7 @@ pub fn animate_movement(
     let mut events = vec![];
 
     events.push(AnimationEvent::PlaySound(Sound::new(
-        CreatureSound::StartMoving,
+        creatures::Sound::StartMoving,
     )));
 
     let animation_type = AnimationType::StartMoving;
@@ -145,14 +146,14 @@ pub fn animate_movement(
         events.push(AnimationEvent::Teleport(*path.last().unwrap()));
     } else {
         events.extend([
-            AnimationEvent::PlaySound(Sound::new_looping(CreatureSound::Move)),
+            AnimationEvent::PlaySound(Sound::new_looping(creatures::Sound::Move)),
             AnimationEvent::Movement(MovementEvent::new(creature, path, rr)),
             AnimationEvent::StopSound,
         ]);
     }
 
     events.push(AnimationEvent::PlaySound(Sound::new(
-        CreatureSound::EndMoving,
+        creatures::Sound::EndMoving,
     )));
 
     let animation_type = AnimationType::StopMoving;
@@ -305,16 +306,16 @@ fn put_animation_with_sound(
     )));
 }
 
-fn sound_for_animation(animation_type: AnimationType) -> Option<CreatureSound> {
+fn sound_for_animation(animation_type: AnimationType) -> Option<creatures::Sound> {
     match animation_type {
-        AnimationType::AttackStraight => Some(CreatureSound::Attack),
-        AnimationType::Defend => Some(CreatureSound::Defend),
-        AnimationType::StartMoving => Some(CreatureSound::StartMoving),
-        AnimationType::Moving => Some(CreatureSound::Move),
-        AnimationType::StopMoving => Some(CreatureSound::EndMoving),
-        AnimationType::ShootStraight => Some(CreatureSound::Shoot),
-        AnimationType::GettingHit => Some(CreatureSound::Wince),
-        AnimationType::Death => Some(CreatureSound::Killed),
+        AnimationType::AttackStraight => Some(creatures::Sound::Attack),
+        AnimationType::Defend => Some(creatures::Sound::Defend),
+        AnimationType::StartMoving => Some(creatures::Sound::StartMoving),
+        AnimationType::Moving => Some(creatures::Sound::Move),
+        AnimationType::StopMoving => Some(creatures::Sound::EndMoving),
+        AnimationType::ShootStraight => Some(creatures::Sound::Shoot),
+        AnimationType::GettingHit => Some(creatures::Sound::Wince),
+        AnimationType::Death => Some(creatures::Sound::Killed),
         _ => None,
     }
 }

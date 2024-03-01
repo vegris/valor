@@ -177,7 +177,7 @@ pub struct Stats {
 }
 
 #[derive(Clone, Copy, EnumCount, EnumIter)]
-pub enum CreatureSound {
+pub enum Sound {
     Attack,
     Defend,
     StartMoving,
@@ -188,7 +188,7 @@ pub enum CreatureSound {
     Killed,
 }
 
-pub struct CreatureSounds([Option<&'static str>; CreatureSound::COUNT]);
+pub struct Sounds([Option<&'static str>; Sound::COUNT]);
 
 impl Creature {
     pub const fn base_stats(&self) -> Stats {
@@ -2023,9 +2023,9 @@ impl Creature {
         }
     }
 
-    pub fn sounds(&self) -> CreatureSounds {
+    pub fn sounds(&self) -> Sounds {
         match self {
-            Self::Angel => CreatureSounds([
+            Self::Angel => Sounds([
                 Some("ANGLATTK"),
                 Some("ANGLDFND"),
                 None,
@@ -2035,7 +2035,7 @@ impl Creature {
                 Some("ANGLWNCE"),
                 Some("ANGLKILL"),
             ]),
-            Self::Archangel => CreatureSounds([
+            Self::Archangel => Sounds([
                 Some("AAGLATTK"),
                 Some("AAGLDFND"),
                 None,
@@ -2045,7 +2045,7 @@ impl Creature {
                 Some("AAGLWNCE"),
                 Some("AAGLKILL"),
             ]),
-            Self::Archer => CreatureSounds([
+            Self::Archer => Sounds([
                 Some("LCRSATTK"),
                 Some("LCRSDFND"),
                 None,
@@ -2055,7 +2055,7 @@ impl Creature {
                 Some("LCRSWNCE"),
                 Some("LCRSKILL"),
             ]),
-            Self::Cavalier => CreatureSounds([
+            Self::Cavalier => Sounds([
                 Some("CAVAATTK"),
                 Some("CAVADFND"),
                 None,
@@ -2065,7 +2065,7 @@ impl Creature {
                 Some("CAVAWNCE"),
                 Some("CAVAKILL"),
             ]),
-            Self::Champion => CreatureSounds([
+            Self::Champion => Sounds([
                 Some("CHMPATTK"),
                 Some("CHMPDFND"),
                 None,
@@ -2075,7 +2075,7 @@ impl Creature {
                 Some("CHMPWNCE"),
                 Some("CHMPKILL"),
             ]),
-            Self::Crusader => CreatureSounds([
+            Self::Crusader => Sounds([
                 Some("CRUSATTK"),
                 Some("CRUSDFND"),
                 None,
@@ -2085,7 +2085,7 @@ impl Creature {
                 Some("CRUSWNCE"),
                 Some("CRUSKILL"),
             ]),
-            Self::Griffin => CreatureSounds([
+            Self::Griffin => Sounds([
                 Some("GRIFATTK"),
                 Some("GRIFDFND"),
                 None,
@@ -2095,7 +2095,7 @@ impl Creature {
                 Some("GRIFWNCE"),
                 Some("GRIFKILL"),
             ]),
-            Self::Halberdier => CreatureSounds([
+            Self::Halberdier => Sounds([
                 Some("HALBATTK"),
                 Some("HALBDFND"),
                 None,
@@ -2105,7 +2105,7 @@ impl Creature {
                 Some("HALBWNCE"),
                 Some("HALBKILL"),
             ]),
-            Self::Marksman => CreatureSounds([
+            Self::Marksman => Sounds([
                 Some("HCRSATTK"),
                 Some("HCRSDFND"),
                 None,
@@ -2115,7 +2115,7 @@ impl Creature {
                 Some("HCRSWNCE"),
                 Some("HCRSKILL"),
             ]),
-            Self::Monk => CreatureSounds([
+            Self::Monk => Sounds([
                 Some("MONKATTK"),
                 Some("MONKDFND"),
                 None,
@@ -2125,7 +2125,7 @@ impl Creature {
                 Some("MONKWNCE"),
                 Some("MONKKILL"),
             ]),
-            Self::Pikeman => CreatureSounds([
+            Self::Pikeman => Sounds([
                 Some("PIKEATTK"),
                 Some("PIKEDFND"),
                 None,
@@ -2135,7 +2135,7 @@ impl Creature {
                 Some("PIKEWNCE"),
                 Some("PIKEKILL"),
             ]),
-            Self::RoyalGriffin => CreatureSounds([
+            Self::RoyalGriffin => Sounds([
                 Some("RGRFATTK"),
                 Some("RGRFDFND"),
                 None,
@@ -2145,7 +2145,7 @@ impl Creature {
                 Some("RGRFWNCE"),
                 Some("RGRFKILL"),
             ]),
-            Self::Swordsman => CreatureSounds([
+            Self::Swordsman => Sounds([
                 Some("SWRDATTK"),
                 Some("SWRDDFND"),
                 None,
@@ -2155,7 +2155,7 @@ impl Creature {
                 Some("SWRDWNCE"),
                 Some("SWRDKILL"),
             ]),
-            Self::Zealot => CreatureSounds([
+            Self::Zealot => Sounds([
                 Some("ZELTATTK"),
                 Some("ZELTDFND"),
                 None,
@@ -2166,7 +2166,7 @@ impl Creature {
                 Some("ZELTKILL"),
             ]),
 
-            Self::AmmoCart => CreatureSounds([
+            Self::AmmoCart => Sounds([
                 None,
                 None,
                 None,
@@ -2176,7 +2176,7 @@ impl Creature {
                 Some("CARTWNCE"),
                 Some("CARTKILL"),
             ]),
-            Self::Ballista => CreatureSounds([
+            Self::Ballista => Sounds([
                 None,
                 None,
                 None,
@@ -2186,7 +2186,7 @@ impl Creature {
                 Some("BALLWNCE"),
                 Some("BALLKILL"),
             ]),
-            Self::Catapult => CreatureSounds([
+            Self::Catapult => Sounds([
                 None,
                 None,
                 None,
@@ -2196,7 +2196,7 @@ impl Creature {
                 Some("CATAWNCE"),
                 Some("CATAKILL"),
             ]),
-            Self::FirstAidTent => CreatureSounds([
+            Self::FirstAidTent => Sounds([
                 None,
                 None,
                 None,
@@ -2207,7 +2207,7 @@ impl Creature {
                 Some("FAIDKILL"),
             ]),
 
-            Self::ArchMage => CreatureSounds([
+            Self::ArchMage => Sounds([
                 Some("AMAGATTK"),
                 Some("AMAGDFND"),
                 None,
@@ -2217,7 +2217,7 @@ impl Creature {
                 Some("AMAGWNCE"),
                 Some("AMAGKILL"),
             ]),
-            Self::Genie => CreatureSounds([
+            Self::Genie => Sounds([
                 Some("GENIATTK"),
                 Some("GENIDFND"),
                 None,
@@ -2227,7 +2227,7 @@ impl Creature {
                 Some("GENIWNCE"),
                 Some("GENIKILL"),
             ]),
-            Self::Giant => CreatureSounds([
+            Self::Giant => Sounds([
                 Some("LTITATTK"),
                 Some("LTITDFND"),
                 None,
@@ -2237,7 +2237,7 @@ impl Creature {
                 Some("LTITWNCE"),
                 Some("LTITKILL"),
             ]),
-            Self::Gremlin => CreatureSounds([
+            Self::Gremlin => Sounds([
                 Some("AGRMATTK"),
                 Some("AGRMDFND"),
                 None,
@@ -2247,7 +2247,7 @@ impl Creature {
                 Some("AGRMWNCE"),
                 Some("AGRMKILL"),
             ]),
-            Self::IronGolem => CreatureSounds([
+            Self::IronGolem => Sounds([
                 Some("SGLMATTK"),
                 Some("SGLMDFND"),
                 None,
@@ -2257,7 +2257,7 @@ impl Creature {
                 Some("SGLMWNCE"),
                 Some("SGLMKILL"),
             ]),
-            Self::Mage => CreatureSounds([
+            Self::Mage => Sounds([
                 Some("MAGEATTK"),
                 Some("MAGEDFND"),
                 None,
@@ -2267,7 +2267,7 @@ impl Creature {
                 Some("MAGEWNCE"),
                 Some("MAGEKILL"),
             ]),
-            Self::MasterGenie => CreatureSounds([
+            Self::MasterGenie => Sounds([
                 Some("CALFATTK"),
                 Some("CALFDFND"),
                 None,
@@ -2277,7 +2277,7 @@ impl Creature {
                 Some("CALFWNCE"),
                 Some("CALFKILL"),
             ]),
-            Self::MasterGremlin => CreatureSounds([
+            Self::MasterGremlin => Sounds([
                 Some("MGRMATTK"),
                 Some("MGRMDFND"),
                 None,
@@ -2287,7 +2287,7 @@ impl Creature {
                 Some("MGRMWNCE"),
                 Some("MGRMKILL"),
             ]),
-            Self::Naga => CreatureSounds([
+            Self::Naga => Sounds([
                 Some("NSENATTK"),
                 Some("NSENDFND"),
                 None,
@@ -2297,7 +2297,7 @@ impl Creature {
                 Some("NSENWNCE"),
                 Some("NSENKILL"),
             ]),
-            Self::NagaQueen => CreatureSounds([
+            Self::NagaQueen => Sounds([
                 Some("NGRDATTK"),
                 Some("NGRDDFND"),
                 None,
@@ -2307,7 +2307,7 @@ impl Creature {
                 Some("NGRDWNCE"),
                 Some("NGRDKILL"),
             ]),
-            Self::ObsidianGargoyle => CreatureSounds([
+            Self::ObsidianGargoyle => Sounds([
                 Some("OGRGATTK"),
                 Some("OGRGDFND"),
                 None,
@@ -2317,7 +2317,7 @@ impl Creature {
                 Some("OGRGWNCE"),
                 Some("OGRGKILL"),
             ]),
-            Self::StoneGargoyle => CreatureSounds([
+            Self::StoneGargoyle => Sounds([
                 Some("SGRGATTK"),
                 Some("SGRGDFND"),
                 None,
@@ -2327,7 +2327,7 @@ impl Creature {
                 Some("SGRGWNCE"),
                 Some("SGRGKILL"),
             ]),
-            Self::StoneGolem => CreatureSounds([
+            Self::StoneGolem => Sounds([
                 Some("IGLMATTK"),
                 Some("IGLMDFND"),
                 None,
@@ -2337,7 +2337,7 @@ impl Creature {
                 Some("IGLMWNCE"),
                 Some("IGLMKILL"),
             ]),
-            Self::Titan => CreatureSounds([
+            Self::Titan => Sounds([
                 Some("GTITATTK"),
                 Some("GTITDFND"),
                 None,
@@ -2348,7 +2348,7 @@ impl Creature {
                 Some("GTITKILL"),
             ]),
 
-            Self::AzureDragon => CreatureSounds([
+            Self::AzureDragon => Sounds([
                 Some("AZURATTK"),
                 Some("AZURDFND"),
                 None,
@@ -2358,7 +2358,7 @@ impl Creature {
                 Some("AZURWNCE"),
                 Some("AZURKILL"),
             ]),
-            Self::Boar => CreatureSounds([
+            Self::Boar => Sounds([
                 Some("BOARATTK"),
                 Some("BOARDFND"),
                 None,
@@ -2368,7 +2368,7 @@ impl Creature {
                 Some("BOARWNCE"),
                 Some("BOARKILL"),
             ]),
-            Self::CrystalDragon => CreatureSounds([
+            Self::CrystalDragon => Sounds([
                 Some("CRYSATTK"),
                 Some("CRYSDFND"),
                 None,
@@ -2378,7 +2378,7 @@ impl Creature {
                 Some("CRYSWNCE"),
                 Some("CRYSKILL"),
             ]),
-            Self::DiamondGolem => CreatureSounds([
+            Self::DiamondGolem => Sounds([
                 Some("DGLMATTK"),
                 Some("DGLMDFND"),
                 None,
@@ -2388,7 +2388,7 @@ impl Creature {
                 Some("DGLMWNCE"),
                 Some("DGLMKILL"),
             ]),
-            Self::Enchanter => CreatureSounds([
+            Self::Enchanter => Sounds([
                 Some("ENCHATTK"),
                 Some("ENCHDFND"),
                 None,
@@ -2398,7 +2398,7 @@ impl Creature {
                 Some("ENCHWNCE"),
                 Some("ENCHKILL"),
             ]),
-            Self::FaerieDragon => CreatureSounds([
+            Self::FaerieDragon => Sounds([
                 Some("FAERATTK"),
                 Some("FAERDFND"),
                 None,
@@ -2408,7 +2408,7 @@ impl Creature {
                 Some("FAERWNCE"),
                 Some("FAERKILL"),
             ]),
-            Self::GoldGolem => CreatureSounds([
+            Self::GoldGolem => Sounds([
                 Some("GGLMATTK"),
                 Some("GGLMDFND"),
                 None,
@@ -2418,7 +2418,7 @@ impl Creature {
                 Some("GGLMWNCE"),
                 Some("GGLMKILL"),
             ]),
-            Self::Halfling => CreatureSounds([
+            Self::Halfling => Sounds([
                 Some("HALFATTK"),
                 Some("HALFDFND"),
                 None,
@@ -2428,7 +2428,7 @@ impl Creature {
                 Some("HALFWNCE"),
                 Some("HALFKILL"),
             ]),
-            Self::Mummy => CreatureSounds([
+            Self::Mummy => Sounds([
                 Some("MUMYATTK"),
                 Some("MUMYDFND"),
                 None,
@@ -2438,7 +2438,7 @@ impl Creature {
                 Some("MUMYWNCE"),
                 Some("MUMYKILL"),
             ]),
-            Self::Nomad => CreatureSounds([
+            Self::Nomad => Sounds([
                 Some("NMADATTK"),
                 Some("NMADDFND"),
                 None,
@@ -2448,7 +2448,7 @@ impl Creature {
                 Some("NMADWNCE"),
                 Some("NMADKILL"),
             ]),
-            Self::Peasant => CreatureSounds([
+            Self::Peasant => Sounds([
                 Some("PSNTATTK"),
                 Some("PSNTDFND"),
                 None,
@@ -2458,7 +2458,7 @@ impl Creature {
                 Some("PSNTWNCE"),
                 Some("PSNTKILL"),
             ]),
-            Self::Rogue => CreatureSounds([
+            Self::Rogue => Sounds([
                 Some("ROGUATTK"),
                 Some("ROGUDFND"),
                 None,
@@ -2468,7 +2468,7 @@ impl Creature {
                 Some("ROGUWNCE"),
                 Some("ROGUKILL"),
             ]),
-            Self::RustDragon => CreatureSounds([
+            Self::RustDragon => Sounds([
                 Some("RUSTATTK"),
                 Some("RUSTDFND"),
                 None,
@@ -2478,7 +2478,7 @@ impl Creature {
                 Some("RUSTWNCE"),
                 Some("RUSTKILL"),
             ]),
-            Self::Sharpshooter => CreatureSounds([
+            Self::Sharpshooter => Sounds([
                 Some("HCRSATTK"),
                 Some("HCRSDFND"),
                 None,
@@ -2488,7 +2488,7 @@ impl Creature {
                 Some("HCRSWNCE"),
                 Some("HCRSKILL"),
             ]),
-            Self::Troll => CreatureSounds([
+            Self::Troll => Sounds([
                 Some("TRLLATTK"),
                 Some("TRLLDFND"),
                 None,
@@ -2499,7 +2499,7 @@ impl Creature {
                 Some("TRLLKILL"),
             ]),
 
-            Self::Basilisk => CreatureSounds([
+            Self::Basilisk => Sounds([
                 Some("BASLATTK"),
                 Some("BASLDFND"),
                 None,
@@ -2509,7 +2509,7 @@ impl Creature {
                 Some("BASLWNCE"),
                 Some("BASLKILL"),
             ]),
-            Self::ChaosHydra => CreatureSounds([
+            Self::ChaosHydra => Sounds([
                 Some("CHYDATTK"),
                 Some("CHYDDFND"),
                 None,
@@ -2519,7 +2519,7 @@ impl Creature {
                 Some("CHYDWNCE"),
                 Some("CHYDKILL"),
             ]),
-            Self::DragonFly => CreatureSounds([
+            Self::DragonFly => Sounds([
                 Some("FDFLATTK"),
                 Some("FDFLDFND"),
                 None,
@@ -2529,7 +2529,7 @@ impl Creature {
                 Some("FDFLWNCE"),
                 Some("FDFLKILL"),
             ]),
-            Self::Gnoll => CreatureSounds([
+            Self::Gnoll => Sounds([
                 Some("GNOLATTK"),
                 Some("GNOLDFND"),
                 None,
@@ -2539,7 +2539,7 @@ impl Creature {
                 Some("GNOLWNCE"),
                 Some("GNOLKILL"),
             ]),
-            Self::GnollMarauder => CreatureSounds([
+            Self::GnollMarauder => Sounds([
                 Some("GNLMATTK"),
                 Some("GNLMDFND"),
                 None,
@@ -2549,7 +2549,7 @@ impl Creature {
                 Some("GNLMWNCE"),
                 Some("GNLMKILL"),
             ]),
-            Self::Gorgon => CreatureSounds([
+            Self::Gorgon => Sounds([
                 Some("CGORATTK"),
                 Some("CGORDFND"),
                 None,
@@ -2559,7 +2559,7 @@ impl Creature {
                 Some("CGORWNCE"),
                 Some("CGORKILL"),
             ]),
-            Self::GreaterBasilisk => CreatureSounds([
+            Self::GreaterBasilisk => Sounds([
                 Some("GBASATTK"),
                 Some("GBASDFND"),
                 None,
@@ -2569,7 +2569,7 @@ impl Creature {
                 Some("GBASWNCE"),
                 Some("GBASKILL"),
             ]),
-            Self::Hydra => CreatureSounds([
+            Self::Hydra => Sounds([
                 Some("HYDRATTK"),
                 Some("HYDRDFND"),
                 None,
@@ -2579,7 +2579,7 @@ impl Creature {
                 Some("HYDRWNCE"),
                 Some("HYDRKILL"),
             ]),
-            Self::LizardWarrior => CreatureSounds([
+            Self::LizardWarrior => Sounds([
                 Some("ALIZATTK"),
                 Some("ALIZDFND"),
                 None,
@@ -2589,7 +2589,7 @@ impl Creature {
                 Some("ALIZWNCE"),
                 Some("ALIZKILL"),
             ]),
-            Self::Lizardman => CreatureSounds([
+            Self::Lizardman => Sounds([
                 Some("PLIZATTK"),
                 Some("PLIZDFND"),
                 None,
@@ -2599,7 +2599,7 @@ impl Creature {
                 Some("PLIZWNCE"),
                 Some("PLIZKILL"),
             ]),
-            Self::MightyGorgon => CreatureSounds([
+            Self::MightyGorgon => Sounds([
                 Some("BGORATTK"),
                 Some("BGORDFND"),
                 None,
@@ -2609,7 +2609,7 @@ impl Creature {
                 Some("BGORWNCE"),
                 Some("BGORKILL"),
             ]),
-            Self::SerpentFly => CreatureSounds([
+            Self::SerpentFly => Sounds([
                 Some("DFLYATTK"),
                 Some("DFLYDFND"),
                 None,
@@ -2619,7 +2619,7 @@ impl Creature {
                 Some("DFLYWNCE"),
                 Some("DFLYKILL"),
             ]),
-            Self::Wyvern => CreatureSounds([
+            Self::Wyvern => Sounds([
                 Some("WYVNATTK"),
                 Some("WYVNDFND"),
                 None,
@@ -2629,7 +2629,7 @@ impl Creature {
                 Some("WYVNWNCE"),
                 Some("WYVNKILL"),
             ]),
-            Self::WyvernMonarch => CreatureSounds([
+            Self::WyvernMonarch => Sounds([
                 Some("WYVMATTK"),
                 Some("WYVMDFND"),
                 None,
@@ -2640,7 +2640,7 @@ impl Creature {
                 Some("WYVMKILL"),
             ]),
 
-            Self::BlackKnight => CreatureSounds([
+            Self::BlackKnight => Sounds([
                 Some("BKNTATTK"),
                 Some("BKNTDFND"),
                 None,
@@ -2650,7 +2650,7 @@ impl Creature {
                 Some("BKNTWNCE"),
                 Some("BKNTKILL"),
             ]),
-            Self::BoneDragon => CreatureSounds([
+            Self::BoneDragon => Sounds([
                 Some("BODRATTK"),
                 Some("BODRDFND"),
                 None,
@@ -2660,7 +2660,7 @@ impl Creature {
                 Some("BODRWNCE"),
                 Some("BODRKILL"),
             ]),
-            Self::DreadKnight => CreatureSounds([
+            Self::DreadKnight => Sounds([
                 Some("BLRDATTK"),
                 Some("BLRDDFND"),
                 None,
@@ -2670,7 +2670,7 @@ impl Creature {
                 Some("BLRDWNCE"),
                 Some("BLRDKILL"),
             ]),
-            Self::GhostDragon => CreatureSounds([
+            Self::GhostDragon => Sounds([
                 Some("GHDRATTK"),
                 Some("GHDRDFND"),
                 None,
@@ -2680,7 +2680,7 @@ impl Creature {
                 Some("GHDRWNCE"),
                 Some("GHDRKILL"),
             ]),
-            Self::Lich => CreatureSounds([
+            Self::Lich => Sounds([
                 Some("LICHATTK"),
                 Some("LICHDFND"),
                 None,
@@ -2690,7 +2690,7 @@ impl Creature {
                 Some("LICHWNCE"),
                 Some("LICHKILL"),
             ]),
-            Self::PowerLich => CreatureSounds([
+            Self::PowerLich => Sounds([
                 Some("PLCHATTK"),
                 Some("PLCHDFND"),
                 None,
@@ -2700,7 +2700,7 @@ impl Creature {
                 Some("PLCHWNCE"),
                 Some("PLCHKILL"),
             ]),
-            Self::Skeleton => CreatureSounds([
+            Self::Skeleton => Sounds([
                 Some("SKELATTK"),
                 Some("SKELDFND"),
                 None,
@@ -2710,7 +2710,7 @@ impl Creature {
                 Some("SKELWNCE"),
                 Some("SKELKILL"),
             ]),
-            Self::SkeletonWarrior => CreatureSounds([
+            Self::SkeletonWarrior => Sounds([
                 Some("SKLWATTK"),
                 Some("SKLWDFND"),
                 None,
@@ -2720,7 +2720,7 @@ impl Creature {
                 Some("SKLWWNCE"),
                 Some("SKLWKILL"),
             ]),
-            Self::Vampire => CreatureSounds([
+            Self::Vampire => Sounds([
                 Some("VAMPATTK"),
                 Some("VAMPDFND"),
                 Some("VAMPEXT1"),
@@ -2730,7 +2730,7 @@ impl Creature {
                 Some("VAMPWNCE"),
                 Some("VAMPKILL"),
             ]),
-            Self::VampireLord => CreatureSounds([
+            Self::VampireLord => Sounds([
                 Some("NOSFATTK"),
                 Some("NOSFDFND"),
                 Some("NOSFEXT1"),
@@ -2740,7 +2740,7 @@ impl Creature {
                 Some("NOSFWNCE"),
                 Some("NOSFKILL"),
             ]),
-            Self::WalkingDead => CreatureSounds([
+            Self::WalkingDead => Sounds([
                 Some("ZOMBATTK"),
                 Some("ZOMBDFND"),
                 None,
@@ -2750,7 +2750,7 @@ impl Creature {
                 Some("ZOMBWNCE"),
                 Some("ZOMBKILL"),
             ]),
-            Self::Zombie => CreatureSounds([
+            Self::Zombie => Sounds([
                 Some("ZMBLATTK"),
                 Some("ZMBLDFND"),
                 None,
@@ -2760,7 +2760,7 @@ impl Creature {
                 Some("ZMBLWNCE"),
                 Some("ZMBLKILL"),
             ]),
-            Self::Wight => CreatureSounds([
+            Self::Wight => Sounds([
                 Some("WGHTATTK"),
                 Some("WGHTDFND"),
                 None,
@@ -2770,7 +2770,7 @@ impl Creature {
                 Some("WGHTWNCE"),
                 Some("WGHTKILL"),
             ]),
-            Self::Wraith => CreatureSounds([
+            Self::Wraith => Sounds([
                 Some("WRTHATTK"),
                 Some("WRTHDFND"),
                 None,
@@ -2781,7 +2781,7 @@ impl Creature {
                 Some("WRTHKILL"),
             ]),
 
-            Self::AirElemental => CreatureSounds([
+            Self::AirElemental => Sounds([
                 Some("AELMATTK"),
                 Some("AELMDFND"),
                 None,
@@ -2791,7 +2791,7 @@ impl Creature {
                 Some("AELMWNCE"),
                 Some("AELMKILL"),
             ]),
-            Self::EarthElemental => CreatureSounds([
+            Self::EarthElemental => Sounds([
                 Some("EELMATTK"),
                 Some("EELMDFND"),
                 None,
@@ -2801,7 +2801,7 @@ impl Creature {
                 Some("EELMWNCE"),
                 Some("EELMKILL"),
             ]),
-            Self::EnergyElemental => CreatureSounds([
+            Self::EnergyElemental => Sounds([
                 Some("ENERATTK"),
                 Some("ENERDFND"),
                 None,
@@ -2811,7 +2811,7 @@ impl Creature {
                 Some("ENERWNCE"),
                 Some("ENERKILL"),
             ]),
-            Self::FireElemental => CreatureSounds([
+            Self::FireElemental => Sounds([
                 Some("FELMATTK"),
                 Some("FELMDFND"),
                 None,
@@ -2821,7 +2821,7 @@ impl Creature {
                 Some("FELMWNCE"),
                 Some("FELMKILL"),
             ]),
-            Self::Firebird => CreatureSounds([
+            Self::Firebird => Sounds([
                 Some("FIRBATTK"),
                 Some("FIRBDFND"),
                 None,
@@ -2831,7 +2831,7 @@ impl Creature {
                 Some("FIRBWNCE"),
                 Some("FIRBKILL"),
             ]),
-            Self::IceElemental => CreatureSounds([
+            Self::IceElemental => Sounds([
                 Some("ICELATTK"),
                 Some("ICELDFND"),
                 None,
@@ -2841,7 +2841,7 @@ impl Creature {
                 Some("ICELWNCE"),
                 Some("ICELKILL"),
             ]),
-            Self::MagicElemental => CreatureSounds([
+            Self::MagicElemental => Sounds([
                 Some("MGELATTK"),
                 Some("MGELDFND"),
                 None,
@@ -2851,7 +2851,7 @@ impl Creature {
                 Some("MGELWNCE"),
                 Some("MGELKILL"),
             ]),
-            Self::MagmaElemental => CreatureSounds([
+            Self::MagmaElemental => Sounds([
                 Some("MAGMATTK"),
                 Some("MAGMDFND"),
                 None,
@@ -2861,7 +2861,7 @@ impl Creature {
                 Some("MAGMWNCE"),
                 Some("MAGMKILL"),
             ]),
-            Self::Phoenix => CreatureSounds([
+            Self::Phoenix => Sounds([
                 Some("PHOEATTK"),
                 Some("PHOEDFND"),
                 None,
@@ -2871,7 +2871,7 @@ impl Creature {
                 Some("PHOEWNCE"),
                 Some("PHOEKILL"),
             ]),
-            Self::Pixie => CreatureSounds([
+            Self::Pixie => Sounds([
                 Some("PIXIATTK"),
                 Some("PIXIDFND"),
                 None,
@@ -2881,7 +2881,7 @@ impl Creature {
                 Some("PIXIWNCE"),
                 Some("PIXIKILL"),
             ]),
-            Self::PsychicElemental => CreatureSounds([
+            Self::PsychicElemental => Sounds([
                 Some("PSYCATTK"),
                 Some("PSYCDFND"),
                 None,
@@ -2891,7 +2891,7 @@ impl Creature {
                 Some("PSYCWNCE"),
                 Some("PSYCKILL"),
             ]),
-            Self::Sprite => CreatureSounds([
+            Self::Sprite => Sounds([
                 Some("SPRTATTK"),
                 Some("SPRTDFND"),
                 None,
@@ -2901,7 +2901,7 @@ impl Creature {
                 Some("SPRTWNCE"),
                 Some("SPRTKILL"),
             ]),
-            Self::StormElemental => CreatureSounds([
+            Self::StormElemental => Sounds([
                 Some("STORATTK"),
                 Some("STORDFND"),
                 None,
@@ -2911,7 +2911,7 @@ impl Creature {
                 Some("STORWNCE"),
                 Some("STORKILL"),
             ]),
-            Self::WaterElemental => CreatureSounds([
+            Self::WaterElemental => Sounds([
                 Some("WELMATTK"),
                 Some("WELMDFND"),
                 None,
@@ -2922,7 +2922,7 @@ impl Creature {
                 Some("WELMKILL"),
             ]),
 
-            Self::ArchDevil => CreatureSounds([
+            Self::ArchDevil => Sounds([
                 Some("ADVLATTK"),
                 Some("ADVLDFND"),
                 Some("ADVLEXT1"),
@@ -2932,7 +2932,7 @@ impl Creature {
                 Some("ADVLWNCE"),
                 Some("ADVLKILL"),
             ]),
-            Self::Cerberus => CreatureSounds([
+            Self::Cerberus => Sounds([
                 Some("CERBATTK"),
                 Some("CERBDFND"),
                 None,
@@ -2942,7 +2942,7 @@ impl Creature {
                 Some("CERBWNCE"),
                 Some("CERBKILL"),
             ]),
-            Self::Demon => CreatureSounds([
+            Self::Demon => Sounds([
                 Some("SHDMATTK"),
                 Some("SHDMDFND"),
                 None,
@@ -2952,7 +2952,7 @@ impl Creature {
                 Some("SHDMWNCE"),
                 Some("SHDMKILL"),
             ]),
-            Self::Devil => CreatureSounds([
+            Self::Devil => Sounds([
                 Some("DEVLATTK"),
                 Some("DEVLDFND"),
                 Some("DEVLEXT1"),
@@ -2962,7 +2962,7 @@ impl Creature {
                 Some("DEVLWNCE"),
                 Some("DEVLKILL"),
             ]),
-            Self::Efreeti => CreatureSounds([
+            Self::Efreeti => Sounds([
                 Some("EFRTATTK"),
                 Some("EFRTDFND"),
                 None,
@@ -2972,7 +2972,7 @@ impl Creature {
                 Some("EFRTWNCE"),
                 Some("EFRTKILL"),
             ]),
-            Self::EfreetSultan => CreatureSounds([
+            Self::EfreetSultan => Sounds([
                 Some("ESULATTK"),
                 Some("ESULDFND"),
                 None,
@@ -2982,7 +2982,7 @@ impl Creature {
                 Some("ESULWNCE"),
                 Some("ESULKILL"),
             ]),
-            Self::Familiar => CreatureSounds([
+            Self::Familiar => Sounds([
                 Some("FMLRATTK"),
                 Some("FMLRDFND"),
                 None,
@@ -2992,7 +2992,7 @@ impl Creature {
                 Some("FMLRWNCE"),
                 Some("FMLRKILL"),
             ]),
-            Self::Gog => CreatureSounds([
+            Self::Gog => Sounds([
                 Some("GOGGATTK"),
                 Some("GOGGDFND"),
                 None,
@@ -3002,7 +3002,7 @@ impl Creature {
                 Some("GOGGWNCE"),
                 Some("GOGGKILL"),
             ]),
-            Self::HellHound => CreatureSounds([
+            Self::HellHound => Sounds([
                 Some("HHNDATTK"),
                 Some("HHNDDFND"),
                 None,
@@ -3012,7 +3012,7 @@ impl Creature {
                 Some("HHNDWNCE"),
                 Some("HHNDKILL"),
             ]),
-            Self::HornedDemon => CreatureSounds([
+            Self::HornedDemon => Sounds([
                 Some("DHDMATTK"),
                 Some("DHDMDFND"),
                 None,
@@ -3022,7 +3022,7 @@ impl Creature {
                 Some("DHDMWNCE"),
                 Some("DHDMKILL"),
             ]),
-            Self::Imp => CreatureSounds([
+            Self::Imp => Sounds([
                 Some("IMPPATTK"),
                 Some("IMPPDFND"),
                 None,
@@ -3032,7 +3032,7 @@ impl Creature {
                 Some("IMPPWNCE"),
                 Some("IMPPKILL"),
             ]),
-            Self::Magog => CreatureSounds([
+            Self::Magog => Sounds([
                 Some("MGOGATTK"),
                 Some("MGOGDFND"),
                 None,
@@ -3042,7 +3042,7 @@ impl Creature {
                 Some("MGOGWNCE"),
                 Some("MGOGKILL"),
             ]),
-            Self::PitFiend => CreatureSounds([
+            Self::PitFiend => Sounds([
                 Some("PFNDATTK"),
                 Some("PFNDDFND"),
                 None,
@@ -3052,7 +3052,7 @@ impl Creature {
                 Some("PFNDWNCE"),
                 Some("PFNDKILL"),
             ]),
-            Self::PitLord => CreatureSounds([
+            Self::PitLord => Sounds([
                 Some("PFOEATTK"),
                 Some("PFOEDFND"),
                 None,
@@ -3063,7 +3063,7 @@ impl Creature {
                 Some("PFOEKILL"),
             ]),
 
-            Self::BattleDwarf => CreatureSounds([
+            Self::BattleDwarf => Sounds([
                 Some("BDRFATTK"),
                 Some("BDRFDFND"),
                 None,
@@ -3073,7 +3073,7 @@ impl Creature {
                 Some("BDRFWNCE"),
                 Some("BDRFKILL"),
             ]),
-            Self::Centaur => CreatureSounds([
+            Self::Centaur => Sounds([
                 Some("CNTRATTK"),
                 Some("CNTRDFND"),
                 None,
@@ -3083,7 +3083,7 @@ impl Creature {
                 Some("CNTRWNCE"),
                 Some("CNTRKILL"),
             ]),
-            Self::CentaurCaptain => CreatureSounds([
+            Self::CentaurCaptain => Sounds([
                 Some("ECNTATTK"),
                 Some("ECNTDFND"),
                 None,
@@ -3093,7 +3093,7 @@ impl Creature {
                 Some("ECNTWNCE"),
                 Some("ECNTKILL"),
             ]),
-            Self::DendroidGuard => CreatureSounds([
+            Self::DendroidGuard => Sounds([
                 Some("TREEATTK"),
                 Some("TREEDFND"),
                 None,
@@ -3103,7 +3103,7 @@ impl Creature {
                 Some("TREEWNCE"),
                 Some("TREEKILL"),
             ]),
-            Self::DendroidSoldier => CreatureSounds([
+            Self::DendroidSoldier => Sounds([
                 Some("BTREATTK"),
                 Some("BTREDFND"),
                 None,
@@ -3113,7 +3113,7 @@ impl Creature {
                 Some("BTREWNCE"),
                 Some("BTREKILL"),
             ]),
-            Self::Dwarf => CreatureSounds([
+            Self::Dwarf => Sounds([
                 Some("DWRFATTK"),
                 Some("DWRFDFND"),
                 None,
@@ -3123,7 +3123,7 @@ impl Creature {
                 Some("DWRFWNCE"),
                 Some("DWRFKILL"),
             ]),
-            Self::GoldDragon => CreatureSounds([
+            Self::GoldDragon => Sounds([
                 Some("GODRATTK"),
                 Some("GODRDFND"),
                 None,
@@ -3133,7 +3133,7 @@ impl Creature {
                 Some("GODRWNCE"),
                 Some("GODRKILL"),
             ]),
-            Self::GrandElf => CreatureSounds([
+            Self::GrandElf => Sounds([
                 Some("GELFATTK"),
                 Some("GELFDFND"),
                 None,
@@ -3143,7 +3143,7 @@ impl Creature {
                 Some("GELFWNCE"),
                 Some("GELFKILL"),
             ]),
-            Self::GreenDragon => CreatureSounds([
+            Self::GreenDragon => Sounds([
                 Some("GRDRATTK"),
                 Some("GRDRDFND"),
                 None,
@@ -3153,7 +3153,7 @@ impl Creature {
                 Some("GRDRWNCE"),
                 Some("GRDRKILL"),
             ]),
-            Self::Pegasus => CreatureSounds([
+            Self::Pegasus => Sounds([
                 Some("PEGAATTK"),
                 Some("PEGADFND"),
                 None,
@@ -3163,7 +3163,7 @@ impl Creature {
                 Some("PEGAWNCE"),
                 Some("PEGAKILL"),
             ]),
-            Self::SilverPegasus => CreatureSounds([
+            Self::SilverPegasus => Sounds([
                 Some("APEGATTK"),
                 Some("APEGDFND"),
                 None,
@@ -3173,7 +3173,7 @@ impl Creature {
                 Some("APEGWNCE"),
                 Some("APEGKILL"),
             ]),
-            Self::Unicorn => CreatureSounds([
+            Self::Unicorn => Sounds([
                 Some("UNICATTK"),
                 Some("UNICDFND"),
                 None,
@@ -3183,7 +3183,7 @@ impl Creature {
                 Some("UNICWNCE"),
                 Some("UNICKILL"),
             ]),
-            Self::WarUnicorn => CreatureSounds([
+            Self::WarUnicorn => Sounds([
                 Some("WUNCATTK"),
                 Some("WUNCDFND"),
                 None,
@@ -3193,7 +3193,7 @@ impl Creature {
                 Some("WUNCWNCE"),
                 Some("WUNCKILL"),
             ]),
-            Self::WoodElf => CreatureSounds([
+            Self::WoodElf => Sounds([
                 Some("WELFATTK"),
                 Some("WELFDFND"),
                 None,
@@ -3204,7 +3204,7 @@ impl Creature {
                 Some("WELFKILL"),
             ]),
 
-            Self::Beholder => CreatureSounds([
+            Self::Beholder => Sounds([
                 Some("BHDRATTK"),
                 Some("BHDRDFND"),
                 None,
@@ -3214,7 +3214,7 @@ impl Creature {
                 Some("BHDRWNCE"),
                 Some("BHDRKILL"),
             ]),
-            Self::BlackDragon => CreatureSounds([
+            Self::BlackDragon => Sounds([
                 Some("BKDRATTK"),
                 Some("BKDRDFND"),
                 None,
@@ -3224,7 +3224,7 @@ impl Creature {
                 Some("BKDRWNCE"),
                 Some("BKDRKILL"),
             ]),
-            Self::EvilEye => CreatureSounds([
+            Self::EvilEye => Sounds([
                 Some("EVLIATTK"),
                 Some("EVLIDFND"),
                 None,
@@ -3234,7 +3234,7 @@ impl Creature {
                 Some("EVLIWNCE"),
                 Some("EVLIKILL"),
             ]),
-            Self::Harpy => CreatureSounds([
+            Self::Harpy => Sounds([
                 Some("HARPATTK"),
                 Some("HARPDFND"),
                 None,
@@ -3244,7 +3244,7 @@ impl Creature {
                 Some("HARPWNCE"),
                 Some("HARPKILL"),
             ]),
-            Self::HarpyHag => CreatureSounds([
+            Self::HarpyHag => Sounds([
                 Some("HHAGATTK"),
                 Some("HHAGDFND"),
                 None,
@@ -3254,7 +3254,7 @@ impl Creature {
                 Some("HHAGWNCE"),
                 Some("HHAGKILL"),
             ]),
-            Self::InfernalTroglodyte => CreatureSounds([
+            Self::InfernalTroglodyte => Sounds([
                 Some("ITRGATTK"),
                 Some("ITRGDFND"),
                 None,
@@ -3264,7 +3264,7 @@ impl Creature {
                 Some("ITRGWNCE"),
                 Some("ITRGKILL"),
             ]),
-            Self::Manticore => CreatureSounds([
+            Self::Manticore => Sounds([
                 Some("MANTATTK"),
                 Some("MANTDFND"),
                 None,
@@ -3274,7 +3274,7 @@ impl Creature {
                 Some("MANTWNCE"),
                 Some("MANTKILL"),
             ]),
-            Self::Medusa => CreatureSounds([
+            Self::Medusa => Sounds([
                 Some("MEDUATTK"),
                 Some("MEDUDFND"),
                 None,
@@ -3284,7 +3284,7 @@ impl Creature {
                 Some("MEDUWNCE"),
                 Some("MEDUKILL"),
             ]),
-            Self::MedusaQueen => CreatureSounds([
+            Self::MedusaQueen => Sounds([
                 Some("MEDQATTK"),
                 Some("MEDQDFND"),
                 None,
@@ -3294,7 +3294,7 @@ impl Creature {
                 Some("MEDQWNCE"),
                 Some("MEDQKILL"),
             ]),
-            Self::Minotaur => CreatureSounds([
+            Self::Minotaur => Sounds([
                 Some("MINOATTK"),
                 Some("MINODFND"),
                 None,
@@ -3304,7 +3304,7 @@ impl Creature {
                 Some("MINOWNCE"),
                 Some("MINOKILL"),
             ]),
-            Self::MinotaurKing => CreatureSounds([
+            Self::MinotaurKing => Sounds([
                 Some("MINKATTK"),
                 Some("MINKDFND"),
                 None,
@@ -3314,7 +3314,7 @@ impl Creature {
                 Some("MINKWNCE"),
                 Some("MINKKILL"),
             ]),
-            Self::RedDragon => CreatureSounds([
+            Self::RedDragon => Sounds([
                 Some("RDDRATTK"),
                 Some("RDDRDFND"),
                 None,
@@ -3324,7 +3324,7 @@ impl Creature {
                 Some("RDDRWNCE"),
                 Some("RDDRKILL"),
             ]),
-            Self::Scorpicore => CreatureSounds([
+            Self::Scorpicore => Sounds([
                 Some("SCRPATTK"),
                 Some("SCRPDFND"),
                 None,
@@ -3334,7 +3334,7 @@ impl Creature {
                 Some("SCRPWNCE"),
                 Some("SCRPKILL"),
             ]),
-            Self::Troglodyte => CreatureSounds([
+            Self::Troglodyte => Sounds([
                 Some("TROGATTK"),
                 Some("TROGDFND"),
                 None,
@@ -3345,7 +3345,7 @@ impl Creature {
                 Some("TROGKILL"),
             ]),
 
-            Self::AncientBehemoth => CreatureSounds([
+            Self::AncientBehemoth => Sounds([
                 Some("BMTHATTK"),
                 Some("BMTHDFND"),
                 None,
@@ -3355,7 +3355,7 @@ impl Creature {
                 Some("BMTHWNCE"),
                 Some("BMTHKILL"),
             ]),
-            Self::Behemoth => CreatureSounds([
+            Self::Behemoth => Sounds([
                 Some("YBMHATTK"),
                 Some("YBMHDFND"),
                 None,
@@ -3365,7 +3365,7 @@ impl Creature {
                 Some("YBMHWNCE"),
                 Some("YBMHKILL"),
             ]),
-            Self::Cyclops => CreatureSounds([
+            Self::Cyclops => Sounds([
                 Some("CCYCATTK"),
                 Some("CCYCDFND"),
                 None,
@@ -3375,7 +3375,7 @@ impl Creature {
                 Some("CCYCWNCE"),
                 Some("CCYCKILL"),
             ]),
-            Self::CyclopsKing => CreatureSounds([
+            Self::CyclopsKing => Sounds([
                 Some("CYCLATTK"),
                 Some("CYCLDFND"),
                 None,
@@ -3385,7 +3385,7 @@ impl Creature {
                 Some("CYCLWNCE"),
                 Some("CYCLKILL"),
             ]),
-            Self::Goblin => CreatureSounds([
+            Self::Goblin => Sounds([
                 Some("GBLNATTK"),
                 Some("GBLNDFND"),
                 None,
@@ -3395,7 +3395,7 @@ impl Creature {
                 Some("GBLNWNCE"),
                 Some("GBLNKILL"),
             ]),
-            Self::WolfRider => CreatureSounds([
+            Self::WolfRider => Sounds([
                 Some("GWRDATTK"),
                 Some("GWRDDFND"),
                 None,
@@ -3405,7 +3405,7 @@ impl Creature {
                 Some("GWRDWNCE"),
                 Some("GWRDKILL"),
             ]),
-            Self::Hobgoblin => CreatureSounds([
+            Self::Hobgoblin => Sounds([
                 Some("HGOBATTK"),
                 Some("HGOBDFND"),
                 None,
@@ -3415,7 +3415,7 @@ impl Creature {
                 Some("HGOBWNCE"),
                 Some("HGOBKILL"),
             ]),
-            Self::WolfRaider => CreatureSounds([
+            Self::WolfRaider => Sounds([
                 Some("HGWRATTK"),
                 Some("HGWRDFND"),
                 None,
@@ -3425,7 +3425,7 @@ impl Creature {
                 Some("HGWRWNCE"),
                 Some("HGWRKILL"),
             ]),
-            Self::Ogre => CreatureSounds([
+            Self::Ogre => Sounds([
                 Some("OGREATTK"),
                 Some("OGREDFND"),
                 None,
@@ -3435,7 +3435,7 @@ impl Creature {
                 Some("OGREWNCE"),
                 Some("OGREKILL"),
             ]),
-            Self::OgreMagi => CreatureSounds([
+            Self::OgreMagi => Sounds([
                 Some("OGRMATTK"),
                 Some("OGRMDFND"),
                 None,
@@ -3445,7 +3445,7 @@ impl Creature {
                 Some("OGRMWNCE"),
                 Some("OGRMKILL"),
             ]),
-            Self::Orc => CreatureSounds([
+            Self::Orc => Sounds([
                 Some("OORCATTK"),
                 Some("OORCDFND"),
                 None,
@@ -3455,7 +3455,7 @@ impl Creature {
                 Some("OORCWNCE"),
                 Some("OORCKILL"),
             ]),
-            Self::OrcChieftain => CreatureSounds([
+            Self::OrcChieftain => Sounds([
                 Some("ORCCATTK"),
                 Some("ORCCDFND"),
                 None,
@@ -3465,7 +3465,7 @@ impl Creature {
                 Some("ORCCWNCE"),
                 Some("ORCCKILL"),
             ]),
-            Self::Roc => CreatureSounds([
+            Self::Roc => Sounds([
                 Some("ROCCATTK"),
                 Some("ROCCDFND"),
                 None,
@@ -3475,7 +3475,7 @@ impl Creature {
                 Some("ROCCWNCE"),
                 Some("ROCCKILL"),
             ]),
-            Self::Thunderbird => CreatureSounds([
+            Self::Thunderbird => Sounds([
                 Some("TBRDATTK"),
                 Some("TBRDDFND"),
                 None,
@@ -3489,8 +3489,8 @@ impl Creature {
     }
 }
 
-impl CreatureSounds {
-    pub fn get(&self, sound: CreatureSound) -> Option<&'static str> {
+impl Sounds {
+    pub fn get(&self, sound: Sound) -> Option<&'static str> {
         self.0[sound as usize]
     }
 }

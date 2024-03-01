@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use gamedata::creatures::CreatureSound;
+use gamedata::creatures;
 
 use crate::grid::GridPos;
 
@@ -41,7 +41,7 @@ pub enum InstantEvent {
 }
 
 pub struct Sound {
-    pub type_: CreatureSound,
+    pub type_: creatures::Sound,
     pub looping: bool,
 }
 
@@ -86,15 +86,15 @@ impl TimeProgressEvent {
 }
 
 impl Sound {
-    pub fn new(type_: CreatureSound) -> Self {
+    pub fn new(type_: creatures::Sound) -> Self {
         Self::_new(type_, false)
     }
 
-    pub fn new_looping(type_: CreatureSound) -> Self {
+    pub fn new_looping(type_: creatures::Sound) -> Self {
         Self::_new(type_, true)
     }
 
-    fn _new(type_: CreatureSound, looping: bool) -> Self {
+    fn _new(type_: creatures::Sound, looping: bool) -> Self {
         Self { type_, looping }
     }
 }
