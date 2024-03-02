@@ -1,6 +1,6 @@
 use gamedata::spells::Spell;
 
-use crate::{battlestate::StackHandle, grid::GridPos};
+use crate::{gamestate::StackHandle, grid::GridPos};
 
 #[derive(Debug, Clone)]
 pub struct Strike {

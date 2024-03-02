@@ -1,7 +1,7 @@
-use super::{BattleState, Side, StackHandle};
+use super::{GameState, Side, StackHandle};
 use crate::stack::Stack;
 
-pub fn find_active_stack(state: &BattleState) -> Option<StackHandle> {
+pub fn find_active_stack(state: &GameState) -> Option<StackHandle> {
     let mut handles: Box<[StackHandle]> = state.stacks.0.keys().copied().collect();
     // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
     handles

@@ -5,7 +5,7 @@ use gamedata::creatures;
 use gamedata::creatures::Creature;
 use gamedata::spells::{Spell, SpellAnimation};
 
-use crate::battlestate::{BattleState, Side, StackHandle};
+use crate::gamestate::{GameState, Side, StackHandle};
 use crate::event::{Attack, Cast, Movement, Shot};
 use crate::graphics::creature::AnimationType;
 use crate::graphics::Animations;
@@ -34,7 +34,7 @@ impl Debug for StackWithAnimation<'_> {
 impl<'a> StackWithAnimation<'a> {
     fn create_many<const N: usize>(
         handles: [StackHandle; N],
-        state: &'a BattleState,
+        state: &'a GameState,
         animations: &'a mut Animations,
     ) -> [Self; N] {
         let stacks = handles.map(|h| state.get_stack(h));
@@ -50,7 +50,7 @@ impl<'a> StackWithAnimation<'a> {
 
 pub fn animate_attack(
     attack: Attack,
-    state: &BattleState,
+    state: &GameState,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
@@ -90,7 +90,7 @@ pub fn animate_attack(
 
 pub fn animate_shot(
     shot: Shot,
-    state: &BattleState,
+    state: &GameState,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
@@ -116,7 +116,7 @@ pub fn animate_shot(
 
 pub fn animate_movement(
     movement: Movement,
-    state: &BattleState,
+    state: &GameState,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
@@ -176,7 +176,7 @@ pub fn animate_movement(
 
 pub fn animate_cast(
     cast: Cast,
-    _state: &BattleState,
+    _state: &GameState,
     _animations: &mut Animations,
     entity_animations: &mut EntityAnimations,
     rr: &mut ResourceRegistry,

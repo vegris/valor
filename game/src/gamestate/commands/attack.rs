@@ -1,10 +1,10 @@
 use gamedata::creatures::Ability;
 
-use crate::battlestate::BattleState;
+use crate::gamestate::GameState;
 use crate::command::{Attack, Move};
 use crate::pathfinding;
 
-use crate::battlestate::damage::{deal_damage, AttackType};
+use crate::gamestate::damage::{deal_damage, AttackType};
 
 use crate::event::{Attack as AttackEvent, Event, Strike};
 
@@ -12,7 +12,7 @@ use super::r#move;
 
 const ATTACK_TYPE: AttackType = AttackType::Melee;
 
-pub fn is_applicable(command: Attack, state: &BattleState) -> bool {
+pub fn is_applicable(command: Attack, state: &GameState) -> bool {
     let current_stack = state.get_current_stack();
     let current_side = current_stack.side;
     let is_wide = current_stack.creature.is_wide();
@@ -52,7 +52,7 @@ pub fn is_applicable(command: Attack, state: &BattleState) -> bool {
         .is_some()
 }
 
-pub fn apply(command: Attack, state: &mut BattleState) -> Vec<Event> {
+pub fn apply(command: Attack, state: &mut GameState) -> Vec<Event> {
     let mut events = vec![];
     let mut strikes = vec![];
 

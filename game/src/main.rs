@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-mod battlestate;
+mod gamestate;
 mod command;
 mod config;
 mod error;
@@ -15,7 +15,7 @@ mod registry;
 mod sound;
 mod stack;
 
-use battlestate::BattleState;
+use gamestate::GameState;
 use config::Config;
 use error::AnyWay;
 use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
@@ -58,7 +58,7 @@ fn main() -> AnyWay {
         &ttf_context,
     )?;
 
-    let mut game_state = BattleState::new(&config)?;
+    let mut game_state = GameState::new(&config)?;
 
     let mut animations = Animations::create(&game_state, &mut resource_registry);
 

@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use gamedata::creatures::Creature;
 
-use crate::battlestate::{BattleState, Side};
+use crate::gamestate::{GameState, Side};
 use crate::grid::{AttackDirection, GridPos};
 
 // Структуры для алгоритма Дейкстры
@@ -22,7 +22,7 @@ impl NavigationArray {
         Self([None; X_MAX * Y_MAX])
     }
 
-    pub fn new(cell: GridPos, state: &BattleState, is_flying: bool) -> Self {
+    pub fn new(cell: GridPos, state: &GameState, is_flying: bool) -> Self {
         let mut map = Self([None; X_MAX * Y_MAX]);
         map.put_cell(cell, cell, 0);
 

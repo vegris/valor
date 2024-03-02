@@ -1,6 +1,6 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::battlestate::BattleState;
+use crate::gamestate::GameState;
 use crate::command::{Cast, Command};
 use crate::grid::{AttackDirection, GridPos};
 use crate::{command, State};
@@ -54,7 +54,7 @@ pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
 }
 
 pub fn process_input(
-    state: &BattleState,
+    state: &GameState,
     frame_input: &FrameInput,
     state2: &mut State,
     cast: Option<Cast>,
@@ -119,7 +119,7 @@ fn construct_command(
 }
 
 fn construct_potential_lmb_command(
-    state: &BattleState,
+    state: &GameState,
     current_hover: Option<GridPos>,
     attack_direction: Option<AttackDirection>,
 ) -> Option<Command> {

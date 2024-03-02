@@ -7,7 +7,7 @@ use sdl2::surface::Surface;
 use sdl2::video::{Window, WindowContext};
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::battlestate::Side;
+use crate::gamestate::Side;
 use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
 
 #[derive(Clone, Copy, Debug, EnumCount, EnumIter, PartialEq)]

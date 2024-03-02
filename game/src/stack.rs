@@ -3,10 +3,10 @@ use std::collections::HashSet;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::battlestate::turns;
+use crate::gamestate::turns;
 use crate::grid::GridPos;
 
-use super::battlestate::{BattleState, Side};
+use super::gamestate::{GameState, Side};
 use super::pathfinding;
 
 #[derive(Clone, Debug)]
@@ -85,7 +85,7 @@ impl Stack {
         self.base_stats().speed
     }
 
-    pub fn can_shoot(&self, state: &BattleState) -> bool {
+    pub fn can_shoot(&self, state: &GameState) -> bool {
         let has_ammo = self.current_ammo != 0;
         let has_enemies_around = self
             .get_adjacent_cells()

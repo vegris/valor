@@ -7,7 +7,7 @@ use sdl2::video::WindowContext;
 
 use strum::IntoEnumIterator;
 
-use crate::battlestate::{BattleState, Side, StackHandle};
+use crate::gamestate::{GameState, Side, StackHandle};
 use crate::command::Command;
 use crate::error::AnyWay;
 use crate::event::Event;
@@ -36,7 +36,7 @@ use self::animations::AnimationState;
 pub struct Animations(Map<StackHandle, AnimationState>);
 
 impl Animations {
-    pub fn create(state: &BattleState, rr: &mut ResourceRegistry) -> Self {
+    pub fn create(state: &GameState, rr: &mut ResourceRegistry) -> Self {
         let animations = state
             .units()
             .into_iter()
@@ -63,7 +63,7 @@ impl Animations {
 }
 
 pub fn process_events(
-    state: &BattleState,
+    state: &GameState,
     events: Vec<Event>,
     animations: &mut Animations,
     entity_animations: &mut EntityAnimations,
@@ -75,7 +75,7 @@ pub fn process_events(
 }
 
 pub fn draw(
-    state: &BattleState,
+    state: &GameState,
     frame_data: &FrameData,
     animations: &Animations,
     entity_animations: &EntityAnimations,
@@ -234,7 +234,7 @@ fn draw_units(
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
     rr: &mut ResourceRegistry,
-    state: &BattleState,
+    state: &GameState,
     animations: &Animations,
 ) -> AnyWay {
     let mut units = state.units();
@@ -257,7 +257,7 @@ fn draw_units(
     Ok(())
 }
 
-fn set_cursor(cursors: &Cursors, state: &BattleState, frame_data: &FrameData, is_animating: bool) {
+fn set_cursor(cursors: &Cursors, state: &GameState, frame_data: &FrameData, is_animating: bool) {
     if is_animating {
         cursors.get(Cursor::Pointer).set();
         return;
@@ -284,7 +284,7 @@ fn set_cursor(cursors: &Cursors, state: &BattleState, frame_data: &FrameData, is
     sdl_cursor.set();
 }
 
-fn gather_highlighted_cells(state: &BattleState, frame_data: &FrameData) -> Vec<GridPos> {
+fn gather_highlighted_cells(state: &GameState, frame_data: &FrameData) -> Vec<GridPos> {
     let mut highlighted_cells = vec![];
 
     if let Some(cell) = frame_data.current_hover {

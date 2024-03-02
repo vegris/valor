@@ -1,7 +1,7 @@
 use gamedata::spells::Spell;
 use strum_macros::EnumDiscriminants;
 
-use super::battlestate::StackHandle;
+use super::gamestate::StackHandle;
 use crate::grid::{AttackDirection, GridPos};
 
 #[derive(Clone, Copy, Debug, EnumDiscriminants)]

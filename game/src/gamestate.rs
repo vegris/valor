@@ -43,7 +43,7 @@ enum Winner {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct StackHandle(u32);
 
-pub struct BattleState {
+pub struct GameState {
     // Логика
     heroes: [Option<Hero>; 2],
     stacks: Map<StackHandle, Stack>,
@@ -55,7 +55,7 @@ pub struct BattleState {
     reachable_cells: Vec<GridPos>,
 }
 
-impl BattleState {
+impl GameState {
     pub fn new(config: &Config) -> AnyHow<Self> {
         let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
         let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);

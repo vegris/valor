@@ -1,8 +1,8 @@
-use crate::{battlestate::BattleState, command::Move};
+use crate::{gamestate::GameState, command::Move};
 
 use crate::event::{Event, Movement};
 
-pub fn is_applicable(command: Move, state: &BattleState) -> bool {
+pub fn is_applicable(command: Move, state: &GameState) -> bool {
     let current_stack = state.get_current_stack();
 
     let is_position_available = crate::pathfinding::get_occupied_cells_for(
@@ -25,7 +25,7 @@ pub fn is_applicable(command: Move, state: &BattleState) -> bool {
     is_position_available && state.reachable_cells.contains(&command.destination)
 }
 
-pub fn apply(command: Move, state: &mut BattleState) -> Vec<Event> {
+pub fn apply(command: Move, state: &mut GameState) -> Vec<Event> {
     let mut events = vec![];
 
     if command.destination == state.get_current_stack().head {

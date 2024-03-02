@@ -5,7 +5,7 @@ use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
 
-use crate::battlestate::BattleState;
+use crate::gamestate::GameState;
 use crate::event::Event;
 use crate::grid::GridPos;
 use crate::registry::ResourceRegistry;
@@ -44,7 +44,7 @@ pub struct AnimationData {
 }
 
 pub fn process_event(
-    state: &BattleState,
+    state: &GameState,
     event: Event,
     animations: &mut Animations,
     entity_animations: &mut EntityAnimations,
