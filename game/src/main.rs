@@ -1,10 +1,10 @@
 use std::time::Instant;
 
-mod gamestate;
 mod command;
 mod config;
 mod error;
 mod event;
+mod gamestate;
 mod graphics;
 mod grid;
 mod gui;
@@ -15,9 +15,9 @@ mod registry;
 mod sound;
 mod stack;
 
-use gamestate::GameState;
 use config::Config;
 use error::AnyWay;
+use gamestate::GameState;
 use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
 use registry::ResourceRegistry;
 

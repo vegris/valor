@@ -4,8 +4,8 @@ use sdl2::render::TextureCreator;
 use sdl2::render::WindowCanvas;
 use sdl2::video::WindowContext;
 
-use crate::gamestate::Side;
 use crate::error::AnyWay;
+use crate::gamestate::Side;
 use crate::grid::GridPos;
 use crate::ResourceRegistry;
 

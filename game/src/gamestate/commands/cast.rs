@@ -1,4 +1,4 @@
-use crate::{gamestate::GameState, command::Cast};
+use crate::{command::Cast, gamestate::GameState};
 
 use super::Event;
 use crate::event::Cast as EventCast;

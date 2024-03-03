@@ -1,7 +1,7 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::gamestate::GameState;
 use crate::command::{Cast, Command};
+use crate::gamestate::GameState;
 use crate::grid::{AttackDirection, GridPos};
 use crate::{command, State};
 

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use strum_macros::EnumIter;
 
 use crate::command::Command;
@@ -6,7 +8,6 @@ use crate::error::AnyHow;
 use crate::event::Event;
 use crate::grid::GridPos;
 
-use crate::map::Map;
 use crate::stack::Stack;
 
 use crate::pathfinding::NavigationArray;
@@ -46,7 +47,7 @@ pub struct StackHandle(u32);
 pub struct GameState {
     // Логика
     heroes: [Option<Hero>; 2],
-    stacks: Map<StackHandle, Stack>,
+    stacks: HashMap<StackHandle, Stack>,
     turn: turns::Turn,
     current_stack: StackHandle,
 
@@ -74,7 +75,7 @@ impl GameState {
 
         let mut state = Self {
             heroes,
-            stacks: Map(stacks),
+            stacks,
             turn: turns::Turn::new(),
             current_stack: StackHandle(0),
             navigation_array: NavigationArray::empty(),
@@ -112,11 +113,11 @@ impl GameState {
     }
 
     pub fn get_stack(&self, handle: StackHandle) -> &Stack {
-        &self.stacks.0[&handle]
+        &self.stacks[&handle]
     }
 
     fn get_stack_mut(&mut self, handle: StackHandle) -> &mut Stack {
-        self.stacks.0.get_mut(&handle).unwrap()
+        self.stacks.get_mut(&handle).unwrap()
     }
 
     pub fn is_current(&self, handle: StackHandle) -> bool {
@@ -132,7 +133,7 @@ impl GameState {
     }
 
     pub fn units(&self) -> Vec<StackHandle> {
-        self.stacks.0.keys().copied().collect()
+        self.stacks.keys().copied().collect()
     }
 
     pub fn find_unit_for_cell(&self, cell: GridPos) -> Option<StackHandle> {
@@ -166,7 +167,7 @@ impl GameState {
             if !self.turn.try_advance_phase() {
                 self.turn = self.turn.next();
 
-                for stack in self.stacks.0.values_mut() {
+                for stack in self.stacks.values_mut() {
                     stack.refresh_for_next_turn();
                 }
             }
@@ -179,7 +180,6 @@ impl GameState {
             .into_iter()
             .filter(|&side| {
                 self.stacks
-                    .0
                     .values()
                     .filter(|stack| stack.side == side)
                     .any(|stack| stack.is_alive())

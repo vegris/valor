@@ -1,4 +1,4 @@
-use crate::{gamestate::GameState, command::Move};
+use crate::{command::Move, gamestate::GameState};
 
 use crate::event::{Event, Movement};
 

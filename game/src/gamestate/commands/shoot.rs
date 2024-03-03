@@ -1,9 +1,9 @@
 use gamedata::creatures::Ability;
 
-use crate::gamestate::damage;
-use crate::gamestate::GameState;
 use crate::command::Shoot;
 use crate::event::{Event, Shot};
+use crate::gamestate::damage;
+use crate::gamestate::GameState;
 
 const ATTACK_TYPE: damage::AttackType = damage::AttackType::Shoot;
 
@@ -20,10 +20,8 @@ pub fn is_applicable(command: Shoot, state: &GameState) -> bool {
 pub fn apply(command: Shoot, state: &mut GameState) -> Vec<Event> {
     let mut events = vec![];
 
-    let [attacker, defender] = state
-        .stacks
-        .get_many_mut([state.current_stack, command.target])
-        .unwrap();
+    let [attacker, defender] =
+        crate::map::get_many_mut(&mut state.stacks, [state.current_stack, command.target]).unwrap();
 
     attacker.current_ammo -= 1;
 

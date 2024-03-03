@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::time::Duration;
 
 use egui::TextureId;
@@ -7,14 +8,13 @@ use sdl2::video::WindowContext;
 
 use strum::IntoEnumIterator;
 
-use crate::gamestate::{GameState, Side, StackHandle};
 use crate::command::Command;
 use crate::error::AnyWay;
 use crate::event::Event;
+use crate::gamestate::{GameState, Side, StackHandle};
 use crate::grid::GridPos;
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
-use crate::map::Map;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
 use crate::{pathfinding, State};
 
@@ -33,7 +33,7 @@ use self::statics::{ButtonState, StaticTexture};
 
 use self::animations::AnimationState;
 
-pub struct Animations(Map<StackHandle, AnimationState>);
+pub struct Animations(HashMap<StackHandle, AnimationState>);
 
 impl Animations {
     pub fn create(state: &GameState, rr: &mut ResourceRegistry) -> Self {
@@ -48,17 +48,17 @@ impl Animations {
             })
             .collect();
 
-        Self(Map(animations))
+        Self(animations)
     }
 
     pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        for animation_state in self.0 .0.values_mut() {
+        for animation_state in self.0.values_mut() {
             animation_state.update(dt, rr);
         }
     }
 
     pub fn is_animating(&self) -> bool {
-        self.0 .0.values().any(|a| a.is_animating())
+        self.0.values().any(|a| a.is_animating())
     }
 }
 
@@ -240,7 +240,7 @@ fn draw_units(
     let mut units = state.units();
     units.sort_unstable_by_key(|&handle| {
         let alive = state.get_stack(handle).is_alive();
-        let position = animations.0 .0[&handle].position;
+        let position = animations.0[&handle].position;
 
         (alive, (position.y, position.x))
     });
@@ -250,7 +250,7 @@ fn draw_units(
     for handle in units {
         let is_current = state.is_current(handle) && !is_animating;
         let stack = state.get_stack(handle);
-        let animation_state = animations.0 .0.get(&handle).unwrap();
+        let animation_state = animations.0.get(&handle).unwrap();
         stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
     }
 

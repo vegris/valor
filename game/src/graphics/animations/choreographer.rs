@@ -5,8 +5,8 @@ use gamedata::creatures;
 use gamedata::creatures::Creature;
 use gamedata::spells::{Spell, SpellAnimation};
 
-use crate::gamestate::{GameState, Side, StackHandle};
 use crate::event::{Attack, Cast, Movement, Shot};
+use crate::gamestate::{GameState, Side, StackHandle};
 use crate::graphics::creature::AnimationType;
 use crate::graphics::Animations;
 use crate::grid::GridPos;
@@ -38,7 +38,7 @@ impl<'a> StackWithAnimation<'a> {
         animations: &'a mut Animations,
     ) -> [Self; N] {
         let stacks = handles.map(|h| state.get_stack(h));
-        let animations = animations.0.get_many_mut(handles).unwrap();
+        let animations = crate::map::get_many_mut(&mut animations.0, handles).unwrap();
 
         Iterator::zip(stacks.into_iter(), animations)
             .map(|(stack, animation)| Self { stack, animation })
@@ -168,7 +168,7 @@ pub fn animate_movement(
         )));
     }
 
-    let animation_queue = animations.0 .0.get_mut(&movement.stack_handle).unwrap();
+    let animation_queue = animations.0.get_mut(&movement.stack_handle).unwrap();
     for event in events.into_iter() {
         animation_queue.push_event(event);
     }
