@@ -9,10 +9,11 @@ where
     K: PartialEq + Eq + Hash,
 {
     pub fn get_many_mut<const N: usize>(&mut self, keys: [K; N]) -> Option<[&mut V; N]> {
-        // FIXME: Looks sus, its seems like there should be inner loop too
-        for index in 1..N {
-            if keys[index] == keys[index - 1] {
-                return None;
+        for i in 1..N {
+            for j in 1..N {
+                if i != j && keys[i] == keys[j] {
+                    return None;
+                }
             }
         }
 
