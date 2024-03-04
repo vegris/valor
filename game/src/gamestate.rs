@@ -20,30 +20,6 @@ pub mod turns;
 
 use hero::Hero;
 
-#[derive(Clone, Copy, PartialEq, Debug, EnumIter)]
-pub enum Side {
-    Attacker,
-    Defender,
-}
-
-impl Side {
-    pub fn other(self) -> Self {
-        match self {
-            Self::Attacker => Self::Defender,
-            Self::Defender => Self::Attacker,
-        }
-    }
-}
-
-#[derive(Debug)]
-enum Winner {
-    Side(Side),
-    Tie,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct StackHandle(u32);
-
 pub struct GameState {
     // Логика
     heroes: [Option<Hero>; 2],
@@ -54,6 +30,21 @@ pub struct GameState {
     // Поиск пути
     navigation_array: NavigationArray,
     reachable_cells: Vec<GridPos>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct StackHandle(u32);
+
+#[derive(Clone, Copy, PartialEq, Debug, EnumIter)]
+pub enum Side {
+    Attacker,
+    Defender,
+}
+
+#[derive(Debug)]
+enum Winner {
+    Side(Side),
+    Tie,
 }
 
 impl GameState {
@@ -191,6 +182,15 @@ impl GameState {
             1 => Some(Winner::Side(alive_sides[0])),
             2 => None,
             _ => unreachable!(),
+        }
+    }
+}
+
+impl Side {
+    pub fn other(self) -> Self {
+        match self {
+            Self::Attacker => Self::Defender,
+            Self::Defender => Self::Attacker,
         }
     }
 }
