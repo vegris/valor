@@ -2,22 +2,15 @@ use std::time::Instant;
 
 use common::error::AnyWay;
 
-mod command;
-mod config;
-mod event;
-mod gamestate;
 mod graphics;
-mod grid;
 mod gui;
 mod input;
-mod pathfinding;
 mod registry;
 mod sound;
-mod stack;
 
-use config::Config;
-use gamestate::GameState;
 use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
+use logic::config::Config;
+use logic::gamestate::GameState;
 use registry::ResourceRegistry;
 
 pub enum State {

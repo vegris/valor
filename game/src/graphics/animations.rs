@@ -5,9 +5,10 @@ use sdl2::rect::Point;
 
 use gamedata::creatures::Creature;
 
-use crate::event::Event;
-use crate::gamestate::GameState;
-use crate::grid::GridPos;
+use logic::event::Event;
+use logic::gamestate::GameState;
+use logic::grid::GridPos;
+
 use crate::registry::ResourceRegistry;
 use crate::sound;
 

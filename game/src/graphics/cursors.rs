@@ -3,9 +3,9 @@ use sdl2::mouse::Cursor as SDLCursor;
 use strum::IntoEnumIterator;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::grid::AttackDirection;
 use crate::registry::spritesheets::{ContainerType, SpriteGroupType};
 use crate::registry::ResourceRegistry;
+use logic::grid::AttackDirection;
 
 #[derive(Clone, Copy, EnumCount, EnumIter, Debug)]
 pub enum Cursor {

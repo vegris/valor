@@ -8,15 +8,18 @@ use sdl2::video::WindowContext;
 
 use strum::IntoEnumIterator;
 
-use crate::command::Command;
-use crate::event::Event;
-use crate::gamestate::{GameState, Side, StackHandle};
-use crate::grid::GridPos;
+use logic::command::Command;
+use logic::event::Event;
+use logic::gamestate::{GameState, Side, StackHandle};
+use logic::grid::GridPos;
+use logic::pathfinding;
+
+use common::error::AnyWay;
+
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
-use crate::{pathfinding, State};
-use common::error::AnyWay;
+use crate::State;
 
 pub mod animations;
 pub mod creature;

@@ -3,8 +3,8 @@ use sdl2::render::{Canvas, TextureCreator};
 use sdl2::video::{Window, WindowContext};
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::gamestate::Side;
 use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
+use logic::gamestate::Side;
 
 #[derive(Clone, Copy, EnumCount, EnumIter)]
 pub enum AnimationType {

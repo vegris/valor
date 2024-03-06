@@ -6,9 +6,10 @@ use sdl2::video::WindowContext;
 
 use common::error::AnyWay;
 
-use crate::gamestate::Side;
-use crate::grid::GridPos;
-use crate::stack::Stack;
+use logic::gamestate::Side;
+use logic::grid::GridPos;
+use logic::stack::Stack;
+
 use crate::ResourceRegistry;
 
 use super::animations::AnimationState;

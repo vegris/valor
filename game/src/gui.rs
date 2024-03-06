@@ -7,7 +7,8 @@ use egui::{
 };
 use gamedata::spells::Spell;
 
-use crate::{command::Cast, graphics::statics::Buttons, input::FrameInput, State};
+use crate::{graphics::statics::Buttons, input::FrameInput, State};
+use logic::command::Cast;
 
 use self::textures::Button;
 

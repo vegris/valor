@@ -1,6 +1,5 @@
 use std::ops::RangeInclusive;
 
-extern crate sdl2;
 use sdl2::rect::{Point, Rect};
 
 use gamedata::creatures::Creature;

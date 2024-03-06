@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use gamedata::creatures;
 
-use crate::grid::GridPos;
+use logic::grid::GridPos;
 
 use super::animation::Animation;
 use super::movement::Movement;

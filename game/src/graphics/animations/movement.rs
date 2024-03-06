@@ -5,8 +5,8 @@ use sdl2::rect::Point;
 use gamedata::creatures::Creature;
 
 use crate::graphics::creature::AnimationType;
-use crate::grid::GridPos;
 use crate::ResourceRegistry;
+use logic::grid::GridPos;
 
 use super::time_progress::TimeProgress;
 

@@ -1,11 +1,11 @@
 [package]
-name = "game"
+name = "logic"
 version = "0.1.0"
-authors = ["cheaterok <1cheaterok1@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# TODO: remove SDL2 dependency from logic
 [dependencies.sdl2]
 version = "0.35"
 default-features = false
@@ -18,11 +18,7 @@ features = ["small_rng"]
 [dependencies]
 strum = "0.25"
 strum_macros = "0.25"
-ron = "0.8"
+ron = "0.8" # TODO: move to client
 serde = { version = "1", features = ["derive"] }
-egui = { version = "0.24.1", default-features = false }
-
-formats = { path = "../formats" }
 gamedata = { path = "../gamedata" }
 common = { path = "../common" }
-logic = { path = "../logic" }

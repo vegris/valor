@@ -5,13 +5,14 @@ use gamedata::creatures;
 use gamedata::creatures::Creature;
 use gamedata::spells::{Spell, SpellAnimation};
 
-use crate::event::{Attack, Cast, Movement, Shot};
-use crate::gamestate::{GameState, Side, StackHandle};
+use logic::event::{Attack, Cast, Movement, Shot};
+use logic::gamestate::{GameState, Side, StackHandle};
+use logic::grid::GridPos;
+use logic::stack::Stack;
+
 use crate::graphics::creature::AnimationType;
 use crate::graphics::Animations;
-use crate::grid::GridPos;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
-use crate::stack::Stack;
 
 use super::animation::Animation;
 use super::entity_animations::{EntityAnimation, EntityAnimations};

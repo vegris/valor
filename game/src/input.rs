@@ -1,9 +1,10 @@
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::command::{Cast, Command};
-use crate::gamestate::GameState;
-use crate::grid::{AttackDirection, GridPos};
-use crate::{command, State};
+use crate::State;
+use logic::command;
+use logic::command::{Cast, Command};
+use logic::gamestate::GameState;
+use logic::grid::{AttackDirection, GridPos};
 
 #[derive(Default)]
 pub struct FrameInput {
