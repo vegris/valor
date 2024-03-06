@@ -80,7 +80,7 @@ pub fn apply(command: Attack, state: &mut GameState) -> Vec<Event> {
     let defender_handle = state.find_unit_for_cell(command.attack_position).unwrap();
 
     let [attacker, defender] =
-        crate::map::get_many_mut(&mut state.stacks, [state.current_stack, defender_handle])
+        common::map::get_many_mut(&mut state.stacks, [state.current_stack, defender_handle])
             .unwrap();
 
     deal_damage(&state.heroes, attacker, defender, ATTACK_TYPE);

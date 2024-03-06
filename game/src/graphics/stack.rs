@@ -4,12 +4,12 @@ use sdl2::render::TextureCreator;
 use sdl2::render::WindowCanvas;
 use sdl2::video::WindowContext;
 
-use crate::error::AnyWay;
+use common::error::AnyWay;
+
 use crate::gamestate::Side;
 use crate::grid::GridPos;
-use crate::ResourceRegistry;
-
 use crate::stack::Stack;
+use crate::ResourceRegistry;
 
 use super::animations::AnimationState;
 use super::creature::AnimationType;

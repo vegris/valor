@@ -2,15 +2,14 @@ use std::collections::HashMap;
 
 use strum_macros::EnumIter;
 
+use common::error::AnyHow;
+
 use crate::command::Command;
 use crate::config::Config;
-use crate::error::AnyHow;
 use crate::event::Event;
 use crate::grid::GridPos;
-
-use crate::stack::Stack;
-
 use crate::pathfinding::NavigationArray;
+use crate::stack::Stack;
 
 mod army;
 mod commands;

@@ -11,7 +11,7 @@ use gamedata::creatures;
 use gamedata::creatures::Creature;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::error::AnyHow;
+use common::error::AnyHow;
 
 mod creature_resources;
 pub mod images;

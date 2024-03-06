@@ -7,9 +7,9 @@ use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
 use gamedata::spells::Spell;
 
-use crate::error::AnyHow;
 use crate::registry::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
 use crate::{Config, ResourceRegistry};
+use common::error::AnyHow;
 
 use super::cursors::Cursors;
 use super::hero::AnimationType;

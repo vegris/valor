@@ -9,7 +9,6 @@ use sdl2::video::WindowContext;
 use strum::IntoEnumIterator;
 
 use crate::command::Command;
-use crate::error::AnyWay;
 use crate::event::Event;
 use crate::gamestate::{GameState, Side, StackHandle};
 use crate::grid::GridPos;
@@ -17,6 +16,7 @@ use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
 use crate::{pathfinding, State};
+use common::error::AnyWay;
 
 pub mod animations;
 pub mod creature;

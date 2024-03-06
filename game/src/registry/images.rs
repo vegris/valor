@@ -3,7 +3,7 @@ use sdl2::surface::Surface;
 
 use formats::pcx;
 
-use crate::error::{AnyHow, AnyWay};
+use common::error::{AnyHow, AnyWay};
 
 pub struct StaticImage {
     surface: Surface<'static>,

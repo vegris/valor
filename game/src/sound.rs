@@ -5,8 +5,9 @@ use rand::seq::IteratorRandom;
 use sdl2::mixer;
 use sdl2::mixer::Channel;
 
+use common::error::AnyWay;
+
 use crate::config::Config;
-use crate::error::AnyWay;
 use crate::registry::ResourceRegistry;
 
 const START_CHANNEL: Channel = Channel(0);

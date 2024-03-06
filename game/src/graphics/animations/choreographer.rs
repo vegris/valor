@@ -38,7 +38,7 @@ impl<'a> StackWithAnimation<'a> {
         animations: &'a mut Animations,
     ) -> [Self; N] {
         let stacks = handles.map(|h| state.get_stack(h));
-        let animations = crate::map::get_many_mut(&mut animations.0, handles).unwrap();
+        let animations = common::map::get_many_mut(&mut animations.0, handles).unwrap();
 
         Iterator::zip(stacks.into_iter(), animations)
             .map(|(stack, animation)| Self { stack, animation })

@@ -21,7 +21,8 @@ pub fn apply(command: Shoot, state: &mut GameState) -> Vec<Event> {
     let mut events = vec![];
 
     let [attacker, defender] =
-        crate::map::get_many_mut(&mut state.stacks, [state.current_stack, command.target]).unwrap();
+        common::map::get_many_mut(&mut state.stacks, [state.current_stack, command.target])
+            .unwrap();
 
     attacker.current_ammo -= 1;
 

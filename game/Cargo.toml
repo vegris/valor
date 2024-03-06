@@ -24,3 +24,4 @@ egui = { version = "0.24.1", default-features = false }
 
 formats = { path = "../formats" }
 gamedata = { path = "../gamedata" }
+common = { path = "../common" }
