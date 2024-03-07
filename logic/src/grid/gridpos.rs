@@ -144,9 +144,7 @@ impl GridPos {
         let res = 2 * v * h - v * abs_x - h * abs_y;
         res > 0
     }
-}
 
-impl GridPos {
     pub fn get_successors_positional(self) -> [Option<Self>; 6] {
         let Self { x, y } = self;
 
