@@ -1,10 +1,12 @@
+use gamedata::creatures::Creature;
+use sdl2::rect::Point;
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::State;
+use crate::{gridpos, State};
 use logic::command;
 use logic::command::{Cast, Command};
 use logic::gamestate::GameState;
-use logic::grid::{AttackDirection, GridPos};
+use logic::grid::{AttackDirection, GridPos, HexagonPart};
 
 #[derive(Default)]
 pub struct FrameInput {
@@ -70,11 +72,11 @@ pub fn process_input(
     match state2 {
         State::Main => {
             let cursor_pos = frame_input.cursor_position;
-            let current_hover = GridPos::find_pointer_position(cursor_pos.into());
+            let current_hover = gridpos::find_pointer_position(cursor_pos.into());
 
             let current_stack = state.get_current_stack();
             let attack_direction = current_hover.map(|cell| {
-                cell.calculate_attack_direction(cursor_pos.into(), current_stack.creature)
+                calculate_attack_direction(cell, cursor_pos.into(), current_stack.creature)
             });
 
             let potential_lmb_command =
@@ -142,4 +144,19 @@ fn construct_potential_lmb_command(
             }
         })
         .filter(|c| state.is_command_applicable(*c))
+}
+
+pub fn calculate_attack_direction(
+    pos: GridPos,
+    point: Point,
+    attacking_creature: Creature,
+) -> AttackDirection {
+    let grid_center = gridpos::center(pos);
+    let point = point - grid_center;
+    let x = point.x() as f32;
+    let y = point.y() as f32;
+    let angle = f32::atan2(y, x);
+    let hexagon_part = HexagonPart::find_part_for_angle(angle);
+
+    AttackDirection::from_hexagon_part(hexagon_part, attacking_creature)
 }

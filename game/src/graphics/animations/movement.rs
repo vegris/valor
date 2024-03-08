@@ -5,7 +5,7 @@ use sdl2::rect::Point;
 use gamedata::creatures::Creature;
 
 use crate::graphics::creature::AnimationType;
-use crate::ResourceRegistry;
+use crate::{gridpos, ResourceRegistry};
 use logic::grid::GridPos;
 
 use super::time_progress::TimeProgress;
@@ -28,12 +28,12 @@ impl Movement {
     pub fn new(creature: Creature, path: Vec<GridPos>, rr: &mut ResourceRegistry) -> Self {
         let tweens = if creature.is_flying() {
             vec![Tween {
-                from: path[0].center(),
-                to: path.last().unwrap().center(),
+                from: gridpos::center(path[0]),
+                to: gridpos::center(*path.last().unwrap()),
             }]
             .into_boxed_slice()
         } else {
-            let iter1 = path.iter().map(|p| p.center());
+            let iter1 = path.iter().map(|p| gridpos::center(*p));
             let iter2 = iter1.clone().skip(1);
             Iterator::zip(iter1, iter2)
                 .map(|(from, to)| Tween { from, to })

@@ -3,6 +3,7 @@ use std::time::Instant;
 use common::error::AnyWay;
 
 mod graphics;
+mod gridpos;
 mod gui;
 mod input;
 mod registry;

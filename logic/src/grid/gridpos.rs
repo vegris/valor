@@ -1,12 +1,5 @@
 use std::ops::RangeInclusive;
 
-use sdl2::rect::{Point, Rect};
-
-use gamedata::creatures::Creature;
-
-use super::attack_direction::AttackDirection;
-use super::hexagon_part::HexagonPart;
-
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct GridPos {
     pub x: i32,
@@ -16,13 +9,6 @@ pub struct GridPos {
 impl GridPos {
     pub const X_RANGE: RangeInclusive<i32> = 1..=15;
     pub const Y_RANGE: RangeInclusive<i32> = 1..=11;
-
-    pub const CELL_WIDTH: i32 = 46;
-    pub const CELL_HEIGHT: i32 = 52;
-    pub const CELL_VERTICAL: i32 = 32;
-
-    const ODD_START_POINT: (i32, i32) = (105, 117);
-    const EVEN_START_POINT: (i32, i32) = (83, 159);
 
     fn is_point_valid(x: i32, y: i32) -> bool {
         Self::X_RANGE.contains(&x) && Self::Y_RANGE.contains(&y)
@@ -51,98 +37,6 @@ impl GridPos {
 
     pub fn is_even_row(&self) -> bool {
         self.y % 2 == 0
-    }
-
-    pub fn center(&self) -> Point {
-        let (x, y) = (self.x - 1, self.y - 1);
-
-        // Вычитаем единицу чтобы рисовать клетки "внахлёст"
-        let x_offset = x * (Self::CELL_WIDTH - 1);
-        let y_offset = y / 2 * (Self::CELL_HEIGHT + Self::CELL_VERTICAL);
-
-        let start_point = if self.is_even_row() {
-            Self::EVEN_START_POINT
-        } else {
-            Self::ODD_START_POINT
-        };
-
-        Point::from(start_point).offset(x_offset, y_offset)
-    }
-
-    pub fn bounding_rect(&self) -> Rect {
-        Rect::from_center(
-            self.center(),
-            Self::CELL_WIDTH as u32,
-            Self::CELL_HEIGHT as u32,
-        )
-    }
-
-    pub fn find_pointer_position(point: Point) -> Option<GridPos> {
-        let odd_x_relative = point.x() - (Self::ODD_START_POINT.0 - (Self::CELL_WIDTH / 2));
-        let odd_y_relative = point.y() - (Self::ODD_START_POINT.1 - Self::CELL_HEIGHT);
-        let odd_x_rect = odd_x_relative / (Self::CELL_WIDTH - 1) + 1;
-        let odd_y_rect = odd_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) + 1;
-
-        let even_x_relative = point.x() - (Self::EVEN_START_POINT.0 - (Self::CELL_WIDTH / 2));
-        let even_y_relative = point.y() - (Self::EVEN_START_POINT.1 - Self::CELL_HEIGHT);
-        let even_x_rect = even_x_relative / (Self::CELL_WIDTH - 1) + 1;
-        let even_y_rect = even_y_relative / (Self::CELL_HEIGHT + Self::CELL_VERTICAL) + 1;
-
-        let odd_y_rect_real = odd_y_rect * 2 - 1;
-        let even_y_rect_real = even_y_rect * 2;
-
-        let odd_cell = GridPos::try_new(odd_x_rect, odd_y_rect_real);
-        let even_cell = GridPos::try_new(even_x_rect, even_y_rect_real);
-
-        match (odd_cell, even_cell) {
-            (None, None) => None,
-            (val, None) | (None, val) => val.filter(|cell| cell.contains_point_precise(point)),
-            (Some(cell_1), Some(cell_2)) => {
-                match (cell_1.contains_point(point), cell_2.contains_point(point)) {
-                    (false, false) => None,
-                    (true, false) => Some(cell_1),
-                    (false, true) => Some(cell_2),
-                    (true, true) => {
-                        let cell = if cell_1.contains_point_precise(point) {
-                            cell_1
-                        } else {
-                            cell_2
-                        };
-                        Some(cell)
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn calculate_attack_direction(
-        &self,
-        point: Point,
-        attacking_creature: Creature,
-    ) -> AttackDirection {
-        let grid_center = self.center();
-        let point = point - grid_center;
-        let x = point.x() as f32;
-        let y = point.y() as f32;
-        let angle = f32::atan2(y, x);
-        let hexagon_part = HexagonPart::find_part_for_angle(angle);
-
-        AttackDirection::from_hexagon_part(hexagon_part, attacking_creature)
-    }
-
-    pub fn contains_point(&self, point: Point) -> bool {
-        self.bounding_rect().contains_point(point)
-    }
-
-    fn contains_point_precise(&self, point: Point) -> bool {
-        // http://www.playchilla.com/how-to-check-if-a-point-is-inside-a-hexagon
-        let relative_point = point - self.center();
-        let (abs_x, abs_y) = (relative_point.x().abs(), relative_point.y().abs());
-        // -2 выбрано подбором
-        let v = Self::CELL_VERTICAL / 2 - 2;
-        let h = Self::CELL_HEIGHT / 2;
-        let res = 2 * v * h - v * abs_x - h * abs_y;
-        res > 0
     }
 
     pub fn get_successors_positional(self) -> [Option<Self>; 6] {

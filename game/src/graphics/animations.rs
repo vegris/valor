@@ -10,7 +10,7 @@ use logic::gamestate::GameState;
 use logic::grid::GridPos;
 
 use crate::registry::ResourceRegistry;
-use crate::sound;
+use crate::{gridpos, sound};
 
 use super::creature::AnimationType;
 use super::Animations;
@@ -70,7 +70,7 @@ impl AnimationState {
             event_queue: VecDeque::new(),
             current_event: CurrentEvent::Idle(Idle::empty(creature, rr)),
             invert_side: false,
-            position: position.center(),
+            position: gridpos::center(position),
         }
     }
 
@@ -111,7 +111,7 @@ impl AnimationState {
                     sound::stop_looping();
                 }
                 InstantEvent::Teleport(position) => {
-                    self.position = position.center();
+                    self.position = gridpos::center(*position);
                 }
             }
         }

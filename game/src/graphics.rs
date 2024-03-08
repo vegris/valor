@@ -19,7 +19,7 @@ use common::error::AnyWay;
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
-use crate::State;
+use crate::{gridpos, State};
 
 pub mod animations;
 pub mod creature;
@@ -198,7 +198,7 @@ fn draw_battlefield(canvas: &mut WindowCanvas, statics: &Statics) -> AnyWay {
             canvas.copy(
                 statics.textures.get(StaticTexture::GridCell),
                 None,
-                GridPos::new(x, y).bounding_rect(),
+                gridpos::bounding_rect(GridPos::new(x, y)),
             )?;
         }
     }
@@ -225,7 +225,7 @@ fn highlight_cells(canvas: &mut WindowCanvas, statics: &Statics, cells: &[GridPo
         canvas.copy(
             statics.textures.get(StaticTexture::GridCellShadow),
             None,
-            cell.bounding_rect(),
+            gridpos::bounding_rect(*cell),
         )?;
     }
 

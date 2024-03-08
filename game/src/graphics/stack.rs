@@ -7,9 +7,10 @@ use sdl2::video::WindowContext;
 use common::error::AnyWay;
 
 use logic::gamestate::Side;
-use logic::grid::GridPos;
+
 use logic::stack::Stack;
 
+use crate::gridpos;
 use crate::ResourceRegistry;
 
 use super::animations::AnimationState;
@@ -46,7 +47,7 @@ pub fn draw(
     };
 
     let offset_x = if stack.creature.is_wide() && !animation_data.invert_side {
-        let offset = GridPos::CELL_WIDTH;
+        let offset = gridpos::CELL_WIDTH;
         match side {
             Side::Attacker => -offset,
             Side::Defender => offset,
@@ -80,7 +81,7 @@ fn draw_count(
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
 ) -> AnyWay {
-    let cell_center = logic.head.bounding_rect().center();
+    let cell_center = gridpos::bounding_rect(logic.head).center();
     let draw_center = cell_center.offset(0, 10);
 
     let background_texture = statics

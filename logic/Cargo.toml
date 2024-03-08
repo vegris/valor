@@ -5,12 +5,6 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-# TODO: remove SDL2 dependency from logic
-[dependencies.sdl2]
-version = "0.35"
-default-features = false
-features = ["ttf", "mixer"]
-
 [dependencies.rand]
 version = "0.8.5"
 features = ["small_rng"]
