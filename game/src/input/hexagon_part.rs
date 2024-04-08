@@ -1,3 +1,5 @@
+use gamedata::creatures::Creature;
+use logic::grid::AttackDirection;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
@@ -41,5 +43,24 @@ impl HexagonPart {
         Self::iter()
             .find(|hex_part| angle < hex_part.arc_end())
             .unwrap_or(Self::Left)
+    }
+
+    pub fn to_attack_direction(self, attacking_creature: Creature) -> AttackDirection {
+        match (self, attacking_creature.is_wide()) {
+            (Self::Left, _) => AttackDirection::Left,
+            (Self::Right, _) => AttackDirection::Right,
+            (Self::TopHalfLeft, false) => AttackDirection::TopLeft,
+            (Self::TopHalfLeft, true) => AttackDirection::Top,
+            (Self::TopHalfRight, false) => AttackDirection::TopRight,
+            (Self::TopHalfRight, true) => AttackDirection::Top,
+            (Self::BotHalfLeft, false) => AttackDirection::BottomLeft,
+            (Self::BotHalfLeft, true) => AttackDirection::Bottom,
+            (Self::BotHalfRight, false) => AttackDirection::BottomRight,
+            (Self::BotHalfRight, true) => AttackDirection::Bottom,
+            (Self::BotLeft, _) => AttackDirection::BottomLeft,
+            (Self::BotRight, _) => AttackDirection::BottomRight,
+            (Self::TopLeft, _) => AttackDirection::TopLeft,
+            (Self::TopRight, _) => AttackDirection::TopRight,
+        }
     }
 }

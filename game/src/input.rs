@@ -6,7 +6,11 @@ use crate::{gridpos, State};
 use logic::command;
 use logic::command::{Cast, Command};
 use logic::gamestate::GameState;
-use logic::grid::{AttackDirection, GridPos, HexagonPart};
+use logic::grid::{AttackDirection, GridPos};
+
+mod hexagon_part;
+
+use hexagon_part::HexagonPart;
 
 #[derive(Default)]
 pub struct FrameInput {
@@ -156,7 +160,5 @@ pub fn calculate_attack_direction(
     let x = point.x() as f32;
     let y = point.y() as f32;
     let angle = f32::atan2(y, x);
-    let hexagon_part = HexagonPart::find_part_for_angle(angle);
-
-    AttackDirection::from_hexagon_part(hexagon_part, attacking_creature)
+    HexagonPart::find_part_for_angle(angle).to_attack_direction(attacking_creature)
 }

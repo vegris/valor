@@ -176,7 +176,7 @@ pub fn unit_position_for_attack(
     }
 }
 
-pub fn tail_for(creature: Creature, side: Side, head: GridPos) -> Option<GridPos> {
+fn tail_for(creature: Creature, side: Side, head: GridPos) -> Option<GridPos> {
     if creature.is_wide() {
         match side {
             Side::Attacker => head.try_relative(-1, 0),
