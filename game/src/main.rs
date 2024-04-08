@@ -2,6 +2,7 @@ use std::time::Instant;
 
 use common::error::AnyWay;
 
+mod config;
 mod graphics;
 mod gridpos;
 mod gui;
@@ -9,8 +10,8 @@ mod input;
 mod registry;
 mod sound;
 
+use config::Config;
 use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
-use logic::config::Config;
 use logic::gamestate::GameState;
 use registry::ResourceRegistry;
 
@@ -51,7 +52,7 @@ fn main() -> AnyWay {
         &ttf_context,
     )?;
 
-    let mut game_state = GameState::new(&config)?;
+    let mut game_state = GameState::new(&config.armies)?;
 
     let mut animations = Animations::create(&game_state, &mut resource_registry);
 

@@ -12,7 +12,6 @@ features = ["small_rng"]
 [dependencies]
 strum = "0.25"
 strum_macros = "0.25"
-ron = "0.8" # TODO: move to client
 serde = { version = "1", features = ["derive"] }
 gamedata = { path = "../gamedata" }
 common = { path = "../common" }

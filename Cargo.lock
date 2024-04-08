@@ -208,7 +208,6 @@ dependencies = [
  "common",
  "gamedata",
  "rand",
- "ron",
  "serde",
  "strum",
  "strum_macros",

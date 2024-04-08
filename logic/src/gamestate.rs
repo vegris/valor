@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
+use gamedata::creatures::Creature;
+use gamedata::heroes::Hero as GDHero;
+use serde::Deserialize;
 use strum_macros::EnumIter;
 
 use common::error::AnyHow;
 
 use crate::command::Command;
-use crate::config::Config;
 use crate::event::Event;
 use crate::grid::GridPos;
 use crate::pathfinding::NavigationArray;
@@ -31,6 +33,12 @@ pub struct GameState {
     reachable_cells: Vec<GridPos>,
 }
 
+#[derive(Clone, Copy, Deserialize)]
+pub struct Army {
+    pub hero: Option<GDHero>,
+    pub stacks: [Option<(Creature, i32)>; 7],
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct StackHandle(u32);
 
@@ -47,11 +55,11 @@ enum Winner {
 }
 
 impl GameState {
-    pub fn new(config: &Config) -> AnyHow<Self> {
-        let attacker_army = army::form_units(&config.armies[0].stacks, Side::Attacker);
-        let defender_army = army::form_units(&config.armies[1].stacks, Side::Defender);
+    pub fn new(armies: &[Army; 2]) -> AnyHow<Self> {
+        let attacker_army = army::form_units(&armies[0].stacks, Side::Attacker);
+        let defender_army = army::form_units(&armies[1].stacks, Side::Defender);
 
-        let heroes = config.armies.map(|army| army.hero.map(Hero::build));
+        let heroes = armies.map(|army| army.hero.map(Hero::build));
 
         let stacks = [attacker_army, defender_army]
             .concat()

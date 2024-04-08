@@ -3,14 +3,7 @@ use std::fs::File;
 use serde::Deserialize;
 
 use gamedata::battlefields::Battlefield;
-use gamedata::creatures::Creature;
-use gamedata::heroes::Hero;
-
-#[derive(Clone, Copy, Deserialize)]
-pub struct Army {
-    pub hero: Option<Hero>,
-    pub stacks: [Option<(Creature, i32)>; 7],
-}
+use logic::gamestate::Army;
 
 #[derive(Deserialize)]
 pub struct Config {
