@@ -103,7 +103,7 @@ impl Stack {
         pathfinding::get_occupied_cells_for(self.creature, self.side, self.head).unwrap()
     }
 
-    pub fn get_adjacent_cells(&self) -> Vec<GridPos> {
+    fn get_adjacent_cells(&self) -> Vec<GridPos> {
         self.get_occupied_cells()
             .iter()
             .flat_map(|cell| cell.get_successors())
@@ -113,10 +113,6 @@ impl Stack {
     }
 
     pub fn receive_damage(&mut self, damage: i32) {
-        dbg!(damage);
-
-        dbg!(self.count);
-        dbg!(self.current_health);
         let creature_health = self.creature.base_stats().health;
 
         let total_health = (self.count - 1) * creature_health + self.current_health - damage;
@@ -136,9 +132,6 @@ impl Stack {
             self.count = div + 1;
             self.current_health = rem;
         }
-
-        dbg!(self.count);
-        dbg!(self.current_health);
     }
 }
 
