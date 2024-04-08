@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::gamestate::turns;
 use crate::grid::GridPos;
+use crate::turn::Phase;
 
 use super::gamestate::{GameState, Side};
 use super::pathfinding;
@@ -20,7 +20,7 @@ pub struct Stack {
     pub head: GridPos,
     pub side: Side,
 
-    pub turn_state: Option<turns::Phase>,
+    pub turn_state: Option<Phase>,
     pub defending: bool,
 
     pub retaliation_count: RetaliationCount,
@@ -66,14 +66,14 @@ impl Stack {
             current_ammo: creature.base_stats().ammo_capacity,
             head,
             side,
-            turn_state: Some(turns::Phase::Fresh),
+            turn_state: Some(Phase::Fresh),
             defending: false,
             retaliation_count: RetaliationCount::from_creature(creature),
         }
     }
 
     pub fn refresh_for_next_turn(&mut self) {
-        self.turn_state = Some(turns::Phase::Fresh);
+        self.turn_state = Some(Phase::Fresh);
         self.retaliation_count = RetaliationCount::from_creature(self.creature);
     }
 

@@ -12,12 +12,12 @@ use crate::event::Event;
 use crate::grid::GridPos;
 use crate::pathfinding::NavigationArray;
 use crate::stack::Stack;
+use crate::turn::Turn;
 
 mod army;
 mod commands;
 mod damage;
 mod hero;
-pub mod turns;
 
 use hero::Hero;
 
@@ -25,7 +25,7 @@ pub struct GameState {
     // Логика
     heroes: [Option<Hero>; 2],
     stacks: HashMap<StackHandle, Stack>,
-    turn: turns::Turn,
+    turn: Turn,
     current_stack: StackHandle,
 
     // Поиск пути
@@ -74,7 +74,7 @@ impl GameState {
         let mut state = Self {
             heroes,
             stacks,
-            turn: turns::Turn::new(),
+            turn: Turn::new(),
             current_stack: StackHandle(0),
             navigation_array: NavigationArray::empty(),
             reachable_cells: vec![],
@@ -146,7 +146,7 @@ impl GameState {
     }
 
     fn update_current_stack(&mut self) {
-        if let Some(handle) = turns::find_active_stack(self) {
+        if let Some(handle) = self.find_active_stack() {
             self.current_stack = handle;
 
             let stack = self.get_current_stack_mut();
@@ -171,6 +171,34 @@ impl GameState {
             }
             self.update_current_stack();
         }
+    }
+    fn find_active_stack(&self) -> Option<StackHandle> {
+        let mut handles = self.units();
+        // Преимущество при равенстве скоростей у того кто ходил вторым на прошлом ходу
+        handles
+            .sort_unstable_by_key(|&handle| self.get_stack(handle).side == self.turn.priority_side);
+
+        handles
+            .iter()
+            .map(|&handle| (handle, self.get_stack(handle)))
+            .filter(|(_handle, stack)| stack.is_alive())
+            .filter(|(_handle, stack)| {
+                stack
+                    .turn_state
+                    .map_or(false, |phase| phase == self.turn.current_phase)
+            })
+            .fold(None, |acc, current| {
+                // Без max_first тяжко
+                fn key((_, stack): (StackHandle, &Stack)) -> i32 {
+                    stack.speed()
+                }
+                match acc {
+                    None => Some(current),
+                    Some(acc) if key(current) > key(acc) => Some(current),
+                    _ => acc,
+                }
+            })
+            .map(|(handle, _stack)| handle)
     }
 
     fn find_winner(&self) -> Option<Winner> {
