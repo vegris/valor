@@ -15,7 +15,7 @@ use graphics::{animations::entity_animations::EntityAnimations, Animations, Stat
 use logic::gamestate::GameState;
 use registry::ResourceRegistry;
 
-pub enum State {
+pub enum Stage {
     Main,
     SpellBook,
 }
@@ -66,7 +66,7 @@ fn main() -> AnyWay {
 
     let mut frame_start = Instant::now();
 
-    let mut state = State::Main;
+    let mut stage = Stage::Main;
 
     loop {
         let now = Instant::now();
@@ -76,9 +76,9 @@ fn main() -> AnyWay {
         let frame_input = input::gather_input(&mut event_pump);
 
         let mut cast = None;
-        let full_output = gui::create_frame(&ctx, &frame_input, &mut state, &mut cast);
+        let full_output = gui::create_frame(&ctx, &frame_input, &mut stage, &mut cast);
 
-        let frame_data = input::process_input(&game_state, &frame_input, &mut state, cast);
+        let frame_data = input::process_input(&game_state, &frame_input, &mut stage, cast);
 
         animations.update(dt, &mut resource_registry);
         entity_animations.update(dt, &mut resource_registry);
@@ -96,7 +96,7 @@ fn main() -> AnyWay {
             &texture_creator,
             &statics,
             shapes,
-            &state,
+            &stage,
         )?;
 
         canvas.present();

@@ -7,7 +7,7 @@ use egui::{
 };
 use gamedata::spells::Spell;
 
-use crate::{graphics::statics::Buttons, input::FrameInput, State};
+use crate::{graphics::statics::Buttons, input::FrameInput, Stage};
 use logic::command::Cast;
 
 use self::textures::Button;
@@ -19,7 +19,7 @@ pub fn create_context() -> Context {
 pub fn create_frame(
     ctx: &Context,
     input: &FrameInput,
-    state: &mut State,
+    stage: &mut Stage,
     cast: &mut Option<Cast>,
 ) -> FullOutput {
     let raw_input = raw_input_from_frame_input(input);
@@ -27,12 +27,12 @@ pub fn create_frame(
     ctx.run(raw_input, |ctx| {
         egui::Area::new("menu")
             .fixed_pos((0., 556.))
-            .show(ctx, |ui| menu(ui, state));
+            .show(ctx, |ui| menu(ui, stage));
 
-        if matches!(state, State::SpellBook) {
+        if matches!(stage, Stage::SpellBook) {
             egui::Area::new("spellbook")
                 .fixed_pos((400. - 310., 0.))
-                .show(ctx, |ui| spell_book(ui, state, cast));
+                .show(ctx, |ui| spell_book(ui, stage, cast));
         }
     })
 }
@@ -66,7 +66,7 @@ pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, TextureId)> {
         .collect()
 }
 
-fn menu(ui: &mut Ui, state: &mut State) {
+fn menu(ui: &mut Ui, state: &mut Stage) {
     let buttons = [
         (Buttons::Settings, 3),
         (Buttons::Surrender, 54),
@@ -93,13 +93,13 @@ fn menu(ui: &mut Ui, state: &mut State) {
             dbg!(name);
 
             if matches!(b, Buttons::BookOfMagic) {
-                *state = State::SpellBook;
+                *state = Stage::SpellBook;
             }
         }
     }
 }
 
-fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
+fn spell_book(ui: &mut Ui, state: &mut Stage, command: &mut Option<Cast>) {
     let x_start = 210.;
     let y_start = 110.;
 
@@ -121,7 +121,7 @@ fn spell_book(ui: &mut Ui, state: &mut State, command: &mut Option<Cast>) {
 
             if ui.put(rect, button).clicked() {
                 dbg!("ARMAGEDDON!!!");
-                *state = State::Main;
+                *state = Stage::Main;
                 *command = Some(Cast {
                     spell: Spell::Armageddon,
                     target: None,

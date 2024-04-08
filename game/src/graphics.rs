@@ -19,7 +19,7 @@ use common::error::AnyWay;
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
-use crate::{gridpos, State};
+use crate::{gridpos, Stage};
 
 pub mod animations;
 pub mod creature;
@@ -87,7 +87,7 @@ pub fn draw(
     tc: &TextureCreator<WindowContext>,
     statics: &Statics,
     shapes: Vec<(egui::Rect, TextureId)>,
-    state2: &State,
+    stage: &Stage,
 ) -> AnyWay {
     draw_battlefield(canvas, statics)?;
 
@@ -158,7 +158,7 @@ pub fn draw(
         }
     }
 
-    if matches!(state2, State::SpellBook) {
+    if matches!(stage, Stage::SpellBook) {
         canvas.copy(
             statics.textures.get(StaticTexture::SpellBook),
             None,

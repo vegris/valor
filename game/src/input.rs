@@ -2,7 +2,7 @@ use gamedata::creatures::Creature;
 use sdl2::rect::Point;
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::{gridpos, State};
+use crate::{gridpos, Stage};
 use logic::command;
 use logic::command::{Cast, Command};
 use logic::gamestate::GameState;
@@ -63,18 +63,18 @@ pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
 pub fn process_input(
     state: &GameState,
     frame_input: &FrameInput,
-    state2: &mut State,
+    stage: &mut Stage,
     cast: Option<Cast>,
 ) -> FrameData {
     if frame_input.quit {
-        match state2 {
-            State::Main => std::process::exit(0),
-            State::SpellBook => *state2 = State::Main,
+        match stage {
+            Stage::Main => std::process::exit(0),
+            Stage::SpellBook => *stage = Stage::Main,
         }
     }
 
-    match state2 {
-        State::Main => {
+    match stage {
+        Stage::Main => {
             let cursor_pos = frame_input.cursor_position;
             let current_hover = gridpos::find_pointer_position(cursor_pos.into());
 
@@ -96,7 +96,7 @@ pub fn process_input(
                 command,
             }
         }
-        State::SpellBook => FrameData {
+        Stage::SpellBook => FrameData {
             current_hover: None,
             potential_lmb_command: None,
             command: None,
