@@ -1,8 +1,8 @@
 use std::time::Duration;
 
+use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::graphics::creature::{self, AnimationType};
 use crate::registry::ResourceRegistry;
 
 use super::animation::Animation;
@@ -35,7 +35,7 @@ impl CurrentEvent {
         }
     }
 
-    pub fn animation_state(&self) -> (AnimationType, usize) {
+    pub fn animation_state(&self) -> (creatures::Animation, usize) {
         match self {
             CurrentEvent::Event(event) => match event {
                 TimeProgressEvent::Animation(animation) => (animation.type_, animation.get_frame()),
@@ -59,7 +59,7 @@ impl Idle {
 
     fn _new(creature: Creature, rr: &mut ResourceRegistry, delay: Option<Duration>) -> Self {
         Self {
-            animation: Animation::new(creature::AnimationType::Standing, creature, rr),
+            animation: Animation::new(creatures::Animation::Standing, creature, rr),
             delay: delay.map(TimeProgress::new),
         }
     }

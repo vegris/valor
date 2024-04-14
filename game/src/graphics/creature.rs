@@ -1,91 +1,29 @@
-use std::time::Duration;
-
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
 use sdl2::surface::Surface;
 use sdl2::video::{Window, WindowContext};
-use strum_macros::{EnumCount, EnumIter};
+
+use gamedata::creatures;
 
 use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
 use logic::gamestate::Side;
 
-#[derive(Clone, Copy, Debug, EnumCount, EnumIter, PartialEq)]
-pub enum AnimationType {
-    Moving,
-    MouseOver,
-    Standing,
-    GettingHit,
-    Defend,
-    Death,
-    UnusedDeath,
-    TurnLeft,
-    TurnRight,
-    AttackUp,
-    AttackStraight,
-    AttackDown,
-    ShootUp,
-    ShootStraight,
-    ShootDown,
-    TwoHexAttackUp,
-    TwoHexAttackStraight,
-    TwoHexAttackDown,
-    StartMoving,
-    StopMoving,
+impl ContainerType for creatures::Animation {
+    const CONTAINER_TYPE: u32 = Self::CONTAINER_TYPE;
 }
 
-impl AnimationType {
-    pub fn frame_duration(&self) -> Duration {
-        let ms = match self {
-            AnimationType::Standing => 200,
-            AnimationType::TurnLeft | AnimationType::TurnRight => 100,
-            AnimationType::Moving => 100,
-            AnimationType::StartMoving | AnimationType::StopMoving => 75,
-            _ => 100,
-        };
-
-        Duration::from_millis(ms)
-    }
-}
-
-impl ContainerType for AnimationType {
-    const CONTAINER_TYPE: u32 = 66;
-}
-
-impl SpriteSheetType for AnimationType {
+impl SpriteSheetType for creatures::Animation {
     fn block_index(&self) -> usize {
         *self as usize
     }
+
     fn container_index(&self) -> u32 {
-        match self {
-            Self::Moving => 0,
-            Self::MouseOver => 1,
-            Self::Standing => 2,
-            Self::GettingHit => 3,
-            Self::Defend => 4,
-            Self::Death => 5,
-            Self::UnusedDeath => 6,
-            Self::TurnLeft => 7,
-            Self::TurnRight => 8,
-            // Дублируются
-            // TurnLeft_DBL = 9,
-            // TurnRight_DBL = 10,
-            Self::AttackUp => 11,
-            Self::AttackStraight => 12,
-            Self::AttackDown => 13,
-            Self::ShootUp => 14,
-            Self::ShootStraight => 15,
-            Self::ShootDown => 16,
-            Self::TwoHexAttackUp => 17,
-            Self::TwoHexAttackStraight => 18,
-            Self::TwoHexAttackDown => 19,
-            Self::StartMoving => 20,
-            Self::StopMoving => 21,
-        }
+        Self::container_index(*self)
     }
 }
 
-impl SpriteSheet<AnimationType> {
+impl SpriteSheet<creatures::Animation> {
     #[allow(clippy::too_many_arguments)]
     pub fn draw(
         &self,
@@ -94,7 +32,7 @@ impl SpriteSheet<AnimationType> {
         draw_pos: Point,
         side: Side,
         is_selected: bool,
-        animation_type: AnimationType,
+        animation_type: creatures::Animation,
         frame_index: usize,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let sprite = self.get_sprite(animation_type, frame_index).unwrap();
@@ -116,7 +54,10 @@ impl SpriteSheet<AnimationType> {
     }
 }
 
-fn with_selection(sprite: &Sprite, spritesheet: &SpriteSheet<AnimationType>) -> Surface<'static> {
+fn with_selection(
+    sprite: &Sprite,
+    spritesheet: &SpriteSheet<creatures::Animation>,
+) -> Surface<'static> {
     let mut surface = sprite
         .surface
         .convert(&sprite.surface.pixel_format())

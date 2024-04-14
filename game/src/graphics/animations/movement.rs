@@ -2,9 +2,9 @@ use std::time::Duration;
 
 use sdl2::rect::Point;
 
+use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::graphics::creature::AnimationType;
 use crate::{gridpos, ResourceRegistry};
 use logic::grid::GridPos;
 
@@ -23,7 +23,7 @@ struct Tween {
 }
 
 impl Movement {
-    pub const ANIMATION_TYPE: AnimationType = AnimationType::Moving;
+    pub const ANIMATION_TYPE: creatures::Animation = creatures::Animation::Moving;
 
     pub fn new(creature: Creature, path: Vec<GridPos>, rr: &mut ResourceRegistry) -> Self {
         let tweens = if creature.is_flying() {

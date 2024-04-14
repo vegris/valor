@@ -1,15 +1,17 @@
 use std::path::Path;
 
-use gamedata::spells::SpellAnimation;
 use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
+
 use strum::IntoEnumIterator;
+use strum_macros::{EnumCount, EnumIter};
 
 use formats::lod::LodIndex;
 use formats::snd::SndIndex;
+
 use gamedata::creatures;
 use gamedata::creatures::Creature;
-use strum_macros::{EnumCount, EnumIter};
+use gamedata::spells::SpellAnimation;
 
 use common::error::AnyHow;
 
@@ -83,7 +85,7 @@ impl ResourceRegistry {
     pub fn get_creature_spritesheet(
         &mut self,
         creature: Creature,
-    ) -> &SpriteSheet<crate::graphics::creature::AnimationType> {
+    ) -> &SpriteSheet<creatures::Animation> {
         self.get_creature_resources(creature).spritesheet()
     }
 

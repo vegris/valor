@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use sdl2::rect::Point;
 
+use gamedata::creatures;
 use gamedata::creatures::Creature;
 
 use logic::event::Event;
@@ -12,7 +13,6 @@ use logic::grid::GridPos;
 use crate::registry::ResourceRegistry;
 use crate::{gridpos, sound};
 
-use super::creature::AnimationType;
 use super::Animations;
 
 mod animation;
@@ -38,7 +38,7 @@ pub struct AnimationState {
 }
 
 pub struct AnimationData {
-    pub type_: AnimationType,
+    pub type_: creatures::Animation,
     pub frame_index: usize,
     pub invert_side: bool,
     pub position: Point,

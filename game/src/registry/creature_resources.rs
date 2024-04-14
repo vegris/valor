@@ -4,8 +4,6 @@ use strum::EnumCount;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::graphics::creature::AnimationType;
-
 use super::spritesheets::SpriteSheet;
 
 pub struct CreaturesCache([Option<CreatureResources>; Creature::COUNT]);
@@ -27,13 +25,13 @@ impl CreaturesCache {
 }
 
 pub struct CreatureResources {
-    spritesheet: SpriteSheet<AnimationType>,
+    spritesheet: SpriteSheet<creatures::Animation>,
     sounds: CreatureSounds,
 }
 
 impl CreatureResources {
     pub fn new(
-        spritesheet: SpriteSheet<AnimationType>,
+        spritesheet: SpriteSheet<creatures::Animation>,
         sounds: [Option<Chunk>; creatures::Sound::COUNT],
     ) -> Self {
         Self {
@@ -41,7 +39,7 @@ impl CreatureResources {
             sounds: CreatureSounds(sounds),
         }
     }
-    pub fn spritesheet(&self) -> &SpriteSheet<AnimationType> {
+    pub fn spritesheet(&self) -> &SpriteSheet<creatures::Animation> {
         &self.spritesheet
     }
     pub fn sounds(&self) -> &CreatureSounds {

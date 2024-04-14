@@ -10,7 +10,6 @@ use logic::gamestate::{GameState, Side, StackHandle};
 use logic::grid::GridPos;
 use logic::stack::Stack;
 
-use crate::graphics::creature::AnimationType;
 use crate::graphics::Animations;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
 
@@ -100,7 +99,7 @@ pub fn animate_shot(
 
     equalize([attacker.animation, target.animation]);
 
-    let animation_type = AnimationType::ShootStraight;
+    let animation_type = creatures::Animation::ShootStraight;
     let animation = Animation::new(animation_type, attacker.stack.creature, rr);
     let duration = animation.progress().time_left();
 
@@ -131,7 +130,7 @@ pub fn animate_movement(
         creatures::Sound::StartMoving,
     )));
 
-    let animation_type = AnimationType::StartMoving;
+    let animation_type = creatures::Animation::StartMoving;
     if rr
         .get_creature_spritesheet(creature)
         .has_animation(animation_type)
@@ -157,7 +156,7 @@ pub fn animate_movement(
         creatures::Sound::EndMoving,
     )));
 
-    let animation_type = AnimationType::StopMoving;
+    let animation_type = creatures::Animation::StopMoving;
     if rr
         .get_creature_spritesheet(creature)
         .has_animation(animation_type)
@@ -219,7 +218,7 @@ fn animate_strike(
     lethal: bool,
     rr: &mut ResourceRegistry,
 ) {
-    let animation_type = AnimationType::AttackStraight;
+    let animation_type = creatures::Animation::AttackStraight;
     let animation = Animation::new(animation_type, attacker.stack.creature, rr);
     let animation_duration = animation.progress().time_left();
 
@@ -238,11 +237,11 @@ fn animate_strike(
 
 fn animate_get_hit(victim: &mut StackWithAnimation, lethal: bool, rr: &mut ResourceRegistry) {
     let animation_type = if lethal {
-        AnimationType::Death
+        creatures::Animation::Death
     } else if victim.stack.defending {
-        AnimationType::Defend
+        creatures::Animation::Defend
     } else {
-        AnimationType::GettingHit
+        creatures::Animation::GettingHit
     };
 
     put_animation_with_sound(victim.animation, animation_type, victim.stack.creature, rr);
@@ -251,14 +250,14 @@ fn animate_get_hit(victim: &mut StackWithAnimation, lethal: bool, rr: &mut Resou
 fn animate_turning(stack: &mut StackWithAnimation, rr: &mut ResourceRegistry) {
     put_animation_with_sound(
         stack.animation,
-        AnimationType::TurnLeft,
+        creatures::Animation::TurnLeft,
         stack.stack.creature,
         rr,
     );
     stack.animation.push_event(AnimationEvent::InvertSide);
     put_animation_with_sound(
         stack.animation,
-        AnimationType::TurnRight,
+        creatures::Animation::TurnRight,
         stack.stack.creature,
         rr,
     );
@@ -292,7 +291,7 @@ fn needs_turning(attacker: &Stack, defender: &Stack) -> bool {
 
 fn put_animation_with_sound(
     state: &mut AnimationState,
-    animation_type: AnimationType,
+    animation_type: creatures::Animation,
     creature: Creature,
     rr: &mut ResourceRegistry,
 ) {
@@ -307,16 +306,16 @@ fn put_animation_with_sound(
     )));
 }
 
-fn sound_for_animation(animation_type: AnimationType) -> Option<creatures::Sound> {
+fn sound_for_animation(animation_type: creatures::Animation) -> Option<creatures::Sound> {
     match animation_type {
-        AnimationType::AttackStraight => Some(creatures::Sound::Attack),
-        AnimationType::Defend => Some(creatures::Sound::Defend),
-        AnimationType::StartMoving => Some(creatures::Sound::StartMoving),
-        AnimationType::Moving => Some(creatures::Sound::Move),
-        AnimationType::StopMoving => Some(creatures::Sound::EndMoving),
-        AnimationType::ShootStraight => Some(creatures::Sound::Shoot),
-        AnimationType::GettingHit => Some(creatures::Sound::Wince),
-        AnimationType::Death => Some(creatures::Sound::Killed),
+        creatures::Animation::AttackStraight => Some(creatures::Sound::Attack),
+        creatures::Animation::Defend => Some(creatures::Sound::Defend),
+        creatures::Animation::StartMoving => Some(creatures::Sound::StartMoving),
+        creatures::Animation::Moving => Some(creatures::Sound::Move),
+        creatures::Animation::StopMoving => Some(creatures::Sound::EndMoving),
+        creatures::Animation::ShootStraight => Some(creatures::Sound::Shoot),
+        creatures::Animation::GettingHit => Some(creatures::Sound::Wince),
+        creatures::Animation::Death => Some(creatures::Sound::Killed),
         _ => None,
     }
 }

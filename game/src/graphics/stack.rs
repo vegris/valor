@@ -6,15 +6,15 @@ use sdl2::video::WindowContext;
 
 use common::error::AnyWay;
 
-use logic::gamestate::Side;
+use gamedata::creatures;
 
+use logic::gamestate::Side;
 use logic::stack::Stack;
 
 use crate::gridpos;
 use crate::ResourceRegistry;
 
 use super::animations::AnimationState;
-use super::creature::AnimationType;
 use super::Statics;
 
 pub fn draw(
@@ -33,7 +33,7 @@ pub fn draw(
     let (animation_type, frame_index) = if stack.is_alive() || animation_state.is_animating() {
         (animation_data.type_, animation_data.frame_index)
     } else {
-        let animation_type = AnimationType::Death;
+        let animation_type = creatures::Animation::Death;
         (
             animation_type,
             spritesheet.frames_count(animation_type).unwrap() - 1,

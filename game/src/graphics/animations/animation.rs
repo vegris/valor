@@ -1,19 +1,19 @@
+use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::graphics::creature::AnimationType;
 use crate::registry::ResourceRegistry;
 
 use super::time_progress::TimeProgress;
 
 pub struct Animation {
-    pub type_: AnimationType,
+    pub type_: creatures::Animation,
     pub frame_count: usize,
     progress: TimeProgress,
 }
 
 impl Animation {
     pub fn new(
-        animation_type: AnimationType,
+        animation_type: creatures::Animation,
         creature: Creature,
         rr: &mut ResourceRegistry,
     ) -> Self {

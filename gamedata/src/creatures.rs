@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use serde::Deserialize;
 use strum::EnumCount;
 use strum_macros::{EnumCount, EnumIter};
@@ -207,6 +209,30 @@ pub enum Sound {
 }
 
 pub struct Sounds([Option<&'static str>; Sound::COUNT]);
+
+#[derive(Clone, Copy, EnumCount, EnumIter)]
+pub enum Animation {
+    Moving,
+    MouseOver,
+    Standing,
+    GettingHit,
+    Defend,
+    Death,
+    UnusedDeath,
+    TurnLeft,
+    TurnRight,
+    AttackUp,
+    AttackStraight,
+    AttackDown,
+    ShootUp,
+    ShootStraight,
+    ShootDown,
+    TwoHexAttackUp,
+    TwoHexAttackStraight,
+    TwoHexAttackDown,
+    StartMoving,
+    StopMoving,
+}
 
 impl Creature {
     pub const fn base_stats(&self) -> Stats {
@@ -3608,5 +3634,48 @@ impl Creature {
 impl Sounds {
     pub fn get(&self, sound: Sound) -> Option<&'static str> {
         self.0[sound as usize]
+    }
+}
+
+impl Animation {
+    pub const CONTAINER_TYPE: u32 = 66;
+
+    pub fn container_index(self) -> u32 {
+        match self {
+            Self::Moving => 0,
+            Self::MouseOver => 1,
+            Self::Standing => 2,
+            Self::GettingHit => 3,
+            Self::Defend => 4,
+            Self::Death => 5,
+            Self::UnusedDeath => 6,
+            Self::TurnLeft => 7,
+            Self::TurnRight => 8,
+            // Дублируются
+            // TurnLeft_DBL = 9,
+            // TurnRight_DBL = 10,
+            Self::AttackUp => 11,
+            Self::AttackStraight => 12,
+            Self::AttackDown => 13,
+            Self::ShootUp => 14,
+            Self::ShootStraight => 15,
+            Self::ShootDown => 16,
+            Self::TwoHexAttackUp => 17,
+            Self::TwoHexAttackStraight => 18,
+            Self::TwoHexAttackDown => 19,
+            Self::StartMoving => 20,
+            Self::StopMoving => 21,
+        }
+    }
+
+    pub fn frame_duration(self) -> Duration {
+        let ms = match self {
+            Self::Standing => 200,
+            Self::TurnLeft | Self::TurnRight => 100,
+            Self::Moving => 100,
+            Self::StartMoving | Self::StopMoving => 75,
+            _ => 100,
+        };
+        Duration::from_millis(ms)
     }
 }
