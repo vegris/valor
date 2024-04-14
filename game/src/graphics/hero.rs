@@ -1,45 +1,33 @@
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
 use sdl2::video::{Window, WindowContext};
-use strum_macros::{EnumCount, EnumIter};
+
+use gamedata::heroes;
 
 use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
 use logic::gamestate::Side;
 
-#[derive(Clone, Copy, EnumCount, EnumIter)]
-pub enum AnimationType {
-    Idle,
-    Facepalm,
-    Happy,
-    Casting,
+impl ContainerType for heroes::Animation {
+    const CONTAINER_TYPE: u32 = heroes::Animation::CONTAINER_TYPE;
 }
 
-impl ContainerType for AnimationType {
-    const CONTAINER_TYPE: u32 = 73;
-}
-
-impl SpriteSheetType for AnimationType {
+impl SpriteSheetType for heroes::Animation {
     fn block_index(&self) -> usize {
         *self as usize
     }
 
     fn container_index(&self) -> u32 {
-        match self {
-            AnimationType::Idle => 1,
-            AnimationType::Facepalm => 2,
-            AnimationType::Happy => 3,
-            AnimationType::Casting => 4,
-        }
+        heroes::Animation::container_index(*self)
     }
 }
 
-impl SpriteSheet<AnimationType> {
+impl SpriteSheet<heroes::Animation> {
     pub fn draw(
         &self,
         canvas: &mut Canvas<Window>,
         tc: &TextureCreator<WindowContext>,
         side: Side,
-        animation_type: AnimationType,
+        animation_type: heroes::Animation,
         frame_index: usize,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let sprite = self.get_sprite(animation_type, frame_index).unwrap();

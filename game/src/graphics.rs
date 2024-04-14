@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use egui::TextureId;
+use gamedata::heroes;
 use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
@@ -215,7 +216,7 @@ fn draw_heroes(
 ) -> AnyWay {
     for side in Side::iter() {
         if let Some(hero) = &statics.heroes[side as usize] {
-            hero.draw(canvas, tc, side, hero::AnimationType::Idle, 0)?;
+            hero.draw(canvas, tc, side, heroes::Animation::Idle, 0)?;
         }
     }
 

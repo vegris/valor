@@ -1,3 +1,4 @@
+use gamedata::heroes;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
@@ -12,13 +13,12 @@ use crate::{Config, ResourceRegistry};
 use common::error::AnyHow;
 
 use super::cursors::Cursors;
-use super::hero::AnimationType;
 
 pub struct Statics<'a> {
     pub cursors: Cursors,
     pub font: Font<'a, 'static>,
     pub textures: Textures<'a>,
-    pub heroes: [Option<SpriteSheet<AnimationType>>; 2],
+    pub heroes: [Option<SpriteSheet<heroes::Animation>>; 2],
     pub ui: UI,
     pub spells: SpriteGroup<Spell>,
 }

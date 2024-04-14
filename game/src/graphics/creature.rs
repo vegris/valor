@@ -24,7 +24,6 @@ impl SpriteSheetType for creatures::Animation {
 }
 
 impl SpriteSheet<creatures::Animation> {
-    #[allow(clippy::too_many_arguments)]
     pub fn draw(
         &self,
         canvas: &mut Canvas<Window>,

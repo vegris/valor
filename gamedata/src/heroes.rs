@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use strum_macros::{EnumCount, EnumIter};
 
 use crate::towns::Town;
 
@@ -233,6 +234,14 @@ pub enum AbilityLevel {
 pub struct LearnedAbility {
     pub ability: Ability,
     pub level: AbilityLevel,
+}
+
+#[derive(Clone, Copy, EnumCount, EnumIter)]
+pub enum Animation {
+    Idle,
+    Facepalm,
+    Happy,
+    Casting,
 }
 
 impl Hero {
@@ -2065,6 +2074,19 @@ impl Class {
                 power: 3,
                 knowledge: 3,
             },
+        }
+    }
+}
+
+impl Animation {
+    pub const CONTAINER_TYPE: u32 = 73;
+
+    pub fn container_index(self) -> u32 {
+        match self {
+            Self::Idle => 1,
+            Self::Facepalm => 2,
+            Self::Happy => 3,
+            Self::Casting => 4,
         }
     }
 }
