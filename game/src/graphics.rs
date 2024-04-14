@@ -19,7 +19,7 @@ use common::error::AnyWay;
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::registry::{ResourceRegistry, SpellAnimationType};
-use crate::{gridpos, Stage};
+use crate::{gridpos, Graphics, Stage};
 
 pub mod animations;
 pub mod creature;
@@ -80,15 +80,17 @@ pub fn process_events(
 pub fn draw(
     state: &GameState,
     frame_data: &FrameData,
+    graphics: &mut Graphics,
     animations: &Animations,
     entity_animations: &EntityAnimations,
-    canvas: &mut WindowCanvas,
     rr: &mut ResourceRegistry,
-    tc: &TextureCreator<WindowContext>,
-    statics: &Statics,
     shapes: Vec<(egui::Rect, TextureId)>,
     stage: &Stage,
 ) -> AnyWay {
+    let canvas = &mut graphics.canvas;
+    let tc = &graphics.texture_creator;
+    let statics = &graphics.statics;
+
     draw_battlefield(canvas, statics)?;
 
     draw_heroes(canvas, tc, statics)?;
