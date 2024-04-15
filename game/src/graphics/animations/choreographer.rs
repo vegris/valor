@@ -11,7 +11,7 @@ use logic::grid::GridPos;
 use logic::stack::Stack;
 
 use crate::graphics::Animations;
-use crate::registry::{ResourceRegistry, SpellAnimationType};
+use crate::resources::{ResourceRegistry, SpellAnimationType};
 
 use super::animation::Animation;
 use super::entity_animations::{EntityAnimation, EntityAnimations};

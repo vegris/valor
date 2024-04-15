@@ -21,7 +21,7 @@ use common::error::AnyWay;
 
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
-use crate::registry::{ResourceRegistry, SpellAnimationType};
+use crate::resources::{ResourceRegistry, SpellAnimationType};
 use crate::{gridpos, Graphics, Stage};
 
 pub mod animations;

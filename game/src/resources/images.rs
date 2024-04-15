@@ -14,6 +14,11 @@ pub struct PaletteImage {
     colors: Box<[Color]>,
 }
 
+enum Image {
+    Static(StaticImage),
+    Palette(PaletteImage),
+}
+
 impl StaticImage {
     pub fn from_bytes(bytes: Box<[u8]>) -> AnyHow<Self> {
         let image = Image::from_bytes(bytes)?;
@@ -56,11 +61,6 @@ impl PaletteImage {
 
         Ok(())
     }
-}
-
-enum Image {
-    Static(StaticImage),
-    Palette(PaletteImage),
 }
 
 impl Image {

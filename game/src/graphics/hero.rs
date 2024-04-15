@@ -4,7 +4,7 @@ use sdl2::video::{Window, WindowContext};
 
 use gamedata::heroes;
 
-use crate::registry::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
+use crate::resources::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
 use logic::gamestate::Side;
 
 impl ContainerType for heroes::Animation {

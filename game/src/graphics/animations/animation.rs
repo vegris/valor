@@ -1,7 +1,7 @@
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::registry::ResourceRegistry;
+use crate::resources::ResourceRegistry;
 
 use super::time_progress::TimeProgress;
 

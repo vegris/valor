@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use gamedata::spells::SpellAnimation;
 
-use crate::registry::ResourceRegistry;
+use crate::resources::ResourceRegistry;
 
 use super::time_progress::TimeProgress;
 

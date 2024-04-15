@@ -4,8 +4,8 @@ use strum::IntoEnumIterator;
 
 use gamedata::cursors::Cursor;
 
-use crate::registry::spritesheets::{ContainerType, SpriteGroupType};
-use crate::registry::ResourceRegistry;
+use crate::resources::spritesheets::{ContainerType, SpriteGroupType};
+use crate::resources::ResourceRegistry;
 use logic::grid::AttackDirection;
 
 pub fn from_attack_direction(attack_direction: AttackDirection) -> Cursor {

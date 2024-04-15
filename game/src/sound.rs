@@ -8,7 +8,7 @@ use sdl2::mixer::Channel;
 use common::error::AnyWay;
 
 use crate::config::Config;
-use crate::registry::ResourceRegistry;
+use crate::resources::ResourceRegistry;
 
 const START_CHANNEL: Channel = Channel(0);
 const LOOPING_CHANNEL: Channel = Channel(1);

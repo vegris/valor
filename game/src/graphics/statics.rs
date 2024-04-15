@@ -8,7 +8,7 @@ use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
 use gamedata::spells::Spell;
 
-use crate::registry::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
+use crate::resources::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
 use crate::{Config, ResourceRegistry};
 use common::error::AnyHow;
 

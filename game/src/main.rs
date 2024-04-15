@@ -7,13 +7,13 @@ mod graphics;
 mod gridpos;
 mod gui;
 mod input;
-mod registry;
+mod resources;
 mod sound;
 
 use config::Config;
 use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
 use logic::gamestate::GameState;
-use registry::ResourceRegistry;
+use resources::ResourceRegistry;
 use sdl2::{
     render::{TextureCreator, WindowCanvas},
     video::WindowContext,

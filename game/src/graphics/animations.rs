@@ -10,7 +10,7 @@ use logic::event::Event;
 use logic::gamestate::GameState;
 use logic::grid::GridPos;
 
-use crate::registry::ResourceRegistry;
+use crate::resources::ResourceRegistry;
 use crate::{gridpos, sound};
 
 use super::Animations;

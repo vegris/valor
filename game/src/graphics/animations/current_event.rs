@@ -3,7 +3,7 @@ use std::time::Duration;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::registry::ResourceRegistry;
+use crate::resources::ResourceRegistry;
 
 use super::animation::Animation;
 use super::events::TimeProgressEvent;
