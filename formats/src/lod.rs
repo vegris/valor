@@ -21,7 +21,7 @@ pub struct LodIndex {
 }
 
 impl LodIndex {
-    pub fn open(path: &Path) -> Self {
+    pub fn open<T: AsRef<Path>>(path: T) -> Self {
         let mut f = File::open(path).unwrap();
         let mut parse_buffer: [u8; 16] = [0; 16];
 

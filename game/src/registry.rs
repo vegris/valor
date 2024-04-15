@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 
@@ -41,9 +39,9 @@ pub struct ResourceRegistry {
 
 impl ResourceRegistry {
     pub fn init() -> Self {
-        let pcx_archive = LodIndex::open(Path::new(PCX_ARCHIVE));
-        let def_archive = LodIndex::open(Path::new(DEF_ARCHIVE));
-        let snd_archive = SndIndex::open(Path::new(SND_ARCHIVE));
+        let pcx_archive = LodIndex::open(PCX_ARCHIVE);
+        let def_archive = LodIndex::open(DEF_ARCHIVE);
+        let snd_archive = SndIndex::open(SND_ARCHIVE);
 
         ResourceRegistry {
             pcx_archive,

@@ -19,7 +19,7 @@ pub struct SndIndex {
 const FILE_INFO_SIZE: usize = 48;
 
 impl SndIndex {
-    pub fn open(path: &Path) -> Self {
+    pub fn open<T: AsRef<Path>>(path: T) -> Self {
         let mut f = File::open(path).unwrap();
         let mut parse_buffer: [u8; 4] = [0; 4];
 
