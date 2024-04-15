@@ -2,12 +2,14 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use egui::TextureId;
-use gamedata::heroes;
 use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
 
 use strum::IntoEnumIterator;
+
+use gamedata::cursors::Cursor;
+use gamedata::heroes;
 
 use logic::command::Command;
 use logic::event::Event;
@@ -29,7 +31,7 @@ mod hero;
 pub mod stack;
 pub mod statics;
 
-use cursors::{Cursor, Cursors};
+use cursors::Cursors;
 pub use statics::Statics;
 
 use self::animations::entity_animations::EntityAnimations;
@@ -278,7 +280,7 @@ fn set_cursor(cursors: &Cursors, state: &GameState, frame_data: &FrameData, is_a
                     Cursor::Run
                 }
             }
-            Command::Attack(command) => Cursor::from_attack_direction(command.attack_direction),
+            Command::Attack(command) => cursors::from_attack_direction(command.attack_direction),
             Command::Shoot { .. } => Cursor::Arrow,
             _ => unreachable!(),
         }
