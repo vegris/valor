@@ -4,6 +4,7 @@ use sdl2::rwops::RWops;
 use strum::IntoEnumIterator;
 use strum_macros::{EnumCount, EnumIter};
 
+use formats::def;
 use formats::lod::LodIndex;
 use formats::snd::SndIndex;
 
@@ -65,13 +66,16 @@ impl ResourceRegistry {
     }
 
     pub fn load_sprite_group<G: SpriteGroupType>(&mut self, filename: &str) -> SpriteGroup<G> {
-        let bytes = self.def_archive.read_file(filename);
-        SpriteGroup::from_bytes(bytes)
+        SpriteGroup::from_def(self.load_def(filename))
     }
 
     pub fn load_spritesheet<S: SpriteSheetType>(&mut self, filename: &str) -> SpriteSheet<S> {
+        SpriteSheet::from_def(self.load_def(filename))
+    }
+
+    fn load_def(&mut self, filename: &str) -> def::Container {
         let bytes = self.def_archive.read_file(filename);
-        SpriteSheet::from_bytes(bytes)
+        def::Container::from_bytes(&bytes)
     }
 
     pub fn load_sound(&mut self, filename: &str) -> AnyHow<Chunk> {

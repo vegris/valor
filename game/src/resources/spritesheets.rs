@@ -7,6 +7,25 @@ use strum::{EnumCount, IntoEnumIterator};
 
 use formats::def;
 
+// def контейнер это основной формат хранения спрайтов в HoMM 3
+// он может использоваться как для кодирования последовательностей анимаций
+// так и просто как контейнер для различных тематически сходных изображений
+// структурно он всегда один и тот же, но семантически мы хотим использовать его по разному
+//
+// Этот модуль определяет трейты и структуры для различных типов использования def контейнера:
+//
+// **SpriteGroup** и **SpriteGroupType** используются когда контейнер состоит из одного блока,
+// представляющего набор связанных изображений - курсоры, иконки заклинаний, иконки интерфейса
+// Они предоставляют возможность с помощью перечисления адресовать отдельные изображения внутри
+// контейнера
+//
+// **SpriteSheet** и **SpriteSheetType** используются когда контейнер состоит из нескольких блоков
+// (последовательностей изображений), где каждая последовательность является анимацией.
+// Они предоставляют возможность с помощью перечисления адресовать блоки внутри контейнера и
+// отдельные кадры внутри блоков с помощью индексов
+//
+// TODO: Добавить тип для случаев когда контейнер состоит из одного блока, представляющего собой анимацию
+
 pub trait SpriteGroupType: ContainerType + EnumCount {
     fn group_index(&self) -> usize;
 }
@@ -40,10 +59,12 @@ pub struct Sprite {
     pub surface: Surface<'static>,
 }
 
-impl<G: SpriteGroupType> SpriteGroup<G> {
-    pub fn from_bytes(bytes: Box<[u8]>) -> Self {
-        let mut raw = def::Container::from_bytes(&bytes);
+type ColorUpdate = (usize, u8);
 
+impl<G: SpriteGroupType> SpriteGroup<G> {
+    const COLOR_UPDATE_LIST: [ColorUpdate; 2] = [(0, 0), (1, 32)];
+
+    pub fn from_def(mut raw: def::Container) -> Self {
         assert!(raw.type_ == G::CONTAINER_TYPE);
         assert!(raw.blocks2names.len() == 1);
 
@@ -51,25 +72,21 @@ impl<G: SpriteGroupType> SpriteGroup<G> {
 
         assert!(block_names.len() == G::COUNT);
 
-        let mut colors: Box<[Color]> = raw
-            .colors
-            .iter()
-            .map(|c| Color::RGB(c.red, c.green, c.blue))
-            .collect();
-        colors[0] = Color::RGBA(0, 0, 0, 0);
-        colors[1] = Color::RGBA(0, 0, 0, 32);
+        let colors = make_colors(&raw.colors, &Self::COLOR_UPDATE_LIST);
         let palette = Palette::with_colors(&colors).unwrap();
 
-        let mut sprites = Vec::with_capacity(G::COUNT);
-        for name in block_names.iter() {
-            let raw_sprite = raw.names2sprites.remove(name).unwrap();
-            let mut sprite = Sprite::from_raw(raw_sprite);
-            sprite.surface.set_palette(&palette).unwrap();
-            sprites.push(sprite);
-        }
+        let sprites: Box<[_]> = block_names
+            .iter()
+            .map(|name| {
+                let raw_sprite = raw.names2sprites.remove(name).unwrap();
+                let mut sprite = Sprite::from_raw(raw_sprite);
+                sprite.surface.set_palette(&palette).unwrap();
+                sprite
+            })
+            .collect();
 
         Self {
-            sprites: sprites.into_boxed_slice(),
+            sprites,
             group: PhantomData,
         }
     }
@@ -84,55 +101,55 @@ impl<G: SpriteGroupType> SpriteGroup<G> {
 }
 
 impl<S: SpriteSheetType> SpriteSheet<S> {
-    pub fn from_bytes(bytes: Box<[u8]>) -> Self {
-        let raw = def::Container::from_bytes(&bytes);
+    const COLOR_UPDATE_LIST: [(usize, u8); 8] = [
+        (0, 0),
+        (1, 32),
+        (2, 64),
+        (3, 128),
+        (4, 128),
+        (5, 0),
+        (6, 128),
+        (7, 64),
+    ];
 
+    pub fn from_def(raw: def::Container) -> Self {
         assert!(raw.type_ == S::CONTAINER_TYPE);
 
-        let mut colors: Box<[Color]> = raw
-            .colors
-            .iter()
-            .map(|c| Color::RGB(c.red, c.green, c.blue))
-            .collect();
-        colors[0] = Color::RGBA(0, 0, 0, 0);
-        colors[1] = Color::RGBA(0, 0, 0, 32);
-        colors[2] = Color::RGBA(0, 0, 0, 64);
-        colors[3] = Color::RGBA(0, 0, 0, 128);
-        colors[4] = Color::RGBA(0, 0, 0, 128);
-        colors[5] = Color::RGBA(0, 0, 0, 0);
-        colors[6] = Color::RGBA(0, 0, 0, 128);
-        colors[7] = Color::RGBA(0, 0, 0, 64);
+        let colors = make_colors(&raw.colors, &Self::COLOR_UPDATE_LIST);
         let palette = Palette::with_colors(&colors).unwrap();
 
-        // Вместо мапы имена => спрайты находим нужный спрайт по его индексу в массиве спрайтов
+        // Вместо HashMap с поиском по строке
+        // переходим к поиску по индексу в массиве
         let (names, def_sprites): (Vec<String>, Vec<def::Sprite>) =
             raw.names2sprites.into_iter().unzip();
+
         let names2indexes = names
             .into_iter()
             .enumerate()
             .map(|(i, s)| (s, i))
             .collect::<HashMap<String, usize>>();
-        let mut sprites = def_sprites
+
+        let sprites = def_sprites
             .into_iter()
-            .map(Sprite::from_raw)
+            .map(|def_sprite| {
+                let mut sprite = Sprite::from_raw(def_sprite);
+                sprite.surface.set_palette(&palette).unwrap();
+                sprite
+            })
             .collect::<Box<[Sprite]>>();
 
-        for sprite in sprites.iter_mut() {
-            sprite.surface.set_palette(&palette).unwrap();
-        }
-
         // Блоки анимаций - последовательности индексов спрайтов
-        let mut blocks = Vec::with_capacity(S::COUNT);
+        let mut blocks = Vec::new();
         blocks.resize(S::COUNT, None);
 
-        for (index, animation_type) in S::iter().enumerate() {
+        for animation_type in S::iter() {
             if let Some(block) = raw.blocks2names.get(&animation_type.container_index()) {
                 let block = block
                     .iter()
                     .map(|sprite_name| names2indexes[sprite_name])
                     .collect::<AnimationBlock>();
 
-                blocks[index] = Some(block);
+                blocks[animation_type.block_index()] = Some(block);
             }
         }
 
@@ -190,4 +207,17 @@ impl Sprite {
             surface: static_surface,
         }
     }
+}
+
+fn make_colors(colors: &[formats::Color], color_update_list: &[ColorUpdate]) -> Box<[Color]> {
+    let mut colors: Box<[Color]> = colors
+        .iter()
+        .map(|c| Color::RGB(c.red, c.green, c.blue))
+        .collect();
+
+    for color_update in color_update_list.iter() {
+        colors[color_update.0] = Color::RGBA(0, 0, 0, color_update.1);
+    }
+
+    colors
 }
