@@ -2,7 +2,6 @@ use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 
 use strum::IntoEnumIterator;
-use strum_macros::{EnumCount, EnumIter};
 
 use formats::def;
 use formats::lod::LodIndex;
@@ -23,7 +22,7 @@ use self::creature_resources::{CreatureResources, CreaturesCache};
 use self::images::{PaletteImage, StaticImage};
 use self::spells_cache::SpellsCache;
 use self::spritesheets::{
-    ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetType,
+    SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetSingle, SpriteSheetType,
 };
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
@@ -71,6 +70,10 @@ impl ResourceRegistry {
 
     pub fn load_spritesheet<S: SpriteSheetType>(&mut self, filename: &str) -> SpriteSheet<S> {
         SpriteSheet::from_def(self.load_def(filename))
+    }
+
+    pub fn load_animation<const T: u32>(&mut self, filename: &str) -> SpriteSheetSingle {
+        SpriteSheetSingle::from_def::<T>(self.load_def(filename))
     }
 
     fn load_def(&mut self, filename: &str) -> def::Container {
@@ -127,32 +130,13 @@ impl ResourceRegistry {
         CreatureResources::new(spritesheet, sounds)
     }
 
-    pub fn get_spell_animation(
-        &mut self,
-        spell_animation: SpellAnimation,
-    ) -> &SpriteSheet<SpellAnimationType> {
+    pub fn get_spell_animation(&mut self, spell_animation: SpellAnimation) -> &SpriteSheetSingle {
         if self.spells_cache.get(spell_animation).is_none() {
-            let spritesheet = self.load_spritesheet(spell_animation.spritesheet());
+            let spritesheet = self.load_animation::<{ SpellAnimation::SPRITESHEET_TYPE }>(
+                spell_animation.spritesheet(),
+            );
             self.spells_cache.put(spell_animation, spritesheet);
         }
         self.spells_cache.get(spell_animation).unwrap()
-    }
-}
-
-#[derive(Clone, Copy, EnumCount, EnumIter)]
-pub enum SpellAnimationType {
-    Casting,
-}
-
-impl ContainerType for SpellAnimationType {
-    const CONTAINER_TYPE: u32 = 64;
-}
-impl SpriteSheetType for SpellAnimationType {
-    fn block_index(&self) -> usize {
-        *self as usize
-    }
-
-    fn container_index(&self) -> u32 {
-        0
     }
 }

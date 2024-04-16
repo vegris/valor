@@ -38,6 +38,34 @@ pub trait ContainerType {
     const CONTAINER_TYPE: u32;
 }
 
+struct SingleAnimation<const T: u32>;
+
+impl<const T: u32> ContainerType for SingleAnimation<T> {
+    const CONTAINER_TYPE: u32 = T;
+}
+
+impl<const T: u32> EnumCount for SingleAnimation<T> {
+    const COUNT: usize = 1;
+}
+
+impl<const T: u32> IntoEnumIterator for SingleAnimation<T> {
+    type Iterator = std::array::IntoIter<Self, 1>;
+
+    fn iter() -> Self::Iterator {
+        [SingleAnimation].into_iter()
+    }
+}
+
+impl<const T: u32> SpriteSheetType for SingleAnimation<T> {
+    fn block_index(&self) -> usize {
+        0
+    }
+
+    fn container_index(&self) -> u32 {
+        0
+    }
+}
+
 pub struct SpriteGroup<G: SpriteGroupType> {
     sprites: Box<[Sprite]>,
     group: PhantomData<G>,
@@ -50,6 +78,8 @@ pub struct SpriteSheet<S: SpriteSheetType> {
     blocks: Box<[Option<AnimationBlock>]>,
     spritesheet: PhantomData<S>,
 }
+
+pub struct SpriteSheetSingle(Box<[Sprite]>);
 
 pub struct Sprite {
     pub width: u32,
@@ -182,6 +212,38 @@ impl<S: SpriteSheetType> SpriteSheet<S> {
 
     fn get_block(&self, animation_type: S) -> Option<&AnimationBlock> {
         self.blocks[animation_type.block_index()].as_ref()
+    }
+}
+
+impl SpriteSheetSingle {
+    pub fn from_def<const T: u32>(raw: def::Container) -> Self {
+        let spritesheet: SpriteSheet<SingleAnimation<T>> = SpriteSheet::from_def(raw);
+
+        let block = spritesheet.blocks.to_vec().remove(0).unwrap().into_vec();
+
+        let mut sprite_vector: Vec<_> = spritesheet
+            .sprites
+            .into_vec()
+            .into_iter()
+            .map(Option::Some)
+            .collect();
+
+        let mut sprites = Vec::with_capacity(block.len());
+
+        for index in block.into_iter() {
+            let sprite = sprite_vector[index].take().unwrap();
+            sprites.push(sprite);
+        }
+
+        Self(sprites.into_boxed_slice())
+    }
+
+    pub fn frames_count(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn get_frame(&self, frame_index: usize) -> Option<&Sprite> {
+        self.0.get(frame_index)
     }
 }
 

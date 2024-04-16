@@ -506,6 +506,8 @@ impl SpellSchool {
 }
 
 impl SpellAnimation {
+    pub const SPRITESHEET_TYPE: u32 = 64;
+
     pub const fn spritesheet(self) -> &'static str {
         match self {
             Self::Armageddon => "C06SPF0.def",

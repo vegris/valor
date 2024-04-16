@@ -11,7 +11,7 @@ use logic::grid::GridPos;
 use logic::stack::Stack;
 
 use crate::graphics::Animations;
-use crate::resources::{ResourceRegistry, SpellAnimationType};
+use crate::resources::ResourceRegistry;
 
 use super::animation::Animation;
 use super::entity_animations::{EntityAnimation, EntityAnimations};
@@ -184,7 +184,7 @@ pub fn animate_cast(
     if cast.spell == Spell::Armageddon {
         let sprite = rr
             .get_spell_animation(SpellAnimation::Armageddon)
-            .get_sprite(SpellAnimationType::Casting, 0)
+            .get_frame(0)
             .unwrap();
 
         for row in 0..4 {

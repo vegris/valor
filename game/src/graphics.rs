@@ -21,7 +21,7 @@ use common::error::AnyWay;
 
 use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
-use crate::resources::{ResourceRegistry, SpellAnimationType};
+use crate::resources::ResourceRegistry;
 use crate::{gridpos, Graphics, Stage};
 
 pub mod animations;
@@ -113,13 +113,12 @@ pub fn draw(
 
     draw_units(canvas, tc, statics, rr, state, animations)?;
 
-    let r#type = SpellAnimationType::Casting;
     for animation in entity_animations.0.iter() {
         let spell_animation = rr.get_spell_animation(animation.spell_animation);
-        let frame =
-            spell_animation.frames_count(r#type).unwrap() as f32 * animation.progress.progress();
+        let frame = spell_animation.frames_count() as f32 * animation.progress.progress();
         let frame = frame as usize;
-        let sprite = spell_animation.get_sprite(r#type, frame).unwrap();
+        dbg!(frame);
+        let sprite = spell_animation.get_frame(frame).unwrap();
         let texture = sprite.surface.as_texture(tc)?;
 
         canvas.copy(
@@ -135,9 +134,7 @@ pub fn draw(
     }
     let spell_animation = rr.get_spell_animation(gamedata::spells::SpellAnimation::Armageddon);
 
-    let sprite = spell_animation
-        .get_sprite(SpellAnimationType::Casting, 5)
-        .unwrap();
+    let sprite = spell_animation.get_frame(5).unwrap();
     let _texture = sprite.surface.as_texture(tc)?;
 
     canvas.copy(
