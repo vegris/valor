@@ -6,7 +6,7 @@ use sdl2::video::{Window, WindowContext};
 
 use gamedata::creatures;
 
-use crate::resources::spritesheets::{ContainerType, Sprite, AnimationGroup, AnimationGroupT};
+use crate::resources::spritesheets::{AnimationGroup, AnimationGroupT, ContainerType, Sprite};
 use logic::gamestate::Side;
 
 impl ContainerType for creatures::Animation {
@@ -14,10 +14,6 @@ impl ContainerType for creatures::Animation {
 }
 
 impl AnimationGroupT for creatures::Animation {
-    fn block_index(&self) -> usize {
-        *self as usize
-    }
-
     fn container_index(&self) -> u32 {
         Self::container_index(*self)
     }

@@ -5,6 +5,7 @@ use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
 use strum::{EnumCount, IntoEnumIterator};
 
+use common::EnumIndex;
 use formats::def;
 
 // def контейнер это основной формат хранения спрайтов в HoMM 3
@@ -26,11 +27,8 @@ use formats::def;
 //
 // TODO: Добавить тип для случаев когда контейнер состоит из одного блока, представляющего собой анимацию
 
-pub trait SpriteGroupT: ContainerType + EnumCount {
-    fn group_index(&self) -> usize;
-}
-pub trait AnimationGroupT: ContainerType + EnumCount + IntoEnumIterator {
-    fn block_index(&self) -> usize;
+pub trait SpriteGroupT: ContainerType + EnumCount + EnumIndex {}
+pub trait AnimationGroupT: ContainerType + EnumCount + EnumIndex + IntoEnumIterator {
     fn container_index(&self) -> u32;
 }
 
@@ -48,6 +46,12 @@ impl<const T: u32> EnumCount for SingleAnimation<T> {
     const COUNT: usize = 1;
 }
 
+impl<const T: u32> EnumIndex for SingleAnimation<T> {
+    fn into_index(self) -> usize {
+        0
+    }
+}
+
 impl<const T: u32> IntoEnumIterator for SingleAnimation<T> {
     type Iterator = std::array::IntoIter<Self, 1>;
 
@@ -57,10 +61,6 @@ impl<const T: u32> IntoEnumIterator for SingleAnimation<T> {
 }
 
 impl<const T: u32> AnimationGroupT for SingleAnimation<T> {
-    fn block_index(&self) -> usize {
-        0
-    }
-
     fn container_index(&self) -> u32 {
         0
     }
@@ -122,7 +122,7 @@ impl<G: SpriteGroupT> SpriteGroup<G> {
     }
 
     pub fn get(&self, index: G) -> &Sprite {
-        &self.sprites[index.group_index()]
+        &self.sprites[index.into_index()]
     }
 
     pub fn into_sprites(self) -> Box<[Sprite]> {
@@ -179,7 +179,7 @@ impl<S: AnimationGroupT> AnimationGroup<S> {
                     .map(|sprite_name| names2indexes[sprite_name])
                     .collect::<AnimationBlock>();
 
-                blocks[animation_type.block_index()] = Some(block);
+                blocks[animation_type.into_index()] = Some(block);
             }
         }
 
@@ -211,7 +211,7 @@ impl<S: AnimationGroupT> AnimationGroup<S> {
     }
 
     fn get_block(&self, animation_type: S) -> Option<&AnimationBlock> {
-        self.blocks[animation_type.block_index()].as_ref()
+        self.blocks[animation_type.into_index()].as_ref()
     }
 }
 

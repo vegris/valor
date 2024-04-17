@@ -1,3 +1,4 @@
+use macros::EnumIndex;
 use serde::Deserialize;
 use strum_macros::{EnumCount, EnumIter};
 
@@ -236,7 +237,7 @@ pub struct LearnedAbility {
     pub level: AbilityLevel,
 }
 
-#[derive(Clone, Copy, EnumCount, EnumIter)]
+#[derive(Clone, Copy, EnumCount, EnumIter, EnumIndex)]
 pub enum Animation {
     Idle,
     Facepalm,

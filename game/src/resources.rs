@@ -22,7 +22,7 @@ use self::creature_resources::{CreatureResources, CreaturesCache};
 use self::images::{PaletteImage, StaticImage};
 use self::spells_cache::SpellsCache;
 use self::spritesheets::{
-    SpriteGroup, SpriteGroupT, AnimationGroup, SpriteSheetSingle, AnimationGroupT,
+    AnimationGroup, AnimationGroupT, SpriteGroup, SpriteGroupT, SpriteSheetSingle,
 };
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";

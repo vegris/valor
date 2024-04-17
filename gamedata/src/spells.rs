@@ -1,8 +1,9 @@
+use macros::EnumIndex;
 use strum_macros::{EnumCount, EnumIter};
 
 use crate::heroes::AbilityLevel;
 
-#[derive(Clone, Copy, Debug, PartialEq, EnumCount)]
+#[derive(Clone, Copy, Debug, PartialEq, EnumCount, EnumIndex)]
 pub enum Spell {
     SummonBoat,
     ScuttleBoat,

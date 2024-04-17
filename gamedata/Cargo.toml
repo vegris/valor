@@ -10,3 +10,5 @@ edition = "2021"
 serde = { version = "1", features = ["derive"] }
 strum = "0.25"
 strum_macros = "0.25"
+common = { path = "../common" }
+macros = { path = "../macros" }

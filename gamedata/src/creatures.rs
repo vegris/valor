@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use macros::EnumIndex;
 use serde::Deserialize;
 use strum::EnumCount;
 use strum_macros::{EnumCount, EnumIter};
@@ -210,7 +211,7 @@ pub enum Sound {
 
 pub struct Sounds([Option<&'static str>; Sound::COUNT]);
 
-#[derive(Clone, Copy, EnumCount, EnumIter)]
+#[derive(Clone, Copy, EnumCount, EnumIter, EnumIndex)]
 pub enum Animation {
     Moving,
     MouseOver,

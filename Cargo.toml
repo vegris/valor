@@ -3,6 +3,7 @@ members = [
     "formats",
     "gamedata",
     "common",
+    "macros",
     "logic",
     "game",
 ]

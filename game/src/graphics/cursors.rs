@@ -25,11 +25,7 @@ impl ContainerType for Cursor {
     const CONTAINER_TYPE: u32 = Cursor::CONTAINER_TYPE;
 }
 
-impl SpriteGroupT for Cursor {
-    fn group_index(&self) -> usize {
-        *self as usize
-    }
-}
+impl SpriteGroupT for Cursor {}
 
 pub struct Cursors(Box<[SDLCursor]>);
 

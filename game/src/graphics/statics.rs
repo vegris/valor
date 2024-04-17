@@ -1,4 +1,5 @@
 use gamedata::heroes;
+use macros::EnumIndex;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
@@ -8,7 +9,7 @@ use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
 use gamedata::spells::Spell;
 
-use crate::resources::spritesheets::{ContainerType, SpriteGroup, SpriteGroupT, AnimationGroup};
+use crate::resources::spritesheets::{AnimationGroup, ContainerType, SpriteGroup, SpriteGroupT};
 use crate::{Config, ResourceRegistry};
 use common::error::AnyHow;
 
@@ -140,7 +141,7 @@ impl TryFrom<u64> for Buttons {
 }
 
 #[allow(unused)]
-#[derive(Clone, Copy, EnumCount)]
+#[derive(Clone, Copy, EnumCount, EnumIndex)]
 pub enum ButtonState {
     Base,
     Pressed,
@@ -152,11 +153,7 @@ impl ContainerType for ButtonState {
     const CONTAINER_TYPE: u32 = 71;
 }
 
-impl SpriteGroupT for ButtonState {
-    fn group_index(&self) -> usize {
-        *self as usize
-    }
-}
+impl SpriteGroupT for ButtonState {}
 
 pub struct UI([SpriteGroup<ButtonState>; Buttons::COUNT]);
 
@@ -181,8 +178,4 @@ impl ContainerType for Spell {
     const CONTAINER_TYPE: u32 = 71;
 }
 
-impl SpriteGroupT for Spell {
-    fn group_index(&self) -> usize {
-        *self as usize
-    }
-}
+impl SpriteGroupT for Spell {}

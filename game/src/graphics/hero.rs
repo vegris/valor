@@ -4,7 +4,7 @@ use sdl2::video::{Window, WindowContext};
 
 use gamedata::heroes;
 
-use crate::resources::spritesheets::{ContainerType, Sprite, AnimationGroup, AnimationGroupT};
+use crate::resources::spritesheets::{AnimationGroup, AnimationGroupT, ContainerType, Sprite};
 use logic::gamestate::Side;
 
 impl ContainerType for heroes::Animation {
@@ -12,10 +12,6 @@ impl ContainerType for heroes::Animation {
 }
 
 impl AnimationGroupT for heroes::Animation {
-    fn block_index(&self) -> usize {
-        *self as usize
-    }
-
     fn container_index(&self) -> u32 {
         heroes::Animation::container_index(*self)
     }

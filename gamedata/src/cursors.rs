@@ -1,6 +1,7 @@
+use macros::EnumIndex;
 use strum_macros::{EnumCount, EnumIter};
 
-#[derive(Clone, Copy, EnumCount, EnumIter)]
+#[derive(Clone, Copy, EnumCount, EnumIter, EnumIndex)]
 pub enum Cursor {
     Forbidden,
     Run,
