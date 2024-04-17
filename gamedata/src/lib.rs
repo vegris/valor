@@ -4,3 +4,4 @@ pub mod cursors;
 pub mod heroes;
 pub mod spells;
 pub mod towns;
+pub mod traits;

@@ -1,7 +1,10 @@
 use macros::EnumIndex;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::heroes::AbilityLevel;
+use crate::{
+    heroes::AbilityLevel,
+    traits::{ContainerType, SpriteGroupT},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, EnumCount, EnumIndex)]
 pub enum Spell {
@@ -495,6 +498,12 @@ impl Spell {
     }
 }
 
+impl ContainerType for Spell {
+    const CONTAINER_TYPE: u32 = 71;
+}
+
+impl SpriteGroupT for Spell {}
+
 impl SpellSchool {
     pub fn spritesheet(self) -> &'static str {
         match self {
@@ -507,11 +516,13 @@ impl SpellSchool {
 }
 
 impl SpellAnimation {
-    pub const SPRITESHEET_TYPE: u32 = 64;
-
     pub const fn spritesheet(self) -> &'static str {
         match self {
             Self::Armageddon => "C06SPF0.def",
         }
     }
+}
+
+impl ContainerType for SpellAnimation {
+    const CONTAINER_TYPE: u32 = 64;
 }

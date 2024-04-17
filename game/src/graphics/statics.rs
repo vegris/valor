@@ -1,4 +1,5 @@
 use gamedata::heroes;
+use gamedata::traits::{ContainerType, SpriteGroupT};
 use macros::EnumIndex;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
@@ -9,7 +10,7 @@ use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
 use gamedata::spells::Spell;
 
-use crate::resources::spritesheets::{AnimationGroup, ContainerType, SpriteGroup, SpriteGroupT};
+use crate::resources::spritesheets::{AnimationGroup, SpriteGroup};
 use crate::{Config, ResourceRegistry};
 use common::error::AnyHow;
 
@@ -173,9 +174,3 @@ impl UI {
         Self(buttons)
     }
 }
-
-impl ContainerType for Spell {
-    const CONTAINER_TYPE: u32 = 71;
-}
-
-impl SpriteGroupT for Spell {}

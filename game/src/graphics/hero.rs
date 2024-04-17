@@ -4,18 +4,8 @@ use sdl2::video::{Window, WindowContext};
 
 use gamedata::heroes;
 
-use crate::resources::spritesheets::{AnimationGroup, AnimationGroupT, ContainerType, Sprite};
+use crate::resources::spritesheets::{AnimationGroup, Sprite};
 use logic::gamestate::Side;
-
-impl ContainerType for heroes::Animation {
-    const CONTAINER_TYPE: u32 = heroes::Animation::CONTAINER_TYPE;
-}
-
-impl AnimationGroupT for heroes::Animation {
-    fn container_index(&self) -> u32 {
-        heroes::Animation::container_index(*self)
-    }
-}
 
 impl AnimationGroup<heroes::Animation> {
     pub fn draw(

@@ -1,3 +1,4 @@
+use gamedata::traits::{AnimationGroupT, ContainerType, SpriteGroupT};
 use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 
@@ -21,9 +22,7 @@ pub mod spritesheets;
 use self::creature_resources::{CreatureResources, CreaturesCache};
 use self::images::{PaletteImage, StaticImage};
 use self::spells_cache::SpellsCache;
-use self::spritesheets::{
-    AnimationGroup, AnimationGroupT, SpriteGroup, SpriteGroupT, SpriteSheetSingle,
-};
+use self::spritesheets::{AnimationGroup, SpriteGroup, SpriteSheetSingle};
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
 const DEF_ARCHIVE: &str = "H3sprite.lod";
@@ -132,7 +131,7 @@ impl ResourceRegistry {
 
     pub fn get_spell_animation(&mut self, spell_animation: SpellAnimation) -> &SpriteSheetSingle {
         if self.spells_cache.get(spell_animation).is_none() {
-            let spritesheet = self.load_animation::<{ SpellAnimation::SPRITESHEET_TYPE }>(
+            let spritesheet = self.load_animation::<{ SpellAnimation::CONTAINER_TYPE }>(
                 spell_animation.spritesheet(),
             );
             self.spells_cache.put(spell_animation, spritesheet);

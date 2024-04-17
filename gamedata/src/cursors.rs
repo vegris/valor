@@ -1,6 +1,8 @@
 use macros::EnumIndex;
 use strum_macros::{EnumCount, EnumIter};
 
+use crate::traits::{ContainerType, SpriteGroupT};
+
 #[derive(Clone, Copy, EnumCount, EnumIter, EnumIndex)]
 pub enum Cursor {
     Forbidden,
@@ -27,7 +29,6 @@ pub enum Cursor {
 
 impl Cursor {
     pub const CONTAINTER_FILENAME: &str = "CRCOMBAT.def";
-    pub const CONTAINER_TYPE: u32 = 70;
 
     pub const fn pointer_offset(self) -> (i32, i32) {
         match self {
@@ -56,3 +57,9 @@ impl Cursor {
         }
     }
 }
+
+impl ContainerType for Cursor {
+    const CONTAINER_TYPE: u32 = 70;
+}
+
+impl SpriteGroupT for Cursor {}

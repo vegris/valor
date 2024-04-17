@@ -6,18 +6,8 @@ use sdl2::video::{Window, WindowContext};
 
 use gamedata::creatures;
 
-use crate::resources::spritesheets::{AnimationGroup, AnimationGroupT, ContainerType, Sprite};
+use crate::resources::spritesheets::{AnimationGroup, Sprite};
 use logic::gamestate::Side;
-
-impl ContainerType for creatures::Animation {
-    const CONTAINER_TYPE: u32 = Self::CONTAINER_TYPE;
-}
-
-impl AnimationGroupT for creatures::Animation {
-    fn container_index(&self) -> u32 {
-        Self::container_index(*self)
-    }
-}
 
 impl AnimationGroup<creatures::Animation> {
     pub fn draw(

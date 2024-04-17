@@ -2,7 +2,10 @@ use macros::EnumIndex;
 use serde::Deserialize;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::towns::Town;
+use crate::{
+    towns::Town,
+    traits::{AnimationGroupT, ContainerType},
+};
 
 #[derive(Clone, Copy, Deserialize)]
 pub enum Hero {
@@ -2079,10 +2082,12 @@ impl Class {
     }
 }
 
-impl Animation {
-    pub const CONTAINER_TYPE: u32 = 73;
+impl ContainerType for Animation {
+    const CONTAINER_TYPE: u32 = 73;
+}
 
-    pub fn container_index(self) -> u32 {
+impl AnimationGroupT for Animation {
+    fn container_index(self) -> u32 {
         match self {
             Self::Idle => 1,
             Self::Facepalm => 2,

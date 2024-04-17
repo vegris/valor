@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
+use gamedata::traits::{AnimationGroupT, ContainerType, SpriteGroupT};
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
 use strum::{EnumCount, IntoEnumIterator};
@@ -27,15 +28,7 @@ use formats::def;
 //
 // TODO: Добавить тип для случаев когда контейнер состоит из одного блока, представляющего собой анимацию
 
-pub trait SpriteGroupT: ContainerType + EnumCount + EnumIndex {}
-pub trait AnimationGroupT: ContainerType + EnumCount + EnumIndex + IntoEnumIterator {
-    fn container_index(&self) -> u32;
-}
-
-pub trait ContainerType {
-    const CONTAINER_TYPE: u32;
-}
-
+#[derive(Clone, Copy)]
 struct SingleAnimation<const T: u32>;
 
 impl<const T: u32> ContainerType for SingleAnimation<T> {
@@ -61,7 +54,7 @@ impl<const T: u32> IntoEnumIterator for SingleAnimation<T> {
 }
 
 impl<const T: u32> AnimationGroupT for SingleAnimation<T> {
-    fn container_index(&self) -> u32 {
+    fn container_index(self) -> u32 {
         0
     }
 }
@@ -216,6 +209,7 @@ impl<S: AnimationGroupT> AnimationGroup<S> {
 }
 
 impl SpriteSheetSingle {
+    // TODO: use ContainerType instead of constant
     pub fn from_def<const T: u32>(raw: def::Container) -> Self {
         let spritesheet: AnimationGroup<SingleAnimation<T>> = AnimationGroup::from_def(raw);
 

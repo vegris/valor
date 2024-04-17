@@ -5,6 +5,8 @@ use serde::Deserialize;
 use strum::EnumCount;
 use strum_macros::{EnumCount, EnumIter};
 
+use crate::traits::{AnimationGroupT, ContainerType};
+
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize, EnumCount)]
 pub enum Creature {
     // Castle
@@ -3639,9 +3641,24 @@ impl Sounds {
 }
 
 impl Animation {
-    pub const CONTAINER_TYPE: u32 = 66;
+    pub fn frame_duration(self) -> Duration {
+        let ms = match self {
+            Self::Standing => 200,
+            Self::TurnLeft | Self::TurnRight => 100,
+            Self::Moving => 100,
+            Self::StartMoving | Self::StopMoving => 75,
+            _ => 100,
+        };
+        Duration::from_millis(ms)
+    }
+}
 
-    pub fn container_index(self) -> u32 {
+impl ContainerType for Animation {
+    const CONTAINER_TYPE: u32 = 66;
+}
+
+impl AnimationGroupT for Animation {
+    fn container_index(self) -> u32 {
         match self {
             Self::Moving => 0,
             Self::MouseOver => 1,
@@ -3667,16 +3684,5 @@ impl Animation {
             Self::StartMoving => 20,
             Self::StopMoving => 21,
         }
-    }
-
-    pub fn frame_duration(self) -> Duration {
-        let ms = match self {
-            Self::Standing => 200,
-            Self::TurnLeft | Self::TurnRight => 100,
-            Self::Moving => 100,
-            Self::StartMoving | Self::StopMoving => 75,
-            _ => 100,
-        };
-        Duration::from_millis(ms)
     }
 }

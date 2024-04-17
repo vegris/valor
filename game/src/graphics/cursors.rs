@@ -4,7 +4,6 @@ use strum::IntoEnumIterator;
 
 use gamedata::cursors::Cursor;
 
-use crate::resources::spritesheets::{ContainerType, SpriteGroupT};
 use crate::resources::ResourceRegistry;
 use logic::grid::AttackDirection;
 
@@ -20,12 +19,6 @@ pub fn from_attack_direction(attack_direction: AttackDirection) -> Cursor {
         AttackDirection::BottomLeft => Cursor::AttackDownLeft,
     }
 }
-
-impl ContainerType for Cursor {
-    const CONTAINER_TYPE: u32 = Cursor::CONTAINER_TYPE;
-}
-
-impl SpriteGroupT for Cursor {}
 
 pub struct Cursors(Box<[SDLCursor]>);
 
