@@ -22,7 +22,7 @@ use self::creature_resources::{CreatureResources, CreaturesCache};
 use self::images::{PaletteImage, StaticImage};
 use self::spells_cache::SpellsCache;
 use self::spritesheets::{
-    SpriteGroup, SpriteGroupType, SpriteSheet, SpriteSheetSingle, SpriteSheetType,
+    SpriteGroup, SpriteGroupT, AnimationGroup, SpriteSheetSingle, AnimationGroupT,
 };
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
@@ -64,12 +64,12 @@ impl ResourceRegistry {
         Ok(image)
     }
 
-    pub fn load_sprite_group<G: SpriteGroupType>(&mut self, filename: &str) -> SpriteGroup<G> {
+    pub fn load_sprite_group<G: SpriteGroupT>(&mut self, filename: &str) -> SpriteGroup<G> {
         SpriteGroup::from_def(self.load_def(filename))
     }
 
-    pub fn load_spritesheet<S: SpriteSheetType>(&mut self, filename: &str) -> SpriteSheet<S> {
-        SpriteSheet::from_def(self.load_def(filename))
+    pub fn load_spritesheet<S: AnimationGroupT>(&mut self, filename: &str) -> AnimationGroup<S> {
+        AnimationGroup::from_def(self.load_def(filename))
     }
 
     pub fn load_animation<const T: u32>(&mut self, filename: &str) -> SpriteSheetSingle {
@@ -90,7 +90,7 @@ impl ResourceRegistry {
     pub fn get_creature_spritesheet(
         &mut self,
         creature: Creature,
-    ) -> &SpriteSheet<creatures::Animation> {
+    ) -> &AnimationGroup<creatures::Animation> {
         self.get_creature_resources(creature).spritesheet()
     }
 

@@ -6,14 +6,14 @@ use sdl2::video::{Window, WindowContext};
 
 use gamedata::creatures;
 
-use crate::resources::spritesheets::{ContainerType, Sprite, SpriteSheet, SpriteSheetType};
+use crate::resources::spritesheets::{ContainerType, Sprite, AnimationGroup, AnimationGroupT};
 use logic::gamestate::Side;
 
 impl ContainerType for creatures::Animation {
     const CONTAINER_TYPE: u32 = Self::CONTAINER_TYPE;
 }
 
-impl SpriteSheetType for creatures::Animation {
+impl AnimationGroupT for creatures::Animation {
     fn block_index(&self) -> usize {
         *self as usize
     }
@@ -23,7 +23,7 @@ impl SpriteSheetType for creatures::Animation {
     }
 }
 
-impl SpriteSheet<creatures::Animation> {
+impl AnimationGroup<creatures::Animation> {
     pub fn draw(
         &self,
         canvas: &mut Canvas<Window>,
@@ -55,7 +55,7 @@ impl SpriteSheet<creatures::Animation> {
 
 fn with_selection(
     sprite: &Sprite,
-    spritesheet: &SpriteSheet<creatures::Animation>,
+    spritesheet: &AnimationGroup<creatures::Animation>,
 ) -> Surface<'static> {
     let mut surface = sprite
         .surface

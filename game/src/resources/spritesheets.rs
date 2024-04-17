@@ -26,10 +26,10 @@ use formats::def;
 //
 // TODO: Добавить тип для случаев когда контейнер состоит из одного блока, представляющего собой анимацию
 
-pub trait SpriteGroupType: ContainerType + EnumCount {
+pub trait SpriteGroupT: ContainerType + EnumCount {
     fn group_index(&self) -> usize;
 }
-pub trait SpriteSheetType: ContainerType + EnumCount + IntoEnumIterator {
+pub trait AnimationGroupT: ContainerType + EnumCount + IntoEnumIterator {
     fn block_index(&self) -> usize;
     fn container_index(&self) -> u32;
 }
@@ -56,7 +56,7 @@ impl<const T: u32> IntoEnumIterator for SingleAnimation<T> {
     }
 }
 
-impl<const T: u32> SpriteSheetType for SingleAnimation<T> {
+impl<const T: u32> AnimationGroupT for SingleAnimation<T> {
     fn block_index(&self) -> usize {
         0
     }
@@ -66,13 +66,13 @@ impl<const T: u32> SpriteSheetType for SingleAnimation<T> {
     }
 }
 
-pub struct SpriteGroup<G: SpriteGroupType> {
+pub struct SpriteGroup<G: SpriteGroupT> {
     sprites: Box<[Sprite]>,
     group: PhantomData<G>,
 }
 
 type AnimationBlock = Box<[usize]>;
-pub struct SpriteSheet<S: SpriteSheetType> {
+pub struct AnimationGroup<S: AnimationGroupT> {
     colors: Box<[Color]>,
     sprites: Box<[Sprite]>,
     blocks: Box<[Option<AnimationBlock>]>,
@@ -91,7 +91,7 @@ pub struct Sprite {
 
 type ColorUpdate = (usize, u8);
 
-impl<G: SpriteGroupType> SpriteGroup<G> {
+impl<G: SpriteGroupT> SpriteGroup<G> {
     const COLOR_UPDATE_LIST: [ColorUpdate; 2] = [(0, 0), (1, 32)];
 
     pub fn from_def(mut raw: def::Container) -> Self {
@@ -130,7 +130,7 @@ impl<G: SpriteGroupType> SpriteGroup<G> {
     }
 }
 
-impl<S: SpriteSheetType> SpriteSheet<S> {
+impl<S: AnimationGroupT> AnimationGroup<S> {
     const COLOR_UPDATE_LIST: [(usize, u8); 8] = [
         (0, 0),
         (1, 32),
@@ -217,7 +217,7 @@ impl<S: SpriteSheetType> SpriteSheet<S> {
 
 impl SpriteSheetSingle {
     pub fn from_def<const T: u32>(raw: def::Container) -> Self {
-        let spritesheet: SpriteSheet<SingleAnimation<T>> = SpriteSheet::from_def(raw);
+        let spritesheet: AnimationGroup<SingleAnimation<T>> = AnimationGroup::from_def(raw);
 
         let block = spritesheet.blocks.to_vec().remove(0).unwrap().into_vec();
 

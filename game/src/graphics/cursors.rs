@@ -4,7 +4,7 @@ use strum::IntoEnumIterator;
 
 use gamedata::cursors::Cursor;
 
-use crate::resources::spritesheets::{ContainerType, SpriteGroupType};
+use crate::resources::spritesheets::{ContainerType, SpriteGroupT};
 use crate::resources::ResourceRegistry;
 use logic::grid::AttackDirection;
 
@@ -25,7 +25,7 @@ impl ContainerType for Cursor {
     const CONTAINER_TYPE: u32 = Cursor::CONTAINER_TYPE;
 }
 
-impl SpriteGroupType for Cursor {
+impl SpriteGroupT for Cursor {
     fn group_index(&self) -> usize {
         *self as usize
     }

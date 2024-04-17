@@ -8,7 +8,7 @@ use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
 use gamedata::spells::Spell;
 
-use crate::resources::spritesheets::{ContainerType, SpriteGroup, SpriteGroupType, SpriteSheet};
+use crate::resources::spritesheets::{ContainerType, SpriteGroup, SpriteGroupT, AnimationGroup};
 use crate::{Config, ResourceRegistry};
 use common::error::AnyHow;
 
@@ -18,7 +18,7 @@ pub struct Statics<'a> {
     pub cursors: Cursors,
     pub font: Font<'a, 'static>,
     pub textures: Textures<'a>,
-    pub heroes: [Option<SpriteSheet<heroes::Animation>>; 2],
+    pub heroes: [Option<AnimationGroup<heroes::Animation>>; 2],
     pub ui: UI,
     pub spells: SpriteGroup<Spell>,
 }
@@ -152,7 +152,7 @@ impl ContainerType for ButtonState {
     const CONTAINER_TYPE: u32 = 71;
 }
 
-impl SpriteGroupType for ButtonState {
+impl SpriteGroupT for ButtonState {
     fn group_index(&self) -> usize {
         *self as usize
     }
@@ -181,7 +181,7 @@ impl ContainerType for Spell {
     const CONTAINER_TYPE: u32 = 71;
 }
 
-impl SpriteGroupType for Spell {
+impl SpriteGroupT for Spell {
     fn group_index(&self) -> usize {
         *self as usize
     }
