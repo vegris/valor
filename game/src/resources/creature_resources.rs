@@ -2,27 +2,8 @@ use sdl2::mixer::Chunk;
 use strum::EnumCount;
 
 use gamedata::creatures;
-use gamedata::creatures::Creature;
 
 use super::spritesheets::AnimationGroup;
-
-pub struct CreaturesCache([Option<CreatureResources>; Creature::COUNT]);
-
-impl CreaturesCache {
-    pub fn new() -> Self {
-        const NONE: Option<CreatureResources> = None;
-
-        Self([NONE; Creature::COUNT])
-    }
-
-    pub fn get(&self, creature: Creature) -> Option<&CreatureResources> {
-        self.0[creature as usize].as_ref()
-    }
-
-    pub fn put(&mut self, creature: Creature, resources: CreatureResources) {
-        self.0[creature as usize] = Some(resources);
-    }
-}
 
 pub struct CreatureResources {
     spritesheet: AnimationGroup<creatures::Animation>,

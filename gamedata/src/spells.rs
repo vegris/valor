@@ -103,7 +103,7 @@ pub enum SpellLevel {
     Fifth,
 }
 
-#[derive(Clone, Copy, EnumCount, EnumIter)]
+#[derive(Clone, Copy, EnumCount, EnumIter, EnumIndex)]
 pub enum SpellAnimation {
     Armageddon,
 }

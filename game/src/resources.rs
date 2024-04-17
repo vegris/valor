@@ -1,8 +1,11 @@
+use std::marker::PhantomData;
+
+use common::EnumIndex;
 use gamedata::traits::{AnimationGroupT, ContainerType, SpriteGroupT};
 use sdl2::mixer::{Chunk, LoaderRWops};
 use sdl2::rwops::RWops;
 
-use strum::IntoEnumIterator;
+use strum::{EnumCount, IntoEnumIterator};
 
 use formats::def;
 use formats::lod::LodIndex;
@@ -16,12 +19,10 @@ use common::error::AnyHow;
 
 mod creature_resources;
 pub mod images;
-mod spells_cache;
 pub mod spritesheets;
 
-use self::creature_resources::{CreatureResources, CreaturesCache};
+use self::creature_resources::CreatureResources;
 use self::images::{PaletteImage, StaticImage};
-use self::spells_cache::SpellsCache;
 use self::spritesheets::{AnimationGroup, SpriteGroup, SpriteSheetSingle};
 
 const PCX_ARCHIVE: &str = "H3bitmap.lod";
@@ -32,8 +33,13 @@ pub struct ResourceRegistry {
     pcx_archive: LodIndex,
     def_archive: LodIndex,
     snd_archive: SndIndex,
-    creatures_cache: CreaturesCache,
-    spells_cache: SpellsCache,
+    creature_cache: ResourceCache<{ Creature::COUNT }, Creature, CreatureResources>,
+    spells_cache: ResourceCache<{ SpellAnimation::COUNT }, SpellAnimation, SpriteSheetSingle>,
+}
+
+struct ResourceCache<const SIZE: usize, I: EnumIndex, V> {
+    cache: [Option<V>; SIZE],
+    index: PhantomData<I>,
 }
 
 impl ResourceRegistry {
@@ -46,8 +52,8 @@ impl ResourceRegistry {
             pcx_archive,
             def_archive,
             snd_archive,
-            creatures_cache: CreaturesCache::new(),
-            spells_cache: SpellsCache::new(),
+            creature_cache: ResourceCache::new(),
+            spells_cache: ResourceCache::new(),
         }
     }
 
@@ -102,11 +108,11 @@ impl ResourceRegistry {
     }
 
     fn get_creature_resources(&mut self, creature: Creature) -> &CreatureResources {
-        if self.creatures_cache.get(creature).is_none() {
+        if self.creature_cache.get(creature).is_none() {
             let resources = self.load_creature_resources(creature);
-            self.creatures_cache.put(creature, resources);
+            self.creature_cache.put(creature, resources);
         }
-        self.creatures_cache.get(creature).unwrap()
+        self.creature_cache.get(creature).unwrap()
     }
 
     fn load_creature_resources(&mut self, creature: Creature) -> CreatureResources {
@@ -137,5 +143,24 @@ impl ResourceRegistry {
             self.spells_cache.put(spell_animation, spritesheet);
         }
         self.spells_cache.get(spell_animation).unwrap()
+    }
+}
+
+impl<const SIZE: usize, I: EnumIndex, V> ResourceCache<{ SIZE }, I, V> {
+    const NONE: Option<V> = None;
+
+    fn new() -> Self {
+        Self {
+            cache: [Self::NONE; SIZE],
+            index: PhantomData,
+        }
+    }
+
+    fn get(&self, index: I) -> Option<&V> {
+        self.cache[index.into_index()].as_ref()
+    }
+
+    fn put(&mut self, index: I, value: V) {
+        self.cache[index.into_index()] = Some(value);
     }
 }

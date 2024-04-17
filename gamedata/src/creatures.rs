@@ -7,7 +7,7 @@ use strum_macros::{EnumCount, EnumIter};
 
 use crate::traits::{AnimationGroupT, ContainerType};
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize, EnumCount)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug, Deserialize, EnumCount, EnumIndex)]
 pub enum Creature {
     // Castle
     Pikeman,
