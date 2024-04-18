@@ -17,11 +17,9 @@ use gamedata::spells::SpellAnimation;
 
 use common::error::AnyHow;
 
-mod creature_resources;
 pub mod images;
 pub mod spritesheets;
 
-use self::creature_resources::CreatureResources;
 use self::images::{PaletteImage, StaticImage};
 use self::spritesheets::{AnimationGroup, SpriteGroup, SpriteSheetSingle};
 
@@ -40,6 +38,11 @@ pub struct ResourceRegistry {
 struct ResourceCache<const SIZE: usize, I: EnumIndex, V> {
     cache: [Option<V>; SIZE],
     index: PhantomData<I>,
+}
+
+struct CreatureResources {
+    spritesheet: AnimationGroup<creatures::Animation>,
+    sounds: [Option<Chunk>; creatures::Sound::COUNT],
 }
 
 impl ResourceRegistry {
@@ -96,7 +99,7 @@ impl ResourceRegistry {
         &mut self,
         creature: Creature,
     ) -> &AnimationGroup<creatures::Animation> {
-        self.get_creature_resources(creature).spritesheet()
+        &self.get_creature_resources(creature).spritesheet
     }
 
     pub fn get_creature_sound(
@@ -104,7 +107,7 @@ impl ResourceRegistry {
         creature: Creature,
         sound: creatures::Sound,
     ) -> Option<&Chunk> {
-        self.get_creature_resources(creature).sounds().get(sound)
+        self.get_creature_resources(creature).sounds[sound.into_index()].as_ref()
     }
 
     fn get_creature_resources(&mut self, creature: Creature) -> &CreatureResources {
@@ -132,7 +135,10 @@ impl ResourceRegistry {
             .ok()
             .unwrap();
 
-        CreatureResources::new(spritesheet, sounds)
+        CreatureResources {
+            spritesheet,
+            sounds,
+        }
     }
 
     pub fn get_spell_animation(&mut self, spell_animation: SpellAnimation) -> &SpriteSheetSingle {

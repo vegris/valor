@@ -199,7 +199,7 @@ pub enum MovementType {
     Teleport,
 }
 
-#[derive(Clone, Copy, EnumCount, EnumIter)]
+#[derive(Clone, Copy, EnumCount, EnumIter, EnumIndex)]
 pub enum Sound {
     Attack,
     Defend,
