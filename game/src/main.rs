@@ -97,7 +97,7 @@ fn main() -> AnyWay {
         sound::setup_music(&mut resource_registry)?;
     }
 
-    let ctx = gui::create_context();
+    let ctx = egui::Context::default();
 
     let mut frame_start = Instant::now();
 

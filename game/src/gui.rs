@@ -11,10 +11,6 @@ use logic::command::Cast;
 
 use self::textures::Button;
 
-pub fn create_context() -> Context {
-    Context::default()
-}
-
 pub fn create_frame(
     ctx: &Context,
     input: &FrameInput,
