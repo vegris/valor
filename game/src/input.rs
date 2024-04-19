@@ -1,16 +1,16 @@
-use gamedata::creatures::Creature;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
 use sdl2::rect::Point;
 use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::{gridpos, Stage};
+use gamedata::creatures::Creature;
 use logic::command;
 use logic::command::{Cast, Command};
 use logic::gamestate::GameState;
 use logic::grid::{AttackDirection, GridPos};
 
-mod hexagon_part;
-
-use hexagon_part::HexagonPart;
+use crate::{gridpos, Stage};
 
 #[derive(Default)]
 pub struct FrameInput {
@@ -26,6 +26,20 @@ pub struct FrameData {
     pub current_hover: Option<GridPos>,
     pub potential_lmb_command: Option<Command>,
     pub command: Option<Command>,
+}
+
+#[derive(Clone, Copy, Debug, EnumIter)]
+enum HexagonPart {
+    Left,
+    TopLeft,
+    TopHalfLeft,
+    TopHalfRight,
+    TopRight,
+    Right,
+    BotRight,
+    BotHalfRight,
+    BotHalfLeft,
+    BotLeft,
 }
 
 pub fn gather_input(event_pump: &mut EventPump) -> FrameInput {
@@ -161,4 +175,52 @@ pub fn calculate_attack_direction(
     let y = point.y() as f32;
     let angle = f32::atan2(y, x);
     HexagonPart::find_part_for_angle(angle).to_attack_direction(attacking_creature)
+}
+
+impl HexagonPart {
+    // Конец дуги соответствующей части
+    // если идти по часовой стрелке
+    fn arc_end(&self) -> f32 {
+        use std::f32::consts::*;
+        // [0; 2*PI]
+        // Ноль - середина левой стороны
+        // Идём по часовой стрелке
+        match self {
+            Self::Left => -(PI - FRAC_2_PI),
+            Self::TopLeft => -(FRAC_PI_2 + FRAC_2_PI),
+            Self::TopHalfLeft => -FRAC_PI_2,
+            Self::TopHalfRight => -(FRAC_PI_2 - FRAC_2_PI),
+            Self::TopRight => -FRAC_2_PI,
+            Self::Right => FRAC_2_PI,
+            Self::BotRight => FRAC_PI_2 - FRAC_2_PI,
+            Self::BotHalfRight => FRAC_PI_2,
+            Self::BotHalfLeft => FRAC_PI_2 + FRAC_2_PI,
+            Self::BotLeft => PI - FRAC_2_PI,
+        }
+    }
+
+    fn find_part_for_angle(angle: f32) -> Self {
+        Self::iter()
+            .find(|hex_part| angle < hex_part.arc_end())
+            .unwrap_or(Self::Left)
+    }
+
+    fn to_attack_direction(self, attacking_creature: Creature) -> AttackDirection {
+        match (self, attacking_creature.is_wide()) {
+            (Self::Left, _) => AttackDirection::Left,
+            (Self::Right, _) => AttackDirection::Right,
+            (Self::TopHalfLeft, false) => AttackDirection::TopLeft,
+            (Self::TopHalfLeft, true) => AttackDirection::Top,
+            (Self::TopHalfRight, false) => AttackDirection::TopRight,
+            (Self::TopHalfRight, true) => AttackDirection::Top,
+            (Self::BotHalfLeft, false) => AttackDirection::BottomLeft,
+            (Self::BotHalfLeft, true) => AttackDirection::Bottom,
+            (Self::BotHalfRight, false) => AttackDirection::BottomRight,
+            (Self::BotHalfRight, true) => AttackDirection::Bottom,
+            (Self::BotLeft, _) => AttackDirection::BottomLeft,
+            (Self::BotRight, _) => AttackDirection::BottomRight,
+            (Self::TopLeft, _) => AttackDirection::TopLeft,
+            (Self::TopRight, _) => AttackDirection::TopRight,
+        }
+    }
 }
