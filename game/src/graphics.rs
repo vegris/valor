@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use egui::TextureId;
+use gamedata::gui::{ButtonState, Texture};
 use sdl2::rect::Rect;
 use sdl2::render::{TextureCreator, WindowCanvas};
 use sdl2::video::WindowContext;
@@ -19,7 +20,6 @@ use logic::pathfinding;
 
 use common::error::AnyWay;
 
-use crate::gui::textures::{Button, Texture};
 use crate::input::FrameData;
 use crate::resources::ResourceRegistry;
 use crate::{gridpos, Graphics, Stage};
@@ -35,7 +35,7 @@ use cursors::Cursors;
 pub use statics::Statics;
 
 use self::animations::entity_animations::EntityAnimations;
-use self::statics::{ButtonState, StaticTexture};
+use self::statics::StaticTexture;
 
 use self::animations::AnimationState;
 
@@ -116,9 +116,7 @@ pub fn draw(
     for animation in entity_animations.0.iter() {
         let spell_animation = rr.get_spell_animation(animation.spell_animation);
         let frame = spell_animation.frames_count() as f32 * animation.progress.progress();
-        let frame = frame as usize;
-        dbg!(frame);
-        let sprite = spell_animation.get_frame(frame).unwrap();
+        let sprite = spell_animation.get_frame(frame as usize).unwrap();
         let texture = sprite.surface.as_texture(tc)?;
 
         canvas.copy(
@@ -144,10 +142,10 @@ pub fn draw(
     )?;
 
     for (rect, texture_id) in shapes.iter() {
-        let texture: Texture = (*texture_id).try_into().unwrap();
+        let texture = try_into_texture(*texture_id).unwrap();
 
         match texture {
-            Texture::Button(Button(button, _state)) => {
+            Texture::Button(button, _state) => {
                 let sprite = statics.ui.get(button).get(ButtonState::Base);
                 let texture = sprite.surface.as_texture(tc)?;
 
@@ -169,10 +167,10 @@ pub fn draw(
     }
 
     for (rect, texture_id) in shapes {
-        let texture: Texture = texture_id.try_into().unwrap();
+        let texture: Texture = try_into_texture(texture_id).unwrap();
 
         match texture {
-            Texture::Button(_) => {}
+            Texture::Button(..) => {}
             Texture::Spell(spell) => {
                 let sprite = statics.spells.get(spell);
                 let texture = sprite.surface.as_texture(tc)?;
@@ -351,4 +349,11 @@ fn gather_highlighted_cells(state: &GameState, frame_data: &FrameData) -> Vec<Gr
     highlighted_cells.dedup();
 
     highlighted_cells
+}
+
+fn try_into_texture(texture_id: TextureId) -> Result<Texture, &'static str> {
+    match texture_id {
+        TextureId::Managed(_) => Err("Managed textures are not supported"),
+        TextureId::User(id) => id.try_into(),
+    }
 }

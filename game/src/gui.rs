@@ -1,15 +1,14 @@
-pub mod textures;
-
 use egui::{
     epaint::{ClippedShape, RectShape},
     Context, FullOutput, RawInput, Rect, Shape, TextureId, Ui,
 };
-use gamedata::spells::Spell;
+use gamedata::{
+    gui::{Button, ButtonState, Texture},
+    spells::Spell,
+};
 
-use crate::{graphics::statics::Buttons, input::FrameInput, Stage};
+use crate::{input::FrameInput, Stage};
 use logic::command::Cast;
-
-use self::textures::Button;
 
 pub fn create_frame(
     ctx: &Context,
@@ -63,18 +62,18 @@ pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, TextureId)> {
 
 fn menu(ui: &mut Ui, state: &mut Stage) {
     let buttons = [
-        (Buttons::Settings, 3),
-        (Buttons::Surrender, 54),
-        (Buttons::Retreat, 105),
-        (Buttons::AutoBattle, 156),
-        (Buttons::BookOfMagic, 645),
-        (Buttons::Wait, 696),
-        (Buttons::Defend, 747),
+        (Button::Settings, 3),
+        (Button::Surrender, 54),
+        (Button::Retreat, 105),
+        (Button::AutoBattle, 156),
+        (Button::BookOfMagic, 645),
+        (Button::Wait, 696),
+        (Button::Defend, 747),
     ];
 
     for (b, x) in buttons.into_iter() {
-        let button = Button(b, crate::graphics::statics::ButtonState::Base);
-        let texture_id: TextureId = button.into();
+        let button = Texture::Button(b, ButtonState::Base);
+        let texture_id = TextureId::User(button.into());
         let texture = egui::load::SizedTexture::new(texture_id, (48., 36.));
         let image = egui::widgets::Image::from_texture(texture);
 
@@ -87,7 +86,7 @@ fn menu(ui: &mut Ui, state: &mut Stage) {
             let name: &'static str = b.into();
             dbg!(name);
 
-            if matches!(b, Buttons::BookOfMagic) {
+            if matches!(b, Button::BookOfMagic) {
                 *state = Stage::SpellBook;
             }
         }
@@ -109,7 +108,7 @@ fn spell_book(ui: &mut Ui, state: &mut Stage, command: &mut Option<Cast>) {
             let rect =
                 egui::Rect::from_two_pos((x_pos, y_pos).into(), (x_pos + 67., y_pos + 48.).into());
 
-            let texture_id = textures::convert_spell(Spell::Armageddon);
+            let texture_id = TextureId::User(Texture::Spell(Spell::Armageddon).into());
             let texture = egui::load::SizedTexture::new(texture_id, (67., 48.));
             let image = egui::widgets::Image::from_texture(texture);
             let button = egui::Button::image(image).frame(false);

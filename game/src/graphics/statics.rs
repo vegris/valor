@@ -1,12 +1,12 @@
+use gamedata::gui::{Button, ButtonState};
 use gamedata::heroes;
-use gamedata::traits::{ContainerType, SpriteGroupT};
-use macros::EnumIndex;
+
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
 
 use strum::{EnumCount, IntoEnumIterator};
-use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
+use strum_macros::EnumCount;
 
 use gamedata::spells::Spell;
 
@@ -106,65 +106,25 @@ impl<'a> Textures<'a> {
     }
 }
 
-#[derive(Clone, Copy, EnumCount, EnumIter, IntoStaticStr)]
-pub enum Buttons {
-    Surrender,
-    Retreat,
-    Settings,
-    AutoBattle,
-    BookOfMagic,
-    Wait,
-    Defend,
-}
+// impl TryFrom<u64> for Buttons {
+//     type Error = &'static str;
+//
+//     fn try_from(value: u64) -> Result<Self, Self::Error> {
+//         // TODO: Write a real implementation
+//         let index = value.try_into().unwrap();
+//         Buttons::iter().nth(index).ok_or("Not in range")
+//     }
+// }
 
-impl Buttons {
-    fn filename(self) -> &'static str {
-        match self {
-            Self::Surrender => "icm001.def",
-            Self::Retreat => "icm002.def",
-            Self::Settings => "icm003.def",
-            Self::AutoBattle => "icm004.def",
-            Self::BookOfMagic => "icm005.def",
-            Self::Wait => "icm006.def",
-            Self::Defend => "icm007.def",
-        }
-    }
-}
-
-impl TryFrom<u64> for Buttons {
-    type Error = &'static str;
-
-    fn try_from(value: u64) -> Result<Self, Self::Error> {
-        // TODO: Write a real implementation
-        let index = value.try_into().unwrap();
-        Buttons::iter().nth(index).ok_or("Not in range")
-    }
-}
-
-#[allow(unused)]
-#[derive(Clone, Copy, EnumCount, EnumIndex)]
-pub enum ButtonState {
-    Base,
-    Pressed,
-    Disabled,
-    Hovered,
-}
-
-impl ContainerType for ButtonState {
-    const CONTAINER_TYPE: u32 = 71;
-}
-
-impl SpriteGroupT for ButtonState {}
-
-pub struct UI([SpriteGroup<ButtonState>; Buttons::COUNT]);
+pub struct UI([SpriteGroup<ButtonState>; Button::COUNT]);
 
 impl UI {
-    pub fn get(&self, button: Buttons) -> &SpriteGroup<ButtonState> {
+    pub fn get(&self, button: Button) -> &SpriteGroup<ButtonState> {
         &self.0[button as usize]
     }
 
     fn load(rr: &mut ResourceRegistry) -> Self {
-        let buttons = Buttons::iter()
+        let buttons = Button::iter()
             .map(|b| rr.load_sprite_group(b.filename()))
             .collect::<Vec<_>>()
             .try_into()
