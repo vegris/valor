@@ -1,4 +1,3 @@
-pub mod image_button;
 pub mod textures;
 
 use egui::{
