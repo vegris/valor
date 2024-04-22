@@ -115,6 +115,20 @@ fn main() -> AnyWay {
 
         let frame_data = input::process_input(&game_state, &frame_input, &mut stage, cast);
 
+        if !animations.is_animating() {
+            if let Some(command) = frame_data.command {
+                let events = game_state.apply_command(command);
+
+                graphics::process_events(
+                    &game_state,
+                    events,
+                    &mut animations,
+                    &mut entity_animations,
+                    &mut resource_registry,
+                );
+            }
+        }
+
         animations.update(dt, &mut resource_registry);
         entity_animations.update(dt, &mut resource_registry);
 
@@ -133,19 +147,5 @@ fn main() -> AnyWay {
         )?;
 
         graphics_.canvas.present();
-
-        if !animations.is_animating() {
-            if let Some(command) = frame_data.command {
-                let events = game_state.apply_command(command);
-
-                graphics::process_events(
-                    &game_state,
-                    events,
-                    &mut animations,
-                    &mut entity_animations,
-                    &mut resource_registry,
-                );
-            }
-        }
     }
 }
