@@ -17,7 +17,7 @@ use logic::pathfinding;
 
 use common::error::AnyWay;
 
-use crate::animations::{Animations, EntityAnimations};
+use crate::animations::Animations;
 use crate::input::FrameData;
 use crate::resources::ResourceRegistry;
 use crate::{animations, gridpos, Graphics, Stage};
@@ -37,11 +37,10 @@ pub fn process_events(
     state: &GameState,
     events: Vec<Event>,
     animations: &mut Animations,
-    entity_animations: &mut EntityAnimations,
     rr: &mut ResourceRegistry,
 ) {
     for event in events {
-        animations::process_event(state, event, animations, entity_animations, rr);
+        animations::process_event(state, event, animations, rr);
     }
 }
 
@@ -50,7 +49,6 @@ pub fn draw(
     frame_data: &FrameData,
     graphics: &mut Graphics,
     animations: &Animations,
-    entity_animations: &EntityAnimations,
     rr: &mut ResourceRegistry,
     shapes: Vec<(egui::Rect, TextureId)>,
     stage: &Stage,
@@ -78,7 +76,7 @@ pub fn draw(
 
     draw_units(canvas, tc, statics, rr, state, animations)?;
 
-    for animation in entity_animations.0.iter() {
+    for animation in animations.entity.iter() {
         let spell_animation = rr.get_spell_animation(animation.spell_animation);
         let frame = spell_animation.frames_count() as f32 * animation.progress.progress();
         let sprite = spell_animation.get_frame(frame as usize).unwrap();
@@ -208,7 +206,7 @@ fn draw_units(
     let mut units = state.units();
     units.sort_unstable_by_key(|&handle| {
         let alive = state.get_stack(handle).is_alive();
-        let position = animations.0[&handle].position;
+        let position = animations.creature[&handle].position;
 
         (alive, (position.y, position.x))
     });
@@ -218,7 +216,7 @@ fn draw_units(
     for handle in units {
         let is_current = state.is_current(handle) && !is_animating;
         let stack = state.get_stack(handle);
-        let animation_state = animations.0.get(&handle).unwrap();
+        let animation_state = animations.creature.get(&handle).unwrap();
         stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
     }
 

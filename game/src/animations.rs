@@ -1,11 +1,11 @@
 use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
-use gamedata::spells::SpellAnimation;
 use sdl2::rect::Point;
 
 use gamedata::creatures;
 use gamedata::creatures::Creature;
+use gamedata::spells::SpellAnimation;
 
 use logic::event::Event;
 use logic::gamestate::{GameState, StackHandle};
@@ -27,9 +27,10 @@ use self::events::{
 };
 use self::time_progress::TimeProgress;
 
-pub struct Animations(pub HashMap<StackHandle, AnimationState>);
-
-pub struct EntityAnimations(pub Vec<EntityAnimation>);
+pub struct Animations {
+    pub creature: HashMap<StackHandle, AnimationState>,
+    pub entity: Vec<EntityAnimation>,
+}
 
 pub struct EntityAnimation {
     pub position: (i32, i32),
@@ -56,7 +57,6 @@ pub fn process_event(
     state: &GameState,
     event: Event,
     animations: &mut Animations,
-    entity_animations: &mut EntityAnimations,
     rr: &mut ResourceRegistry,
 ) {
     match event {
@@ -65,15 +65,13 @@ pub fn process_event(
         Event::Movement(movement) => {
             choreographer::animate_movement(movement, state, animations, rr)
         }
-        Event::Cast(cast) => {
-            choreographer::animate_cast(cast, state, animations, entity_animations, rr)
-        }
+        Event::Cast(cast) => choreographer::animate_cast(cast, state, animations, rr),
     }
 }
 
 impl Animations {
-    pub fn create(state: &GameState, rr: &mut ResourceRegistry) -> Self {
-        let animations = state
+    pub fn init(state: &GameState, rr: &mut ResourceRegistry) -> Self {
+        let creature_animations = state
             .units()
             .into_iter()
             .map(|handle| {
@@ -84,34 +82,25 @@ impl Animations {
             })
             .collect();
 
-        Self(animations)
-    }
-
-    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        for animation_state in self.0.values_mut() {
-            animation_state.update(dt, rr);
+        Self {
+            creature: creature_animations,
+            entity: Vec::new(),
         }
     }
 
-    pub fn is_animating(&self) -> bool {
-        self.0.values().any(|a| a.is_animating())
-    }
-}
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        for animation_state in self.creature.values_mut() {
+            animation_state.update(dt, rr);
+        }
 
-impl EntityAnimations {
-    pub fn new() -> Self {
-        Self(Vec::new())
-    }
-
-    pub fn update(&mut self, dt: Duration, _rr: &mut ResourceRegistry) {
-        self.0.retain_mut(|a| {
+        self.entity.retain_mut(|a| {
             a.progress.update(dt);
             !a.progress.is_finished()
         })
     }
 
-    pub fn push(&mut self, entity_animation: EntityAnimation) {
-        self.0.push(entity_animation);
+    pub fn is_animating(&self) -> bool {
+        !self.entity.is_empty() || self.creature.values().any(|a| a.is_animating())
     }
 }
 

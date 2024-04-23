@@ -16,7 +16,7 @@ use super::animation::Animation;
 use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
 use super::time_progress::TimeProgress;
-use super::{AnimationState, Animations, EntityAnimation, EntityAnimations};
+use super::{AnimationState, Animations, EntityAnimation};
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,
@@ -36,7 +36,7 @@ impl<'a> StackWithAnimation<'a> {
         animations: &'a mut Animations,
     ) -> [Self; N] {
         let stacks = handles.map(|h| state.get_stack(h));
-        let animations = common::map::get_many_mut(&mut animations.0, handles).unwrap();
+        let animations = common::map::get_many_mut(&mut animations.creature, handles).unwrap();
 
         Iterator::zip(stacks.into_iter(), animations)
             .map(|(stack, animation)| Self { stack, animation })
@@ -166,7 +166,7 @@ pub fn animate_movement(
         )));
     }
 
-    let animation_queue = animations.0.get_mut(&movement.stack_handle).unwrap();
+    let animation_queue = animations.creature.get_mut(&movement.stack_handle).unwrap();
     for event in events.into_iter() {
         animation_queue.push_event(event);
     }
@@ -175,8 +175,7 @@ pub fn animate_movement(
 pub fn animate_cast(
     cast: Cast,
     _state: &GameState,
-    _animations: &mut Animations,
-    entity_animations: &mut EntityAnimations,
+    animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
     if cast.spell == Spell::Armageddon {
@@ -192,7 +191,7 @@ pub fn animate_cast(
                     progress: TimeProgress::new(Duration::from_secs(1)),
                     spell_animation: SpellAnimation::Armageddon,
                 };
-                entity_animations.push(animation);
+                animations.entity.push(animation);
             }
         }
     }

@@ -1,6 +1,8 @@
-use std::{mem::MaybeUninit, ptr::addr_of_mut, time::Instant};
+use std::mem::MaybeUninit;
+use std::ptr::addr_of_mut;
+use std::time::Instant;
 
-use animations::{Animations, EntityAnimations};
+use animations::Animations;
 use common::error::{AnyHow, AnyWay};
 
 mod animations;
@@ -91,9 +93,7 @@ fn main() -> AnyWay {
 
     let mut game_state = GameState::new(&config.armies)?;
 
-    let mut animations = Animations::create(&game_state, &mut resource_registry);
-
-    let mut entity_animations = EntityAnimations::new();
+    let mut animations = Animations::init(&game_state, &mut resource_registry);
 
     if config.music {
         sound::setup_music(&mut resource_registry)?;
@@ -125,14 +125,12 @@ fn main() -> AnyWay {
                     &game_state,
                     events,
                     &mut animations,
-                    &mut entity_animations,
                     &mut resource_registry,
                 );
             }
         }
 
         animations.update(dt, &mut resource_registry);
-        entity_animations.update(dt, &mut resource_registry);
 
         let shapes = gui::output_to_shapes(full_output);
 
@@ -142,7 +140,6 @@ fn main() -> AnyWay {
             &frame_data,
             &mut graphics_,
             &animations,
-            &entity_animations,
             &mut resource_registry,
             shapes,
             &stage,
