@@ -28,7 +28,7 @@ pub enum Cursor {
 }
 
 impl Cursor {
-    pub const CONTAINTER_FILENAME: &str = "CRCOMBAT.def";
+    pub const CONTAINTER_FILENAME: &'static str = "CRCOMBAT.def";
 
     pub const fn pointer_offset(self) -> (i32, i32) {
         match self {

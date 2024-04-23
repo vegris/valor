@@ -49,6 +49,9 @@ pub enum Side {
 }
 
 #[derive(Debug)]
+// Compiler is triggered by Side which is not used anywhere in the code
+// But actually is there for Debug output
+#[allow(dead_code)]
 enum Winner {
     Side(Side),
     Tie,
