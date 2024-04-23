@@ -17,11 +17,11 @@ use logic::pathfinding;
 
 use common::error::AnyWay;
 
+use crate::animations::{Animations, EntityAnimations};
 use crate::input::FrameData;
 use crate::resources::ResourceRegistry;
-use crate::{gridpos, Graphics, Stage};
+use crate::{animations, gridpos, Graphics, Stage};
 
-pub mod animations;
 pub mod creature;
 mod cursors;
 mod hero;
@@ -31,7 +31,6 @@ pub mod statics;
 use cursors::Cursors;
 pub use statics::Statics;
 
-use self::animations::{Animations, EntityAnimations};
 use self::statics::StaticTexture;
 
 pub fn process_events(

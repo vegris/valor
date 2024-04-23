@@ -1,7 +1,9 @@
 use std::{mem::MaybeUninit, ptr::addr_of_mut, time::Instant};
 
+use animations::{Animations, EntityAnimations};
 use common::error::{AnyHow, AnyWay};
 
+mod animations;
 mod config;
 mod graphics;
 mod gridpos;
@@ -11,7 +13,6 @@ mod resources;
 mod sound;
 
 use config::Config;
-use graphics::animations::{Animations, EntityAnimations};
 use graphics::Statics;
 use logic::gamestate::GameState;
 use resources::ResourceRegistry;

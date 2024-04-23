@@ -10,14 +10,13 @@ use logic::gamestate::{GameState, Side, StackHandle};
 use logic::grid::GridPos;
 use logic::stack::Stack;
 
-use crate::graphics::Animations;
 use crate::resources::ResourceRegistry;
 
 use super::animation::Animation;
 use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
 use super::time_progress::TimeProgress;
-use super::{AnimationState, EntityAnimation, EntityAnimations};
+use super::{AnimationState, Animations, EntityAnimation, EntityAnimations};
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,
