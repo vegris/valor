@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-use std::time::Duration;
-
 use egui::TextureId;
 use gamedata::gui::{ButtonState, Texture};
 use sdl2::rect::Rect;
@@ -14,7 +11,7 @@ use gamedata::heroes;
 
 use logic::command::Command;
 use logic::event::Event;
-use logic::gamestate::{GameState, Side, StackHandle};
+use logic::gamestate::{GameState, Side};
 use logic::grid::GridPos;
 use logic::pathfinding;
 
@@ -34,39 +31,8 @@ pub mod statics;
 use cursors::Cursors;
 pub use statics::Statics;
 
-use self::animations::entity_animations::EntityAnimations;
+use self::animations::{Animations, EntityAnimations};
 use self::statics::StaticTexture;
-
-use self::animations::AnimationState;
-
-pub struct Animations(HashMap<StackHandle, AnimationState>);
-
-impl Animations {
-    pub fn create(state: &GameState, rr: &mut ResourceRegistry) -> Self {
-        let animations = state
-            .units()
-            .into_iter()
-            .map(|handle| {
-                let stack = state.get_stack(handle);
-                let animation = AnimationState::new(stack.creature, stack.head, rr);
-
-                (handle, animation)
-            })
-            .collect();
-
-        Self(animations)
-    }
-
-    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
-        for animation_state in self.0.values_mut() {
-            animation_state.update(dt, rr);
-        }
-    }
-
-    pub fn is_animating(&self) -> bool {
-        self.0.values().any(|a| a.is_animating())
-    }
-}
 
 pub fn process_events(
     state: &GameState,

@@ -14,11 +14,10 @@ use crate::graphics::Animations;
 use crate::resources::ResourceRegistry;
 
 use super::animation::Animation;
-use super::entity_animations::{EntityAnimation, EntityAnimations};
 use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
 use super::time_progress::TimeProgress;
-use super::AnimationState;
+use super::{AnimationState, EntityAnimation, EntityAnimations};
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,

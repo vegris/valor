@@ -1,33 +1,41 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
+use gamedata::spells::SpellAnimation;
 use sdl2::rect::Point;
 
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
 use logic::event::Event;
-use logic::gamestate::GameState;
+use logic::gamestate::{GameState, StackHandle};
 use logic::grid::GridPos;
 
 use crate::resources::ResourceRegistry;
 use crate::{gridpos, sound};
 
-use super::Animations;
-
 mod animation;
 mod choreographer;
 mod current_event;
-pub mod entity_animations;
 mod events;
 mod movement;
 mod time_progress;
 
 use self::current_event::{CurrentEvent, Idle};
-use self::entity_animations::EntityAnimations;
 use self::events::{
     AnimationEvent, AnimationEventByGroup, InstantEvent, TimeEvent, TimeProgressEvent,
 };
+use self::time_progress::TimeProgress;
+
+pub struct Animations(pub HashMap<StackHandle, AnimationState>);
+
+pub struct EntityAnimations(pub Vec<EntityAnimation>);
+
+pub struct EntityAnimation {
+    pub position: (i32, i32),
+    pub progress: TimeProgress,
+    pub spell_animation: SpellAnimation,
+}
 
 pub struct AnimationState {
     creature: Creature,
@@ -60,6 +68,50 @@ pub fn process_event(
         Event::Cast(cast) => {
             choreographer::animate_cast(cast, state, animations, entity_animations, rr)
         }
+    }
+}
+
+impl Animations {
+    pub fn create(state: &GameState, rr: &mut ResourceRegistry) -> Self {
+        let animations = state
+            .units()
+            .into_iter()
+            .map(|handle| {
+                let stack = state.get_stack(handle);
+                let animation = AnimationState::new(stack.creature, stack.head, rr);
+
+                (handle, animation)
+            })
+            .collect();
+
+        Self(animations)
+    }
+
+    pub fn update(&mut self, dt: Duration, rr: &mut ResourceRegistry) {
+        for animation_state in self.0.values_mut() {
+            animation_state.update(dt, rr);
+        }
+    }
+
+    pub fn is_animating(&self) -> bool {
+        self.0.values().any(|a| a.is_animating())
+    }
+}
+
+impl EntityAnimations {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    pub fn update(&mut self, dt: Duration, _rr: &mut ResourceRegistry) {
+        self.0.retain_mut(|a| {
+            a.progress.update(dt);
+            !a.progress.is_finished()
+        })
+    }
+
+    pub fn push(&mut self, entity_animation: EntityAnimation) {
+        self.0.push(entity_animation);
     }
 }
 

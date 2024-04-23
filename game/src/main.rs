@@ -11,7 +11,8 @@ mod resources;
 mod sound;
 
 use config::Config;
-use graphics::{animations::entity_animations::EntityAnimations, Animations, Statics};
+use graphics::animations::{Animations, EntityAnimations};
+use graphics::Statics;
 use logic::gamestate::GameState;
 use resources::ResourceRegistry;
 use sdl2::{
