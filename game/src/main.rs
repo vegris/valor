@@ -1,6 +1,6 @@
 use std::mem::MaybeUninit;
 use std::ptr::addr_of_mut;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use animations::Animations;
 use common::error::{AnyHow, AnyWay};
@@ -33,6 +33,8 @@ pub struct Graphics<'a> {
     texture_creator: TextureCreator<WindowContext>,
     canvas: WindowCanvas,
 }
+
+struct FrameTimer(Instant);
 
 impl<'a> Graphics<'a> {
     fn init(
@@ -74,6 +76,20 @@ impl<'a> Graphics<'a> {
     }
 }
 
+impl FrameTimer {
+    fn init() -> Self {
+        Self(Instant::now())
+    }
+
+    fn dt(&mut self) -> Duration {
+        let now = Instant::now();
+        let dt = now - self.0;
+        self.0 = now;
+
+        return dt;
+    }
+}
+
 fn main() -> AnyWay {
     let config = Config::load()?;
 
@@ -101,14 +117,12 @@ fn main() -> AnyWay {
 
     let ctx = egui::Context::default();
 
-    let mut frame_start = Instant::now();
-
     let mut stage = Stage::Main;
 
+    let mut frame_timer = FrameTimer::init();
+
     loop {
-        let now = Instant::now();
-        let dt = now - frame_start;
-        frame_start = now;
+        let dt = frame_timer.dt();
 
         let frame_input = input::gather_input(&mut event_pump);
 
