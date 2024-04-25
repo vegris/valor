@@ -86,7 +86,7 @@ impl FrameTimer {
         let dt = now - self.0;
         self.0 = now;
 
-        return dt;
+        dt
     }
 }
 
@@ -135,7 +135,7 @@ fn main() -> AnyWay {
             if let Some(command) = frame_data.command {
                 let events = game_state.apply_command(command);
 
-                graphics::process_events(
+                animations::process_events(
                     &game_state,
                     events,
                     &mut animations,
@@ -158,7 +158,6 @@ fn main() -> AnyWay {
             shapes,
             &stage,
         )?;
-
         graphics_.canvas.present();
     }
 }

@@ -10,7 +10,6 @@ use gamedata::cursors::Cursor;
 use gamedata::heroes;
 
 use logic::command::Command;
-use logic::event::Event;
 use logic::gamestate::{GameState, Side};
 use logic::grid::GridPos;
 use logic::pathfinding;
@@ -32,17 +31,6 @@ use cursors::Cursors;
 pub use statics::Statics;
 
 use self::statics::StaticTexture;
-
-pub fn process_events(
-    state: &GameState,
-    events: Vec<Event>,
-    animations: &mut Animations,
-    rr: &mut ResourceRegistry,
-) {
-    for event in events {
-        animations::process_event(state, event, animations, rr);
-    }
-}
 
 pub fn draw(
     state: &GameState,

@@ -53,19 +53,21 @@ pub struct AnimationData {
     pub position: Point,
 }
 
-pub fn process_event(
+pub fn process_events(
     state: &GameState,
-    event: Event,
+    events: Vec<Event>,
     animations: &mut Animations,
     rr: &mut ResourceRegistry,
 ) {
-    match event {
-        Event::Attack(attack) => choreographer::animate_attack(attack, state, animations, rr),
-        Event::Shot(shot) => choreographer::animate_shot(shot, state, animations, rr),
-        Event::Movement(movement) => {
-            choreographer::animate_movement(movement, state, animations, rr)
+    for event in events {
+        match event {
+            Event::Attack(attack) => choreographer::animate_attack(attack, state, animations, rr),
+            Event::Shot(shot) => choreographer::animate_shot(shot, state, animations, rr),
+            Event::Movement(movement) => {
+                choreographer::animate_movement(movement, state, animations, rr)
+            }
+            Event::Cast(cast) => choreographer::animate_cast(cast, state, animations, rr),
         }
-        Event::Cast(cast) => choreographer::animate_cast(cast, state, animations, rr),
     }
 }
 
