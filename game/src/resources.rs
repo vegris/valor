@@ -1,21 +1,17 @@
 use std::marker::PhantomData;
 
+use common::error::AnyHow;
 use common::EnumIndex;
-use gamedata::traits::{AnimationGroupT, ContainerType, SpriteGroupT};
-use sdl2::mixer::{Chunk, LoaderRWops};
-use sdl2::rwops::RWops;
-
-use strum::{EnumCount, IntoEnumIterator};
-
 use formats::def;
 use formats::lod::LodIndex;
 use formats::snd::SndIndex;
-
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 use gamedata::spells::SpellAnimation;
-
-use common::error::AnyHow;
+use gamedata::traits::{AnimationGroupT, ContainerType, SpriteGroupT};
+use sdl2::mixer::{Chunk, LoaderRWops};
+use sdl2::rwops::RWops;
+use strum::{EnumCount, IntoEnumIterator};
 
 pub mod images;
 pub mod spritesheets;

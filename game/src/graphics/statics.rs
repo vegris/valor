@@ -1,20 +1,16 @@
+use common::error::AnyHow;
 use gamedata::gui::{Button, ButtonState};
 use gamedata::heroes;
-
+use gamedata::spells::Spell;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::ttf::Font;
 use sdl2::video::WindowContext;
-
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::EnumCount;
 
-use gamedata::spells::Spell;
-
+use super::cursors::Cursors;
 use crate::resources::spritesheets::{AnimationGroup, SpriteGroup};
 use crate::{Config, ResourceRegistry};
-use common::error::AnyHow;
-
-use super::cursors::Cursors;
 
 pub struct Statics<'a> {
     pub cursors: Cursors,

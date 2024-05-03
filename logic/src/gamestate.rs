@@ -1,11 +1,10 @@
 use std::collections::HashMap;
 
+use common::error::AnyHow;
 use gamedata::creatures::Creature;
 use gamedata::heroes::Hero as GDHero;
 use serde::Deserialize;
 use strum_macros::EnumIter;
-
-use common::error::AnyHow;
 
 use crate::command::Command;
 use crate::event::Event;

@@ -1,14 +1,11 @@
 use gamedata::creatures::Ability;
 
+use super::r#move;
 use crate::command::{Attack, Move};
+use crate::event::{Attack as AttackEvent, Event, Strike};
+use crate::gamestate::damage::{deal_damage, AttackType};
 use crate::gamestate::GameState;
 use crate::pathfinding;
-
-use crate::gamestate::damage::{deal_damage, AttackType};
-
-use crate::event::{Attack as AttackEvent, Event, Strike};
-
-use super::r#move;
 
 const ATTACK_TYPE: AttackType = AttackType::Melee;
 

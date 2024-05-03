@@ -1,11 +1,10 @@
 use std::mem::ManuallyDrop;
 use std::path::PathBuf;
 
+use common::error::AnyWay;
 use rand::seq::IteratorRandom;
 use sdl2::mixer;
 use sdl2::mixer::Channel;
-
-use common::error::AnyWay;
 
 use crate::config::Config;
 use crate::resources::ResourceRegistry;

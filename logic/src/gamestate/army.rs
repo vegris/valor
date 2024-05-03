@@ -1,11 +1,9 @@
 use gamedata::creatures::Creature;
 
+use super::Side;
 use crate::grid::GridPos;
 use crate::pathfinding::head_from_tail;
-
 use crate::stack::Stack;
-
-use super::Side;
 
 pub fn initial_placement(units_count: u8) -> Vec<i32> {
     match units_count {

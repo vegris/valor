@@ -3,12 +3,11 @@ use std::time::Duration;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::resources::ResourceRegistry;
-
 use super::animation::Animation;
 use super::events::TimeProgressEvent;
 use super::movement::Movement;
 use super::time_progress::TimeProgress;
+use crate::resources::ResourceRegistry;
 
 pub enum CurrentEvent {
     Event(TimeProgressEvent),

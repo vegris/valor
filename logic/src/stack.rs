@@ -3,11 +3,10 @@ use std::collections::HashSet;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::grid::GridPos;
-use crate::turn::Phase;
-
 use super::gamestate::{GameState, Side};
 use super::pathfinding;
+use crate::grid::GridPos;
+use crate::turn::Phase;
 
 #[derive(Clone, Debug)]
 pub struct Stack {

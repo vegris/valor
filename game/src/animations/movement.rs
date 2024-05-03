@@ -1,14 +1,12 @@
 use std::time::Duration;
 
-use sdl2::rect::Point;
-
 use gamedata::creatures;
 use gamedata::creatures::Creature;
-
-use crate::{gridpos, ResourceRegistry};
 use logic::grid::GridPos;
+use sdl2::rect::Point;
 
 use super::time_progress::TimeProgress;
+use crate::{gridpos, ResourceRegistry};
 
 pub struct Movement {
     tweens: Box<[Tween]>,

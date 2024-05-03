@@ -1,11 +1,9 @@
+use gamedata::heroes::{Ability, AbilityLevel};
 use rand::distributions::Uniform;
 use rand::prelude::Distribution;
 
-use gamedata::heroes::{Ability, AbilityLevel};
-
-use crate::stack::Stack;
-
 use super::hero::Hero;
+use crate::stack::Stack;
 
 pub enum AttackType {
     Melee,

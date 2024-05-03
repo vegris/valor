@@ -1,10 +1,8 @@
-use std::{
-    collections::HashMap,
-    fs::File,
-    io::{Read, Seek, SeekFrom},
-    ops::Deref,
-    path::Path,
-};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::{Read, Seek, SeekFrom};
+use std::ops::Deref;
+use std::path::Path;
 
 struct SndFileInfo {
     offset: u32,

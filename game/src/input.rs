@@ -1,14 +1,15 @@
-use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
-
-use sdl2::rect::Point;
-use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
-
 use gamedata::creatures::Creature;
 use logic::command;
 use logic::command::{Cast, Command};
 use logic::gamestate::GameState;
 use logic::grid::{AttackDirection, GridPos};
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use sdl2::mouse::MouseButton;
+use sdl2::rect::Point;
+use sdl2::EventPump;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 use crate::{gridpos, Stage};
 

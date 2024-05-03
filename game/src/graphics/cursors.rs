@@ -1,11 +1,9 @@
+use gamedata::cursors::Cursor;
+use logic::grid::AttackDirection;
 use sdl2::mouse::Cursor as SDLCursor;
-
 use strum::IntoEnumIterator;
 
-use gamedata::cursors::Cursor;
-
 use crate::resources::ResourceRegistry;
-use logic::grid::AttackDirection;
 
 pub fn from_attack_direction(attack_direction: AttackDirection) -> Cursor {
     match attack_direction {

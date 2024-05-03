@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use gamedata::creatures;
-
 use logic::grid::GridPos;
 
 use super::animation::Animation;

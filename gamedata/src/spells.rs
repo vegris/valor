@@ -1,10 +1,8 @@
 use macros::EnumIndex;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::{
-    heroes::AbilityLevel,
-    traits::{ContainerType, SpriteGroupT},
-};
+use crate::heroes::AbilityLevel;
+use crate::traits::{ContainerType, SpriteGroupT};
 
 #[derive(Clone, Copy, Debug, PartialEq, EnumCount, EnumIndex)]
 pub enum Spell {

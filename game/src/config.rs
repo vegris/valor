@@ -1,9 +1,8 @@
 use std::fs::File;
 
-use serde::Deserialize;
-
 use gamedata::battlefields::Battlefield;
 use logic::gamestate::Army;
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct Config {

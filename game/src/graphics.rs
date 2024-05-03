@@ -1,20 +1,16 @@
+use common::error::AnyWay;
 use egui::TextureId;
-use gamedata::gui::{ButtonState, Texture};
-use sdl2::rect::Rect;
-use sdl2::render::{TextureCreator, WindowCanvas};
-use sdl2::video::WindowContext;
-
-use strum::IntoEnumIterator;
-
 use gamedata::cursors::Cursor;
+use gamedata::gui::{ButtonState, Texture};
 use gamedata::heroes;
-
 use logic::command::Command;
 use logic::gamestate::{GameState, Side};
 use logic::grid::GridPos;
 use logic::pathfinding;
-
-use common::error::AnyWay;
+use sdl2::rect::Rect;
+use sdl2::render::{TextureCreator, WindowCanvas};
+use sdl2::video::WindowContext;
+use strum::IntoEnumIterator;
 
 use crate::animations::Animations;
 use crate::input::FrameData;

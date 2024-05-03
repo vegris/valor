@@ -1,13 +1,12 @@
+use gamedata::creatures;
+use logic::gamestate::Side;
 use sdl2::pixels::{Color, Palette};
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
 use sdl2::surface::Surface;
 use sdl2::video::{Window, WindowContext};
 
-use gamedata::creatures;
-
 use crate::resources::spritesheets::{AnimationGroup, Sprite};
-use logic::gamestate::Side;
 
 impl AnimationGroup<creatures::Animation> {
     pub fn draw(

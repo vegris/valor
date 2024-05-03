@@ -2,10 +2,8 @@ use macros::EnumIndex;
 use serde::Deserialize;
 use strum_macros::{EnumCount, EnumIter};
 
-use crate::{
-    towns::Town,
-    traits::{AnimationGroupT, ContainerType},
-};
+use crate::towns::Town;
+use crate::traits::{AnimationGroupT, ContainerType};
 
 #[derive(Clone, Copy, Deserialize)]
 pub enum Hero {

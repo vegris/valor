@@ -1,6 +1,6 @@
-use crate::{command::Move, gamestate::GameState};
-
+use crate::command::Move;
 use crate::event::{Event, Movement};
+use crate::gamestate::GameState;
 
 pub fn is_applicable(command: Move, state: &GameState) -> bool {
     let current_stack = state.get_current_stack();

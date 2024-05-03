@@ -1,14 +1,11 @@
-use egui::{
-    epaint::{ClippedShape, RectShape},
-    Context, FullOutput, RawInput, Rect, Shape, TextureId, Ui,
-};
-use gamedata::{
-    gui::{Button, ButtonState, Texture},
-    spells::Spell,
-};
-
-use crate::{input::FrameInput, Stage};
+use egui::epaint::{ClippedShape, RectShape};
+use egui::{Context, FullOutput, RawInput, Rect, Shape, TextureId, Ui};
+use gamedata::gui::{Button, ButtonState, Texture};
+use gamedata::spells::Spell;
 use logic::command::Cast;
+
+use crate::input::FrameInput;
+use crate::Stage;
 
 pub fn create_frame(
     ctx: &Context,

@@ -4,19 +4,17 @@ use std::time::Duration;
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 use gamedata::spells::{Spell, SpellAnimation};
-
 use logic::event::{Attack, Cast, Movement, Shot};
 use logic::gamestate::{GameState, Side, StackHandle};
 use logic::grid::GridPos;
 use logic::stack::Stack;
-
-use crate::resources::ResourceRegistry;
 
 use super::animation::Animation;
 use super::events::{AnimationEvent, Sound};
 use super::movement::Movement as MovementEvent;
 use super::time_progress::TimeProgress;
 use super::{AnimationState, Animations, EntityAnimation};
+use crate::resources::ResourceRegistry;
 
 struct StackWithAnimation<'a> {
     stack: &'a Stack,

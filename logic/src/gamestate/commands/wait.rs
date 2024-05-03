@@ -1,7 +1,6 @@
+use super::Event;
 use crate::gamestate::GameState;
 use crate::turn::Phase;
-
-use super::Event;
 
 pub fn is_applicable(state: &GameState) -> bool {
     state

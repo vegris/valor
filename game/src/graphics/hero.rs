@@ -1,11 +1,10 @@
+use gamedata::heroes;
+use logic::gamestate::Side;
 use sdl2::rect::{Point, Rect};
 use sdl2::render::{Canvas, TextureCreator};
 use sdl2::video::{Window, WindowContext};
 
-use gamedata::heroes;
-
 use crate::resources::spritesheets::{AnimationGroup, Sprite};
-use logic::gamestate::Side;
 
 impl AnimationGroup<heroes::Animation> {
     pub fn draw(

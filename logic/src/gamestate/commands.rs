@@ -1,7 +1,6 @@
+use super::GameState;
 use crate::command::Command;
 use crate::event::Event;
-
-use super::GameState;
 
 mod attack;
 mod cast;

@@ -1,9 +1,7 @@
+use common::error::{AnyHow, AnyWay};
+use formats::pcx;
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
-
-use formats::pcx;
-
-use common::error::{AnyHow, AnyWay};
 
 pub struct StaticImage {
     surface: Surface<'static>,

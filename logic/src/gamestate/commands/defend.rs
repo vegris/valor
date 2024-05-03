@@ -1,6 +1,5 @@
-use crate::gamestate::GameState;
-
 use super::Event;
+use crate::gamestate::GameState;
 
 pub fn is_applicable(_state: &GameState) -> bool {
     true

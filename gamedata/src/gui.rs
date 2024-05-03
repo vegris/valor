@@ -1,10 +1,8 @@
 use macros::EnumIndex;
 use strum_macros::{EnumCount, EnumIter, IntoStaticStr};
 
-use crate::{
-    spells::Spell,
-    traits::{ContainerType, SpriteGroupT},
-};
+use crate::spells::Spell;
+use crate::traits::{ContainerType, SpriteGroupT};
 
 pub enum Texture {
     Button(Button, ButtonState),

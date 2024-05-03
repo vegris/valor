@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
+use common::EnumIndex;
+use formats::def;
 use gamedata::traits::{AnimationGroupT, ContainerType, SpriteGroupT};
 use sdl2::pixels::{Color, Palette, PixelFormatEnum};
 use sdl2::surface::Surface;
 use strum::{EnumCount, IntoEnumIterator};
-
-use common::EnumIndex;
-use formats::def;
 
 // def контейнер это основной формат хранения спрайтов в HoMM 3
 // он может использоваться как для кодирования последовательностей анимаций

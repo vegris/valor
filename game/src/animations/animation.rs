@@ -1,9 +1,8 @@
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 
-use crate::resources::ResourceRegistry;
-
 use super::time_progress::TimeProgress;
+use crate::resources::ResourceRegistry;
 
 pub struct Animation {
     pub type_: creatures::Animation,

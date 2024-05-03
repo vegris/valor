@@ -2,8 +2,7 @@ use gamedata::creatures::Ability;
 
 use crate::command::Shoot;
 use crate::event::{Event, Shot};
-use crate::gamestate::damage;
-use crate::gamestate::GameState;
+use crate::gamestate::{damage, GameState};
 
 const ATTACK_TYPE: damage::AttackType = damage::AttackType::Shoot;
 

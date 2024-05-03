@@ -19,10 +19,8 @@ use config::Config;
 use graphics::Statics;
 use logic::gamestate::GameState;
 use resources::ResourceRegistry;
-use sdl2::{
-    render::{TextureCreator, WindowCanvas},
-    video::WindowContext,
-};
+use sdl2::render::{TextureCreator, WindowCanvas};
+use sdl2::video::WindowContext;
 
 pub enum Stage {
     Main,

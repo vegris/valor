@@ -1,21 +1,15 @@
-use sdl2::pixels::Color;
-use sdl2::rect::Rect;
-use sdl2::render::TextureCreator;
-use sdl2::render::WindowCanvas;
-use sdl2::video::WindowContext;
-
 use common::error::AnyWay;
-
 use gamedata::creatures;
-
 use logic::gamestate::Side;
 use logic::stack::Stack;
-
-use crate::gridpos;
-use crate::ResourceRegistry;
+use sdl2::pixels::Color;
+use sdl2::rect::Rect;
+use sdl2::render::{TextureCreator, WindowCanvas};
+use sdl2::video::WindowContext;
 
 use super::animations::AnimationState;
 use super::Statics;
+use crate::{gridpos, ResourceRegistry};
 
 pub fn draw(
     stack: &Stack,

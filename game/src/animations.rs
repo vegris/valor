@@ -1,15 +1,13 @@
 use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
-use sdl2::rect::Point;
-
 use gamedata::creatures;
 use gamedata::creatures::Creature;
 use gamedata::spells::SpellAnimation;
-
 use logic::event::Event;
 use logic::gamestate::{GameState, StackHandle};
 use logic::grid::GridPos;
+use sdl2::rect::Point;
 
 use crate::resources::ResourceRegistry;
 use crate::{gridpos, sound};
