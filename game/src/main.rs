@@ -1,4 +1,5 @@
 use std::mem::MaybeUninit;
+use std::pin::Pin;
 use std::ptr::addr_of_mut;
 use std::time::{Duration, Instant};
 
@@ -42,7 +43,9 @@ impl<'a> Graphics<'a> {
         ttf_context: &'a sdl2::ttf::Sdl2TtfContext,
         config: &Config,
         resource_registry: &mut ResourceRegistry,
-    ) -> AnyHow<Self> {
+    ) -> AnyHow<Pin<Box<Self>>> {
+        // Safety: fields are defined in the order in which they must be dropped
+        // Resulting struct is protected by pinned box
         let mut uninit: MaybeUninit<Self> = MaybeUninit::uninit();
         let ptr = uninit.as_mut_ptr();
 
@@ -72,7 +75,9 @@ impl<'a> Graphics<'a> {
         let statics = Statics::init(config, resource_registry, texture_creator, ttf_context)?;
         unsafe { addr_of_mut!((*ptr).statics).write(statics) };
 
-        unsafe { Ok(uninit.assume_init()) }
+        let graphics = unsafe { uninit.assume_init() };
+
+        Ok(Box::pin(graphics))
     }
 }
 
