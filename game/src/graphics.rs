@@ -76,10 +76,6 @@ pub fn draw(
             ),
         )?;
     }
-    let spell_animation = rr.get_spell_animation(gamedata::spells::SpellAnimation::Armageddon);
-
-    let sprite = spell_animation.get_frame(5).unwrap();
-    let _texture = sprite.surface.as_texture(tc)?;
 
     canvas.copy(
         statics.textures.get(StaticTexture::MenuBackground),
