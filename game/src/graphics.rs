@@ -1,5 +1,4 @@
 use common::error::AnyWay;
-use egui::TextureId;
 use gamedata::cursors::Cursor;
 use gamedata::gui::{ButtonState, Texture};
 use gamedata::heroes;
@@ -34,7 +33,7 @@ pub fn draw(
     graphics: &mut Graphics,
     animations: &Animations,
     rr: &mut ResourceRegistry,
-    shapes: Vec<(egui::Rect, TextureId)>,
+    shapes: Vec<(egui::Rect, u64)>,
     stage: &Stage,
 ) -> AnyWay {
     let canvas = &mut graphics.canvas;
@@ -89,7 +88,7 @@ pub fn draw(
     )?;
 
     for (rect, texture_id) in shapes.iter() {
-        let texture = try_into_texture(*texture_id).unwrap();
+        let texture = (*texture_id).try_into().unwrap();
 
         match texture {
             Texture::Button(button, _state) => {
@@ -113,8 +112,8 @@ pub fn draw(
         )?;
     }
 
-    for (rect, texture_id) in shapes {
-        let texture: Texture = try_into_texture(texture_id).unwrap();
+    for (rect, texture_id) in shapes.iter() {
+        let texture = (*texture_id).try_into().unwrap();
 
         match texture {
             Texture::Button(..) => {}
@@ -296,11 +295,4 @@ fn gather_highlighted_cells(state: &GameState, frame_data: &FrameData) -> Vec<Gr
     highlighted_cells.dedup();
 
     highlighted_cells
-}
-
-fn try_into_texture(texture_id: TextureId) -> Result<Texture, &'static str> {
-    match texture_id {
-        TextureId::Managed(_) => Err("Managed textures are not supported"),
-        TextureId::User(id) => id.try_into(),
-    }
 }

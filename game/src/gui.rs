@@ -28,31 +28,21 @@ pub fn create_frame(
     })
 }
 
-pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, TextureId)> {
+pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, u64)> {
     output
         .shapes
         .into_iter()
-        .filter_map(|s| {
-            if let ClippedShape {
-                shape: Shape::Rect(rect_shape),
+        .filter_map(|s| match s {
+            ClippedShape {
+                shape:
+                    Shape::Rect(RectShape {
+                        fill_texture_id: TextureId::User(texture_id),
+                        rect,
+                        ..
+                    }),
                 ..
-            } = s
-            {
-                Some(rect_shape)
-            } else {
-                None
-            }
-        })
-        .filter_map(|rs| {
-            if let RectShape {
-                fill_texture_id: TextureId::User(_),
-                ..
-            } = rs
-            {
-                Some((rs.rect, rs.fill_texture_id))
-            } else {
-                None
-            }
+            } => Some((rect, texture_id)),
+            _ => None,
         })
         .collect()
 }
