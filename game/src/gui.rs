@@ -1,11 +1,11 @@
 use egui::epaint::{ClippedShape, RectShape};
-use egui::{Context, FullOutput, RawInput, Rect, Shape, TextureId, Ui};
+use egui::{Context, FullOutput, Rect, Shape, TextureId, Ui};
 use gamedata::gui::{Button, ButtonState, Texture};
 use gamedata::spells::Spell;
 use logic::command::Cast;
 
 use crate::input::FrameInput;
-use crate::Stage;
+use crate::{input, Stage};
 
 pub fn create_frame(
     ctx: &Context,
@@ -13,7 +13,7 @@ pub fn create_frame(
     stage: &mut Stage,
     cast: &mut Option<Cast>,
 ) -> FullOutput {
-    let raw_input = raw_input_from_frame_input(input);
+    let raw_input = input::to_raw_input(input);
 
     ctx.run(raw_input, |ctx| {
         egui::Area::new("menu")
@@ -120,30 +120,4 @@ fn spell_book(ui: &mut Ui, state: &mut Stage, command: &mut Option<Cast>) {
             }
         }
     }
-}
-
-fn raw_input_from_frame_input(frame_input: &FrameInput) -> RawInput {
-    let mut raw_input = RawInput::default();
-
-    let cursor_pos = egui::pos2(
-        frame_input.cursor_position.0 as f32,
-        frame_input.cursor_position.1 as f32,
-    );
-
-    if frame_input.btn_lmb {
-        raw_input.events.push(egui::Event::PointerButton {
-            pos: cursor_pos,
-            button: egui::PointerButton::Primary,
-            pressed: true,
-            modifiers: egui::Modifiers::default(),
-        });
-        raw_input.events.push(egui::Event::PointerButton {
-            pos: cursor_pos,
-            button: egui::PointerButton::Primary,
-            pressed: false,
-            modifiers: egui::Modifiers::default(),
-        });
-    }
-
-    raw_input
 }

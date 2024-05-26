@@ -1,3 +1,4 @@
+use egui::RawInput;
 use gamedata::creatures::Creature;
 use logic::command;
 use logic::command::{Cast, Command};
@@ -15,12 +16,12 @@ use crate::{gridpos, Stage};
 
 #[derive(Default)]
 pub struct FrameInput {
-    pub cursor_position: (i32, i32),
-    pub btn_lmb: bool,
-    pub btn_rmb: bool,
-    pub key_d: bool,
-    pub key_w: bool,
-    pub quit: bool,
+    cursor_position: (i32, i32),
+    btn_lmb: bool,
+    btn_rmb: bool,
+    key_d: bool,
+    key_w: bool,
+    quit: bool,
 }
 
 pub struct FrameData {
@@ -117,6 +118,32 @@ pub fn process_input(
             command: None,
         },
     }
+}
+
+pub fn to_raw_input(frame_input: &FrameInput) -> RawInput {
+    let mut raw_input = RawInput::default();
+
+    let cursor_pos = egui::pos2(
+        frame_input.cursor_position.0 as f32,
+        frame_input.cursor_position.1 as f32,
+    );
+
+    if frame_input.btn_lmb {
+        raw_input.events.push(egui::Event::PointerButton {
+            pos: cursor_pos,
+            button: egui::PointerButton::Primary,
+            pressed: true,
+            modifiers: egui::Modifiers::default(),
+        });
+        raw_input.events.push(egui::Event::PointerButton {
+            pos: cursor_pos,
+            button: egui::PointerButton::Primary,
+            pressed: false,
+            modifiers: egui::Modifiers::default(),
+        });
+    }
+
+    raw_input
 }
 
 fn get_mouse_position(event_pump: &mut EventPump) -> (i32, i32) {
