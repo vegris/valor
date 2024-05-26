@@ -1,8 +1,9 @@
 use egui::epaint::{ClippedShape, RectShape};
-use egui::{Context, FullOutput, Rect, Shape, TextureId, Ui};
+use egui::{Context, FullOutput, Shape, TextureId, Ui};
 use gamedata::gui::{Button, ButtonState, Texture};
 use gamedata::spells::Spell;
 use logic::command::Cast;
+use sdl2::rect::Rect;
 
 use crate::input::FrameInput;
 use crate::{input, Stage};
@@ -12,10 +13,10 @@ pub fn create_frame(
     input: &FrameInput,
     stage: &mut Stage,
     cast: &mut Option<Cast>,
-) -> FullOutput {
+) -> Vec<(Rect, Texture)> {
     let raw_input = input::to_raw_input(input);
 
-    ctx.run(raw_input, |ctx| {
+    let full_output = ctx.run(raw_input, |ctx| {
         egui::Area::new("menu")
             .fixed_pos((0., 556.))
             .show(ctx, |ui| menu(ui, stage));
@@ -25,10 +26,12 @@ pub fn create_frame(
                 .fixed_pos((400. - 310., 0.))
                 .show(ctx, |ui| spell_book(ui, stage, cast));
         }
-    })
+    });
+
+    to_shapes(full_output)
 }
 
-pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, u64)> {
+fn to_shapes(output: FullOutput) -> Vec<(Rect, Texture)> {
     output
         .shapes
         .into_iter()
@@ -41,7 +44,16 @@ pub fn output_to_shapes(output: FullOutput) -> Vec<(Rect, u64)> {
                         ..
                     }),
                 ..
-            } => Some((rect, texture_id)),
+            } => {
+                let rect = Rect::new(
+                    rect.min.x as i32,
+                    rect.min.y as i32,
+                    rect.width() as u32,
+                    rect.height() as u32,
+                );
+                let texture = texture_id.try_into().unwrap();
+                Some((rect, texture))
+            }
             _ => None,
         })
         .collect()

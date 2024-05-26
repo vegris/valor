@@ -130,7 +130,7 @@ fn main() -> AnyWay {
         let frame_input = input::gather_input(&mut event_pump);
 
         let mut cast = None;
-        let full_output = gui::create_frame(&ctx, &frame_input, &mut stage, &mut cast);
+        let shapes = gui::create_frame(&ctx, &frame_input, &mut stage, &mut cast);
 
         let frame_data = input::process_input(&game_state, &frame_input, &mut stage, cast);
 
@@ -148,8 +148,6 @@ fn main() -> AnyWay {
         }
 
         animations.update(dt, &mut resource_registry);
-
-        let shapes = gui::output_to_shapes(full_output);
 
         graphics_.canvas.clear();
         graphics::draw(

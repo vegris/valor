@@ -33,7 +33,7 @@ pub fn draw(
     graphics: &mut Graphics,
     animations: &Animations,
     rr: &mut ResourceRegistry,
-    shapes: Vec<(egui::Rect, u64)>,
+    shapes: Vec<(Rect, Texture)>,
     stage: &Stage,
 ) -> AnyWay {
     let canvas = &mut graphics.canvas;
@@ -83,18 +83,13 @@ pub fn draw(
         Rect::new(0, 556, 800, 44),
     )?;
 
-    for (rect, texture_id) in shapes.iter() {
-        let texture = (*texture_id).try_into().unwrap();
-
-        match texture {
+    for (rect, texture) in shapes.iter() {
+        match *texture {
             Texture::Button(button, _state) => {
                 let sprite = statics.ui.get(button).get(ButtonState::Base);
                 let texture = sprite.surface.as_texture(tc)?;
 
-                let x = rect.min.x as i32;
-                let y = rect.min.y as i32;
-
-                canvas.copy(&texture, None, Rect::new(x, y, sprite.width, sprite.height))?;
+                canvas.copy(&texture, None, *rect)?;
             }
             Texture::Spell(_) => {}
         }
@@ -108,19 +103,14 @@ pub fn draw(
         )?;
     }
 
-    for (rect, texture_id) in shapes.iter() {
-        let texture = (*texture_id).try_into().unwrap();
-
-        match texture {
+    for (rect, texture) in shapes.iter() {
+        match *texture {
             Texture::Button(..) => {}
             Texture::Spell(spell) => {
                 let sprite = statics.spells.get(spell);
                 let texture = sprite.surface.as_texture(tc)?;
 
-                let x = rect.min.x as i32;
-                let y = rect.min.y as i32;
-
-                canvas.copy(&texture, None, Rect::new(x, y, sprite.width, sprite.height))?;
+                canvas.copy(&texture, None, *rect)?;
             }
         }
     }
