@@ -49,34 +49,116 @@ pub fn draw(
     set_cursor(&statics.cursors, state, frame_data, is_animating);
 
     if !is_animating {
-        highlight_cells(canvas, statics, state.reachable_cells())?;
-        highlight_cells(
-            canvas,
-            statics,
-            &gather_highlighted_cells(state, frame_data),
-        )?;
+        highlight_cells(canvas, statics, state, frame_data)?;
     }
 
     draw_units(canvas, tc, statics, rr, state, animations)?;
 
-    for animation in animations.entity.iter() {
-        let spell_animation = rr.get_spell_animation(animation.spell_animation);
-        let frame = spell_animation.frames_count() as f32 * animation.progress.progress();
-        let sprite = spell_animation.get_frame(frame as usize).unwrap();
-        let texture = sprite.surface.as_texture(tc)?;
+    draw_entities(canvas, tc, rr, animations)?;
 
-        canvas.copy(
-            &texture,
-            None,
-            Rect::new(
-                animation.position.0,
-                animation.position.1,
-                sprite.width,
-                sprite.height,
-            ),
-        )?;
+    draw_gui(canvas, tc, statics, stage, shapes)?;
+
+    Ok(())
+}
+
+fn draw_battlefield(canvas: &mut WindowCanvas, statics: &Statics) -> AnyWay {
+    canvas.copy(
+        statics.textures.get(StaticTexture::Battlefield),
+        None,
+        sdl2::rect::Rect::new(0, 0, 800, 556),
+    )?;
+
+    for x in GridPos::X_RANGE {
+        for y in GridPos::Y_RANGE {
+            canvas.copy(
+                statics.textures.get(StaticTexture::GridCell),
+                None,
+                gridpos::bounding_rect(GridPos::new(x, y)),
+            )?;
+        }
     }
 
+    Ok(())
+}
+
+fn draw_heroes(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+) -> AnyWay {
+    for side in Side::iter() {
+        if let Some(hero) = &statics.heroes[side as usize] {
+            hero.draw(canvas, tc, side, heroes::Animation::Idle, 0)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn highlight_cells(
+    canvas: &mut WindowCanvas,
+    statics: &Statics,
+    state: &GameState,
+    frame_data: &FrameData,
+) -> AnyWay {
+    for cell in state.reachable_cells() {
+        highlight_cell(canvas, statics, *cell)?;
+    }
+
+    for cell in gather_highlighted_cells(state, frame_data) {
+        highlight_cell(canvas, statics, cell)?;
+    }
+
+    Ok(())
+}
+
+fn highlight_cell(
+    canvas: &mut WindowCanvas,
+    statics: &Statics,
+    cell: GridPos,
+) -> Result<(), String> {
+    canvas.copy(
+        statics.textures.get(StaticTexture::GridCellShadow),
+        None,
+        gridpos::bounding_rect(cell),
+    )
+}
+
+fn draw_units(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+    rr: &mut ResourceRegistry,
+    state: &GameState,
+    animations: &Animations,
+) -> AnyWay {
+    let mut units = state.units();
+    units.sort_unstable_by_key(|&handle| {
+        let alive = state.get_stack(handle).is_alive();
+        let position = animations.creature[&handle].position;
+
+        (alive, (position.y, position.x))
+    });
+
+    let is_animating = animations.is_animating();
+
+    for handle in units {
+        let is_current = state.is_current(handle) && !is_animating;
+        let stack = state.get_stack(handle);
+        let animation_state = animations.creature.get(&handle).unwrap();
+        stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
+    }
+
+    Ok(())
+}
+
+fn draw_gui(
+    canvas: &mut WindowCanvas,
+    tc: &TextureCreator<WindowContext>,
+    statics: &Statics,
+    stage: &Stage,
+    shapes: Vec<(Rect, Texture)>,
+) -> AnyWay {
     canvas.copy(
         statics.textures.get(StaticTexture::MenuBackground),
         None,
@@ -118,77 +200,29 @@ pub fn draw(
     Ok(())
 }
 
-fn draw_battlefield(canvas: &mut WindowCanvas, statics: &Statics) -> AnyWay {
-    canvas.copy(
-        statics.textures.get(StaticTexture::Battlefield),
-        None,
-        sdl2::rect::Rect::new(0, 0, 800, 556),
-    )?;
-
-    for x in GridPos::X_RANGE {
-        for y in GridPos::Y_RANGE {
-            canvas.copy(
-                statics.textures.get(StaticTexture::GridCell),
-                None,
-                gridpos::bounding_rect(GridPos::new(x, y)),
-            )?;
-        }
-    }
-
-    Ok(())
-}
-
-fn draw_heroes(
+fn draw_entities(
     canvas: &mut WindowCanvas,
     tc: &TextureCreator<WindowContext>,
-    statics: &Statics,
-) -> AnyWay {
-    for side in Side::iter() {
-        if let Some(hero) = &statics.heroes[side as usize] {
-            hero.draw(canvas, tc, side, heroes::Animation::Idle, 0)?;
-        }
-    }
-
-    Ok(())
-}
-
-fn highlight_cells(canvas: &mut WindowCanvas, statics: &Statics, cells: &[GridPos]) -> AnyWay {
-    for cell in cells {
-        canvas.copy(
-            statics.textures.get(StaticTexture::GridCellShadow),
-            None,
-            gridpos::bounding_rect(*cell),
-        )?;
-    }
-
-    Ok(())
-}
-
-fn draw_units(
-    canvas: &mut WindowCanvas,
-    tc: &TextureCreator<WindowContext>,
-    statics: &Statics,
     rr: &mut ResourceRegistry,
-    state: &GameState,
     animations: &Animations,
 ) -> AnyWay {
-    let mut units = state.units();
-    units.sort_unstable_by_key(|&handle| {
-        let alive = state.get_stack(handle).is_alive();
-        let position = animations.creature[&handle].position;
+    for animation in animations.entity.iter() {
+        let spell_animation = rr.get_spell_animation(animation.spell_animation);
+        let frame = spell_animation.frames_count() as f32 * animation.progress.progress();
+        let sprite = spell_animation.get_frame(frame as usize).unwrap();
+        let texture = sprite.surface.as_texture(tc)?;
 
-        (alive, (position.y, position.x))
-    });
-
-    let is_animating = animations.is_animating();
-
-    for handle in units {
-        let is_current = state.is_current(handle) && !is_animating;
-        let stack = state.get_stack(handle);
-        let animation_state = animations.creature.get(&handle).unwrap();
-        stack::draw(stack, animation_state, canvas, rr, tc, is_current, statics)?;
+        canvas.copy(
+            &texture,
+            None,
+            Rect::new(
+                animation.position.0,
+                animation.position.1,
+                sprite.width,
+                sprite.height,
+            ),
+        )?;
     }
-
     Ok(())
 }
 
