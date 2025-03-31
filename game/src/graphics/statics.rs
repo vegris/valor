@@ -28,7 +28,7 @@ impl<'a> Statics<'a> {
         tc: &'a TextureCreator<WindowContext>,
         ttf_context: &'a sdl2::ttf::Sdl2TtfContext,
     ) -> AnyHow<Self> {
-        let font_path = "/usr/share/fonts/TTF/OpenSans-Bold.ttf";
+        let font_path = &config.ttf_font;
         let font_size = 16;
 
         let heroes = config.armies.map(|army| {

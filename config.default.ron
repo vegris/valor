@@ -1,5 +1,6 @@
 Config(
     game_folder: "path_to_game/HoMM 3 Complete",
+    ttf_font: "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
     battlefield: DRTR,
     music: true,
     volume: 20,

@@ -7,6 +7,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct Config {
     pub game_folder: String,
+    pub ttf_font: String,
     pub battlefield: Battlefield,
     pub music: bool,
     pub volume: i32,
