@@ -1,6 +1,6 @@
 Config(
-    battlefield: LAVA,
-    music: false,
+    battlefield: DRTR,
+    music: true,
     volume: 20,
     armies: (
         Army(
