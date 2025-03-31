@@ -49,7 +49,7 @@ impl<'a> Graphics<'a> {
 
         let canvas = sdl_context
             .video()?
-            .window("Rust", 800, 600)
+            .window("Valor", 800, 600)
             .position_centered()
             .build()?
             .into_canvas()
