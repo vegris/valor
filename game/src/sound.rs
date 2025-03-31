@@ -35,11 +35,11 @@ pub fn initialize(config: &Config) -> AnyWay {
     Ok(())
 }
 
-pub fn setup_music(rr: &mut ResourceRegistry) -> AnyWay {
+pub fn setup_music(config: &Config, rr: &mut ResourceRegistry) -> AnyWay {
     let sound = ManuallyDrop::new(rr.load_sound(&start_sound())?);
     START_CHANNEL.play(&sound, 0)?;
 
-    let music = ManuallyDrop::new(mixer::Music::from_file(music_track())?);
+    let music = ManuallyDrop::new(mixer::Music::from_file(music_track(config))?);
     mixer::set_channel_finished(move |ch| {
         if ch == START_CHANNEL {
             music.play(-1).unwrap();
@@ -75,8 +75,7 @@ fn start_sound() -> String {
         .unwrap()
 }
 
-fn music_track() -> PathBuf {
-    const MUSIC_PATH: &str = "/home/vsevolod/Games/HoMM3/drive_c/Games/HoMM3/Mp3";
+fn music_track(config: &Config) -> PathBuf {
     const MUSIC_TRACK_COUNT: usize = 4;
 
     let track_name = (1..=MUSIC_TRACK_COUNT)
@@ -84,5 +83,7 @@ fn music_track() -> PathBuf {
         .map(|choice| format!("COMBAT0{}.MP3", choice))
         .unwrap();
 
-    [MUSIC_PATH, &track_name].iter().collect()
+    [config.game_folder.as_str(), "Mp3", &track_name]
+        .iter()
+        .collect()
 }

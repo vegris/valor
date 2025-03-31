@@ -1,4 +1,5 @@
 Config(
+    game_folder: "path_to_game/HoMM 3 Complete",
     battlefield: DRTR,
     music: true,
     volume: 20,

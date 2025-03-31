@@ -102,7 +102,7 @@ fn main() -> AnyWay {
     sound::initialize(&config)?;
 
     // Открытие файлов с ресурсами
-    let mut resource_registry = ResourceRegistry::init();
+    let mut resource_registry = ResourceRegistry::init(&config);
 
     let mut graphics_ =
         Graphics::init(&sdl_context, &ttf_context, &config, &mut resource_registry)?;
@@ -115,7 +115,7 @@ fn main() -> AnyWay {
     let mut animations = Animations::init(&game_state, &mut resource_registry);
 
     if config.music {
-        sound::setup_music(&mut resource_registry)?;
+        sound::setup_music(&config, &mut resource_registry)?;
     }
 
     let ctx = egui::Context::default();

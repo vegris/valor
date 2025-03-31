@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::path::PathBuf;
 
 use common::error::AnyHow;
 use common::EnumIndex;
@@ -15,6 +16,8 @@ use strum::{EnumCount, IntoEnumIterator};
 
 pub mod images;
 pub mod spritesheets;
+
+use crate::config::Config;
 
 use self::images::{PaletteImage, StaticImage};
 use self::spritesheets::{AnimationGroup, SpriteGroup, SpriteSheetSingle};
@@ -42,10 +45,17 @@ struct CreatureResources {
 }
 
 impl ResourceRegistry {
-    pub fn init() -> Self {
-        let pcx_archive = LodIndex::open(PCX_ARCHIVE);
-        let def_archive = LodIndex::open(DEF_ARCHIVE);
-        let snd_archive = SndIndex::open(SND_ARCHIVE);
+    pub fn init(config: &Config) -> Self {
+        let [pcx_path, def_path, snd_path] =
+            [PCX_ARCHIVE, DEF_ARCHIVE, SND_ARCHIVE].map(|filename| {
+                [config.game_folder.as_str(), "Data", filename]
+                    .iter()
+                    .collect::<PathBuf>()
+            });
+
+        let pcx_archive = LodIndex::open(pcx_path);
+        let def_archive = LodIndex::open(def_path);
+        let snd_archive = SndIndex::open(snd_path);
 
         ResourceRegistry {
             pcx_archive,
