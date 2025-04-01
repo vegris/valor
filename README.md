@@ -1,6 +1,4 @@
-<img src="assets/logo.png" alt="Project Logo" width="200"/>
-
-# Valor
+<img src="assets/logo.png" alt="Project Logo" width="500"/>
 
 A work in progress implementation of Heroes III Battle Mode written in Rust.
 
