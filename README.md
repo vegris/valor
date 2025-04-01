@@ -15,4 +15,4 @@ A work in progress implementation of Heroes III Battle Mode written in Rust.
 
 ## License
 
-This project is licensed under the [GNU General Public License v2.0](LICENSE).
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
